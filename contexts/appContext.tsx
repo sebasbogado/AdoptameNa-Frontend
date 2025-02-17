@@ -1,16 +1,20 @@
 'use client'
 
 import { createContext, useContext, useState } from "react"
+import { ReactNode } from "react";
 
-const AppContext = createContext()
 
+
+interface AppProviderProps {
+  children: ReactNode;
+}
+const AppContext = createContext(null);
 
 export const useAppContext = () => {
     return useContext(AppContext)
 }
 
-
-export const AppProvider = ({children}) => {
+export const AppProvider = ({ children }: AppProviderProps) => {
     const [cartItems, setCartItems] = useState([])
     let values = {cartItems, setCartItems}
     return (

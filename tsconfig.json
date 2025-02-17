@@ -27,6 +27,6 @@
       "@services/*": ["./services/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/layout.js", "app/page.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/layout.ts", "app/page.ts", "hooks/useCustomEffect.js"],
   "exclude": ["node_modules"]
 }
