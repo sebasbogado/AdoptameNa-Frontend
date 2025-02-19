@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
+    "adoptame-na": "file:",
     "axios": "^1.7.8",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.3",
