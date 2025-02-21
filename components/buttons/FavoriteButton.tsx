@@ -11,7 +11,7 @@ interface HeartButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 const FavoriteButton: React.FC<HeartButtonProps> = ({variant = "desactivated", size = "md", className, ...props }) => {
-  const baseStyles = "bg-btn-favorite text-btn-favorite-text rounded-full transition-all duration-200 flex items-center  justify-center";
+  const baseStyles = "bg-btn-favorite text-btn-favorite-text rounded-full transition-all duration-200 flex items-center  justify-center w-fit";
 
   const sizes = {
     sm: "p-2 w-8 h-8", 
