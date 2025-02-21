@@ -7,7 +7,7 @@ interface TrashButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 const TrashButton: React.FC<TrashButtonProps> = ({ size = "md", className, ...props }) => {
-  const baseStyles = "bg-btn-trash text-btn-danger rounded-full transition-all duration-200 flex items-center  justify-center";
+  const baseStyles = "bg-btn-trash text-btn-danger rounded-full transition-all duration-200 flex items-center  justify-center w-fit";
 
   const sizes = {
     sm: "p-2 w-8 h-8", 
