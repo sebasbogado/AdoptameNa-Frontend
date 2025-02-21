@@ -7,7 +7,7 @@ interface MenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 const MenuButton: React.FC<MenuButtonProps> = ({ size = "md", className, ...props }) => {
-  const baseStyles = "bg-btn-menu text-btn-menu-text rounded-full transition-all duration-200 flex items-center  justify-center";
+  const baseStyles = "bg-btn-menu text-btn-menu-text rounded-full transition-all duration-200 flex items-center  justify-center w-fit";
 
   const sizes = {
     sm: "p-2 w-8 h-8", 
