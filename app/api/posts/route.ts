@@ -8,84 +8,74 @@ export async function GET(req: NextRequest) {
 
 const data = [
     {
-        "author": "Maria Liz Lopez",
-        "title": "Casitas para mascotas",
-        "content": "Casas de madera hechas a mano para perros y gatos. Ayúdame a costear la cirugía de mi gata Leticia.",
-        "price": "250.000 PYG",
-        "contact": "0975 777 777",
-        "image": "https://ruta-de-la-imagen.com/casita.png"
+        "tipo": "marketplace",
+        "titulo": "Casitas de madera para mascotas",
+        "descripcion": "Casas hechas a mano para perros y gatos. Material resistente y de alta calidad.",
+        "precio": "250.000 PYG",
+        "contacto": "0975 777 777"
     },
     {
-        "author": "Ana Sosa",
-        "title": "Snacks saludables para perros",
-        "content": "Snacks naturales y libres de conservantes. Cuida la salud de tu mascota.",
-        "price": "50.000 PYG",
-        "contact": "0981 123 456",
-        "image": "https://ruta-de-la-imagen.com/snacks-perros.png"
+        "tipo": "marketplace",
+        "titulo": "Rascador para gatos",
+        "descripcion": "Rascador grande con múltiples niveles y escondites. Ideal para gatos activos.",
+        "precio": "180.000 PYG",
+        "contacto": "0982 123 456"
     },
     {
-        "author": "Carlos Rojas",
-        "title": "Collares personalizados",
-        "content": "Collares grabados con el nombre de tu mascota y tu número de contacto.",
-        "price": "80.000 PYG",
-        "contact": "0992 654 321",
-        "image": "https://ruta-de-la-imagen.com/collar-personalizado.png"
+        "tipo": "marketplace",
+        "titulo": "Transportadora para perros y gatos",
+        "descripcion": "Jaula transportadora de plástico reforzado con ventilación lateral.",
+        "precio": "150.000 PYG",
+        "contacto": "0961 654 321"
     },
     {
-        "author": "Pet Shop Felicidad",
-        "title": "Juguetes interactivos para gatos",
-        "content": "Juguetes que estimulan el instinto cazador de tu gato. ¡Diversión asegurada!",
-        "price": "60.000 PYG",
-        "contact": "0966 789 123",
-        "image": "https://ruta-de-la-imagen.com/juguete-gato.png"
+        "tipo": "marketplace",
+        "titulo": "Comedero automático para mascotas",
+        "descripcion": "Comedero con temporizador y capacidad de 3 litros. Programable.",
+        "precio": "200.000 PYG",
+        "contacto": "0974 555 888"
     },
     {
-        "author": "Luisa Gómez",
-        "title": "Ropa para mascotas",
-        "content": "Abrigos y camisetas para perros pequeños y medianos. ¡Mantén a tu mascota a la moda!",
-        "price": "100.000 PYG",
-        "contact": "0977 111 222",
-        "image": "https://ruta-de-la-imagen.com/ropa-mascota.png"
+        "tipo": "marketplace",
+        "titulo": "Cama acolchonada para perros",
+        "descripcion": "Cama de tela suave y lavable, disponible en varios tamaños.",
+        "precio": "120.000 PYG",
+        "contacto": "0991 333 222"
     },
     {
-        "author": "Clínica VetCare",
-        "title": "Kits de primeros auxilios para mascotas",
-        "content": "Todo lo que necesitas para emergencias: gasas, antisépticos y más.",
-        "price": "150.000 PYG",
-        "contact": "0998 333 444",
-        "image": "https://ruta-de-la-imagen.com/kit-primeros-auxilios.png"
+        "tipo": "marketplace",
+        "titulo": "Jaula para hámsters con accesorios",
+        "descripcion": "Jaula espaciosa con rueda, túneles y casa incluida.",
+        "precio": "90.000 PYG",
+        "contacto": "0987 444 666"
     },
     {
-        "author": "Esteban Torres",
-        "title": "Camas acolchadas para perros",
-        "content": "Camas suaves y resistentes para el descanso de tu mascota.",
-        "price": "200.000 PYG",
-        "contact": "0961 555 666",
-        "image": "https://ruta-de-la-imagen.com/cama-perro.png"
+        "tipo": "marketplace",
+        "titulo": "Kit de aseo para perros y gatos",
+        "descripcion": "Incluye cepillo, cortaúñas y guante removedor de pelo.",
+        "precio": "80.000 PYG",
+        "contacto": "0972 666 555"
     },
     {
-        "author": "Dulces Patitas",
-        "title": "Galletas artesanales para perros",
-        "content": "Hechas con ingredientes naturales y sin azúcares añadidos.",
-        "price": "45.000 PYG",
-        "contact": "0974 777 888",
-        "image": "https://ruta-de-la-imagen.com/galletas-perro.png"
+        "tipo": "marketplace",
+        "titulo": "Correa retráctil para perros",
+        "descripcion": "Correa de 5 metros con sistema de frenado. Ideal para paseos.",
+        "precio": "70.000 PYG",
+        "contacto": "0965 777 999"
     },
     {
-        "author": "Vet. Ana Sosa",
-        "title": "Vitaminas para gatos",
-        "content": "Suplementos vitamínicos para fortalecer el sistema inmune de tu felino.",
-        "price": "70.000 PYG",
-        "contact": "0982 999 000",
-        "image": "https://ruta-de-la-imagen.com/vitaminas-gato.png"
+        "tipo": "marketplace",
+        "titulo": "Fuente de agua para mascotas",
+        "descripcion": "Fuente automática con filtro de carbón. Mantiene el agua fresca.",
+        "precio": "150.000 PYG",
+        "contacto": "0993 888 777"
     },
     {
-        "author": "Juan Pérez",
-        "title": "Transportadoras para mascotas",
-        "content": "Jaulas seguras y cómodas para transportar a tu perro o gato.",
-        "price": "300.000 PYG",
-        "contact": "0991 111 222",
-        "image": "https://ruta-de-la-imagen.com/transportadora.png"
+        "tipo": "marketplace",
+        "titulo": "Chaleco salvavidas para perros",
+        "descripcion": "Chaleco con asas y ajuste seguro. Perfecto para días de playa o piscina.",
+        "precio": "130.000 PYG",
+        "contacto": "0981 111 222"
     },
     {
         "author": "Vet. Ana Sosa",
