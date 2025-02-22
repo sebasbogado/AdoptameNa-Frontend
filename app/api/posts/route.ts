@@ -1,4 +1,12 @@
-[
+import { NextRequest, NextResponse } from "next/server";
+
+
+//controller
+export async function GET(req: NextRequest) {
+    return NextResponse.json({hola:data}, {status:200})
+}
+
+const data = [
     {
         "author": "Maria Liz Lopez",
         "title": "Casitas para mascotas",
@@ -560,4 +568,4 @@
         "encontrado": false,
         "descripcion": "Mi gatito Tom se perdió en el mercado. Es negro con ojos verdes, si lo ven, por favor avísenme."
     }
-]
+] 
