@@ -8,7 +8,7 @@ import Banners from '@components/banners'
 import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
 import petsServices from '@services/petsServices'
-import PetCard from '@components/petCard'
+import PetCard from '@components/petCard/petCard'
 
 // Definimos la interfaz para una mascota
 interface Pet {
@@ -37,6 +37,7 @@ export default function Page() {
         <div className='flex flex-col gap-5'>
             <h1>Dashboard {cartItems}</h1>
             <Banners />
+            <PetCard></PetCard>
             <Button onClick={() => {
                 router.push("dashboard/5")
             }}>
