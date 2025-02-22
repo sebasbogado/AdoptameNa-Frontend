@@ -16,19 +16,24 @@ interface User{
   
 export default function Page() {
     const user = {
-        name: 'John Doe',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+        name: 'Jorge Daniel Figueredo Amarilla',
+        description: 'Miembro de MymbaUni, en mis ratos libres me gusta rescatar gatitos y participar de campañas de recaudación de fondos.',
     }  
+    const images = [
+        "profile/slider/img-slider-1.png",
+        
+
+      ];
     return (
         <div className="relative w-full">
         {/* Banner */}
-        <Banners />
+        <Banners images={images} />
 
         {/* User Details */}
-        <div className="absolute top-[40vh]  left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5 w-[50vw]">
-            <h1 className="text-3xl font-bold">{user.name}</h1>
-            <p className="text-foreground">5 Publicaciones</p>
-            <p className="mt-2 text-foreground text-lg">{user.description}</p>
+        <div className="absolute top-[60vh] p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5 w-[50vw]">
+            <h1 className="text-4xl font-bold">{user.name}</h1>
+            <p className="text-foreground text-2xl">5 Publicaciones</p>
+            <p className="mt-2 text-foreground text-2xl">{user.description}</p>
         </div>
 
         {/* Top button section */}
