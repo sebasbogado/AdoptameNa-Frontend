@@ -14,7 +14,7 @@ const CardText = (post) => {
                 <div className="flex gap-1 flex-wrap max-h-16 overflow-hidden">
                 <PostsTags postType="adoption" iconType="race" data="2 años"></PostsTags>
                 </div>
-                <p className="text-xs">{post.author}Vet Ptaricia Sosa</p>
+                <p className="text-xs text-blue-gray-700">{post.author}Vet Ptaricia Sosa</p>
                 <p className="text-sm min-h-16 max-h-16 overflow-clip text-ellipsis">{post.description}Description Bigotes fue rescatado de la placita, le encontramos en una caja cuando era un bebé pequenhito que no podia comer solo y tomaba biberon</p>
             </div>
         </div>
