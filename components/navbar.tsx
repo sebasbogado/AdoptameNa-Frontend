@@ -17,33 +17,33 @@ export default function Navbar() {
                 </Link>
 
                 <div className="hidden items-center gap-8 md:flex">
-                    <Link href="/" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/" className="text-lg font-bold text-black hover:text-purple-600">
                         Inicio
                     </Link>
-                    <Link href="/voluntariado" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/voluntariado" className="text-lg font-bold text-black hover:text-purple-600">
                         Voluntariado
                     </Link>
-                    <Link href="/adopcion" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/adopcion" className="text-lg font-bold text-black hover:text-purple-600">
                         Adopción
                     </Link>
-                    <Link href="/extraviados" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/extraviados" className="text-lg font-bold text-black hover:text-purple-600">
                         Extraviados
                     </Link>
-                    <Link href="/blog" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/blog" className="text-lg font-bold text-black hover:text-purple-600">
                         Blog
                     </Link>
-                    <Link href="/tienda" className="text-lg font-bold text-black hover:text-secondary">
+                    <Link href="/tienda" className="text-lg font-bold text-black hover:text-purple-600">
                         Tienda
                     </Link>
                 </div>
                 <div className="flex space-x-4">
                     <Link href="/signup">
-                        <button className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition">
+                        <button className="bg-purple-600 text-white border border-purple-600 px-4 py-2 rounded-lg hover:bg-orange-600 border-orange-600 transition">
                             Crear Cuenta
                         </button>
                     </Link>
                     <Link href="/login">
-                        <button className="bg-white text-primary border border-primary px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                        <button className="bg-white text-blue-500 border border-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
                             Iniciar Sesión
                         </button>
                     </Link>
