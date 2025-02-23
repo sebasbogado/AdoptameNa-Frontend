@@ -36,6 +36,9 @@ module.exports = withMT({
         "btn-menu-text": "var(--btn-menu-text)",
 
       },
+      fontFamily: {
+        roboto: ['Roboto', 'sans-serif'],
+      },
     },
   },
   plugins: [],
