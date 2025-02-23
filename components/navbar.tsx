@@ -39,7 +39,7 @@ export default function Navbar() {
                 </div>
                 <div className="flex space-x-4">
                     <Link href="/signup">
-                        <button className="bg-purple-600 text-white border border-purple-600 px-4 py-2 rounded-lg hover:bg-orange-600 border-orange-600 transition">
+                        <button className="bg-purple-600 text-white border border-purple-600 px-4 py-2 rounded-lg hover:bg-orange-600 hover:border-orange-600 transition">
                             Crear Cuenta
                         </button>
                     </Link>
