@@ -1,9 +1,11 @@
 import { useAppContext } from "@/contexts/appContext";
+import UserHeader from "@/components/userHeader"
 import Image from "next/image";
 import Link from "next/link";
 
 
 export default function Navbar() {
+    const { currentUser } = useAppContext(); // Obtiene el usuario actual del contexto
     return (
         <header className="w-full border-b">
             <nav className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -37,18 +39,22 @@ export default function Navbar() {
                         Tienda
                     </Link>
                 </div>
-                <div className="flex space-x-4">
-                    <Link href="/signup">
-                        <button className="bg-purple-600 text-white border border-purple-600 px-4 py-2 rounded-lg hover:bg-orange-600 hover:border-orange-600 transition">
-                            Crear Cuenta
-                        </button>
-                    </Link>
-                    <Link href="/login">
-                        <button className="bg-white text-blue-500 border border-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
-                            Iniciar Sesión
-                        </button>
-                    </Link>
-                </div>
+                {currentUser ? (
+                    <UserHeader />
+                ) : (
+                    <div className="flex space-x-4">
+                        <Link href="/signup">
+                            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Crear Cuenta
+                            </button>
+                        </Link>
+                        <Link href="/login">
+                            <button className="bg-white text-blue-500 border border-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
+                                Iniciar Sesión
+                            </button>
+                        </Link>
+                    </div>
+                )}
             </nav>
         </header>
     )
