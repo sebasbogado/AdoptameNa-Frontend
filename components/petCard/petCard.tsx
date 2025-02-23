@@ -1,28 +1,15 @@
 import React from "react";
-import clsx from 'clsx'
-import Link from 'next/link'
+import clsx from "clsx";
 import CardImage from "@components/petCard/cardImage";
+import CardText from "./cardText";
+import FavoriteButton from "../buttons/FavoriteButton";
 
-export default function PetCard({ className = '', pet }) {
+export default function PetCard({ className = "", pet, post }) {
     return (
-        <div className={clsx(['w-60 rounded-xl bg-[#F8F7F7] flex flex-col overflow-hidden', className])}>
-            <div className="relative">
-                <CardImage></CardImage>
-            </div>
-            <div className="px-2 py-1 flex flex-col gap-1">
-                <div className="">
-                    <span className="">Nombre del Perrito</span>
-                    <p className="text-gray-700 text-sm leading-4">Pequeña descripción del perrito</p>
-                </div>
-                <div className="flex justify-between items-center border-t-2 border-gray-300 pt-1 mt-1">
-                    <span className="font-semibold">Algo</span>
-                    <Link href={`/dashboard/${pet?.id}`}>
-                    <button className="flex items-center bg-yellow-800 text-white rounded-xl px-2 text-sm">
-                        <span>Boton</span>
-                    </button>
-                    </Link>
-                </div>
-            </div>
-    </div>
-)
+        <div className={clsx("max-w-60 w-60 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
+            <FavoriteButton className="absolute top-2 right-2 z-10" />
+            <CardImage/>
+            <CardText />
+        </div>
+    );
 }

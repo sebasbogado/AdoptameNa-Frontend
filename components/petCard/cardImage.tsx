@@ -1,16 +1,21 @@
-import React from 'react';
-import clsx from "clsx";
+import React from "react";
 
+interface CardImageProps {
+    image?: string;
+}
 
-const CardImage = () => {
-    return(<div>
-        <img
-            className="w-auto rounded-sm object-cover object-center"
-            src="https://images.unsplash.com/photo-1682407186023-12c70a4a35e0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2832&q=80"
-            alt="nature image">
-        </img>
-    </div>
-    )
-} 
+const notFoundSrc = "logo.png";
+
+const CardImage: React.FC<CardImageProps> = ({ image }) => {
+    return (
+        <div className="w-60 h-36 rounded-lg overflow-hidden">
+            <img
+                className="w-full h-auto object-cover"
+                src={image || notFoundSrc}
+                alt="Imagen de mascota"
+            />
+        </div>
+    );
+};
 
 export default CardImage;

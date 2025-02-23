@@ -9,6 +9,7 @@ import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
 import petsServices from '@services/petsServices'
 import PetCard from '@components/petCard/petCard'
+import PostsTags from '@/components/petCard/tags'
 
 // Definimos la interfaz para una mascota
 interface Pet {
@@ -49,10 +50,17 @@ export default function Page() {
             {loading && <p>Cargando...</p>}
 
             <div className='grid grid-cols-[repeat(auto-fill,_minmax(230px,_1fr))] gap-4'>
+                <PetCard></PetCard>
+                <PetCard></PetCard>
+                <PetCard></PetCard>
+                <PetCard></PetCard>
+                <PetCard></PetCard>
                 {pets.map((pet) =>
                     <PetCard key={pet.id} pet={pet} />
                 )}
             </div>
+
+            
         </div>
     )
 }

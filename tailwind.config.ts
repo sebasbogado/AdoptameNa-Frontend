@@ -1,5 +1,5 @@
 import withMT from "@material-tailwind/react/utils/withMT";
- 
+
 module.exports = withMT({
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -34,7 +34,10 @@ module.exports = withMT({
         "btn-cta-text": "var(--btn-cta-text)",
         "btn-favorite-text": "var(--btn-favorite-text)",
         "btn-menu-text": "var(--btn-menu-text)",
-
+        //colores para tags y titulos de secciones
+        adoption: "var(--color-adoption)",
+        missing: "var(--color-missing)",
+        volunteering: "var(--color-volunteering)",
       },
     },
   },
