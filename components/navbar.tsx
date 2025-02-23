@@ -1,3 +1,4 @@
+import { useAppContext } from "@/contexts/appContext";
 import Image from "next/image";
 import Link from "next/link";
 
