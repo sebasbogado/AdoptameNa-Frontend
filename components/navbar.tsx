@@ -40,7 +40,7 @@ export default function Navbar() {
                     </Link>
                 </div>
                 {currentUser ? (
-                    <UserHeader />
+                    <UserHeader currentUser={currentUser} />
                 ) : (
                     <div className="flex space-x-4">
                         <Link href="/signup">
