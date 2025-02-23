@@ -1,3 +1,5 @@
+"use client"
+
 import { useAppContext } from "@/contexts/appContext";
 import UserHeader from "@/components/userHeader"
 import Image from "next/image";
@@ -5,7 +7,7 @@ import Link from "next/link";
 
 
 export default function Navbar() {
-    const { currentUser } = useAppContext(); // Obtiene el usuario actual del contexto
+    const { currentUser, cartItems } = useAppContext();
     return (
         <header className="w-full border-b">
             <nav className="container mx-auto flex h-16 items-center justify-between px-4">
