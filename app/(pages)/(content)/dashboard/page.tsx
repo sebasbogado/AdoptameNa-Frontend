@@ -38,7 +38,6 @@ export default function Page() {
         <div className='flex flex-col gap-5'>
             <h1>Dashboard {cartItems}</h1>
             <Banners />
-            <PetCard></PetCard>
             <Button onClick={() => {
                 router.push("dashboard/5")
             }}>
