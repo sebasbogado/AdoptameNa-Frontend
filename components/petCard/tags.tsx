@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 
-const tagBaseClass = 'rounded-md px-1 w-fit border mb-1'
+const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1'
 
 interface TagProps {
     postType: string; // Puede ser cualquier string

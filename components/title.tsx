@@ -26,7 +26,7 @@ const titleText: Record<string, string> = {
 const Title: React.FC<TitleProps> = ({ title, path }) => {
     return (
         <Link href={path}>
-            <div className="flex items-center px-6">
+            <div className="flex items-center px-10">
                 <h1 className={clsx(titleColors[title], "font-bold text-lg")}>
                     {titleText[title]}</h1>
                 <span className={clsx(titleColors[title], "material-symbols-outlined font-material")}>chevron_right</span>

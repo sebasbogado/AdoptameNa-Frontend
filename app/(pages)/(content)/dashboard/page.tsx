@@ -49,7 +49,7 @@ export default function Page() {
             </Button>
             {loading && <p>Cargando...</p>}
             <Title title='adoption' path='adoption'></Title>
-            <div className='flex w-full justify-evenly'>
+            <div className='flex w-full justify-evenly mb-9'>
                 
                     <PetCard></PetCard>
                     <PetCard></PetCard>
@@ -62,7 +62,33 @@ export default function Page() {
               
             </div>
 
+            <Title title='missing' path='missing'></Title>
+            <div className='flex w-full justify-evenly mb-9'>
+                
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    {pets.map((pet) =>
+                        <PetCard key={pet.id} pet={pet} />
+                    )}
+              
+            </div>
 
+            <Title title='blog' path='blog'></Title>
+            <div className='flex w-full justify-evenly mb-9'>
+                
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    {pets.map((pet) =>
+                        <PetCard key={pet.id} pet={pet} />
+                    )}
+              
+            </div>
         </div>
     )
 }
