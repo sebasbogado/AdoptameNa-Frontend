@@ -8,7 +8,7 @@ const notFoundSrc = "logo.png";
 
 const CardImage: React.FC<CardImageProps> = ({ image }) => {
     return (
-        <div className="w-60 h-36 rounded-lg overflow-hidden">
+        <div className="h-36 rounded-lg overflow-hidden">
             <img
                 className="w-full h-auto object-cover"
                 src={image || notFoundSrc}

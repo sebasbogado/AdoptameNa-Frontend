@@ -49,18 +49,20 @@ export default function Page() {
             </Button>
             {loading && <p>Cargando...</p>}
             <Title title='adoption' path='adoption'></Title>
-            <div className='grid grid-cols-[repeat(auto-fill,_minmax(230px,_1fr))] gap-4'>
-                <PetCard></PetCard>
-                <PetCard></PetCard>
-                <PetCard></PetCard>
-                <PetCard></PetCard>
-                <PetCard></PetCard>
-                {pets.map((pet) =>
-                    <PetCard key={pet.id} pet={pet} />
-                )}
+            <div className='flex w-full justify-evenly'>
+                
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    <PetCard></PetCard>
+                    {pets.map((pet) =>
+                        <PetCard key={pet.id} pet={pet} />
+                    )}
+              
             </div>
 
-            
+
         </div>
     )
 }
