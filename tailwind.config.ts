@@ -38,6 +38,8 @@ module.exports = withMT({
         adoption: "var(--color-adoption)",
         missing: "var(--color-missing)",
         volunteering: "var(--color-volunteering)",
+        blog: "var(--color-blog)",
+        marketplace: "var(--color-marketplace)",
       },
     },
   },

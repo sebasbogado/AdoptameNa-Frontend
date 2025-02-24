@@ -29,7 +29,7 @@ const atributesIcons: Record<string, string> = {
 const PostsTags: React.FC<TagProps> = ({ postType, iconType, data }) => {
     return (
         <div className={clsx(tagBaseClass, postColors[postType])}>
-            <span className="material-symbols-outlined font-material align-sub">
+            <span className="material-symbols-outlined font-material align-sub tag-symbol">
                 {atributesIcons[iconType]}
             </span>
             <span className="text-xs">{data}</span>

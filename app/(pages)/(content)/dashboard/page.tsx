@@ -10,6 +10,7 @@ import useCustomEffect from '@/hooks/useCustomEffect'
 import petsServices from '@services/petsServices'
 import PetCard from '@components/petCard/petCard'
 import PostsTags from '@/components/petCard/tags'
+import Title from '@/components/title'
 
 // Definimos la interfaz para una mascota
 interface Pet {
@@ -47,7 +48,7 @@ export default function Page() {
                 Recargar datos
             </Button>
             {loading && <p>Cargando...</p>}
-
+            <Title title='adoption' path='adoption'></Title>
             <div className='grid grid-cols-[repeat(auto-fill,_minmax(230px,_1fr))] gap-4'>
                 <PetCard></PetCard>
                 <PetCard></PetCard>

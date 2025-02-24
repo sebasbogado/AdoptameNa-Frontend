@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 
-.material-symbols-outlined{
+.tag-symbol{
   font-size: 14px !important;
 }
 
@@ -43,6 +43,8 @@
   --color-adoption: #4781FF;
   --color-missing: #9747FF;
   --color-volunteering: #D27E00;
+  --color-blog: #538A45;
+  --color-marketplace: #FF7847;
 }
 
 @media (prefers-color-scheme: dark) {
