@@ -5,8 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Image from "next/image";
-import logo from "@/public/logo.png"; // Asegúrate de que la imagen esté en public/logo.png
-
+import logo from "@/public/logo.png"; 
 export default function Login() {
   const router = useRouter();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
