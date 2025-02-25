@@ -11,6 +11,7 @@ import petsServices from '@services/petsServices'
 import PetCard from '@components/petCard/petCard'
 import PostsTags from '@/components/petCard/tags'
 import Title from '@/components/title'
+import Footer from '@/components/footer'
 
 // Definimos la interfaz para una mascota
 interface Pet {
@@ -89,6 +90,8 @@ export default function Page() {
                     )}
               
             </div>
+
+            <Footer></Footer>
         </div>
     )
 }

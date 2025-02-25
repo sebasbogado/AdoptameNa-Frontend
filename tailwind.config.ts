@@ -40,6 +40,8 @@ module.exports = withMT({
         volunteering: "var(--color-volunteering)",
         blog: "var(--color-blog)",
         marketplace: "var(--color-marketplace)",
+        "primary-brand-color": "var(--primary-brand-color)",
+        "secondary-brand-color": "var(--secondary-brand-color)",
       },
     },
   },

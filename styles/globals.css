@@ -45,6 +45,9 @@
   --color-volunteering: #D27E00;
   --color-blog: #538A45;
   --color-marketplace: #FF7847;
+  /*BRAND COLORS*/
+  --color-primary-brand-color: #A36CC4;
+  --color-secondary-brand-color: #F2AA0F;
 }
 
 @media (prefers-color-scheme: dark) {
