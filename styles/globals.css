@@ -2,3 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+
+  --text-background: #0a0a0a;
+  --text-foreground :#ffffff;
+    /*Buttons*/
+    --btn-primary: #4781FF;
+    --btn-secondary: transparent;
+    --btn-tertiary: transparent;
+    --btn-danger: #8A2628;
+    --btn-action: #F2AA0F;
+    --btn-cta: #9747FF;
+    --btn-menu: #FFFFFF;
+    --btn-trash: #FFFFFF;
+    --btn-favorite: #FFFFFF;
+    /*Buttons text*/
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-text: #4781FF;
+    --btn-tertiary-text: #9747FF;
+    --btn-danger-text: #FFFFFF;
+    --btn-action-text: #FFFFFF;
+    --btn-cta-text: #FFFFFF;
+    --btn-menu-text: #0a0a0a;
+    --btn-favorite-text: #8A2628;
+
+
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+
+    --background: #0a0a0a;
+    --foreground: #FFFFFF;
+
+    --text-background: #FFFFFF;
+    --text-foreground :#0a0a0a;
+
+  
+    /*Buttons*/
+    --btn-primary: #4781FF;
+    --btn-secondary: transparent;
+    --btn-tertiary: transparent;
+    --btn-danger: #8A2628;
+    --btn-action: #F2AA0F;
+    --btn-cta: #9747FF;
+    --btn-menu: #FFFFFF;
+    --btn-trash: #FFFFFF;
+    --btn-favorite: #FFFFFF;
+
+    /*Buttons text*/
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-text: #4781FF;
+    --btn-tertiary-text: #9747FF;
+    --btn-danger-text: #FFFFFF;
+    --btn-action-text: #FFFFFF;
+    --btn-cta-text: #FFFFFF;
+    --btn-menu-text: #0a0a0a;
+    --btn-favorite-text: #8A2628;
+
+    
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
