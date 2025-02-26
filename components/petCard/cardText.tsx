@@ -29,7 +29,7 @@ const dummyData = {
 const tags = {
     tag1: ["race", "mestizo"],
     tag2: ["age", "2 años"],
-    tag3: ["gender", "female"]
+    tag3: ["female", "Hembra"]
 }
 
 
