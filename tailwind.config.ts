@@ -13,7 +13,7 @@ module.exports = withMT({
         foreground: "var(--foreground)",
         "text-foreground": "var(--text-foreground)",
         "text-background": "var(--text-background)",
-        
+        blue: "var(--blue)",
         // Botones
         "btn-primary": "var(--btn-primary)",
         "btn-secondary": "var(--btn-secondary)",
@@ -35,9 +35,9 @@ module.exports = withMT({
         "btn-favorite-text": "var(--btn-favorite-text)",
         "btn-menu-text": "var(--btn-menu-text)",
 
-      },
+      },  
       fontFamily: {
-        roboto: ['Roboto', 'sans-serif'],
+        roboto: "var( --font-family)"
       },
     },
   },
