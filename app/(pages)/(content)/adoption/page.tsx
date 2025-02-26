@@ -1,5 +1,13 @@
+"use client";
+
+import { Listbox } from "@headlessui/react";
+import { useState } from "react";
 import Banners from '@components/banners'
 import PetCard from '@components/petCard'
+
+const ciudades = ["Madrid", "Barcelona", "Valencia", "Sevilla"];
+const mascotas = ["Perro", "Gato", "Ave", "Otro"];
+const edades = ["0-1 años", "1-3 años", "3-5 años", "5+ años"];
 
 const pets = [
     { id: 1, name: "Firulais", description: "Un perrito muy juguetón" },
@@ -20,9 +28,43 @@ const pets = [
 ];
 
 export default function Page() {
+    const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
+    const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
+    const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
     return (
         <div className='flex flex-col gap-5'>
             <Banners />
+
+            <div className="w-full max-w-4xl mx-auto p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    {/* Select Ciudad */}
+                    <CustomSelect
+                        label="Selecciona tu ciudad"
+                        options={ciudades}
+                        selected={selectedCiudad}
+                        setSelected={setSelectedCiudad}
+                    />
+
+                    {/* Select Mascota */}
+                    <CustomSelect
+                        label="Tipo de mascota"
+                        options={mascotas}
+                        selected={selectedMascota}
+                        setSelected={setSelectedMascota}
+                    />
+
+                    {/* Select Edad */}
+                    <CustomSelect
+                        label="Edad"
+                        options={edades}
+                        selected={selectedEdad}
+                        setSelected={setSelectedEdad}
+                    />
+
+                </div>
+            </div>
+
             <section>
                 <h2 className="text-2xl font-bold text-center my-4">Nuestros Perritos</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
@@ -33,4 +75,37 @@ export default function Page() {
             </section>
         </div>
     )
+}
+
+function CustomSelect({
+    label,
+    options,
+    selected,
+    setSelected
+}: {
+    label: string;
+    options: string[];
+    selected: string | null;
+    setSelected: (value: string) => void;
+}) {
+    return (
+        <Listbox value={selected} onChange={setSelected}>
+            <div className="relative">
+                <Listbox.Button className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-left focus:ring-2 focus:ring-blue-500">
+                    {selected || label}
+                </Listbox.Button>
+                <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                    {options.map((option, index) => (
+                        <Listbox.Option
+                            key={index}
+                            value={option}
+                            className="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                        >
+                            {option}
+                        </Listbox.Option>
+                    ))}
+                </Listbox.Options>
+            </div>
+        </Listbox>
+    );
 }
