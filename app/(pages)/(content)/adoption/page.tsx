@@ -25,7 +25,7 @@ export default function Page() {
             <Banners />
             <section>
                 <h2 className="text-2xl font-bold text-center my-4">Nuestros Perritos</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                     {pets.map((pet) => (
                         <PetCard key={pet.id} pet={pet} />
                     ))}
