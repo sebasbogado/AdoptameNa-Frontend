@@ -1,20 +1,63 @@
+"use client"
+
+import { useAppContext } from "@/contexts/appContext";
+import UserHeader from "@/components/userHeader"
 import Image from "next/image";
 import Link from "next/link";
 
 
-export default function Navbar(){
-    return(
-        <div className="w-screen h-16 bg-lime-200 flex justify-between items-center px-3">
-            <span className="font-semibold">Logo</span>
-            <ul className="flex gap-6">
-                <Link href="/dashboard"><li>Inicio</li></Link>
-                <Link href="/volunteering"><li>Voluntariado</li></Link>
-                <Link href="/adoption"><li>Adopción</li></Link>
-                <Link href="/missing"><li>Extraviados</li></Link>
-                <Link href="/blog"><li>Blog</li></Link>
-                <Link href="/marketplace"><li>Tienda</li></Link>
-            </ul>
-            <Link href="/profile">Profile</Link>
-        </div>
+export default function Navbar() {
+    const { currentUser, cartItems } = useAppContext();
+    return (
+        <header className="w-full border-b">
+            <nav className="w-full flex h-16 items-center justify-between px-4">
+                <Link href="/" className="flex items-center">
+                    <Image
+                        src="/logo.png"
+                        alt="Adoptamena logo"
+                        width={140}
+                        height={40}
+                        className="h-10 w-auto"
+                    />
+                </Link>
+
+                <div className="hidden items-center gap-12 md:flex">
+                    <Link href="/" className="text-lg font-bold text-black hover:text-purple-600">
+                        Inicio
+                    </Link>
+                    <Link href="/voluntariado" className="text-lg font-bold text-black hover:text-purple-600">
+                        Voluntariado
+                    </Link>
+                    <Link href="/adopcion" className="text-lg font-bold text-black hover:text-purple-600">
+                        Adopción
+                    </Link>
+                    <Link href="/extraviados" className="text-lg font-bold text-black hover:text-purple-600">
+                        Extraviados
+                    </Link>
+                    <Link href="/blog" className="text-lg font-bold text-black hover:text-purple-600">
+                        Blog
+                    </Link>
+                    <Link href="/tienda" className="text-lg font-bold text-black hover:text-purple-600">
+                        Tienda
+                    </Link>
+                </div>
+                {currentUser ? (
+                    <UserHeader currentUser={currentUser} />
+                ) : (
+                    <div className="flex space-x-4">
+                        <Link href="/signup">
+                            <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition">
+                                Crear Cuenta
+                            </button>
+                        </Link>
+                        <Link href="/login">
+                            <button className="bg-white text-blue-500 border border-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
+                                Iniciar Sesión
+                            </button>
+                        </Link>
+                    </div>
+                )}
+            </nav>
+        </header>
     )
 }

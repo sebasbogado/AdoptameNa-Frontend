@@ -17,6 +17,10 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="es">
+      <head>
+      <link rel="stylesheet" 
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
+      </head>
       <body className={roboto.className}>
         <AppProvider>{children}</AppProvider>
       </body>
