@@ -99,7 +99,7 @@ export default function Page() {
                         <p className="text-red-500">{error}</p>
                     ) : (
                         <div className="grid grid-cols-5 gap-8 mt-2 p-2">
-                            {pets.map((pet, index) => (
+                            {pets.slice(0,5).map((pet, index) => (
                                 <div key={index} className="w-auto h-[35vh] rounded-lg shadow-md overflow-hidden">
                                     <div className='w-full h-[20vh]'>
                                         <Image
@@ -133,7 +133,7 @@ export default function Page() {
                         <p className="text-red-500">{error}</p>
                     ) : (
                         <div className="grid grid-cols-5 gap-8 mt-2 p-2">
-                            {posts.map((post, index) => (
+                            {posts.slice(0,5).map((post, index) => (
                                 <div key={index} className="w-auto h-[35vh] rounded-lg shadow-md overflow-hidden">
                                     <div className='w-full h-[20vh]'>
                                         <Image src={post.image} alt={post.title} width={1000} height={600} className="w-full h-full object-cover rounded-lg" />
