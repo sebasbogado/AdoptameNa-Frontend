@@ -24,72 +24,33 @@ interface Pet {
 
 export default function Page() {
     const router = useRouter()
-    const { cartItems } = useAppContext()
-    const [pets, setPets] = useState<Pet[]>([])
 
-    const { loading, fetch } = useCustomEffect(async () => {
-        return petsServices.getAll()
-    }, {
-        whereOptions: {},
-        after: (res: Pet[] | null) => {
-            setPets(res ?? [])
+    const postDummyData = {
+        postId: "1",
+        postType: "adoption",
+        title: "Arsenio está en adopción",
+        author: "",
+        content: "Encontramos este gatito en un basurero, necesita un hogar amoroso y responsable",
+        date: "18/02/2025",
+        imageUrl: "",
+        tags: {
+            race: "mestizo",
+            age: "2 años",
+            gender: "Hembra"
         }
-    }, [])
+    };
 
     return (
         <div className='flex flex-col gap-5'>
-            <h1>Dashboard {cartItems}</h1>
             <Banners />
-            <Button onClick={() => {
-                router.push("dashboard/5")
-            }}>
-                Ver mascotas
-            </Button>
-            <Button onClick={fetch}>
-                Recargar datos
-            </Button>
-            {loading && <p>Cargando...</p>}
             <Title title='adoption' path='adoption'></Title>
-            <div className='flex w-full justify-evenly mb-9'>
-                
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    {pets.map((pet) =>
-                        <PetCard key={pet.id} pet={pet} />
-                    )}
-              
+            <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-clip '>
             </div>
 
             <Title title='missing' path='missing'></Title>
-            <div className='flex w-full justify-evenly mb-9'>
-                
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    {pets.map((pet) =>
-                        <PetCard key={pet.id} pet={pet} />
-                    )}
-              
-            </div>
 
             <Title title='blog' path='blog'></Title>
-            <div className='flex w-full justify-evenly mb-9'>
-                
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    <PetCard></PetCard>
-                    {pets.map((pet) =>
-                        <PetCard key={pet.id} pet={pet} />
-                    )}
-              
-            </div>
+            
 
             <Footer></Footer>
         </div>
