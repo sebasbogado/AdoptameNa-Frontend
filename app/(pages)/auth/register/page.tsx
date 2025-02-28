@@ -1,19 +1,63 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
-import { Input, Button, Typography, Card, Radio } from "@material-tailwind/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import axios from "axios";
+import { Input, Button, Typography, Card, Radio, Alert } from "@material-tailwind/react";
 import Image from "next/image";
-import logo from "@/public/logo.png"; // Asegúrate de que la imagen esté en public/logo.png
-
+import logo from "@/public/logo.png";
 export default function Page() {
     const [accountType, setAccountType] = useState("persona");
-
+    const [formData, setFormData] = useState({
+        nombre: "",
+        organizacion: "",
+        responsable: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+    });
     const handleAccountTypeChange = (e) => {
         setAccountType(e.target.value);
     };
+    const router = useRouter();
+    const [errors, setErrors] = useState({});
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
+    const validate = () => {
+        let newErrors = {};
+        if (!formData.nombre.match(/^[A-Za-z\s]+$/) || formData.nombre.length > 50) {
+            newErrors.nombre = "Nombre inválido (solo letras, máx. 50 caracteres)";
+        }
+        if (accountType === "organizacion" && (!formData.organizacion || formData.organizacion.length > 50)) {
+            newErrors.organizacion = "Nombre de organización inválido (solo letras, máx. 50 caracteres)";
+        }
+        if (!formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
+            newErrors.email = "Correo inválido";
+        }
+        if (formData.password.length < 6) {
+            newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+        }
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Las contraseñas no coinciden";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validate()) return;
+
+        try {
+            await axios.post("/auth/register", { ...formData, tipo: accountType });
+            router.push("/dashboard");
+        } catch (error) {
+            console.error("Error al registrar", error);
+        }
+    };
 
     return (
         <div>
@@ -45,15 +89,19 @@ export default function Page() {
 
 
                 {accountType === "organizacion" && (
-                    <form className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="text-left">
                             <label className="text-gray-700 font-medium text-sm">Nombre de la Organización</label>
                             <Input
                                 type="text"
                                 name="name"
                                 required
+                                maxLength={50}
                                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                
                             />
+                            {errors.organizacion && <p className="text-red-500 text-sm">{errors.organizacion}</p>}
                         </div>
                         <div className="text-left">
                             <label className="text-gray-700 font-medium text-sm">Nombre del Responsable</label>
@@ -61,8 +109,12 @@ export default function Page() {
                                 type="text"
                                 name="nameResponsable"
                                 required
+                                maxLength={50}
                                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                              
                             />
+                            {errors.nombre && <p className="text-red-500 text-sm">{errors.nombre}</p>}
                         </div>
 
                         <div className="text-left">
@@ -71,8 +123,12 @@ export default function Page() {
                                 type="email"
                                 name="email"
                                 required
+                                maxLength={50}
                                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                
                             />
+                            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                         </div>
                         <div className="text-left">
                             <label className="text-gray-700 font-medium text-sm">Contraseña</label>
@@ -80,84 +136,101 @@ export default function Page() {
                                 type="password"
                                 name="password"
                                 required
+                                maxLength={50}
                                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                               
                             />
+                            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                            <div className="text-left">
+                                <label className="text-gray-700 font-medium text-sm">Confirmar Contraseña</label>
+                                <Input
+                                    type="password"
+                                    name="confirmPassword"
+                                    required
+                                    maxLength={50}
+                                    className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                    onChange={handleChange}
+                                   
+                                />
+                                {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+                            </div>
                         </div>
 
 
                         <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-                            <Typography
-                                as="a"
-                                href="/dashboard"
-                                variant="small"
-                                className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48"
-                            >
+                            <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48" variant="small">
                                 Crear Cuenta
-                            </Typography>
+                            </Button>
+                            <Link href="/auth/login" className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48">Iniciar sesión</Link>
 
-                            <Typography
-                                as="a"
-                                href="/auth/register"
-                                variant="small"
-                                className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48"
-                            >
-                                Iniciar Sesión
-                            </Typography>
                         </div>
                     </form>
                 )}
                 {accountType === "persona" && (
-                    <form className="space-y-4">
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Nombre</label>
-                        <Input
-                            type="text"
-                            name="name"
-                            required
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="text-left">
+                            <label className="text-gray-700 font-medium text-sm">Nombre</label>
+                            <Input
+                                type="text"
+                                name="name"
+                                required
+                                maxLength={50}
+                                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                
+                            />
+                            {errors.nombre && <p className="text-red-500 text-sm">{errors.nombre}</p>}
+                        </div>
 
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Correo</label>
-                        <Input
-                            type="email"
-                            name="email"
-                            required
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                    </div>
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Contraseña</label>
-                        <Input
-                            type="password"
-                            name="password"
-                            required
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                    </div>
+                        <div className="text-left">
+                            <label className="text-gray-700 font-medium text-sm">Correo</label>
+                            <Input
+                                type="email"
+                                name="email"
+                                required
+                                maxLength={50}
+                                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                
+                            />
+                            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                        </div>
+                        <div className="text-left">
+                            <label className="text-gray-700 font-medium text-sm">Contraseña</label>
+                            <Input
+                                type="password"
+                                name="password"
+                                required
+                                maxLength={50}
+                                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                error={errors.password}
+                            />
+                            {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                        </div>
 
+                        <div className="text-left">
+                            <label className="text-gray-700 font-medium text-sm">Confirmar Contraseña</label>
+                            <Input
+                                type="password"
+                                name="confirmPassword"
+                                required
+                                maxLength={50}
+                                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                                onChange={handleChange}
+                                
+                            />
+                            {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
+                        </div>
+                        <div className="flex flex-col items-center justify-center space-y-6 mt-6">
+                            <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48" variant="small">
+                                Crear Cuenta
+                            </Button>
 
-                    <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-                        <Typography
-                            as="a"
-                            href="/dashboard"
-                            variant="small"
-                            className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48"
-                        >
-                            Crear Cuenta
-                        </Typography>
-
-                        <Typography
-                            as="a"
-                            href="/auth/login"
-                            variant="small"
-                            className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48"
-                        >
-                            Iniciar Sesión
-                        </Typography>
-                    </div>
-                </form>
+                            <Link href="/auth/login" className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48">Iniciar sesión</Link>
+                        </div>
+                    </form>
                 )}
 
             </Card>
