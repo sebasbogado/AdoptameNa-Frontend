@@ -5,9 +5,9 @@ import { useState } from "react";
 import Banners from '@components/banners'
 import PetCard from '@components/petCard'
 
-const ciudades = ["Madrid", "Barcelona", "Valencia", "Sevilla"];
-const mascotas = ["Perro", "Gato", "Ave", "Otro"];
-const edades = ["0-1 años", "1-3 años", "3-5 años", "5+ años"];
+const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
+const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
+const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
 const pets = [
     { id: 1, name: "Firulais", description: "Un perrito muy juguetón" },
@@ -66,7 +66,6 @@ export default function Page() {
             </div>
 
             <section>
-                <h2 className="text-2xl font-bold text-center my-4">Nuestros Perritos</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                     {pets.map((pet) => (
                         <PetCard key={pet.id} pet={pet} />
@@ -94,7 +93,7 @@ function CustomSelect({
                 <Listbox.Button className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-left focus:ring-2 focus:ring-blue-500">
                     {selected || label}
                 </Listbox.Button>
-                <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
                     {options.map((option, index) => (
                         <Listbox.Option
                             key={index}
