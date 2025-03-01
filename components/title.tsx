@@ -1,38 +1,29 @@
 import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
+import { titleColor, titleText } from "../types/titles"
 
 interface TitleProps {
-    title: string;
+    title?: string;
+    postType: keyof typeof titleText;
     path: string;
 }
 
-const titleColors: Record<string, string> = {
-    adoption: "text-adoption",
-    missing: "text-missing",
-    volunteering: "text-volunteering",
-    blog: "text-blog",
-    marketplace: "text-marketplace"
-};
+const Title: React.FC<TitleProps> = ({ title, postType, path }) => {
 
-const titleText: Record<string, string> = {
-    adoption: "En adopción",
-    missing: "Extraviados",
-    volunteering: "Voluntariado",
-    blog: "Blog",
-    marketplace: "Tienda"
-};
+    const colorClass = titleColor[postType as keyof typeof titleColor] ?? titleColor.default;
+    const text = title ?? titleText[postType as keyof typeof titleText] ?? titleText.default;
 
-const Title: React.FC<TitleProps> = ({ title, path }) => {
     return (
         <Link href={path}>
             <div className="flex items-center px-10">
-                <h1 className={clsx(titleColors[title], "font-bold text-lg")}>
-                    {titleText[title]}</h1>
-                <span className={clsx(titleColors[title], "material-symbols-outlined font-material")}>chevron_right</span>
+                <h1 className={clsx(colorClass, "font-bold text-lg")}>{text}</h1>
+                <span className={clsx(colorClass, "material-symbols-outlined font-material")}>
+                    chevron_right
+                </span>
             </div>
         </Link>
-    )
+    );
 };
 
 export default Title;

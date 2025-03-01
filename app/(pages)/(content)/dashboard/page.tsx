@@ -43,13 +43,15 @@ export default function Page() {
     return (
         <div className='flex flex-col gap-5'>
             <Banners />
-            <Title title='adoption' path='adoption'></Title>
+            <Title postType='adoption' path='adoption'></Title>
             <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-clip '>
             </div>
 
-            <Title title='missing' path='missing'></Title>
+            <Title postType='missing' path='missing'></Title>
 
-            <Title title='blog' path='blog'></Title>
+            <Title postType='blog' path='blog'></Title>
+
+            <Title title='Nueva seccion' path='blog'></Title>
             
 
             <Footer></Footer>
