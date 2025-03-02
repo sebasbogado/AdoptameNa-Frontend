@@ -2,3 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
+
+.tag-symbol{
+  font-size: 14px !important;
+}
+
+.card-text{
+  margin-top: -15px;
+  position: relative;
+  z-index: 1;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+
+  --text-background: #0a0a0a;
+  --text-foreground: #ffffff;
+  /*Buttons*/
+  --btn-primary: #4781FF;
+  --btn-secondary: transparent;
+  --btn-tertiary: transparent;
+  --btn-danger: #8A2628;
+  --btn-action: #F2AA0F;
+  --btn-cta: #9747FF;
+  --btn-menu: #FFFFFF;
+  --btn-trash: #FFFFFF;
+  --btn-favorite: #FFFFFF;
+  /*Buttons text*/
+  --btn-primary-text: #FFFFFF;
+  --btn-secondary-text: #4781FF;
+  --btn-tertiary-text: #9747FF;
+  --btn-danger-text: #FFFFFF;
+  --btn-action-text: #FFFFFF;
+  --btn-cta-text: #FFFFFF;
+  --btn-menu-text: #0a0a0a;
+  --btn-favorite-text: #8A2628;
+  /*colores para tags y titulos de secciones*/
+  --color-adoption: #4781FF;
+  --color-missing: #9747FF;
+  --color-volunteering: #D27E00;
+  --color-blog: #538A45;
+  --color-marketplace: #FF7847;
+  /*BRAND COLORS*/
+  --color-primary-brand-color: #A36CC4;
+  --color-secondary-brand-color: #F2AA0F;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+
+    --background: #0a0a0a;
+    --foreground: #FFFFFF;
+
+    --text-background: #FFFFFF;
+    --text-foreground: #0a0a0a;
+
+
+    /*Buttons*/
+    --btn-primary: #4781FF;
+    --btn-secondary: transparent;
+    --btn-tertiary: transparent;
+    --btn-danger: #8A2628;
+    --btn-action: #F2AA0F;
+    --btn-cta: #9747FF;
+    --btn-menu: #FFFFFF;
+    --btn-trash: #FFFFFF;
+    --btn-favorite: #FFFFFF;
+
+    /*Buttons text*/
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-text: #4781FF;
+    --btn-tertiary-text: #9747FF;
+    --btn-danger-text: #FFFFFF;
+    --btn-action-text: #FFFFFF;
+    --btn-cta-text: #FFFFFF;
+    --btn-menu-text: #0a0a0a;
+    --btn-favorite-text: #8A2628;
+  }
+}
