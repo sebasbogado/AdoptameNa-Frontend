@@ -7,7 +7,7 @@ import MenuButton from '@/components/buttons/MenuButton';
 import { useAppContext } from '@/contexts/appContext';
 import Banners from '@components/banners';
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 interface User {
     name: string;
     description: string;
@@ -30,38 +30,32 @@ export default function Page() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Función para obtener los posts desde la API
-    const getPosts = async () => {
+    const getData = useCallback(async () => {
         try {
-            const response = await fetch('https://apimocha.com/mariapi/posts');
-            if (!response.ok) throw new Error('Error al obtener los posts');
-            const data: Post[] = await response.json();
-            setPosts(data);
+            const [postsResponse, petsResponse] = await Promise.all([
+                fetch('https://apimocha.com/mariapi/posts'),
+                fetch('https://apimocha.com/mariapi/pets')
+            ]);
+            
+            if (!postsResponse.ok || !petsResponse.ok) {
+                throw new Error('Error al obtener los datos');
+            }
+            
+            const postsData: Post[] = await postsResponse.json();
+            const petsData: Pet[] = await petsResponse.json();
+            
+            setPosts(postsData);
+            setPets(petsData);
         } catch (error) {
-            setError('No se pudieron cargar los posts');
+            setError('No se pudieron cargar los datos');
+        } finally {
+            setLoading(false);
         }
-    };
-
-    // Función para obtener las mascotas desde la API
-    const getPets = async () => {
-        try {
-            const response = await fetch('https://apimocha.com/mariapi/pets');
-            if (!response.ok) throw new Error('Error al obtener las mascotas');
-            const data: Pet[] = await response.json();
-            setPets(data);
-        } catch (error) {
-            setError('No se pudieron cargar las mascotas');
-        }
-    };
+    }, []);
 
     useEffect(() => {
-        const fetchData = async () => {
-            await Promise.all([getPosts(), getPets()]); 
-            setLoading(false);
-        };
-        fetchData();
-    }, []);
+        getData();
+    }, [getData]);
 
     const user: User = {
         name: 'Jorge Daniel Figueredo Amarilla',
@@ -88,7 +82,6 @@ export default function Page() {
                 <Button variant="cta" size="lg">Contactar</Button>
                 <MenuButton size="lg" />
             </div>
-            {/* Pets Section */}
               {/* Pets Section */}
               <div className='container'>
                 <div className="mt-4">
