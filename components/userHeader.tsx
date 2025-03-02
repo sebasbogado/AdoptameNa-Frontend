@@ -11,9 +11,9 @@ interface UserHeaderProps {
 
 const UserHeader = ({ currentUser }: UserHeaderProps) => {
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-white">
+    <div className="flex items-center px-4 py-2 bg-white gap-x-4">
       <Bell className="h-5 w-5 text-amber-500" />
-      <div className="text-center">
+      <div className="text-left">
         <h2 className="text-base font-medium">{currentUser.firstName}</h2>
         <p className="text-sm text-muted-foreground">{currentUser.lastName}</p>
       </div>
