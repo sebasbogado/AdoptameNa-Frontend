@@ -3,28 +3,63 @@
 import { Listbox } from "@headlessui/react";
 import { useState } from "react";
 import Banners from '@components/banners'
-import PetCard from '@components/petCard'
+import PetCard from '@components/petCard/petCard'
 
 const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
 const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
 const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
-const pets = [
-    { id: 1, name: "Firulais", description: "Un perrito muy juguetón" },
-    { id: 2, name: "Luna", description: "Dócil y amigable" },
-    { id: 3, name: "Max", description: "Le encanta correr" },
-    { id: 4, name: "Bella", description: "Muy cariñosa" },
-    { id: 5, name: "Rocky", description: "Fuerte y enérgico" },
-    { id: 6, name: "Toby", description: "Un poco tímido" },
-    { id: 7, name: "Nina", description: "Juguetona y amorosa" },
-    { id: 8, name: "Simba", description: "Amante de la naturaleza" },
-    { id: 9, name: "Duke", description: "Valiente y leal" },
-    { id: 10, name: "Sasha", description: "Pequeña y curiosa" },
-    { id: 11, name: "Bobby", description: "Siempre atento" },
-    { id: 12, name: "Coco", description: "Le encanta el agua" },
-    { id: 13, name: "Thor", description: "Guardián del hogar" },
-    { id: 14, name: "Lola", description: "Súper amigable" },
-    { id: 15, name: "Zeus", description: "El líder de la manada" },
+const posts = [
+    {
+        postId: "1",
+        title: "Luna, una perrita cariñosa busca hogar",
+        tags: { especie: "Perro", edad: "2 años", tamaño: "Mediano", ciudad: "Madrid" },
+        author: "Refugio Esperanza",
+        content: "Luna es una perrita muy dulce y juguetona. Se lleva bien con niños y otras mascotas. Está vacunada y esterilizada, lista para encontrar un hogar amoroso.",
+        date: "2025-02-28",
+        imageUrl: "/images/perro_luna.jpg",
+        postType: "adoption",
+    },
+    {
+        postId: "2",
+        title: "Gato siamés en busca de una familia",
+        tags: { especie: "Gato", edad: "3 años", color: "Blanco y gris", ciudad: "Barcelona" },
+        author: "Asociación Felina",
+        content: "Este precioso gato siamés es muy sociable y cariñoso. Le encanta jugar y dormir en lugares cálidos. Se entrega con chip y vacunas al día.",
+        date: "2025-02-27",
+        imageUrl: "/images/gato_siames.jpg",
+        postType: "adoption",
+    },
+    {
+        postId: "3",
+        title: "Cachorros de labrador en adopción",
+        tags: { especie: "Perro", edad: "3 meses", tamaño: "Grande", ciudad: "Sevilla" },
+        author: "Huellitas Sin Hogar",
+        content: "Tenemos una camada de 5 cachorros de labrador listos para encontrar familia. Son juguetones y están en proceso de vacunación.",
+        date: "2025-02-26",
+        imageUrl: "/images/cachorros_labrador.jpg",
+        postType: "adoption",
+    },
+    {
+        postId: "4",
+        title: "Conejito enano necesita un nuevo hogar",
+        tags: { especie: "Conejo", edad: "1 año", color: "Marrón", ciudad: "Valencia" },
+        author: "Protectora Animal",
+        content: "Este pequeño conejo enano es muy tierno y dócil. Necesita un hogar donde pueda correr libremente y recibir mucho amor.",
+        date: "2025-02-25",
+        imageUrl: "/images/conejo_enano.jpg",
+        postType: "adoption",
+    },
+    {
+        postId: "5",
+        title: "Gata rescatada busca familia responsable",
+        tags: { especie: "Gato", edad: "2 años", color: "Negro", ciudad: "Bilbao" },
+        author: "Amigos Felinos",
+        content: "Rescatamos a esta hermosa gatita de la calle. Es muy cariñosa y está esterilizada. Buscamos un hogar donde la cuiden con amor.",
+        date: "2025-02-24",
+        imageUrl: "/images/gata_negra.jpg",
+        postType: "adoption",
+    }
 ];
 
 export default function Page() {
@@ -67,8 +102,8 @@ export default function Page() {
 
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {pets.map((pet) => (
-                        <PetCard key={pet.id} pet={pet} />
+                    {posts.map((post) => (
+                        <PetCard key={post.postId} post={post} />
                     ))}
                 </div>
             </section>
