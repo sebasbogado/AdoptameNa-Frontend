@@ -11,33 +11,11 @@ import { useCallback, useEffect, useState } from 'react';
 import PetCard from '@/components/petCard/petCard';
 import Footer from '@/components/footer';
 import Section from '@/components/Section';
-interface User {
-    name: string;
-    description: string;
-}
 
-interface Pet {
-    name: string;
-    image: string;
-    description: string;
-}
+import { Post } from '@/types/posts';
+import { User } from '@/types/users';
+import { Pet } from '@/types/pets';
 
-interface Post {
-    postId: string;
-    title: string;
-    tags: {
-        especie: string;
-        edad: string;
-        tamaño?: string;
-        color?: string;
-        ciudad: string;
-    };
-    author: string;
-    content: string;
-    date: string;
-    imageUrl: string;
-    postType: string;
-}
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
