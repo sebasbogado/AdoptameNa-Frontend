@@ -1,29 +1,17 @@
 'use client';
 
-import Image from 'next/image';
 import Button from '@/components/buttons/Button';
 import EditButton from '@/components/buttons/EditButton';
 import MenuButton from '@/components/buttons/MenuButton';
-import { useAppContext } from '@/contexts/appContext';
 import Banners from '@components/banners';
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from 'react';
-interface User {
-    name: string;
-    description: string;
-}
+import Footer from '@/components/footer';
+import Section from '@/components/Section';
 
-interface Pet {
-    name: string;
-    image: string;
-    description: string;
-}
+import { Post } from '@/types/posts';
+import { User } from '@/types/users';
+import { Pet } from '@/types/pets';
 
-interface Post {
-    title: string;
-    image: string;
-    description: string;
-}
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -33,21 +21,21 @@ export default function Page() {
     const getData = useCallback(async () => {
         try {
             const [postsResponse, petsResponse] = await Promise.all([
-                fetch('https://apimocha.com/mariapi/posts'),
-                fetch('https://apimocha.com/mariapi/pets')
+                fetch("https://apimocha.com/mariapi/posts"),
+                fetch("https://apimocha.com/mariapi/pets")
             ]);
-            
+
             if (!postsResponse.ok || !petsResponse.ok) {
-                throw new Error('Error al obtener los datos');
+                throw new Error("Error al obtener los datos");
             }
-            
+
             const postsData: Post[] = await postsResponse.json();
             const petsData: Pet[] = await petsResponse.json();
-            
+
             setPosts(postsData);
             setPets(petsData);
         } catch (error) {
-            setError('No se pudieron cargar los datos');
+            setError("No se pudieron cargar los datos");
         } finally {
             setLoading(false);
         }
@@ -62,7 +50,6 @@ export default function Page() {
         description:
             'Miembro de MymbaUni, en mis ratos libres me gusta rescatar gatitos y participar de campañas de recaudación de fondos.',
     };
-
     const images = ['profile/slider/img-slider-1.png'];
 
     return (
@@ -82,93 +69,14 @@ export default function Page() {
                 <Button variant="cta" size="lg">Contactar</Button>
                 <MenuButton size="lg" />
             </div>
-              {/* Pets Section */}
-              <div className='container'>
-                <div className="mt-4">
-                    <h2 className="text-4xl font-semibold">Mis mascotas</h2>
-                    {loading ? (
-                        <p className="text-gray-500">Cargando mascotas...</p>
-                    ) : error ? (
-                        <p className="text-red-500">{error}</p>
-                    ) : (
-                        <div className="grid grid-cols-5 gap-8 mt-2 p-2">
-                            {pets.slice(0,5).map((pet, index) => (
-                                <div key={index} className="w-auto h-[35vh] rounded-lg shadow-md overflow-hidden">
-                                    <div className='w-full h-[20vh]'>
-                                        <Image
-                                            src={pet.image}
-                                            alt={pet.name}
-                                            width={500}
-                                            height={600}
-                                            className="w-full h-full object-cover rounded-lg"
-                                        />
-                                    </div>
-                                    <div className='p-2'>
-                                        <h3 className="font-bold mt-2">{pet.name}</h3>
-                                        <p className="text-gray-600 text-sm">{pet.description}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Posts Section */}
-                <div className="mt-12">
-                    <div className='flex  items-center'>
-                        <h2 className="text-4xl font-semibold text-blue">Publicaciones de Jorge</h2>
-                        <ChevronRightIcon className="w-8 h-10 text-blue" />
-
-                    </div>
-                    {loading ? (
-                        <p className="text-gray-500">Cargando publicaciones...</p>
-                    ) : error ? (
-                        <p className="text-red-500">{error}</p>
-                    ) : (
-                        <div className="grid grid-cols-5 gap-8 mt-2 p-2">
-                            {posts.slice(0,5).map((post, index) => (
-                                <div key={index} className="w-auto h-[35vh] rounded-lg shadow-md overflow-hidden">
-                                    <div className='w-full h-[20vh]'>
-                                        <Image src={post.image} alt={post.title} width={1000} height={600} className="w-full h-full object-cover rounded-lg" />
-                                    </div>
-                                    <div className='p-2'>
-                                        <h3 className="font-bold mt-2">{post.title}</h3>
-                                        <p className="text-gray-600 text-sm">{post.description}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                                )}
-
-            </div>
-
-            </div>
+            {/* Pets Section */}
+            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
 
 
+            {/* Posts Section */}
+            <Section title={`Publicaciones de ${user.name.split(' ')[0]}`} postType='adoption' path='#'  items={posts} loading={loading} error={error} />
             {/* Footer */}
-            <footer className="bg-purple-600 text-white p-6 mt-6">
-                <div className="max-w-4xl mx-auto flex justify-between">
-                    <div>
-                        <h3 className="font-bold">Ayuda</h3>
-                        <p>Preguntas Frecuentes</p>
-                        <p>Centro de ayuda</p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold">Nosotros</h3>
-                        <p>Quiénes somos</p>
-                        <p>Misión, visión y valores</p>
-                    </div>
-                    <div>
-                        <h3 className="font-bold">Suscríbete</h3>
-                        <input
-                            type="email"
-                            placeholder="tucorreo@email.com"
-                            className="p-2 text-black rounded-md"
-                        />
-                        <p className="mt-2">(021) 123 456</p>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
