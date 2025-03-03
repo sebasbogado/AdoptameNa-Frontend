@@ -71,12 +71,19 @@ export default function Page() {
                 role: "ORGANIZATION",
             };
 
-        try {
-            await axios.post("/auth/register", payload);
-            router.push("/dashboard");
-        } catch (error) {
-            console.error("Error al registrar", error);
-        }
+            try {
+                const response = await axios.post("/auth/register", payload);
+    
+                if (response.status === 200 || response.status === 201) {
+                    router.push("/dashboard");
+                }
+            } catch (error) {
+                if (error.response) {
+                    setServerError(error.response.data.message || "Error en el registro. Intente de nuevo.");
+                } else {
+                    setServerError("Error de conexión con el servidor.");
+                }
+            }
     };
 
     return (
