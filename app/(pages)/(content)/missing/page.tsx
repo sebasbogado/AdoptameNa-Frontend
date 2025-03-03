@@ -11,6 +11,10 @@ import Image from "next/image";
 import { Facebook, Instagram, Mail, Phone, MessageCircle } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+const MapWithNoSSR = dynamic(
+  () => import('@/components/ui/Map'),
+  { ssr: false }
+);
 
 const AdoptionForm = () => {
   const [formData, setFormData] = useState({
@@ -32,10 +36,7 @@ const AdoptionForm = () => {
   ]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const MapWithNoSSR = dynamic(
-    () => import('@/components/ui/Map'),
-    { ssr: false }
-  );
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -251,50 +252,7 @@ const AdoptionForm = () => {
 
       </div>
       {/* Footer */}
-      <footer className="w-full bg-purple-500 text-white py-8 mt-10">
-        <div className="max-w-5xl mx-auto grid grid-cols-4 gap-6 px-6">
-          <div>
-            <h3 className="font-bold">Ayuda</h3>
-            <ul>
-              <li>Preguntas Frecuentes</li>
-              <li>Centro de ayuda</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-bold">Nosotros</h3>
-            <ul>
-              <li>Quienes somos</li>
-              <li>Nuestra historia</li>
-              <li>Misión, visión y valores</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-bold">Acerca de</h3>
-            <ul>
-              <li>Auspiciantes</li>
-              <li>Donaciones</li>
-              <li>Términos y condiciones</li>
-              <li>Avisos legales</li>
-              <li>Política de privacidad</li>
-              <li>Política de Cookies</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-bold">Suscríbete</h3>
-            <div className="flex gap-2 mt-2">
-              <Input placeholder="tucorreo@mail.com" className="flex-1" />
-              <Button><Mail size={20} /></Button>
-            </div>
-            <p className="mt-2 flex items-center gap-2"><Phone size={20} /> (021) 123 456</p>
-            <div className="flex gap-3 mt-2">
-              <Facebook size={24} />
-              <Instagram size={24} />
-              <MessageCircle size={24} />
-            </div>
-          </div>
-        </div>
-        <p className="text-center mt-6">©adoptamena2024 all rights reserved</p>
-      </footer>
+       <Footer></Footer>
     </div>
   );
 };
