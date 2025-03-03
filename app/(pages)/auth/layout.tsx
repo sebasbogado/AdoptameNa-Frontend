@@ -1,9 +1,15 @@
-export default function AuthLayout({children}){
-    return(
-        <div className="bg-gray-300 w-screen h-screen flex justify-center items-center">
-            <div className="bg-purple-200 rounded-md p-10">
-                {children}
-            </div>
+export default function AuthLayout({ children }) {
+    return (
+      <div
+        className="w-screen h-screen flex justify-center items-center relative bg-cover bg-center"
+        style={{ backgroundImage: "url('/andrew-s-ouo1hbizWwo-unsplash.jpg')" }} // Reemplaza con la ruta correcta
+      >
+        <div className="absolute inset-0 bg-[#9747FF] opacity-50"></div>
+        <div>
+          {children}
         </div>
-    )
-}
+      </div>
+    );
+  }
+  
+  
