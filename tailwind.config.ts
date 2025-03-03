@@ -33,6 +33,8 @@ module.exports = withMT({
         "btn-cta-text": "var(--btn-cta-text)",
         "btn-favorite-text": "var(--btn-favorite-text)",
         "btn-menu-text": "var(--btn-menu-text)",
+
+     
         //colores para tags y titulos de secciones
         adoption: "var(--color-adoption)",
         missing: "var(--color-missing)",
@@ -41,10 +43,11 @@ module.exports = withMT({
         marketplace: "var(--color-marketplace)",
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
-      },  
-      fontFamily: {
-        roboto: "var( --font-family)"
       },
+     fontFamily: {
+        roboto: "var( --font-family)"
+     },  
+
     },
   },
   plugins: [],
