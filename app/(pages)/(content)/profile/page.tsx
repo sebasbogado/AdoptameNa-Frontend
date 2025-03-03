@@ -1,14 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Button from '@/components/buttons/Button';
 import EditButton from '@/components/buttons/EditButton';
 import MenuButton from '@/components/buttons/MenuButton';
-import { useAppContext } from '@/contexts/appContext';
 import Banners from '@components/banners';
-import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState } from 'react';
-import PetCard from '@/components/petCard/petCard';
 import Footer from '@/components/footer';
 import Section from '@/components/Section';
 
@@ -74,7 +70,7 @@ export default function Page() {
                 <MenuButton size="lg" />
             </div>
             {/* Pets Section */}
-            <Section title="Mis Mascotas" postType='blog' path='#' items={posts} loading={loading} error={error} />
+            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
 
 
             {/* Posts Section */}
