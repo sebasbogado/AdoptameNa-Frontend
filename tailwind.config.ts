@@ -13,7 +13,7 @@ module.exports = withMT({
         foreground: "var(--foreground)",
         "text-foreground": "var(--text-foreground)",
         "text-background": "var(--text-background)",
-        
+        blue: "var(--blue)",
         // Botones
         "btn-primary": "var(--btn-primary)",
         "btn-secondary": "var(--btn-secondary)",
@@ -24,7 +24,6 @@ module.exports = withMT({
         "btn-favorite": "var(--btn-favorite)",
         "btn-menu": "var(--btn-menu)",
         "btn-trash": "var(--btn-trash)",
-
         // Color de texto
         "btn-primary-text": "var(--btn-primary-text)",
         "btn-secondary-text": "var(--btn-secondary-text)",
@@ -34,6 +33,8 @@ module.exports = withMT({
         "btn-cta-text": "var(--btn-cta-text)",
         "btn-favorite-text": "var(--btn-favorite-text)",
         "btn-menu-text": "var(--btn-menu-text)",
+
+     
         //colores para tags y titulos de secciones
         adoption: "var(--color-adoption)",
         missing: "var(--color-missing)",
@@ -43,6 +44,10 @@ module.exports = withMT({
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
       },
+     fontFamily: {
+        roboto: "var( --font-family)"
+     },  
+
     },
   },
   plugins: [],
