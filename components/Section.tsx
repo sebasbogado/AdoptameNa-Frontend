@@ -1,20 +1,22 @@
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import PetCard from "@/components/petCard/petCard";
+import Title from "./title";
+
+import {titleText } from "../types/titles"
 
 interface SectionProps {
   title: string;
+  postType: keyof typeof titleText;
+  path: string;
   items: any[]; 
   loading: boolean;
   error: string | null;
 }
 
-export default function Section({ title, items, loading, error }: SectionProps) {
+export default function Section({ title, postType, path, items, loading, error }: SectionProps) {
   return (
     <div className="mt-12">
-      <div className="flex items-center">
-        <h2 className="text-4xl font-semibold text-blue">{title}</h2>
-        <ChevronRightIcon className="w-8 h-10 text-blue" />
-      </div>
+        <Title title={title} postType={postType} path={path}></Title>
 
       {loading ? (
         <p className="text-gray-500">Cargando {title.toLowerCase()}...</p>
