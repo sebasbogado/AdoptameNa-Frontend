@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
-import { Input, Button, Typography, Card, Radio } from "@material-tailwind/react";
+import { Input, Button, Typography, Card, Radio, Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 
@@ -17,6 +17,7 @@ export default function Page() {
         password: "",
         confirmPassword: "",
     });
+    const [errorMessage, setErrorMessage] = useState("");
 
     const handleAccountTypeChange = (e) => {
         setAccountType(e.target.value);
@@ -54,36 +55,47 @@ export default function Page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setErrorMessage("");
         if (!validate()) return;
 
         const payload = accountType === "persona"
             ? {
+                organizationName: null,
                 fullName: formData.fullName,
                 email: formData.email,
                 password: formData.password,
-                role: "USER",
+                role: "USER"
             }
             : {
                 organizationName: formData.organizationName,
                 fullName: formData.fullName,
                 email: formData.email,
                 password: formData.password,
-                role: "ORGANIZATION",
+                role: "ORGANIZATION"
             };
 
-            try {
-                const response = await axios.post("/auth/register", payload);
-    
-                if (response.status === 200 || response.status === 201) {
+        axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`, payload)
+            .then(response => {
+                if (response.status === 201 || response.status === 200) {
                     router.push("/dashboard");
-                }
-            } catch (error) {
-                if (error.response) {
-                    setServerError(error.response.data.message || "Error en el registro. Intente de nuevo.");
                 } else {
-                    setServerError("Error de conexión con el servidor.");
+                    console.error("Registro fallido:", response);
                 }
-            }
+                if (response.status == 409) {
+
+                }
+            })
+            .catch(error => {
+                if (error.response) {
+                    if (error.response.status === 409) {
+                        setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
+                    } else {
+                        setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
+                    }
+                } else {
+                    setErrorMessage("❌ Error en la solicitud. Verifica tu conexión.");
+                }
+            });
     };
 
     return (
@@ -188,6 +200,15 @@ export default function Page() {
                     </div>
                 </form>
             </Card>
+            {errorMessage && (
+                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
+                    <Alert className="text-sm px-4 py-2 w-fit flex items-center">
+                        {errorMessage}
+                    </Alert>
+                </div>
+            )}
+
+
         </div>
     );
 }
