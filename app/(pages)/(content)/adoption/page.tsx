@@ -1,9 +1,10 @@
 "use client";
 
 import { Listbox } from "@headlessui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Banners from '@components/banners'
 import PetCard from '@components/petCard/petCard'
+import { getPetsData } from '@utils/pets-client';
 
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
@@ -11,63 +12,23 @@ const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
 const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
 const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
-const posts = [
-    {
-        postId: "1",
-        title: "Luna, una perrita cariñosa busca hogar",
-        tags: { especie: "Perro", edad: "2 años", tamaño: "Mediano", ciudad: "Asunción" },
-        author: "Refugio Esperanza",
-        content: "Luna es una perrita muy dulce y juguetona. Se lleva bien con niños y otras mascotas. Está vacunada y esterilizada, lista para encontrar un hogar amoroso.",
-        date: "2025-02-28",
-        imageUrl: "defaultcardimg.jpg",
-        postType: "adoption",
-    },
-    {
-        postId: "2",
-        title: "Gato siamés en busca de una familia",
-        tags: { especie: "Gato", edad: "3 años", color: "Blanco y gris", ciudad: "Asunción" },
-        author: "Asociación Felina",
-        content: "Este precioso gato siamés es muy sociable y cariñoso. Le encanta jugar y dormir en lugares cálidos. Se entrega con chip y vacunas al día.",
-        date: "2025-02-27",
-        imageUrl: "defaultcardimg.jpg",
-        postType: "adoption",
-    },
-    {
-        postId: "3",
-        title: "Cachorros de labrador en adopción",
-        tags: { especie: "Perro", edad: "3 meses", tamaño: "Grande", ciudad: "Asunción" },
-        author: "Huellitas Sin Hogar",
-        content: "Tenemos una camada de 5 cachorros de labrador listos para encontrar familia. Son juguetones y están en proceso de vacunación.",
-        date: "2025-02-26",
-        imageUrl: "defaultcardimg.jpg",
-        postType: "adoption",
-    },
-    {
-        postId: "4",
-        title: "Conejito enano necesita un nuevo hogar",
-        tags: { especie: "Conejo", edad: "1 año", color: "Marrón", ciudad: "Encarnación" },
-        author: "Protectora Animal",
-        content: "Este pequeño conejo enano es muy tierno y dócil. Necesita un hogar donde pueda correr libremente y recibir mucho amor.",
-        date: "2025-02-25",
-        imageUrl: "defaultcardimg.jpg",
-        postType: "adoption",
-    },
-    {
-        postId: "5",
-        title: "Gata rescatada busca familia responsable",
-        tags: { especie: "Gato", edad: "2 años", color: "Negro", ciudad: "Encarnación" },
-        author: "Amigos Felinos",
-        content: "Rescatamos a esta hermosa gatita de la calle. Es muy cariñosa y está esterilizada. Buscamos un hogar donde la cuiden con amor.",
-        date: "2025-02-24",
-        imageUrl: "defaultcardimg.jpg",
-        postType: "adoption",
-    }
-];
 
 export default function Page() {
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
+
+    const [pets, setPets] = useState<any[]>([]); // Asegura que pets inicie como un array vacío
+
+    useEffect(() => {
+        async function fetchPets() {
+            const data = await getPetsData();
+            setPets(data); // Guarda los datos en el estado
+        }
+        fetchPets();
+    }, []);
+
+
     return (
         <div className='flex flex-col gap-5'>
             <Banners />
@@ -114,9 +75,13 @@ export default function Page() {
 
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {posts.map((post) => (
-                        <PetCard key={post.postId} post={post} />
-                    ))}
+                    {/* 🔥 Mapeo de las mascotas */}
+                    {Array.isArray(pets.posts) && pets.posts.length > 0 ? (
+                        pets.posts.map((post) => <PetCard key={post.postId} post={post} />)
+                    ) : (
+                        <p className="text-center col-span-full">Cargando mascotas...</p>
+                    )}
+
                 </div>
             </section>
         </div>
