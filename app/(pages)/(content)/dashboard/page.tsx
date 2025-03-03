@@ -8,7 +8,10 @@ import Banners from '@components/banners'
 import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
 import petsServices from '@services/petsServices'
-import PetCard from '@components/petCard'
+import PetCard from '@components/petCard/petCard'
+import PostsTags from '@/components/petCard/tags'
+import Title from '@/components/title'
+import Footer from '@/components/footer'
 
 // Definimos la interfaz para una mascota
 interface Pet {
@@ -21,37 +24,37 @@ interface Pet {
 
 export default function Page() {
     const router = useRouter()
-    const { cartItems } = useAppContext()
-    const [pets, setPets] = useState<Pet[]>([])
 
-    const { loading, fetch } = useCustomEffect(async () => {
-        return petsServices.getAll()
-    }, {
-        whereOptions: {},
-        after: (res: Pet[] | null) => {
-            setPets(res ?? [])
+    const postDummyData = {
+        postId: "1",
+        postType: "adoption",
+        title: "Arsenio está en adopción",
+        author: "",
+        content: "Encontramos este gatito en un basurero, necesita un hogar amoroso y responsable",
+        date: "18/02/2025",
+        imageUrl: "",
+        tags: {
+            race: "mestizo",
+            age: "2 años",
+            gender: "Hembra"
         }
-    }, [])
+    };
 
     return (
         <div className='flex flex-col gap-5'>
-            <h1>Dashboard {cartItems}</h1>
             <Banners />
-            <Button onClick={() => {
-                router.push("dashboard/5")
-            }}>
-                Ver mascotas
-            </Button>
-            <Button onClick={fetch}>
-                Recargar datos
-            </Button>
-            {loading && <p>Cargando...</p>}
-
-            <div className='grid grid-cols-[repeat(auto-fill,_minmax(230px,_1fr))] gap-4'>
-                {pets.map((pet) =>
-                    <PetCard key={pet.id} pet={pet} />
-                )}
+            <Title postType='adoption' path='adoption'></Title>
+            <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-clip '>
             </div>
+
+            <Title postType='missing' path='missing'></Title>
+
+            <Title postType='blog' path='blog'></Title>
+
+            <Title title='Nueva seccion' path='blog'></Title>
+            
+
+            <Footer></Footer>
         </div>
     )
 }

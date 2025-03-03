@@ -3,6 +3,17 @@
 @tailwind utilities;
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 
+
+.tag-symbol{
+  font-size: 14px !important;
+}
+
+.card-text{
+  margin-top: -15px;
+  position: relative;
+  z-index: 1;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -32,8 +43,15 @@
     --btn-cta-text: #FFFFFF;
     --btn-menu-text: #0a0a0a;
     --btn-favorite-text: #8A2628;
-
-
+  /*colores para tags y titulos de secciones*/
+  --color-adoption: #4781FF;
+  --color-missing: #9747FF;
+  --color-volunteering: #D27E00;
+  --color-blog: #538A45;
+  --color-marketplace: #FF7847;
+  /*BRAND COLORS*/
+  --color-primary-brand-color: #A36CC4;
+  --color-secondary-brand-color: #F2AA0F;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,8 +61,10 @@
     --foreground: #FFFFFF;
 
     --text-background: #FFFFFF;
-    --text-foreground :#0a0a0a;
-  
+
+    --text-foreground: #0a0a0a;
+
+
     /*Buttons*/
     --btn-primary:  var(--blue);
     --btn-secondary: transparent;
@@ -65,8 +85,6 @@
     --btn-cta-text: #FFFFFF;
     --btn-menu-text: #0a0a0a;
     --btn-favorite-text: #8A2628;
-
-    
   }
 }
 
@@ -79,4 +97,3 @@ body {
   padding-left: 4rem;
   padding-right: 4rem;
 
-}
