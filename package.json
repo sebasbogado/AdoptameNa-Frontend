@@ -16,6 +16,7 @@
     "axios": "^1.7.8",
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.3",
+    "heroicons": "^2.2.0",
     "lucide-react": "^0.476.0",
     "next": "14.2.24",
     "next-auth": "^5.0.0-beta.22",
