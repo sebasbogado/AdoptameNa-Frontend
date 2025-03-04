@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,15 +22,40 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"],
-      "@styles/*": ["./styles/*"],
-      "@components/*": ["./components/*"],
-      "@contexts/*": ["./contexts/*"],
-      "@utils/*": ["./utils/*"],
-      "@hooks/*": ["./hooks/*"],
-      "@services/*": ["./services/*"]
-    }
+      "@/*": [
+        "./*"
+      ],
+      "@styles/*": [
+        "./styles/*"
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@contexts/*": [
+        "./contexts/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@hooks/*": [
+        "./hooks/*"
+      ],
+      "@services/*": [
+        "./services/*"
+      ]
+    },
+    "target": "ES2017"
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/layout.ts", "app/page.ts", "hooks/useCustomEffect.js"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "app/layout.ts",
+    "app/page.ts",
+    "hooks/useCustomEffect.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
