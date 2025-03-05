@@ -24,7 +24,6 @@ export default function Page() {
     axios
       .post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/verify-email?token=${token}`)
       .then((response) => {
-        console.log("Respuesta de verificación:", response.data);
         if (response.status == 200) {
           setStatus("success");
           setTimeout(() => router.push("/auth/login"), 3000); // Redirige a login tras 3s

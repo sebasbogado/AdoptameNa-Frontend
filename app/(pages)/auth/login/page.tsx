@@ -31,9 +31,7 @@ export default function Login() {
           "Content-Type": "application/json",
         },
       });
-      localStorage.setItem("token", response.data.token);
-      setAuthToken(token)
-      console.log(response.data.token)
+      
       router.push("/dashboard");
     } catch (error) {
       console.error("Error en login:", error.response?.data || error.message);

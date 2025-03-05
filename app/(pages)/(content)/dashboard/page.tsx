@@ -25,7 +25,6 @@ interface Pet {
 export default function Page() {
     const router = useRouter()
     const { authToken, setAuthToken } = useAuth();
-    console.log("Token guardado:", { authToken })
     const postDummyData = {
         postId: "1",
         postType: "adoption",
