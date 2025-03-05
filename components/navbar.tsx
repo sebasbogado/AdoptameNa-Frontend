@@ -31,7 +31,7 @@ export default function Navbar() {
                     <Link href="/adopcion" className="text-lg font-bold text-black hover:text-purple-600">
                         Adopción
                     </Link>
-                    <Link href="/extraviados" className="text-lg font-bold text-black hover:text-purple-600">
+                    <Link href="/missing" className="text-lg font-bold text-black hover:text-purple-600">
                         Extraviados
                     </Link>
                     <Link href="/blog" className="text-lg font-bold text-black hover:text-purple-600">
