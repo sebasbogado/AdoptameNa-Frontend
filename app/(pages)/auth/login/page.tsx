@@ -1,15 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Image from "next/image";
-import logo from "@/public/logo.png"; 
+import logo from "@/public/logo.png";
+
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      localStorage.setItem("authToken", token);
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -19,15 +28,18 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
+    const authToken = localStorage.getItem("authToken");
     const result = await signIn("credentials", {
       redirect: false,
       email: credentials.email,
       password: credentials.password,
+      token: authToken, // Enviar token si está disponible
     });
 
     if (result?.error) {
       setError("Correo o contraseña incorrectos");
     } else {
+      localStorage.setItem("sessionToken", result.sessionToken); // Guardar token de sesión
       router.push("/dashboard"); // Redirigir después del login
     }
   };
@@ -83,14 +95,9 @@ export default function Login() {
           </Typography>
           
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-            <Typography
-              as="a"
-              href="/dashboard"
-              variant="small"
-              className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48"
-            >
+            <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48">
               Iniciar Sesión
-            </Typography>
+            </Button>
 
             <Typography
               as="a"
