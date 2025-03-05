@@ -74,28 +74,23 @@ export default function Page() {
                 role: "ORGANIZATION"
             };
 
-        axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`, payload)
-            .then(response => {
+            try {
+                const response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
+                    payload
+                );
+            
                 if (response.status === 201 || response.status === 200) {
                     router.push("/dashboard");
+                }
+            } catch (error) {
+                if (error.response?.status === 409) {
+                    setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
                 } else {
-                    console.error("Registro fallido:", response);
+                    setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
                 }
-                if (response.status == 409) {
-
-                }
-            })
-            .catch(error => {
-                if (error.response) {
-                    if (error.response.status === 409) {
-                        setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
-                    } else {
-                        setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
-                    }
-                } else {
-                    setErrorMessage("❌ Error en la solicitud. Verifica tu conexión.");
-                }
-            });
+            }
+            
     };
 
     return (
