@@ -20,7 +20,7 @@ export default function Page() {
 console.log("token" , token)
     // Enviar el token al backend para verificar el email
     axios
-      .post("http://localhost:8080/verify-email?token=", token)
+      .post(`http://localhost:8080/verify-email?token=${token}`)
       .then((response) => {
         console.log("response",response)
         if (response.data.success) {
