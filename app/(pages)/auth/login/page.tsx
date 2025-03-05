@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Link from "next/link";
 import Image from "next/image";
-import logo from "@/public/logo.png"; 
+import logo from "@/public/logo.png";
+import { useAuth } from "@contexts/AuthContext"; // Importa el hook
 export default function Login() {
+  const {setAuthToken}=useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
+  
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
@@ -19,17 +23,20 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: credentials.email,
-      password: credentials.password,
-    });
-
-    if (result?.error) {
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/login`, {
+        email: credentials.email,
+        password: credentials.password,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error en login:", error.response?.data || error.message);
       setError("Correo o contraseña incorrectos");
-    } else {
-      router.push("/dashboard"); // Redirigir después del login
     }
   };
 
@@ -82,9 +89,11 @@ export default function Login() {
           >
             Olvidé mi contraseña
           </Typography>
-          
+
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-          <Link href="/dashboard" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48">Iniciar sesión</Link>
+            <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48">
+              Iniciar Sesión
+            </Button>
 
             <Typography
               as="a"
@@ -96,7 +105,6 @@ export default function Login() {
             </Typography>
           </div>
         </form>
-
       </Card>
     </div>
   );
