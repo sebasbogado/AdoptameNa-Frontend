@@ -1,0 +1,61 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@styles/*": [
+        "./styles/*"
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@contexts/*": [
+        "./contexts/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@hooks/*": [
+        "./hooks/*"
+      ],
+      "@services/*": [
+        "./services/*"
+      ]
+    },
+    "target": "ES2017"
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "app/layout.ts",
+    "app/page.ts",
+    "hooks/useCustomEffect.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
