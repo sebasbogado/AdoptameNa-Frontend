@@ -4,6 +4,7 @@ import { Carousel } from "@material-tailwind/react";
 interface CarouselProps {
   images: string[]
 }
+
 export default function Banners({ images = [] }: CarouselProps) {
   return (
     <Carousel className="rounded-xl h-126"

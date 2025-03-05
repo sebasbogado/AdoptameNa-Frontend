@@ -37,6 +37,8 @@ export default function Page() {
 
     const [posts, setPosts] = useState<Post[]>([])
 
+    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
+
     const { loading, fetch } = useCustomEffect(async () => {
         let apiResponse = await postsServices.getAll();
         console.log("Api Response: ", apiResponse)
@@ -50,7 +52,7 @@ export default function Page() {
 
     return (
         <div className='flex flex-col gap-5'>
-            <Banners />
+            <Banners images={bannerImages} />
             <Title postType='adoption' path='adoption'></Title>
             <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-auto flex-wrap gap-y-4 '>
                     {posts.map((post) =>

@@ -56,14 +56,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-
-    --background: #0a0a0a;
-    --foreground: #FFFFFF;
-
-    --text-background: #FFFFFF;
-    --text-foreground: #0a0a0a;
-
-
     /*Buttons*/
     --btn-primary:  var(--blue);
     --btn-secondary: transparent;
