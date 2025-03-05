@@ -12,6 +12,7 @@ import PetCard from '@components/petCard/petCard'
 import PostsTags from '@/components/petCard/tags'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
+import getPost from "@utils/post-client";
 
 type Post = {
     postId: string;
@@ -34,12 +35,12 @@ type Post = {
 
 export default function Page() {
     const router = useRouter()
-
-    const [posts, setPosts] = useState<Post[]>([])
+    const posts = getPost();
+    //const [posts, setPosts] = useState<Post[]>([])
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
 
-    const { loading, fetch } = useCustomEffect(async () => {
+    /*const { loading, fetch } = useCustomEffect(async () => {
         let apiResponse = await postsServices.getAll();
         console.log("Api Response: ", apiResponse)
         return apiResponse;
@@ -48,7 +49,7 @@ export default function Page() {
         after: (res: Post[] | null) => {
             setPosts(res ?? [])
         }
-    }, [])
+    }, [])*/
 
     return (
         <div className='flex flex-col gap-3'>
