@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
+import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useAuth } from "@contexts/AuthContext"; // Importa el hook
