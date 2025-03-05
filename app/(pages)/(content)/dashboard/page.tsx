@@ -51,21 +51,54 @@ export default function Page() {
     }, [])
 
     return (
-        <div className='flex flex-col gap-5'>
+        <div className='flex flex-col gap-3'>
             <Banners images={bannerImages} />
-            <Title postType='adoption' path='adoption'></Title>
-            <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-auto flex-wrap gap-y-4 '>
-                    {posts.map((post) =>
-                        <PetCard key={post.postId} post={post} />
-                    )}              
+            {/* Sección de Adopción */}
+            <Title postType='adoption' path='adoption' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'adoption')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
             </div>
 
-            <Title postType='missing' path='missing'></Title>
-
-            <Title postType='blog' path='blog'></Title>
-
-            <Title title='Nueva seccion' path='blog'></Title>
+            {/* Sección de Desaparecidos */}
+            <Title postType='missing' path='missing' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'missing')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
             
+            
+            {/* Sección de Voluntariado */}
+            <Title postType='volunteering' path='voluntariado' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'volunteering')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
+
+            {/* Sección de Blogs */}
+            <Title postType='blog' path='blog' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'blog')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
+
+            {/* Marketplace */}
+            <Title title='Tienda' path='marketplace' postType='marketplace' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'marketplace')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
+
 
             <Footer></Footer>
         </div>
