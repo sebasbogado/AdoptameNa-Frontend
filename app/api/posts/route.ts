@@ -3,559 +3,398 @@ import { NextRequest, NextResponse } from "next/server";
 
 //controller
 export async function GET(req: NextRequest) {
-    return NextResponse.json({hola:data}, {status:200})
+    return NextResponse.json(data, { status: 200 })
 }
 
 const data = [
     {
-        "tipo": "marketplace",
-        "titulo": "Casitas de madera para mascotas",
-        "descripcion": "Casas hechas a mano para perros y gatos. Material resistente y de alta calidad.",
-        "precio": "250.000 PYG",
-        "contacto": "0975 777 777"
+        postId: "1",
+        postType: "adoption",
+        title: "Luna busca un hogar",
+        author: "",
+        content: "Esta perrita rescatada necesita una familia que la ame y cuide.",
+        date: "04/03/2025",
+        imageUrl: "1.avif",
+        tags: {
+            race: "Labrador",
+            vaccinated: true,
+            sterilyzed: true,
+            age: "3 años",
+            female: true
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Rascador para gatos",
-        "descripcion": "Rascador grande con múltiples niveles y escondites. Ideal para gatos activos.",
-        "precio": "180.000 PYG",
-        "contacto": "0982 123 456"
+        postId: "2",
+        postType: "missing",
+        title: "Gato extraviado en el centro",
+        author: "",
+        content: "Nuestro gato Tom se perdió cerca de la Plaza Central. Agradecemos cualquier información.",
+        date: "02/03/2025",
+        imageUrl: "14.avif",
+        tags: {
+            race: "Siames",
+            age: "5 años",
+            male: true,
+            distance: "2km"
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Transportadora para perros y gatos",
-        "descripcion": "Jaula transportadora de plástico reforzado con ventilación lateral.",
-        "precio": "150.000 PYG",
-        "contacto": "0961 654 321"
+        postId: "3",
+        postType: "volunteering",
+        title: "Se necesitan voluntarios en refugio",
+        author: "",
+        content: "El refugio 'Amigos Peludos' busca voluntarios para ayudar con el cuidado de los animales.",
+        date: "01/03/2025",
+        imageUrl: "3.avif",
+        tags: {
+            distance: "5km"
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Comedero automático para mascotas",
-        "descripcion": "Comedero con temporizador y capacidad de 3 litros. Programable.",
-        "precio": "200.000 PYG",
-        "contacto": "0974 555 888"
+        postId: "4",
+        postType: "blog",
+        title: "Consejos para adoptar un gato",
+        author: "Ana Gómez",
+        content: "Adoptar una mascota es una gran responsabilidad. Aquí te dejamos algunos consejos útiles.",
+        date: "25/02/2025",
+        imageUrl: "4.avif",
+        tags: {}
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Cama acolchonada para perros",
-        "descripcion": "Cama de tela suave y lavable, disponible en varios tamaños.",
-        "precio": "120.000 PYG",
-        "contacto": "0991 333 222"
+        postId: "5",
+        postType: "marketplace",
+        title: "Jaula para conejos en venta",
+        author: "Carlos Pérez",
+        content: "Vendo jaula grande para conejos en excelente estado.",
+        date: "27/02/2025",
+        imageUrl: "jaula.jpg",
+        tags: {
+            distance: "8km"
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Jaula para hámsters con accesorios",
-        "descripcion": "Jaula espaciosa con rueda, túneles y casa incluida.",
-        "precio": "90.000 PYG",
-        "contacto": "0987 444 666"
+        postId: "6",
+        postType: "adoption",
+        title: "Cachorro busca familia",
+        author: "",
+        content: "Este pequeño fue rescatado de la calle y busca un hogar donde crecer.",
+        date: "28/02/2025",
+        imageUrl: "6.avif",
+        tags: {
+            race: "Mestizo",
+            vaccinated: false,
+            sterilyzed: false,
+            age: "6 meses",
+            male: true
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Kit de aseo para perros y gatos",
-        "descripcion": "Incluye cepillo, cortaúñas y guante removedor de pelo.",
-        "precio": "80.000 PYG",
-        "contacto": "0972 666 555"
+        postId: "7",
+        postType: "missing",
+        title: "Se perdió nuestra perrita Bella",
+        author: "",
+        content: "Bella desapareció el 26 de febrero en el barrio San Martín. Si la ves, contáctanos.",
+        date: "26/02/2025",
+        imageUrl: "7.avif",
+        tags: {
+            race: "Beagle",
+            age: "4 años",
+            female: true,
+            distance: "1km"
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Correa retráctil para perros",
-        "descripcion": "Correa de 5 metros con sistema de frenado. Ideal para paseos.",
-        "precio": "70.000 PYG",
-        "contacto": "0965 777 999"
+        postId: "8",
+        postType: "volunteering",
+        title: "Campaña de esterilización",
+        author: "",
+        content: "Buscamos voluntarios para ayudar en una jornada de esterilización gratuita.",
+        date: "22/02/2025",
+        imageUrl: "8.avif",
+        tags: {
+            distance: "10km"
+        }
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Fuente de agua para mascotas",
-        "descripcion": "Fuente automática con filtro de carbón. Mantiene el agua fresca.",
-        "precio": "150.000 PYG",
-        "contacto": "0993 888 777"
+        postId: "9",
+        postType: "blog",
+        title: "Cómo cuidar a un gato mayor",
+        author: "María López",
+        content: "Los gatos mayores necesitan cuidados especiales. Aquí te explicamos cómo hacerlo.",
+        date: "20/02/2025",
+        imageUrl: "9.avif",
+        tags: {}
     },
     {
-        "tipo": "marketplace",
-        "titulo": "Chaleco salvavidas para perros",
-        "descripcion": "Chaleco con asas y ajuste seguro. Perfecto para días de playa o piscina.",
-        "precio": "130.000 PYG",
-        "contacto": "0981 111 222"
+        postId: "10",
+        postType: "marketplace",
+        title: "Transportadora para perros medianos",
+        author: "Luis Ramírez",
+        content: "Vendo transportadora en perfecto estado, ideal para perros medianos.",
+        date: "18/02/2025",
+        imageUrl: "transportadora.jpg",
+        tags: {
+            distance: "3km"
+        }
     },
     {
-        "author": "Vet. Ana Sosa",
-        "title": "Alimentos prohibidos para mascotas",
-        "content": "Conoce qué alimentos comunes pueden ser peligrosos para la salud de tu perro o gato.",
-        "category": "Nutrición",
-        "image": "https://ruta-de-la-imagen.com/alimentos-prohibidos.png"
+        postId: "11",
+        postType: "adoption",
+        title: "Max necesita una familia",
+        author: "",
+        content: "Max fue rescatado de la calle y busca un hogar donde lo cuiden y amen.",
+        date: "05/03/2025",
+        imageUrl: "11.avif",
+        tags: {
+            race: "Pastor Alemán",
+            vaccinated: true,
+            sterilyzed: true,
+            age: "2 años",
+            male: true
+        }
     },
     {
-        "author": "Clínica VetCare",
-        "title": "Primeros auxilios para mascotas",
-        "content": "Aprende cómo actuar rápidamente ante una emergencia con tu mascota.",
-        "category": "Salud",
-        "image": "https://ruta-de-la-imagen.com/primeros-auxilios.png"
+        postId: "12",
+        postType: "missing",
+        title: "Gata perdida en la zona norte",
+        author: "",
+        content: "Nuestra gata Mía se escapó el 4 de marzo. Tiene un collar rosa con una campana.",
+        date: "04/03/2025",
+        imageUrl: "12.avif",
+        tags: {
+            race: "Mestizo",
+            age: "3 años",
+            female: true,
+            distance: "3km"
+        }
     },
     {
-        "author": "Dra. Laura Giménez",
-        "title": "Cómo bañar a tu gato sin estrés",
-        "content": "Consejos prácticos para lograr que la hora del baño sea tranquila y segura.",
-        "category": "Higiene",
-        "image": "https://ruta-de-la-imagen.com/banar-gato.png"
+        postId: "13",
+        postType: "volunteering",
+        title: "Se necesitan manos en albergue",
+        author: "",
+        content: "Ayuda con la limpieza, alimentación y paseos de los perros rescatados.",
+        date: "03/03/2025",
+        imageUrl: "13.avif",
+        tags: {
+            distance: "7km"
+        }
     },
     {
-        "author": "Pet Lovers",
-        "title": "¿Cada cuánto debes desparasitar a tu mascota?",
-        "content": "La importancia de las desparasitaciones periódicas y cómo seguir un calendario adecuado.",
-        "category": "Salud",
-        "image": "https://ruta-de-la-imagen.com/desparasitacion.png"
+        postId: "14",
+        postType: "blog",
+        title: "Beneficios de esterilizar a tu mascota",
+        author: "Laura Méndez",
+        content: "La esterilización es clave para la salud de tu mascota y el control de la población animal.",
+        date: "02/03/2025",
+        imageUrl: "2.avif",
+        tags: {}
     },
     {
-        "author": "Vet. Carlos Rojas",
-        "title": "Señales de estrés en perros",
-        "content": "¿Tu perro está ansioso? Aprende a identificar y aliviar el estrés en ellos.",
-        "category": "Comportamiento",
-        "image": "https://ruta-de-la-imagen.com/estres-perro.png"
+        postId: "15",
+        postType: "marketplace",
+        title: "Cama ortopédica para perros grandes",
+        author: "Jorge Díaz",
+        content: "Vendo cama ortopédica nueva, ideal para perros grandes o mayores.",
+        date: "01/03/2025",
+        imageUrl: "cama.jpeg",
+        tags: {
+            distance: "4km"
+        }
     },
     {
-        "author": "Vet. Ana Sosa",
-        "title": "Ejercicios diarios para perros",
-        "content": "Actividades físicas esenciales para mantener a tu perro feliz y saludable.",
-        "category": "Ejercicio",
-        "image": "https://ruta-de-la-imagen.com/ejercicios-perro.png"
+        postId: "16",
+        postType: "adoption",
+        title: "Pequeño gatito en adopción",
+        author: "",
+        content: "Este hermoso gatito fue rescatado de la calle y necesita un hogar amoroso.",
+        date: "28/02/2025",
+        imageUrl: "16.avif",
+        tags: {
+            race: "Mestizo",
+            vaccinated: false,
+            sterilyzed: false,
+            age: "3 meses",
+            male: true
+        }
     },
     {
-        "author": "Clínica Felina",
-        "title": "La importancia de las visitas regulares al veterinario",
-        "content": "Chequeos médicos frecuentes aseguran una vida larga y sana para tu mascota.",
-        "category": "Salud",
-        "image": "https://ruta-de-la-imagen.com/visitas-veterinario.png"
+        postId: "17",
+        postType: "missing",
+        title: "Perro extraviado en el parque central",
+        author: "",
+        content: "Rocky se perdió el 27 de febrero. Es un Golden Retriever muy amigable.",
+        date: "27/02/2025",
+        imageUrl: "17.avif",
+        tags: {
+            race: "Golden Retriever",
+            age: "5 años",
+            male: true,
+            distance: "2km"
+        }
     },
     {
-        "author": "Dra. Luisa Gómez",
-        "title": "Cuidado dental para mascotas",
-        "content": "¿Sabías que el 80% de los perros mayores de 3 años sufren enfermedades dentales? Aprende cómo prevenirlas.",
-        "category": "Higiene",
-        "image": "https://ruta-de-la-imagen.com/cuidado-dental.png"
+        postId: "18",
+        postType: "volunteering",
+        title: "Apoyo en campaña de adopción",
+        author: "",
+        content: "Buscamos voluntarios para ayudar en nuestra feria de adopción el 15 de marzo.",
+        date: "26/02/2025",
+        imageUrl: "adopcion.jpg",
+        tags: {
+            distance: "6km"
+        }
     },
     {
-        "author": "Pet Friends",
-        "title": "Cómo socializar a tu cachorro",
-        "content": "Guía paso a paso para que tu cachorro aprenda a interactuar con personas y otros animales.",
-        "category": "Comportamiento",
-        "image": "https://ruta-de-la-imagen.com/socializar-cachorro.png"
+        postId: "19",
+        postType: "blog",
+        title: "Cómo alimentar a un cachorro",
+        author: "Sofía Herrera",
+        content: "Los cachorros tienen necesidades especiales. Aprende cómo alimentarlos correctamente.",
+        date: "25/02/2025",
+        imageUrl: "19.avif",
+        tags: {}
     },
     {
-        "author": "Vet. Juan Pérez",
-        "title": "Cómo preparar a tu mascota para un viaje",
-        "content": "Consejos útiles para garantizar un viaje cómodo y seguro para tu mascota.",
-        "category": "Viajes",
-        "image": "https://ruta-de-la-imagen.com/viaje-mascota.png"
+        postId: "20",
+        postType: "marketplace",
+        title: "Rascador para gatos en venta",
+        author: "Pedro Martínez",
+        content: "Rascador grande para gatos, casi nuevo, en perfecto estado.",
+        date: "24/02/2025",
+        imageUrl: "rascador.png",
+        tags: {
+            distance: "5km"
+        }
     },
     {
-        "id": 1,
-        "tipo": "adopcion",
-        "nombre": "Milaneso",
-        "imagen": "https://ejemplo.com/imagenes/milaneso.jpg",
-        "caracteristicas": {
-            "raza": "Mestizo",
-            "desparasitado": true,
-            "peso": "4.3 Kg",
-            "esterilizado": true,
-            "genero": "Macho",
-            "edad": "2 años"
-        },
-        "descripcion": "Bigotes fue rescatado de la placita, le encontramos en una caja cuando era un bebé.",
-        "favorito": false
+        postId: "21",
+        postType: "adoption",
+        title: "Nina busca un hogar",
+        author: "",
+        content: "Nina fue rescatada de la calle y es muy cariñosa. Necesita una familia responsable.",
+        date: "06/03/2025",
+        imageUrl: "21.avif",
+        tags: {
+            race: "Mestizo",
+            vaccinated: true,
+            sterilyzed: false,
+            age: "1 año",
+            female: true
+        }
     },
     {
-        "id": 2,
-        "tipo": "adopcion",
-        "nombre": "Luna",
-        "imagen": "https://ejemplo.com/imagenes/luna.jpg",
-        "caracteristicas": {
-            "raza": "Labrador",
-            "desparasitado": true,
-            "peso": "12 Kg",
-            "esterilizado": true,
-            "genero": "Hembra",
-            "edad": "3 años"
-        },
-        "descripcion": "Luna es una perrita cariñosa que busca un hogar lleno de amor.",
-        "favorito": true
+        postId: "22",
+        postType: "missing",
+        title: "Se perdió nuestro perro Toby",
+        author: "",
+        content: "Toby se extravió en el barrio Los Pinos el 5 de marzo. Si lo ves, por favor avísanos.",
+        date: "05/03/2025",
+        imageUrl: "22.avif",
+        tags: {
+            race: "Cocker Spaniel",
+            age: "4 años",
+            male: true,
+            distance: "3km"
+        }
     },
     {
-        "id": 3,
-        "tipo": "adopcion",
-        "nombre": "Rex",
-        "imagen": "https://ejemplo.com/imagenes/rex.jpg",
-        "caracteristicas": {
-            "raza": "Pastor Alemán",
-            "desparasitado": true,
-            "peso": "25 Kg",
-            "esterilizado": false,
-            "genero": "Macho",
-            "edad": "4 años"
-        },
-        "descripcion": "Rex es un perro protector y fiel, ideal para una familia activa.",
-        "favorito": false
+        postId: "23",
+        postType: "volunteering",
+        title: "Ayuda en jornada de vacunación",
+        author: "",
+        content: "Se necesitan voluntarios para asistir en la jornada de vacunación gratuita.",
+        date: "04/03/2025",
+        imageUrl: "23.avif",
+        tags: {
+            distance: "5km"
+        }
     },
     {
-        "id": 4,
-        "tipo": "adopcion",
-        "nombre": "Nala",
-        "imagen": "https://ejemplo.com/imagenes/nala.jpg",
-        "caracteristicas": {
-            "raza": "Golden Retriever",
-            "desparasitado": true,
-            "peso": "20 Kg",
-            "esterilizado": true,
-            "genero": "Hembra",
-            "edad": "2 años"
-        },
-        "descripcion": "Nala es muy juguetona y sociable, perfecta para niños.",
-        "favorito": true
+        postId: "24",
+        postType: "blog",
+        title: "Cómo socializar a tu perro",
+        author: "Andrea López",
+        content: "La socialización temprana es clave para que tu perro tenga una buena conducta.",
+        date: "03/03/2025",
+        imageUrl: "24.avif",
+        tags: {}
     },
     {
-        "id": 5,
-        "tipo": "adopcion",
-        "nombre": "Simba",
-        "imagen": "https://ejemplo.com/imagenes/simba.jpg",
-        "caracteristicas": {
-            "raza": "Mestizo",
-            "desparasitado": false,
-            "peso": "5 Kg",
-            "esterilizado": false,
-            "genero": "Macho",
-            "edad": "1 año"
-        },
-        "descripcion": "Simba es un cachorro lleno de energía y muy cariñoso.",
-        "favorito": false
+        postId: "25",
+        postType: "marketplace",
+        title: "Vendo acuario con accesorios",
+        author: "Daniel Fernández",
+        content: "Acuario de 50 litros con filtro, luz LED y accesorios incluidos.",
+        date: "02/03/2025",
+        imageUrl: "acuario.jpg",
+        tags: {
+            distance: "6km"
+        }
     },
     {
-        "id": 6,
-        "tipo": "adopcion",
-        "nombre": "Daisy",
-        "imagen": "https://ejemplo.com/imagenes/daisy.jpg",
-        "caracteristicas": {
-            "raza": "Beagle",
-            "desparasitado": true,
-            "peso": "8 Kg",
-            "esterilizado": true,
-            "genero": "Hembra",
-            "edad": "3 años"
-        },
-        "descripcion": "Daisy es una perrita muy inteligente y leal.",
-        "favorito": true
+        postId: "26",
+        postType: "adoption",
+        title: "Cachorra en adopción",
+        author: "",
+        content: "Esta pequeña necesita una familia que la cuide y le brinde amor.",
+        date: "01/03/2025",
+        imageUrl: "26.avif",
+        tags: {
+            race: "Mestizo",
+            vaccinated: false,
+            sterilyzed: false,
+            age: "4 meses",
+            female: true
+        }
     },
     {
-        "id": 7,
-        "tipo": "adopcion",
-        "nombre": "Rocky",
-        "imagen": "https://ejemplo.com/imagenes/rocky.jpg",
-        "caracteristicas": {
-            "raza": "Bulldog Francés",
-            "desparasitado": true,
-            "peso": "10 Kg",
-            "esterilizado": false,
-            "genero": "Macho",
-            "edad": "2 años"
-        },
-        "descripcion": "Rocky es un perro pequeño pero valiente, le encanta jugar.",
-        "favorito": false
+        postId: "27",
+        postType: "missing",
+        title: "Buscamos a nuestro gato Oliver",
+        author: "",
+        content: "Oliver desapareció el 29 de febrero. Tiene ojos verdes y es muy dócil.",
+        date: "29/02/2025",
+        imageUrl: "27.avif",
+        tags: {
+            race: "Mestizo",
+            age: "2 años",
+            male: true,
+            distance: "1km"
+        }
     },
     {
-        "id": 8,
-        "tipo": "adopcion",
-        "nombre": "Bella",
-        "imagen": "https://ejemplo.com/imagenes/bella.jpg",
-        "caracteristicas": {
-            "raza": "Cocker Spaniel",
-            "desparasitado": true,
-            "peso": "9 Kg",
-            "esterilizado": true,
-            "genero": "Hembra",
-            "edad": "5 años"
-        },
-        "descripcion": "Bella es una perrita muy dulce, le encanta estar con personas.",
-        "favorito": true
+        postId: "28",
+        postType: "volunteering",
+        title: "Se necesitan voluntarios en refugio",
+        author: "",
+        content: "Refugio Esperanza busca ayuda para limpiar y alimentar a los animales.",
+        date: "28/02/2025",
+        imageUrl: "28.avif",
+        tags: {
+            distance: "4km"
+        }
     },
     {
-        "id": 9,
-        "tipo": "adopcion",
-        "nombre": "Max",
-        "imagen": "https://ejemplo.com/imagenes/max.jpg",
-        "caracteristicas": {
-            "raza": "Husky Siberiano",
-            "desparasitado": true,
-            "peso": "18 Kg",
-            "esterilizado": false,
-            "genero": "Macho",
-            "edad": "3 años"
-        },
-        "descripcion": "Max es un perro con mucha energía, ideal para quienes disfrutan de la actividad física.",
-        "favorito": false
+        postId: "29",
+        postType: "blog",
+        title: "Errores comunes al entrenar un cachorro",
+        author: "Lucas Martínez",
+        content: "Evita estos errores al entrenar a tu cachorro para lograr mejores resultados.",
+        date: "27/02/2025",
+        imageUrl: "29.avif",
+        tags: {}
     },
     {
-        "id": 10,
-        "tipo": "adopcion",
-        "nombre": "Chispa",
-        "imagen": "https://ejemplo.com/imagenes/chispa.jpg",
-        "caracteristicas": {
-            "raza": "Chihuahua",
-            "desparasitado": true,
-            "peso": "2 Kg",
-            "esterilizado": true,
-            "genero": "Hembra",
-            "edad": "6 años"
-        },
-        "descripcion": "Chispa es pequeña pero con un gran corazón, perfecta para compañía.",
-        "favorito": true
-    },
-    {
-        "id": 1,
-        "tipo": "rescate",
-        "titulo": "Necesitamos traslado a veterinaria en Hohenau",
-        "imagen": "https://ejemplo.com/imagenes/rescate1.jpg",
-        "ubicacion": {
-            "distancia": "50 mts",
-            "direccion": "Hohenau"
-        },
-        "necesidades": [
-            "Traslado",
-            "Dinero"
-        ],
-        "descripcion": "Necesitamos móvil para trasladar a este gato a la veterinaria Dutra en Hohenau, también dinero para pagar su tratamiento."
-    },
-    {
-        "id": 2,
-        "tipo": "rescate",
-        "titulo": "Perrito herido en la carretera",
-        "imagen": "https://ejemplo.com/imagenes/rescate2.jpg",
-        "ubicacion": {
-            "distancia": "3 km",
-            "direccion": "Ruta 1 km 250"
-        },
-        "necesidades": [
-            "Atención veterinaria",
-            "Traslado"
-        ],
-        "descripcion": "Se encontró un perro atropellado al costado de la carretera, necesita atención urgente."
-    },
-    {
-        "id": 3,
-        "tipo": "rescate",
-        "titulo": "Gatitos abandonados en una caja",
-        "imagen": "https://ejemplo.com/imagenes/rescate3.jpg",
-        "ubicacion": {
-            "distancia": "2 km",
-            "direccion": "Plaza Central"
-        },
-        "necesidades": [
-            "Hogar temporal",
-            "Leche para gatitos"
-        ],
-        "descripcion": "Cinco gatitos fueron dejados en una caja, necesitan hogar temporal y alimentación."
-    },
-    {
-        "id": 4,
-        "tipo": "rescate",
-        "titulo": "Perra con cachorros en un baldío",
-        "imagen": "https://ejemplo.com/imagenes/rescate4.jpg",
-        "ubicacion": {
-            "distancia": "5 km",
-            "direccion": "Barrio San Roque"
-        },
-        "necesidades": [
-            "Alimento",
-            "Refugio",
-            "Atención veterinaria"
-        ],
-        "descripcion": "Una perra dio a luz en un baldío, los cachorros están expuestos al frío y necesitan ayuda."
-    },
-    {
-        "id": 5,
-        "tipo": "rescate",
-        "titulo": "Perro desnutrido en la terminal",
-        "imagen": "https://ejemplo.com/imagenes/rescate5.jpg",
-        "ubicacion": {
-            "distancia": "1 km",
-            "direccion": "Terminal de Ómnibus"
-        },
-        "necesidades": [
-            "Alimento",
-            "Atención veterinaria"
-        ],
-        "descripcion": "Un perro en estado crítico fue visto en la terminal, necesita comida y tratamiento urgente."
-    },
-    {
-        "id": 6,
-        "tipo": "rescate",
-        "titulo": "Gato atrapado en un árbol",
-        "imagen": "https://ejemplo.com/imagenes/rescate6.jpg",
-        "ubicacion": {
-            "distancia": "500 mts",
-            "direccion": "Parque Municipal"
-        },
-        "necesidades": [
-            "Rescate",
-            "Hogar temporal"
-        ],
-        "descripcion": "Un gato lleva tres días atrapado en un árbol, necesita ayuda para bajarlo y un hogar temporal."
-    },
-    {
-        "id": 7,
-        "tipo": "rescate",
-        "titulo": "Perro con sarna necesita tratamiento",
-        "imagen": "https://ejemplo.com/imagenes/rescate7.jpg",
-        "ubicacion": {
-            "distancia": "2.5 km",
-            "direccion": "Zona Mercado 4"
-        },
-        "necesidades": [
-            "Tratamiento médico",
-            "Hogar temporal"
-        ],
-        "descripcion": "Se encontró un perro con sarna severa, necesita atención médica urgente y un hogar donde pueda recuperarse."
-    },
-    {
-        "id": 8,
-        "tipo": "rescate",
-        "titulo": "Cachorro abandonado en una bolsa",
-        "imagen": "https://ejemplo.com/imagenes/rescate8.jpg",
-        "ubicacion": {
-            "distancia": "3 km",
-            "direccion": "Calle 10 y Mariscal López"
-        },
-        "necesidades": [
-            "Hogar temporal",
-            "Leche para cachorro"
-        ],
-        "descripcion": "Alguien dejó un cachorro dentro de una bolsa de basura"
-    },
-    {
-        "id": 1,
-        "tipo": "extraviado",
-        "titulo": "Michifu está perdido en zona Avda. Irrazábal",
-        "imagen": "https://ejemplo.com/imagenes/perdido1.jpg",
-        "ubicacion": {
-            "distancia": "2 km",
-            "direccion": "Avda. Irrazábal c/ Santa María"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Se perdió el lunes, escapó de su casa frente a la Gobernación de Itapúa, tenía collar rojo con cascabel."
-    },
-    {
-        "id": 2,
-        "tipo": "extraviado",
-        "titulo": "Perdimos a Luna en Barrio San José",
-        "imagen": "https://ejemplo.com/imagenes/perdido2.jpg",
-        "ubicacion": {
-            "distancia": "3 km",
-            "direccion": "Calle 14 de Mayo"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Luna se escapó de casa el sábado, es una perra negra con pecho blanco. Cualquier información será recompensada."
-    },
-    {
-        "id": 3,
-        "tipo": "extraviado",
-        "titulo": "Gato encontrado en Plaza Central",
-        "imagen": "https://ejemplo.com/imagenes/encontrado1.jpg",
-        "ubicacion": {
-            "distancia": "1 km",
-            "direccion": "Plaza Central"
-        },
-        "perdido": false,
-        "encontrado": true,
-        "descripcion": "Encontré un gato gris atigrado con collar azul en la plaza, parece estar perdido. Busco a su dueño."
-    },
-    {
-        "id": 4,
-        "tipo": "extraviado",
-        "titulo": "Perrito extraviado en zona Terminal",
-        "imagen": "https://ejemplo.com/imagenes/perdido3.jpg",
-        "ubicacion": {
-            "distancia": "1.5 km",
-            "direccion": "Terminal de Ómnibus"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Se perdió Toby, un cachorro marrón con manchas blancas. Tiene chip, pero no responde al llamado."
-    },
-    {
-        "id": 5,
-        "tipo": "extraviado",
-        "titulo": "Perra encontrada en la ruta",
-        "imagen": "https://ejemplo.com/imagenes/encontrado2.jpg",
-        "ubicacion": {
-            "distancia": "4 km",
-            "direccion": "Ruta 1 km 250"
-        },
-        "perdido": false,
-        "encontrado": true,
-        "descripcion": "Encontré una perrita con collar rosa deambulando en la ruta. Es muy dócil, debe tener dueño."
-    },
-    {
-        "id": 6,
-        "tipo": "extraviado",
-        "titulo": "Cachorro perdido en barrio San Roque",
-        "imagen": "https://ejemplo.com/imagenes/perdido4.jpg",
-        "ubicacion": {
-            "distancia": "2 km",
-            "direccion": "Barrio San Roque"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Buscamos a nuestro cachorro Bruno, desapareció el domingo por la mañana. Es pequeño y muy juguetón."
-    },
-    {
-        "id": 7,
-        "tipo": "extraviado",
-        "titulo": "Gata encontrada en Avenida España",
-        "imagen": "https://ejemplo.com/imagenes/encontrado3.jpg",
-        "ubicacion": {
-            "distancia": "3 km",
-            "direccion": "Avenida España"
-        },
-        "perdido": false,
-        "encontrado": true,
-        "descripcion": "Gata blanca con manchas naranjas encontrada en la avenida, parece estar embarazada. Buscamos a su dueño."
-    },
-    {
-        "id": 8,
-        "tipo": "extraviado",
-        "titulo": "Perdimos a Max en el Parque Municipal",
-        "imagen": "https://ejemplo.com/imagenes/perdido5.jpg",
-        "ubicacion": {
-            "distancia": "500 mts",
-            "direccion": "Parque Municipal"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Max es un perro Golden Retriever, se perdió el viernes en el parque. Es muy amigable, cualquier información es bienvenida."
-    },
-    {
-        "id": 9,
-        "tipo": "extraviado",
-        "titulo": "Perro encontrado en el barrio Santa Ana",
-        "imagen": "https://ejemplo.com/imagenes/encontrado4.jpg",
-        "ubicacion": {
-            "distancia": "4 km",
-            "direccion": "Barrio Santa Ana"
-        },
-        "perdido": false,
-        "encontrado": true,
-        "descripcion": "Este perro apareció en mi patio, es de tamaño mediano, color marrón con patas blancas. Parece estar perdido."
-    },
-    {
-        "id": 10,
-        "tipo": "extraviado",
-        "titulo": "Gatito perdido en el Mercado 4",
-        "imagen": "https://ejemplo.com/imagenes/perdido6.jpg",
-        "ubicacion": {
-            "distancia": "3 km",
-            "direccion": "Zona Mercado 4"
-        },
-        "perdido": true,
-        "encontrado": false,
-        "descripcion": "Mi gatito Tom se perdió en el mercado. Es negro con ojos verdes, si lo ven, por favor avísenme."
+        postId: "30",
+        postType: "marketplace",
+        title: "Transportadora para gatos a la venta",
+        author: "Elena Rodríguez",
+        content: "Transportadora en buen estado, ideal para gatos o perros pequeños.",
+        date: "26/02/2025",
+        imageUrl: "30.avif",
+        tags: {
+            distance: "3km"
+        }
     }
 ] 
