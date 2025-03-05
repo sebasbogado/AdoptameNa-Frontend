@@ -17,10 +17,8 @@ const data = [
         imageUrl: "1.avif",
         tags: {
             race: "Labrador",
-            vaccinated: true,
-            sterilyzed: true,
             age: "3 años",
-            female: true
+            female: "Hembra"
         }
     },
     {
@@ -34,7 +32,7 @@ const data = [
         tags: {
             race: "Siames",
             age: "5 años",
-            male: true,
+            male: "Macho",
             distance: "2km"
         }
     },
@@ -82,10 +80,10 @@ const data = [
         imageUrl: "6.avif",
         tags: {
             race: "Mestizo",
-            vaccinated: false,
-            sterilyzed: false,
+            vaccinated: "Vacunado",
+            sterilyzed: "Esterilizado",
             age: "6 meses",
-            male: true
+            male: "Macho"
         }
     },
     {
@@ -99,7 +97,7 @@ const data = [
         tags: {
             race: "Beagle",
             age: "4 años",
-            female: true,
+            female: "Hembra",
             distance: "1km"
         }
     },
@@ -147,10 +145,9 @@ const data = [
         imageUrl: "11.avif",
         tags: {
             race: "Pastor Alemán",
-            vaccinated: true,
-            sterilyzed: true,
+            vaccinated: "Vacunado",
             age: "2 años",
-            male: true
+            male: "Macho"
         }
     },
     {
@@ -164,7 +161,7 @@ const data = [
         tags: {
             race: "Mestizo",
             age: "3 años",
-            female: true,
+            female: "Hembra",
             distance: "3km"
         }
     },
@@ -212,10 +209,10 @@ const data = [
         imageUrl: "16.avif",
         tags: {
             race: "Mestizo",
-            vaccinated: false,
-            sterilyzed: false,
+            vaccinated: "Vacunado",
+            sterilyzed: "Esterilizado",
             age: "3 meses",
-            male: true
+            male: "Macho"
         }
     },
     {
@@ -229,7 +226,7 @@ const data = [
         tags: {
             race: "Golden Retriever",
             age: "5 años",
-            male: true,
+            male: "Macho",
             distance: "2km"
         }
     },
@@ -277,10 +274,10 @@ const data = [
         imageUrl: "21.avif",
         tags: {
             race: "Mestizo",
-            vaccinated: true,
-            sterilyzed: false,
+            vaccinated: "Vacunado",
+            sterilyzed: "Esterilizado",
             age: "1 año",
-            female: true
+            female: "Hembra"
         }
     },
     {
@@ -294,7 +291,7 @@ const data = [
         tags: {
             race: "Cocker Spaniel",
             age: "4 años",
-            male: true,
+            male: "Macho",
             distance: "3km"
         }
     },
@@ -342,10 +339,8 @@ const data = [
         imageUrl: "26.avif",
         tags: {
             race: "Mestizo",
-            vaccinated: false,
-            sterilyzed: false,
             age: "4 meses",
-            female: true
+            female: "Hembra"
         }
     },
     {
@@ -359,7 +354,7 @@ const data = [
         tags: {
             race: "Mestizo",
             age: "2 años",
-            male: true,
+            male: "Macho",
             distance: "1km"
         }
     },
