@@ -1,16 +1,12 @@
 export interface Post {
-    postId: string;
+    id: number;
+    idUser: number;
     title: string;
-    tags: {
-        especie: string;
-        edad: string;
-        tamaño?: string;
-        color?: string;
-        ciudad: string;
-    };
-    author: string;
     content: string;
-    date: string;
-    imageUrl: string;
-    postType: string;
+    idPostType: number;
+    locationCoordinates: string;
+    contactNumber: string;
+    status: string;
+    sharedCounter: number;
+    publicationDate: string;
 }
