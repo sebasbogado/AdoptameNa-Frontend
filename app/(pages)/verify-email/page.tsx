@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios"; // Para hacer la petición al backend
 import { Typography, Button } from "@material-tailwind/react";
-
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -12,27 +11,30 @@ export default function Page() {
 
   useEffect(() => {
     const token = searchParams.get("token");
-
+  
     if (!token) {
       setStatus("error");
       return;
     }
-console.log("token" , token)
-    // Enviar el token al backend para verificar el email
+  
+    console.log("Token recibido en la URL:", token); // <-- Verifica si el token existe en la URL
+  
+    localStorage.setItem("authToken", token);
+
     axios
-      .post(`http://localhost:8080/verify-email?token=${token}`)
+      .post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/verify-email?token=${token}`)
       .then((response) => {
-        console.log("response",response)
-        if (response.data.success) {
+        console.log("Respuesta de verificación:", response.data);
+        if (response.status == 200) {
           setStatus("success");
-          setTimeout(() => router.push("/login"), 3000); // Redirige a login tras 3s
+          setTimeout(() => router.push("/auth/login"), 3000); // Redirige a login tras 3s
         } else {
           setStatus("error");
         }
       })
       .catch(() => setStatus("error"));
   }, [searchParams, router]);
-
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-md text-center w-96">
@@ -54,9 +56,7 @@ console.log("token" , token)
             <Typography className="text-red-600 font-bold">
               Error al verificar el correo
             </Typography>
-            <Button onClick={() => router.push("/login")} className="mt-4 bg-blue-500">
-              Ir al login
-            </Button>
+
           </>
         )}
       </div>
