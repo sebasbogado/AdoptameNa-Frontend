@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
+import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png"; 
 export default function Login() {
@@ -83,14 +84,7 @@ export default function Login() {
           </Typography>
           
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-            <Typography
-              as="a"
-              href="/dashboard"
-              variant="small"
-              className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48"
-            >
-              Iniciar Sesión
-            </Typography>
+          <Link href="/dashboard" className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48">Iniciar sesión</Link>
 
             <Typography
               as="a"
