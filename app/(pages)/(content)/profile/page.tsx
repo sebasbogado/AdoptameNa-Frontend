@@ -4,7 +4,7 @@ import Button from '@/components/buttons/Button';
 import EditButton from '@/components/buttons/EditButton';
 import MenuButton from '@/components/buttons/MenuButton';
 import Banners from '@components/banners';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 import Section from '@/components/Section';
 
@@ -16,13 +16,14 @@ import { getUserProfile } from '@/utils/userProfile.http';
 import { UserProfile } from '@/types/userProfile';
 import { Post } from '@/types/posts';
 import { Pet } from '@/types/pets';
-import { useAuth } from '@/contexts/authContext';
 import { useRouter } from 'next/navigation';
+import { AuthContext } from '@/contexts/authContext';
 
 
 
 
 export default function Page() {
+    const { authToken, currentUser } = useContext(AuthContext);
 
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
@@ -30,17 +31,13 @@ export default function Page() {
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<Post[]>([]);
     const [userData, setUserData] = useState<UserProfile | null>(null);
-    const { currentUser } = useAuth();
     const router = useRouter();
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const { authToken } = useAuth();
-                if (!authToken) {
-                    router.push("/auth/login");
-                    return
-                }
+                console.log(authToken);
                 // Obtener Posts
                 const postParams = { keyword: "7" };
                 const postData = await getPosts(authToken, postParams);
@@ -78,7 +75,7 @@ export default function Page() {
         };
 
         fetchData();
-    }, []);
+    }, [authToken]);
     const user: User = {
         name: 'Jorge Daniel Figueredo Amarilla',
         description:

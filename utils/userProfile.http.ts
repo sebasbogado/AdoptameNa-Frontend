@@ -1,11 +1,11 @@
-const API_URL = "http://adoptamena-api.rodrigomaidana.com/users";
+const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/users";
 
 export const getUserProfile = async (id: string, token: string) => {
   try {
     const response = await fetch(`${API_URL}/${id}/profile`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,  
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -19,7 +19,7 @@ export const getUserProfile = async (id: string, token: string) => {
     }
 
     const data = await response.json();
-    return data; 
+    return data;
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener el perfil");
   }

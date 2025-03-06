@@ -2,7 +2,8 @@
 import { Bell, LogOut, User } from "lucide-react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useAuth } from "@contexts/authContext" // Adjust path as needed
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/authContext";
 
 interface UserHeaderProps {
   currentUser: {
@@ -12,8 +13,8 @@ interface UserHeaderProps {
 }
 
 const UserHeader = ({ currentUser }: UserHeaderProps) => {
-  const { logout } = useAuth();
-
+  const useAuth = useContext(AuthContext);
+  const { logout } = useAuth;
   return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
       <Bell className="h-5 w-5 text-amber-500" />

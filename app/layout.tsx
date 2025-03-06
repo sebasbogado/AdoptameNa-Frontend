@@ -20,9 +20,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
 
       <body className={roboto.className}>
-        <AuthProvider>
-          <AppProvider>{children}</AppProvider>
-        </AuthProvider>
+        <AppProvider>
+          <AuthProvider>
+            {children}
+
+          </AuthProvider>
+        </AppProvider>
       </body>
 
     </html>

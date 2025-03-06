@@ -13,7 +13,7 @@ type AuthContextType = {
 };
 
 // Create context with default values
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   authToken: null,
   setAuthToken: () => { },
   logout: () => { },
@@ -109,6 +109,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}

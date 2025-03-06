@@ -28,10 +28,10 @@ const AdoptionForm = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const [selectedImages, setSelectedImages] = useState<string[]>([
-    "1.avif",
-    "2.avif",
-    "3.avif",
-    "4.avif"
+    "/1.avif",
+    "/2.avif",
+    "/3.avif",
+    "/4.avif"
   ]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 

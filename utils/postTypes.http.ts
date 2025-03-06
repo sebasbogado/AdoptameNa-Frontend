@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://adoptamena-api.rodrigomaidana.com/postTypes";
+const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/postTypes";
 
 export const getPostType = async (id: string, token?: string) => {
   try {

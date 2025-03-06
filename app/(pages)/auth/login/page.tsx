@@ -1,19 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@contexts/authContext";
 import { useAppContext } from "@/contexts/appContext";
+import { AuthContext } from "@/contexts/authContext";
 
 
 export default function Login() {
+  const useAuth = useContext(AuthContext);
   const router = useRouter();
-  const { singIn } = useAuth();
+  const { singIn } = useAuth;
   const { setCurrentUser } = useAppContext();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
