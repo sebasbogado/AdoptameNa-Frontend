@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Card, CardContent } from "@components/ui/card";
-import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 import dynamic from 'next/dynamic';
@@ -36,7 +35,7 @@ const AdoptionForm = () => {
   ]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -251,8 +250,7 @@ const AdoptionForm = () => {
         </div>
 
       </div>
-      {/* Footer */}
-       <Footer></Footer>
+      <Footer />
     </div>
   );
 };
