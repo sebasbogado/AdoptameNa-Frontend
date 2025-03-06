@@ -13,14 +13,27 @@ const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
 const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
 const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
+interface Pet {
+    id: number;
+    idUser: number;
+    title: string;
+    content: string;
+    idPostType: number;
+    locationCoordinates: string;
+    contactNumber: string;
+    status: string;
+    sharedCounter: number;
+    publicationDate: string;
+    tags: Record<string, string>; // Un objeto con claves dinámicas y valores string
+}
 
 export default function Page() {
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
 
-    const [pets, setPets] = useState<any[]>([]); // Asegura que pets inicie como un array vacío
-
+    const [pets, setPets] = useState<Pet[]>([]); // Ahora pets tiene el tipo correcto
+    
     useEffect(() => {
         async function fetchData() {
             try {
@@ -41,7 +54,7 @@ export default function Page() {
                     }
                 }));
 
-                //console.log("Posts:", postsWithTags);
+                console.log("Posts:", postsWithTags);
                 
                 setPets(postsWithTags || []); // Asegurar que sea un array
             } catch (error) {
