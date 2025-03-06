@@ -36,9 +36,16 @@ export default function Page() {
 
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
                 console.log(authToken);
-                // Obtener Posts
+                if (!authToken) {
+                    setLoading(false);
+                    console.error("No hay token de autenticación");
+                    router.push("/auth/login");
+                    return;
+                }
+
                 const postParams = { keyword: "7" };
                 const postData = await getPosts(authToken, postParams);
 
@@ -96,7 +103,7 @@ export default function Page() {
             </div>
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
-                <EditButton size="lg" />
+                <EditButton size="lg" id='edit-button' />
                 <Button variant="cta" size="lg">Contactar</Button>
                 <MenuButton size="lg" />
             </div>

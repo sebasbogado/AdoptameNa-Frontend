@@ -4,6 +4,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useContext } from "react";
 import { AuthContext } from "@/contexts/authContext";
+import Link from "next/link";
 
 interface UserHeaderProps {
   currentUser: {
@@ -23,7 +24,7 @@ const UserHeader = ({ currentUser }: UserHeaderProps) => {
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="outline-none">
-            <Avatar.Root className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500 cursor-pointer">
+            <Avatar.Root className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500 cursor-pointer" id="avatar">
               <Avatar.Fallback className="text-amber-50 font-medium">
                 {currentUser.fullName?.[0]}
               </Avatar.Fallback>
@@ -38,10 +39,10 @@ const UserHeader = ({ currentUser }: UserHeaderProps) => {
           >
             {/* User info section */}
             <div className="px-3 py-2 border-b border-gray-200 mb-1">
-              <a href="/profile" className="flex items-center gap-2 mb-1">
+              <Link href="/profile" className="flex items-center gap-2 mb-1">
                 <User size={16} className="text-gray-500" />
                 <span className="font-medium text-sm text-gray-800">{currentUser.fullName}</span>
-              </a>
+              </Link>
               <div className="text-xs text-gray-500 pl-6">{currentUser.email}</div>
             </div>
 
