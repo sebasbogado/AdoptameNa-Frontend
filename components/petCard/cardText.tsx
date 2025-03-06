@@ -23,13 +23,9 @@ const CardText = ({ post, className = "" }: props) => {
       try {
 
         const { authToken } = useAuth;
-        if (!authToken) {
-          router.push("/auth/login");
-          return
-        }
 
         const postId = post.id;
-        const postTypes = await getPostType(postId, authToken);
+        const postTypes = await getPostType(postId, authToken as string);
 
         if (postTypes) {
           setPostTypes(postTypes);
