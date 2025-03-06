@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}`;
 
 // Crear una instancia de Axios
 export const api = axios.create({
