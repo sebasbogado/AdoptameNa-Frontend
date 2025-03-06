@@ -15,9 +15,9 @@ interface AppContextType {
 }
 const defaultContextValue: AppContextType = {
     cartItems: [],
-    setCartItems: () => {},
+    setCartItems: () => { },
     currentUser: null,
-    setCurrentUser: () => {},
+    setCurrentUser: () => { },
 };
 
 const AppContext = createContext<AppContextType>(defaultContextValue);

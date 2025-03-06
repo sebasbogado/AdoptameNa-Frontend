@@ -7,10 +7,14 @@ import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@contexts/AuthContext";
+import { useAuth } from "@contexts/authContext";
+import { useAppContext } from "@/contexts/appContext";
+
+
 export default function Login() {
   const router = useRouter();
-  ;
+  const { setAuthToken } = useAuth();
+  const { setCurrentUser } = useAppContext();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -33,6 +37,9 @@ export default function Login() {
       });
       const token = response.data.token;
       localStorage.setItem("authToken", token);
+      setAuthToken(token);
+      setCurrentUser(response.data.user);
+      console.log(response.data.user);
       router.push("/dashboard");
     } catch (error) {
       console.error("Error en login:", error.response?.data || error.message);
