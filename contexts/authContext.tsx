@@ -6,18 +6,16 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [authToken, setAuthToken] = useState(null);
-  const [user, setUser] = useState({ name: "", email: "" });
-
   useEffect(() => {
+    // Recuperar token y usuario desde localStorage
     const storedToken = localStorage.getItem("authToken");
     if (storedToken) {
-      console.log("Token recuperado del localStorage:", storedToken);
       setAuthToken(storedToken);
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ authToken, setAuthToken, user, setUser }}>
+    <AuthContext.Provider value={{ authToken, setAuthToken }}>
       {children}
     </AuthContext.Provider>
   );

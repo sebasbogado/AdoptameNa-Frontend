@@ -2,56 +2,103 @@
 
 import { Button } from '@material-tailwind/react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from "@/contexts/AuthContext";
 import Banners from '@components/banners'
 import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
-import petsServices from '@services/petsServices'
+import postsServices from '@services/postsServices'
 import PetCard from '@components/petCard/petCard'
 import PostsTags from '@/components/petCard/tags'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
+import getPost from "@utils/post-client";
 
-// Definimos la interfaz para una mascota
-interface Pet {
-    id: string;
-    name: string;
-    age?: number;
-    breed?: string;
-    image?: string;
-}
+type Post = {
+    postId: string;
+    postType: string;
+    title: string;
+    author?: string;
+    content: string;
+    date: string;
+    imageUrl: string;
+    tags: {
+        race?: string;
+        vaccinated?: boolean;
+        sterilyzed?: boolean;
+        age?: string;
+        female?: boolean;
+        male?: boolean;
+        distance?: string;
+    };
+};
 
 export default function Page() {
     const router = useRouter()
-    const { authToken, setAuthToken } = useAuth();
-    const postDummyData = {
-        postId: "1",
-        postType: "adoption",
-        title: "Arsenio está en adopción",
-        author: "",
-        content: "Encontramos este gatito en un basurero, necesita un hogar amoroso y responsable",
-        date: "18/02/2025",
-        imageUrl: "",
-        tags: {
-            race: "mestizo",
-            age: "2 años",
-            gender: "Hembra"
+    const { authToken, setAuthToken } = useAuth();    const posts = getPost();
+    //const [posts, setPosts] = useState<Post[]>([])
+
+    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
+
+    /*const { loading, fetch } = useCustomEffect(async () => {
+        let apiResponse = await postsServices.getAll();
+        console.log("Api Response: ", apiResponse)
+        return apiResponse;
+    }, {
+        whereOptions: undefined,
+        after: (res: Post[] | null) => {
+            setPosts(res ?? [])
         }
-    };
+    }, [])*/
 
     return (
-        <div className='flex flex-col gap-5'>
-            <Banners />
-            <Title postType='adoption' path='adoption'></Title>
-            <div className='flex h-fit w-full justify-evenly mb-9 overflow-x-clip '>
+        <div className='flex flex-col gap-3'>
+            <Banners images={bannerImages} />
+            {/* Sección de Adopción */}
+            <Title postType='adoption' path='adoption' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'adoption')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
             </div>
 
-            <Title postType='missing' path='missing'></Title>
+            {/* Sección de Desaparecidos */}
+            <Title postType='missing' path='missing' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'missing')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
+            
+            
+            {/* Sección de Voluntariado */}
+            <Title postType='volunteering' path='voluntariado' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'volunteering')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
 
-            <Title postType='blog' path='blog'></Title>
+            {/* Sección de Blogs */}
+            <Title postType='blog' path='blog' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'blog')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
 
-            <Title title='Nueva seccion' path='blog'></Title>
+            {/* Marketplace */}
+            <Title title='Tienda' path='marketplace' postType='marketplace' />
+            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
+                {posts
+                    .filter((post) => post.postType === 'marketplace')
+                    .slice(0, 5)
+                    .map((post) => <PetCard key={post.postId} post={post} />)}
+            </div>
 
 
             <Footer></Footer>
