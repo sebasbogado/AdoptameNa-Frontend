@@ -43,9 +43,10 @@ const CardText = ({ post, className = "" }: props) => {
     fetchData();
   }, []);
   const hardcodedTags = [
-    { iconType: "category", value: "Tech" },
-    { iconType: "difficulty", value: "Intermediate" },
-    { iconType: "language", value: "JavaScript" },
+    { iconType: "race", value: "Animal" },
+    { iconType: "race", value: "Mascota" },
+    { iconType: "age", value: "Naturaleza" },
+    { iconType: "race", value: "Animales" },
   ];
   return (
     <div className="px-2 py-2 flex flex-col bg-white rounded-lg card-text">

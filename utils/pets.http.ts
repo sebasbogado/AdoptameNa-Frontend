@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/pets";
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
 export const getPets = async (id: string, token?: string) => {
   try {
