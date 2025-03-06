@@ -6,6 +6,10 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: [
+    "text-blog",
+    "text-marketplace",
+  ],
   theme: {
     extend: {
       colors: {
@@ -33,8 +37,6 @@ module.exports = withMT({
         "btn-cta-text": "var(--btn-cta-text)",
         "btn-favorite-text": "var(--btn-favorite-text)",
         "btn-menu-text": "var(--btn-menu-text)",
-
-     
         //colores para tags y titulos de secciones
         adoption: "var(--color-adoption)",
         missing: "var(--color-missing)",
@@ -44,9 +46,9 @@ module.exports = withMT({
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
       },
-     fontFamily: {
+      fontFamily: {
         roboto: "var( --font-family)"
-     },  
+      },
 
     },
   },
