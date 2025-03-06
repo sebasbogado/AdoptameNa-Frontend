@@ -24,7 +24,7 @@ const UserHeader = ({ currentUser }: UserHeaderProps) => {
           <button className="outline-none">
             <Avatar.Root className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500 cursor-pointer">
               <Avatar.Fallback className="text-amber-50 font-medium">
-                {currentUser.fullName[0]}
+                {currentUser.fullName?.[0]}
               </Avatar.Fallback>
             </Avatar.Root>
           </button>

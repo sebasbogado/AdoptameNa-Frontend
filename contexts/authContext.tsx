@@ -82,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthToken(token);
     setLocalCurrentUser(user);
 
-
     if (isBrowser()) {
       router.push("/dashboard");
     }
