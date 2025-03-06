@@ -13,7 +13,7 @@ import { useAppContext } from "@/contexts/appContext";
 
 export default function Login() {
   const router = useRouter();
-  const { setAuthToken } = useAuth();
+  const { singIn } = useAuth();
   const { setCurrentUser } = useAppContext();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -37,9 +37,9 @@ export default function Login() {
       });
       const token = response.data.token;
       localStorage.setItem("authToken", token);
-      setAuthToken(token);
+      singIn(token, response.data.user);
+      console.log(response.data.token);
       setCurrentUser(response.data.user);
-      console.log(response.data.user);
       router.push("/dashboard");
     } catch (error) {
       console.error("Error en login:", error.response?.data || error.message);

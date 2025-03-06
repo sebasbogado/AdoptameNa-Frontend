@@ -1,13 +1,12 @@
 "use client"
 
-import { useAppContext } from "@/contexts/appContext";
 import UserHeader from "@/components/userHeader"
 import Image from "next/image";
 import Link from "next/link";
-
+import { useAuth } from "@/contexts/authContext";
 
 export default function Navbar() {
-    const { currentUser, cartItems } = useAppContext();
+    const { currentUser } = useAuth();
     return (
         <header className="w-full border-b">
             <nav className="w-full flex h-16 items-center justify-between px-4">
