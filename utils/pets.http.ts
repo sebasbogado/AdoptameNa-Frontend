@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://adoptamena-api.rodrigomaidana.com/pets";
+const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/pets";
 
 export const getPets = async (id: string, token?: string) => {
   try {
