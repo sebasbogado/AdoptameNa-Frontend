@@ -18,6 +18,7 @@ export default function Page() {
         confirmPassword: "",
     });
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const handleAccountTypeChange = (e) => {
         setAccountType(e.target.value);
@@ -74,23 +75,27 @@ export default function Page() {
                 role: "ORGANIZATION"
             };
 
-            try {
-                const response = await axios.post(
-                    `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
-                    payload
-                );
-            
-                if (response.status === 201 || response.status === 200) {
-                    router.push("/dashboard");
-                }
-            } catch (error) {
-                if (error.response?.status === 409) {
-                    setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
-                } else {
-                    setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
-                }
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
+                payload
+            );
+
+            if (response.status === 201 || response.status === 200) {
+                setSuccessMessage("✅ Registro exitoso. Revisa tu correo para verificar tu cuenta.");
+                setTimeout(() => {
+                    router.push("/auth/login");
+                }, 3000); // Redirige después de 3 segundos
             }
-            
+
+        } catch (error) {
+            if (error.response?.status === 409) {
+                setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
+            } else {
+                setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
+            }
+        }
+
     };
 
     return (
@@ -202,8 +207,13 @@ export default function Page() {
                     </Alert>
                 </div>
             )}
-
-
+            {successMessage && (
+                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
+                    <Alert className="text-sm px-4 py-2 w-fit flex items-center">
+                        {successMessage}
+                    </Alert>
+                </div>
+            )}
         </div>
     );
 }

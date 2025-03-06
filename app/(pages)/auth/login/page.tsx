@@ -7,15 +7,13 @@ import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@contexts/AuthContext"; // Importa el hook
 export default function Login() {
-  const {setAuthToken}=useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
+;
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  
+
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
@@ -32,11 +30,16 @@ export default function Login() {
           "Content-Type": "application/json",
         },
       });
-      
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error en login:", error.response?.data || error.message);
-      setError("Correo o contraseña incorrectos");
+  
+      if (error.response?.status === 403 && error.response?.data?.message.includes("no está verificada")) {
+        setError("⚠️ Tu cuenta aún no está verificada. Revisa tu correo para activarla.");
+      } else {
+        setError("❌ Correo o contraseña incorrectos.");
+      }
     }
   };
 
