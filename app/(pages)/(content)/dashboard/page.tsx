@@ -34,22 +34,12 @@ type Post = {
 };
 
 export default function Page() {
-    const router = useRouter()
-    const { authToken, setAuthToken } = useAuth();    const posts = getPost();
+
+    const posts = getPost();
     //const [posts, setPosts] = useState<Post[]>([])
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
 
-    /*const { loading, fetch } = useCustomEffect(async () => {
-        let apiResponse = await postsServices.getAll();
-        console.log("Api Response: ", apiResponse)
-        return apiResponse;
-    }, {
-        whereOptions: undefined,
-        after: (res: Post[] | null) => {
-            setPosts(res ?? [])
-        }
-    }, [])*/
 
     return (
         <div className='flex flex-col gap-3'>
@@ -71,8 +61,8 @@ export default function Page() {
                     .slice(0, 5)
                     .map((post) => <PetCard key={post.postId} post={post} />)}
             </div>
-            
-            
+
+
             {/* Sección de Voluntariado */}
             <Title postType='volunteering' path='voluntariado' />
             <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
@@ -101,7 +91,7 @@ export default function Page() {
             </div>
 
 
-            <Footer></Footer>
+            <Footer />
         </div>
     )
 }

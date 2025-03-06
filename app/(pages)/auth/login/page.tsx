@@ -15,11 +15,11 @@ export default function Login() {
   const [error, setError] = useState("");
 
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     try {
@@ -31,7 +31,7 @@ export default function Login() {
           "Content-Type": "application/json",
         },
       });
-      const token = response.data.token; 
+      const token = response.data.token;
       localStorage.setItem("authToken", token);
       router.push("/dashboard");
     } catch (error) {
