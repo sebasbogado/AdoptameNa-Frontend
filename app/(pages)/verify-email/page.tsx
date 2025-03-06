@@ -16,10 +16,6 @@ export default function Page() {
       setStatus("error");
       return;
     }
-  
-    console.log("Token recibido en la URL:", token); // <-- Verifica si el token existe en la URL
-  
-    localStorage.setItem("authToken", token);
 
     axios
       .post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/verify-email?token=${token}`)
