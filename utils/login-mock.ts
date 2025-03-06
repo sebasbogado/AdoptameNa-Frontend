@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/auth/login";
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/login`;
 
 export async function loginMock() {
   try {

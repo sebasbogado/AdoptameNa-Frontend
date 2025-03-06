@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE_URL = "https://adoptamena-api.rodrigomaidana.com:8080";
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
 // Crear una instancia de Axios
 export const api = axios.create({

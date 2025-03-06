@@ -1,4 +1,4 @@
-const API_URL = "https://adoptamena-api.rodrigomaidana.com:8080/users";
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users`;
 
 export const getUserProfile = async (id: string, token: string) => {
   try {
