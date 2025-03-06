@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
+import Link from "next/link";
 import Image from "next/image";
-import logo from "@/public/logo.png"; 
+import logo from "@/public/logo.png";
+import { useAuth } from "@contexts/AuthContext";
 export default function Login() {
   const router = useRouter();
+  ;
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -18,17 +22,26 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/login`, {
+        email: credentials.email,
+        password: credentials.password,
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const token = response.data.token; 
+      localStorage.setItem("authToken", token);
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error en login:", error.response?.data || error.message);
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: credentials.email,
-      password: credentials.password,
-    });
-
-    if (result?.error) {
-      setError("Correo o contraseña incorrectos");
-    } else {
-      router.push("/dashboard"); // Redirigir después del login
+      if (error.response?.status === 403 && error.response?.data?.message.includes("no está verificada")) {
+        setError("⚠️ Tu cuenta aún no está verificada. Revisa tu correo para activarla.");
+      } else {
+        setError("❌ Correo o contraseña incorrectos.");
+      }
     }
   };
 
@@ -57,6 +70,7 @@ export default function Login() {
               value={credentials.email}
               onChange={handleChange}
               required
+              maxLength={50}
               className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
             />
           </div>
@@ -69,6 +83,7 @@ export default function Login() {
               value={credentials.password}
               onChange={handleChange}
               required
+              maxLength={20}
               className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
             />
           </div>
@@ -81,28 +96,16 @@ export default function Login() {
           >
             Olvidé mi contraseña
           </Typography>
-          
-          <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-            <Typography
-              as="a"
-              href="/dashboard"
-              variant="small"
-              className="bg-[#9747FF] text-white py-3 rounded-xl py-3 px-6 w-48"
-            >
-              Iniciar Sesión
-            </Typography>
 
-            <Typography
-              as="a"
-              href="/auth/register"
-              variant="small"
-              className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48"
-            >
-              Crear Cuenta
-            </Typography>
+          <div className="flex flex-col items-center justify-center space-y-6 mt-6">
+            <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48" variant="small">
+              Iniciar sesión
+            </Button>
+            <Link href="/auth/register" className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48">
+              Crear cuenta
+            </Link>
           </div>
         </form>
-
       </Card>
     </div>
   );

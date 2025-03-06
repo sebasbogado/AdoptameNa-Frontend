@@ -8,7 +8,6 @@ interface RequestOptions {
 }
 
 const get = async ({ path, id, params = {}, token }: RequestOptions) => {
-    console.log(path, id);
     const { data, status } = await axiosInstance.get(
         id ? `${path}/${id}` : path,
         {
