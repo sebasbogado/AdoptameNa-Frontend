@@ -15,7 +15,7 @@ interface SectionProps {
 
 export default function Section({ title, postType, path, items, loading, error }: SectionProps) {
   return (
-    <div className="mt-12">
+    <div className="mt-12 ml-6">
         <Title title={title} postType={postType} path={path}></Title>
 
       {loading ? (
@@ -24,8 +24,8 @@ export default function Section({ title, postType, path, items, loading, error }
         <p className="text-red-500">{error}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-          {items.map((post) => (
-            <PetCard key={post.postId} post={post} />
+          {items.slice(0, 5).map((post) => (
+            <PetCard key={post.id} post={post} />
           ))}
         </div>
       )}
