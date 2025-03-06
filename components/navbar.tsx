@@ -11,7 +11,7 @@ export default function Navbar() {
     return (
         <header className="w-full border-b">
             <nav className="w-full flex h-16 items-center justify-between px-4">
-                <Link href="/" className="flex items-center">
+                <Link href="/dashboard" className="flex items-center">
                     <Image
                         src="/logo.png"
                         alt="Adoptamena logo"
