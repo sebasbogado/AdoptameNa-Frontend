@@ -3,7 +3,7 @@
 import { Button } from '@material-tailwind/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-
+import { useAuth } from "@/contexts/AuthContext";
 import Banners from '@components/banners'
 import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
@@ -35,7 +35,7 @@ type Post = {
 
 export default function Page() {
     const router = useRouter()
-    const posts = getPost();
+    const { authToken, setAuthToken } = useAuth();    const posts = getPost();
     //const [posts, setPosts] = useState<Post[]>([])
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
