@@ -3,7 +3,6 @@
 import { Button } from '@material-tailwind/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useAuth } from "@/contexts/AuthContext";
 import Banners from '@components/banners'
 import { useAppContext } from '@/contexts/appContext'
 import useCustomEffect from '@/hooks/useCustomEffect'
@@ -24,8 +23,6 @@ interface Pet {
 
 export default function Page() {
     const router = useRouter()
-    const { authToken } = useAuth();
-    console.log("token del context",authToken)
     const postDummyData = {
         postId: "1",
         postType: "adoption",
