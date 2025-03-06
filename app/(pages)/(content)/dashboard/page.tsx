@@ -24,7 +24,8 @@ interface Pet {
 
 export default function Page() {
     const router = useRouter()
-    const { authToken, setAuthToken } = useAuth();
+    const { authToken } = useAuth();
+    console.log("token del context",authToken)
     const postDummyData = {
         postId: "1",
         postType: "adoption",
