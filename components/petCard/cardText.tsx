@@ -4,7 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import PostsTags from "./tags";
 import { getPostType } from "@/utils/postTypes.http";
 import { PostType } from "@/types/postTypes";
-
+import { useAuth } from "@/contexts/authContext";
+import { useRouter } from "next/navigation";
 
 interface props {
   post: any,
@@ -14,13 +15,20 @@ interface props {
 const CardText = ({ post, className = "" }: props) => {
   const [postTypes, setPostTypes] = useState<PostType | null>(null);
   const [name, setName] = useState<string>("adoption");
+  const router = useRouter();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfdXNlciIsInN1YiI6Im1hcmlhZ3JhY2llbGFlc3F1aXZlbGZlcm5hbmRlekBnbWFpbC5jb20iLCJpYXQiOjE3NDExNDg1NzgsImV4cCI6MTc0NDc0ODU3OH0.OhB5Q_e8tc8ywVZV4UBCDEqHeG6RqUvB45SU_MnQAGk';
+
+        const { authToken } = useAuth();
+        if (!authToken) {
+          router.push("/auth/login");
+          return
+        }
 
         const postId = post.id;
-        const postTypes = await getPostType(postId, token);
+        const postTypes = await getPostType(postId, authToken);
 
         if (postTypes) {
           setPostTypes(postTypes);

@@ -1,15 +1,7 @@
 'use client'
 
-import { Button } from '@material-tailwind/react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useAuth } from "@/contexts/AuthContext";
 import Banners from '@components/banners'
-import { useAppContext } from '@/contexts/appContext'
-import useCustomEffect from '@/hooks/useCustomEffect'
-import postsServices from '@services/postsServices'
 import PetCard from '@components/petCard/petCard'
-import PostsTags from '@/components/petCard/tags'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
 import getPost from "@utils/post-client";

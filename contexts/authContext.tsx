@@ -21,6 +21,9 @@ const AuthContext = createContext<AuthContextType>({
   currentUser: null
 });
 
+// Helper function to check if code is running in the browser
+const isBrowser = () => typeof window !== "undefined";
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setCurrentUser } = useAppContext();
   const [authToken, setAuthToken] = useState<string | null>(null);
@@ -29,6 +32,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Load user data and token on initial mount
   useEffect(() => {
+    // Only run on the client-side
+    if (!isBrowser()) return;
+
     // Retrieve token and user from localStorage
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("user");
@@ -50,6 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Handle token updates
   useEffect(() => {
+    if (!isBrowser()) return;
+
     if (authToken) {
       localStorage.setItem("authToken", authToken);
     } else {
@@ -59,6 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Handle user updates in local storage
   useEffect(() => {
+    if (!isBrowser()) return;
+
     if (currentUser) {
       localStorage.setItem("user", JSON.stringify(currentUser));
       setCurrentUser(currentUser);
@@ -71,18 +81,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const singIn = (token: string, user: { fullName: string, email: string }) => {
     setAuthToken(token);
     setLocalCurrentUser(user);
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    setCurrentUser(user);
-    // No need to manually set localStorage here as the effects will handle it
-    router.push("/dashboard");
+
+
+    if (isBrowser()) {
+      router.push("/dashboard");
+    }
   }
 
   const logout = () => {
     setAuthToken(null);
     setLocalCurrentUser(null);
-    // No need to manually clear localStorage here as the effects will handle it
-    router.push("/auth/login");
+
+    if (isBrowser()) {
+      router.push("/auth/login");
+    }
   };
 
   return (
