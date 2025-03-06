@@ -17,6 +17,7 @@ const CardText = ({ post, className = "" }: props) => {
   const [postTypes, setPostTypes] = useState<PostType | null>(null);
   const [name, setName] = useState<string>("adoption");
   const router = useRouter();
+  console.log(post)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +52,9 @@ const CardText = ({ post, className = "" }: props) => {
       <div className="flex flex-col gap-1">
         <p className="text-md font-semibold max-h-7 truncate text-ellipsis">{post.title || post.name}</p>
         <div className="flex flex-wrap max-h-16 overflow-hidden gap-1">
-          {hardcodedTags.map((tag, index) => (
+          {post.tags ? Object.entries(post.tags).map(([iconType, value], index) => (
+            <PostsTags key={index} postType={post.postType} iconType={iconType} value={String(value)} />
+          )) : hardcodedTags.map((tag, index) => (
             <PostsTags key={index} postType={name} iconType={tag.iconType} value={tag.value} />
           ))}
         </div>
