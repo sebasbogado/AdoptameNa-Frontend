@@ -34,6 +34,7 @@ export default function Page() {
     const router = useRouter();
 
 
+
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -45,9 +46,23 @@ export default function Page() {
                     router.push("/auth/login");
                     return;
                 }
+                const user = localStorage.getItem('user');
+                if (!user) {
+                    console.error("No se encontró el usuario en el localStorage.");
+                    return;
+                }
 
-                const postParams = { keyword: "7" };
-                const postData = await getPosts(authToken, postParams);
+                const parsedUser = JSON.parse(user);
+                const userId = parsedUser.id;
+
+                if (isNaN(userId)) {
+                    console.error("User ID no es válido");
+                    return;
+                }              
+                const postParam = {
+                    user: userId
+                }
+                const postData = await getPosts(authToken, postParam);
 
                 if (Array.isArray(postData)) {
                     setPosts(postData);
@@ -55,7 +70,6 @@ export default function Page() {
                     console.error("La respuesta no contiene un array de posts:", postData);
                     setPosts([]);
                 }
-                const userId = "7";
 
                 const userData = await getUserProfile(userId, authToken);
                 if (userData) {
@@ -83,11 +97,6 @@ export default function Page() {
 
         fetchData();
     }, [authToken]);
-    const user: User = {
-        name: 'Jorge Daniel Figueredo Amarilla',
-        description:
-            'Miembro de MymbaUni, en mis ratos libres me gusta rescatar gatitos y participar de campañas de recaudación de fondos.',
-    };
     const images = ['profile/slider/img-slider-1.png'];
 
     return (
@@ -99,7 +108,7 @@ export default function Page() {
             <div className="relative  p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5  font-roboto z-40 p-6 bg-white shadow-lg rounded-lg mt-[-50px]  w-[55vw]">
                 <h1 className="text-5xl font-black">{currentUser?.fullName}</h1>
                 <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{user.description || userData?.description}</p>
+                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{userData?.description}</p>
             </div>
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
