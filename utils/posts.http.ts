@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://adoptamena-api.rodrigomaidana.com/posts";
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
 export const getPosts = async (token?: string, queryParams?: any) => {
   try {
@@ -11,7 +11,7 @@ export const getPosts = async (token?: string, queryParams?: any) => {
         "Content-Type": "application/json",
       },
     });
-    
+
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {

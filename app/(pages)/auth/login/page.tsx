@@ -1,16 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@contexts/AuthContext";
+import { useAppContext } from "@/contexts/appContext";
+import { AuthContext } from "@/contexts/authContext";
+
+
 export default function Login() {
+  const useAuth = useContext(AuthContext);
   const router = useRouter();
-  ;
+  const { singIn } = useAuth;
+  const { setCurrentUser } = useAppContext();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -33,6 +38,9 @@ export default function Login() {
       });
       const token = response.data.token;
       localStorage.setItem("authToken", token);
+      singIn(token, response.data.user);
+      console.log(response.data.token);
+      setCurrentUser(response.data.user);
       router.push("/dashboard");
     } catch (error) {
       console.error("Error en login:", error.response?.data || error.message);

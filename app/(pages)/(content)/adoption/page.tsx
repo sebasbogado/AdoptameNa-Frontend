@@ -33,7 +33,7 @@ export default function Page() {
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
 
     const [pets, setPets] = useState<Pet[]>([]); // Ahora pets tiene el tipo correcto
-    
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -55,7 +55,7 @@ export default function Page() {
                 }));
 
                 console.log("Posts:", postsWithTags);
-                
+
                 setPets(postsWithTags || []); // Asegurar que sea un array
             } catch (error) {
                 console.error("Error en la autenticación o al obtener posts:", error);
@@ -106,7 +106,7 @@ export default function Page() {
                     {/* 🔥 Mapeo de las mascotas */}
                     {pets.length > 0 ? (
                         pets.map((post) => (
-                            <PetCard key={post.postId} post={post} />
+                            <PetCard key={post.id} post={post} />
                         ))
                     ) : (
                         <p className="text-center col-span-full">Cargando mascotas...</p>

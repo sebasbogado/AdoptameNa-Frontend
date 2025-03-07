@@ -4,7 +4,7 @@ import Button from '@/components/buttons/Button';
 import EditButton from '@/components/buttons/EditButton';
 import MenuButton from '@/components/buttons/MenuButton';
 import Banners from '@components/banners';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 import Section from '@/components/Section';
 
@@ -16,26 +16,38 @@ import { getUserProfile } from '@/utils/userProfile.http';
 import { UserProfile } from '@/types/userProfile';
 import { Post } from '@/types/posts';
 import { Pet } from '@/types/pets';
+import { useRouter } from 'next/navigation';
+import { AuthContext } from '@/contexts/authContext';
 
 
 
 
 export default function Page() {
+    const { authToken, currentUser } = useContext(AuthContext);
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [data, setData] = useState<Post[]>([]);
     const [userData, setUserData] = useState<UserProfile | null>(null);
+    const router = useRouter();
+
+
     useEffect(() => {
         const fetchData = async () => {
+            setLoading(true);
             try {
+                console.log(authToken);
+                if (!authToken) {
+                    setLoading(false);
+                    console.error("No hay token de autenticación");
+                    router.push("/auth/login");
+                    return;
+                }
 
-                const token = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IlJPTEVfdXNlciIsInN1YiI6Im1hcmlhZ3JhY2llbGFlc3F1aXZlbGZlcm5hbmRlekBnbWFpbC5jb20iLCJpYXQiOjE3NDExNDg1NzgsImV4cCI6MTc0NDc0ODU3OH0.OhB5Q_e8tc8ywVZV4UBCDEqHeG6RqUvB45SU_MnQAGk';
-
-                // Obtener Posts
                 const postParams = { keyword: "7" };
-                const postData = await getPosts(token, postParams);
+                const postData = await getPosts(authToken, postParams);
 
                 if (Array.isArray(postData)) {
                     setPosts(postData);
@@ -45,7 +57,7 @@ export default function Page() {
                 }
                 const userId = "7";
 
-                const userData = await getUserProfile(userId, token);
+                const userData = await getUserProfile(userId, authToken);
                 if (userData) {
                     setUserData(userData);
                 } else {
@@ -53,7 +65,7 @@ export default function Page() {
                     setUserData(null);
                 }
 
-                const petData = await getPets(userId, token);
+                const petData = await getPets(userId, authToken);
 
                 if (Array.isArray(petData)) {
                     setPets(petData);
@@ -70,7 +82,7 @@ export default function Page() {
         };
 
         fetchData();
-    }, []);
+    }, [authToken]);
     const user: User = {
         name: 'Jorge Daniel Figueredo Amarilla',
         description:
@@ -85,13 +97,13 @@ export default function Page() {
 
             {/* User Info */}
             <div className="relative  p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5  font-roboto z-40 p-6 bg-white shadow-lg rounded-lg mt-[-50px]  w-[55vw]">
-                <h1 className="text-5xl font-black">{userData?.fullName}</h1>
+                <h1 className="text-5xl font-black">{currentUser?.fullName}</h1>
                 <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{user.description}</p>
+                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{user.description || userData?.description}</p>
             </div>
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
-                <EditButton size="lg" />
+                <EditButton size="lg" id='edit-button' />
                 <Button variant="cta" size="lg">Contactar</Button>
                 <MenuButton size="lg" />
             </div>
@@ -100,7 +112,7 @@ export default function Page() {
 
 
             {/* Posts Section */}
-            <Section title={`Publicaciones de ${userData?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
+            <Section title={`Publicaciones de ${currentUser?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
             {/* Footer */}
             <Footer />
         </div>
