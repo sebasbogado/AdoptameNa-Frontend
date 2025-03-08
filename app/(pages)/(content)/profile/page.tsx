@@ -4,102 +4,103 @@ import Button from '@/components/buttons/Button';
 import EditButton from '@/components/buttons/EditButton';
 import MenuButton from '@/components/buttons/MenuButton';
 import Banners from '@components/banners';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 import Section from '@/components/Section';
 
-import { User } from '@/types/users';
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
-import { getUser } from '@/utils/users.http';
 import { getUserProfile } from '@/utils/userProfile.http';
 import { UserProfile } from '@/types/userProfile';
 import { Post } from '@/types/posts';
 import { Pet } from '@/types/pets';
 import { useRouter } from 'next/navigation';
-import { AuthContext } from '@/contexts/authContext';
+import { useAuth } from '@/contexts/authContext';
+import { SplineIcon } from 'lucide-react';
+import Loading from '@/app/loading';
 
-
-
-
-export default function Page() {
-    const { authToken, currentUser } = useContext(AuthContext);
-
+export default function ProfilePage() {
+    const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [profileLoading, setProfileLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<Post[]>([]);
-    const [userData, setUserData] = useState<UserProfile | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
 
+    useEffect(() => {
+        if (!authLoading && !authToken) {
+            console.log("authLoading", authLoading);
+            console.log("authToken", authToken);
+            router.push("/auth/login");
+        }
+
+    }, [authToken, authLoading, router]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchProfileData = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+
             setLoading(true);
+            setError(null);
+
             try {
-                console.log(authToken);
-                if (!authToken) {
-                    setLoading(false);
-                    console.error("No hay token de autenticación");
-                    router.push("/auth/login");
-                    return;
-                }
+                // Cargar perfil de usuario
+                const profile = await getUserProfile(user.id, authToken);
+                setUserProfile(profile);
+            } catch (err) {
+                console.error("Error al cargar el perfil:", err);
+                setError("No se pudo cargar la información del perfil");
+            } finally {
+                setProfileLoading(false);
+            }
+        };
 
-                const postParams = { keyword: "7" };
+        fetchProfileData();
+    }, [authToken, authLoading, user?.id]);
+
+    useEffect(() => {
+        const fetchContentData = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+            console.log("authLoading", authLoading);
+
+            try {
+                // Cargar posts del usuario
+                const postParams = { userId: user.id }; // Usamos el ID del usuario actual
                 const postData = await getPosts(authToken, postParams);
+                setPosts(Array.isArray(postData) ? postData : []);
 
-                if (Array.isArray(postData)) {
-                    setPosts(postData);
-                } else {
-                    console.error("La respuesta no contiene un array de posts:", postData);
-                    setPosts([]);
-                }
-                const userId = "7";
-
-                const userData = await getUserProfile(userId, authToken);
-                if (userData) {
-                    setUserData(userData);
-                } else {
-                    console.error("No se pudo obtener el usuario");
-                    setUserData(null);
-                }
-
-                const petData = await getPets(userId, authToken);
-
-                if (Array.isArray(petData)) {
-                    setPets(petData);
-                } else {
-                    console.error("La respuesta no contiene un array de pets:", petData);
-                    setPets([]);
-                }
-
-            } catch (error) {
-                console.error("Error al obtener los posts:", error);
+                // Cargar mascotas del usuario
+                const petData = await getPets(user.id, authToken); // Usamos el ID del usuario actual
+                setPets(Array.isArray(petData) ? petData : []);
+            } catch (err) {
+                console.error("Error al cargar contenido:", err);
+                setError("No se pudo cargar el contenido del perfil");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
-    }, [authToken]);
-    const user: User = {
-        name: 'Jorge Daniel Figueredo Amarilla',
-        description:
-            'Miembro de MymbaUni, en mis ratos libres me gusta rescatar gatitos y participar de campañas de recaudación de fondos.',
-    };
-    const images = ['profile/slider/img-slider-1.png'];
+        fetchContentData();
+    }, [authToken, authLoading, user?.id]);
+
+    if (authLoading) {
+        return Loading();
+    }
+
+    if (!user) return;
 
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={images} />
+            <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
 
             {/* User Info */}
             <div className="relative  p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5  font-roboto z-40 p-6 bg-white shadow-lg rounded-lg mt-[-50px]  w-[55vw]">
-                <h1 className="text-5xl font-black">{currentUser?.fullName}</h1>
+                <h1 className="text-5xl font-black">{user?.fullName}</h1>
                 <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{user.description || userData?.description}</p>
+                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{userProfile?.description || 'Sin descripción'}</p>
             </div>
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
@@ -112,7 +113,7 @@ export default function Page() {
 
 
             {/* Posts Section */}
-            <Section title={`Publicaciones de ${currentUser?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
+            <Section title={`Publicaciones de ${user?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
             {/* Footer */}
             <Footer />
         </div>

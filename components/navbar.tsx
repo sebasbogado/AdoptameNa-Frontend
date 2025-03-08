@@ -1,13 +1,12 @@
 "use client"
 
 import UserHeader from "@/components/userHeader"
-import { AuthContext } from "@/contexts/authContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext } from "react";
+import { useAuth } from "@/contexts/authContext";
 
 export default function Navbar() {
-    const useAuth = useContext(AuthContext);
+    const { user } = useAuth();
     return (
         <header className="w-full border-b">
             <nav className="w-full flex h-16 items-center justify-between px-4">
@@ -41,8 +40,8 @@ export default function Navbar() {
                         Tienda
                     </Link>
                 </div>
-                {useAuth.currentUser ? (
-                    <UserHeader currentUser={useAuth.currentUser} />
+                {user ? (
+                    <UserHeader currentUser={user} />
                 ) : (
                     <div className="flex space-x-4">
                         <Link href="/auth/register">

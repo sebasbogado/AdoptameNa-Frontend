@@ -6,10 +6,7 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  safelist: [
-    "text-blog",
-    "text-marketplace",
-  ],
+  safelist: ["text-blog", "text-marketplace"],
   theme: {
     extend: {
       colors: {
@@ -47,10 +44,18 @@ module.exports = withMT({
         "secondary-brand-color": "var(--secondary-brand-color)",
       },
       fontFamily: {
-        roboto: "var( --font-family)"
+        roboto: "var( --font-family)",
       },
-
+    },
+    keyframes: {
+      pulse: {
+        "0%, 100%": { opacity: "1" },
+        "50%": { opacity: "0.3" },
+      },
+    },
+    animation: {
+      pulse: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 });
