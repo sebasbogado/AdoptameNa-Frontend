@@ -38,6 +38,7 @@ export default function ProfilePage() {
 
     }, [authToken, authLoading, router]);
 
+
     useEffect(() => {
         const fetchProfileData = async () => {
             if (authLoading || !authToken || !user?.id) return;
@@ -77,11 +78,11 @@ export default function ProfilePage() {
             } catch (err) {
                 console.error("Error al cargar contenido:", err);
                 setError("No se pudo cargar el contenido del perfil");
+
             } finally {
                 setLoading(false);
             }
         };
-
         fetchContentData();
     }, [authToken, authLoading, user?.id]);
 
@@ -101,6 +102,7 @@ export default function ProfilePage() {
                 <h1 className="text-5xl font-black">{user?.fullName}</h1>
                 <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
                 <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{userProfile?.description || 'Sin descripción'}</p>
+
             </div>
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
