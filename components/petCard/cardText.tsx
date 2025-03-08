@@ -1,11 +1,10 @@
 'use client'
-import Link from "next/link";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PostsTags from "./tags";
 import { getPostType } from "@/utils/postTypes.http";
 import { PostType } from "@/types/postTypes";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/authContext";
 
 interface props {
   post: any,
@@ -13,18 +12,14 @@ interface props {
 }
 
 const CardText = ({ post, className = "" }: props) => {
-  const useAuth = useContext(AuthContext);
+  const { authToken } = useAuth();
   const [postTypes, setPostTypes] = useState<PostType | null>(null);
   const [name, setName] = useState<string>("adoption");
-  const router = useRouter();
   console.log(post)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-        const { authToken } = useAuth;
-
         const postId = post.id;
         const postTypes = await getPostType(postId, authToken as string);
 
