@@ -68,7 +68,7 @@ export default function ProfilePage() {
 
             try {
                 // Cargar posts del usuario
-                const postParams = { userId: user.id }; // Usamos el ID del usuario actual
+                const postParams = { user: user.id }; // Usamos el ID del usuario actual
                 const postData = await getPosts(authToken, postParams);
                 setPosts(Array.isArray(postData) ? postData : []);
 
