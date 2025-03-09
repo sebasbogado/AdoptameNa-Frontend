@@ -1,5 +1,5 @@
 import React from "react";
-import CustomSelect from "@components/customSelect";
+import CustomSelect from "@/components/custom-select";
 
 interface LabeledSelectProps {
     label: string;

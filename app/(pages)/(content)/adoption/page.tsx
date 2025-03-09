@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Banners from '@components/banners'
-import PetCard from '@components/petCard/petCard'
+import PetCard from '@/components/petCard/pet-card'
 import { loginMock } from "@utils/login-mock";
 import { getPosts } from '@utils/posts-api';
 import Cookies from "js-cookie";
 
-import LabeledSelect from "@/components/labeledSelect";
+import LabeledSelect from "@/components/labeled-selected";
 
 const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
 const mascotas = ["Todos", "Conejo", "Perro", "Gato"];

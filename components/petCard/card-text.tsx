@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, useState } from "react";
-import PostsTags from "./tags";
-import { getPostType } from "@/utils/postTypes.http";
-import { PostType } from "@/types/postTypes";
+import PostsTags from "./tag";
+import { getPostType } from "@/utils/post-type-client";
+import { PostType } from "@/types/post-type";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 
@@ -17,26 +17,7 @@ const CardText = ({ post, className = "" }: props) => {
   const [name, setName] = useState<string>("adoption");
   console.log(post)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const postId = post.id;
-        const postTypes = await getPostType(postId, authToken as string);
-
-        if (postTypes) {
-          setPostTypes(postTypes);
-          setName(postTypes.name)
-        } else {
-          console.error("La respuesta no contiene tipo de post :", postTypes);
-          setPostTypes(null);
-          setName("adoption")
-        }
-      } catch (error) {
-        console.error("Error al obtener los tipos:", error);
-      }
-    }
-    fetchData();
-  }, []);
+ 
   const hardcodedTags = [
     { iconType: "race", value: "Animal" },
     { iconType: "race", value: "Mascota" },

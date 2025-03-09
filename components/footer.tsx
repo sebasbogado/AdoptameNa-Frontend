@@ -1,5 +1,5 @@
 import React from "react";
-import { footerSections } from "@utils/footerLinks"; // Importamos la lista de secciones
+import { footerSections } from "@/utils/footer-link"; // Importamos la lista de secciones
 import Link from "next/link";
 
 const Footer: React.FC = () => {

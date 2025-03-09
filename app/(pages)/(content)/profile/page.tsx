@@ -1,19 +1,19 @@
 'use client';
 
-import Button from '@/components/buttons/Button';
-import EditButton from '@/components/buttons/EditButton';
-import MenuButton from '@/components/buttons/MenuButton';
+import Button from '@/components/buttons/button';
+import EditButton from '@/components/buttons/edit-button';
+import MenuButton from '@/components/buttons/menu-button';
 import Banners from '@components/banners';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
-import Section from '@/components/Section';
+import Section from '@/components/section';
 
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
-import { getUserProfile } from '@/utils/userProfile.http';
-import { UserProfile } from '@/types/userProfile';
-import { Post } from '@/types/posts';
-import { Pet } from '@/types/pets';
+import { getUserProfile } from '@/utils/user-profile-client';
+import { UserProfile } from '@/types/user-profile';
+import { Post } from '@/types/post';
+import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                 <MenuButton size="lg" />
             </div>
             {/* Pets Section */}
-            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
+            <Section title="Mis Mascotas" postType='blog'path='#' items={pets} loading={loading} error={error} />
 
 
             {/* Posts Section */}
