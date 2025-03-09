@@ -1,91 +1,86 @@
 'use client'
 
 import Banners from '@components/banners'
-import PetCard from '@components/petCard/petCard'
+import PetCard from '@/components/petCard/pet-card'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
 import getPost from "@utils/post-client";
+import { useEffect, useState } from 'react'
+import { Pet } from '@/types/pet'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/authContext'
+import { getPosts } from '@/utils/posts.http'
+import { Post } from '@/types/post'
+import { getPostType } from '@/utils/post-type-client'
+import Section from '@/components/section'
 
-type Post = {
-    postId: string;
-    postType: string;
-    title: string;
-    author?: string;
-    content: string;
-    date: string;
-    imageUrl: string;
-    tags: {
-        race?: string;
-        vaccinated?: boolean;
-        sterilyzed?: boolean;
-        age?: string;
-        female?: boolean;
-        male?: boolean;
-        distance?: string;
-    };
-};
+
 
 export default function Page() {
+    const { authToken, user, loading: authLoading } = useAuth();
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [pets, setPets] = useState<Pet[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [profileLoading, setProfileLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+    const [postType, setPostType] = useState<string>('');
+    useEffect(() => {
+        if (!authLoading && !authToken) {
+            console.log("authLoading", authLoading);
+            console.log("authToken", authToken);
+            router.push("/auth/login");
+        }
 
-    const posts = getPost();
-    //const [posts, setPosts] = useState<Post[]>([])
+    }, [authToken, authLoading, router]);
+    
+     useEffect(() => {
+        const fetchContentData = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+            console.log("authLoading", authLoading);
+
+            try {
+                // Cargar posts del usuario
+                const postParams = { user: user.id }; // Usamos el ID del usuario actual
+                const postData = await getPosts(authToken, postParams);
+                setPosts(Array.isArray(postData) ? postData : []);
+            } catch (err) {
+                console.error("Error al cargar contenido:", err);
+                setError("No se pudo cargar el contenido del perfil");
+
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchContentData();
+    }, [authToken, authLoading, user?.id]);
+
+  
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
-
-
     return (
         <div className='flex flex-col gap-3'>
             <Banners images={bannerImages} />
-            {/* Sección de Adopción */}
-            <Title postType='adoption' path='adoption' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'adoption')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            {/* Sección de Adopción 
+                Los postTypeId seran numero magicos mientras se cambia en el back
+            */}
+            <Section title = 'En adopcion' postTypeId={3} path='adoption' postType="adoption" items={posts} loading = {loading} error = {error}></Section>
+               
 
             {/* Sección de Desaparecidos */}
-            <Title postType='missing' path='missing' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'missing')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section title = 'Extraviados' postTypeId={1} path='missing' postType="missing" items={posts} loading = {loading} error = {error}></Section>
 
-
+            
             {/* Sección de Voluntariado */}
-            <Title postType='volunteering' path='voluntariado' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'volunteering')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section title = 'Voluntariado' postTypeId={2} path='volunteering' postType="volunteering" items={posts} loading = {loading} error = {error}></Section>
+
 
             {/* Sección de Blogs */}
-            <Title postType='blog' path='blog' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'blog')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section title = 'Blog' postTypeId={3} path='blog' postType="blog" items={posts} loading = {loading} error = {error}></Section>
 
             {/* Marketplace */}
-            <Title title='Tienda' path='marketplace' postType='marketplace' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'marketplace')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
-
-
+            <Section title = 'Tienda' postTypeId={2} path='marketplace' postType="marketplace" items={posts} loading = {loading} error = {error}></Section>
             <Footer />
         </div>
     )
 }
-
-
