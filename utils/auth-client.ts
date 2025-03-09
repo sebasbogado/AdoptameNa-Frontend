@@ -1,5 +1,5 @@
 import { AuthResponse, LoginCredentials } from "@/types/auth";
-import { AuthError } from "./errors/AuthError";
+import { AuthError } from "./errors/auth-error";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}`;
 
 class AuthClient {
