@@ -6,7 +6,7 @@ const AboutUs = () => {
           {/* Texto principal (izquierda) */}
           <div className="order-2 md:order-1 px-4 md:px-8">
             <h1 className="text-[#FFAE34] text-4xl font-bold">
-              SOBRE NOSOTROS
+              SOBRE <br />NOSOTROS
             </h1>
             <p className="mt-4 text-gray-700 text-lg leading-relaxed text-left">
               Somos una plataforma que actúa de nexo para rescatar animales en
