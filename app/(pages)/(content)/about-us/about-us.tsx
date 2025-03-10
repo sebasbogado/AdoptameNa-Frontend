@@ -1,12 +1,15 @@
+import Image from 'next/image';
+
 const AboutUs = () => {
   return (
     <section className="container mx-auto px-6 py-12">
-      <div className="bg-[#F3F3F3] py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center w-full">
+      <div className="bg-[#F3F3F3]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center w-full h-[500px] md:h-[600px]">
           {/* Texto principal (izquierda) */}
-          <div className="order-2 md:order-1 px-4 md:px-8">
+          <div className="order-2 md:order-1 px-4 md:px-8 flex flex-col justify-center h-full">
             <h1 className="text-[#FFAE34] text-4xl font-bold">
-              SOBRE <br />NOSOTROS
+              SOBRE <br />
+              NOSOTROS
             </h1>
             <p className="mt-4 text-gray-700 text-lg leading-relaxed text-left">
               Somos una plataforma que actúa de nexo para rescatar animales en
@@ -16,20 +19,20 @@ const AboutUs = () => {
           </div>
 
           {/* Imagen (derecha) */}
-          <div className="order-1 md:order-2">
-            <img
-              src="/images/about-us.jpg"
+          <div className="order-1 md:order-2 h-full">
+            <Image
+              src="/7.avif"
               alt="Mujer abrazando a un gato"
-              className="rounded-lg shadow-lg w-full h-auto object-cover"
+              className="shadow-lg w-full h-full object-cover"
+              width={500} // specify the width
+              height={500} // specify the height
             />
           </div>
         </div>
-        {/* Espaciado adicional debajo */}
-        <div className="h-12 md:h-20"></div>
       </div>
 
       {/* Secciones de Misión, Visión y Valores */}
-      <div className="space-y-8 md:space-y-12">
+      <div className="space-y-8 md:space-y-12 py-8 md:py-12">
         {/* Misión */}
         <div className="flex flex-col md:flex-row justify-around items-start md:items-center gap-4 md:gap-6">
           <div className="flex items-center gap-4">
@@ -82,15 +85,27 @@ const AboutUs = () => {
           </div>
           <div className="text-right max-w-md">
             <p className="mt-2 text-gray text-lg leading-relaxed text-left">
-                Compasión: Nos mueve el amor y el respeto hacia todos los animales, buscando siempre su bienestar y protección.
-                Colaboración: Fomentamos el trabajo conjunto entre rescatistas, voluntarios, donantes y adoptantes, creando una red sólida y efectiva para ayudar a los animales.
-                Transparencia: Actuamos con honestidad y claridad, manteniendo a nuestra comunidad informada y asegurando que todas nuestras acciones sean visibles y comprensibles.
-                Compromiso: Estamos dedicados a nuestra misión de rescatar y proteger a los animales en situación de calle, trabajando con perseverancia y dedicación.
-                Empatía: Valoramos las necesidades y sentimientos tanto de los animales como de las personas involucradas, fomentando un ambiente de comprensión y apoyo mutuo.
-                Educación: Creemos en la importancia de informar y sensibilizar a la comunidad sobre el rescate, cuidado y adopción de animales, promoviendo una cultura de responsabilidad y amor hacia ellos.
+              Compasión: Nos mueve el amor y el respeto hacia todos los
+              animales, buscando siempre su bienestar y protección.
+              Colaboración: Fomentamos el trabajo conjunto entre rescatistas,
+              voluntarios, donantes y adoptantes, creando una red sólida y
+              efectiva para ayudar a los animales. Transparencia: Actuamos con
+              honestidad y claridad, manteniendo a nuestra comunidad informada y
+              asegurando que todas nuestras acciones sean visibles y
+              comprensibles. Compromiso: Estamos dedicados a nuestra misión de
+              rescatar y proteger a los animales en situación de calle,
+              trabajando con perseverancia y dedicación. Empatía: Valoramos las
+              necesidades y sentimientos tanto de los animales como de las
+              personas involucradas, fomentando un ambiente de comprensión y
+              apoyo mutuo. Educación: Creemos en la importancia de informar y
+              sensibilizar a la comunidad sobre el rescate, cuidado y adopción
+              de animales, promoviendo una cultura de responsabilidad y amor
+              hacia ellos.
             </p>
           </div>
         </div>
+        {/* Espaciado adicional debajo */}
+        <div className="h-12 md:h-10"></div>  
       </div>
     </section>
   );
