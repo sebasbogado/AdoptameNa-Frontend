@@ -6,6 +6,16 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/authContext";
 import { usePathname } from "next/navigation";
 
+// Lista de enlaces de navegación
+const navbarItems = [
+    { name: "Inicio", path: "/dashboard" },
+    { name: "Voluntariado", path: "/volunteering" },
+    { name: "Adopción", path: "/adoption" },
+    { name: "Extraviados", path: "/missing" },
+    { name: "Blog", path: "/blog" },
+    { name: "Tienda", path: "/marketplace" }
+];
+
 export default function Navbar() {
     const { user } = useAuth();
     const pathname = usePathname(); // Obtener la ruta actual
@@ -23,25 +33,18 @@ export default function Navbar() {
                 </Link>
 
                 <div className="hidden items-center gap-12 md:flex">
-                    {[
-                        { name: "Inicio", href: "/dashboard" },
-                        { name: "Voluntariado", href: "/volunteering" },
-                        { name: "Adopción", href: "/adoption" },
-                        { name: "Extraviados", href: "/missing" },
-                        { name: "Blog", href: "/blog" },
-                        { name: "Tienda", href: "/marketplace" }
-                    ].map(({ name, href }) => (
+                    {navbarItems.map(({ name, path }) => (
                         <Link
-                            key={href}
-                            href={href}
-                            className={`text-lg font-bold hover:text-purple-600 ${
-                                pathname === href ? "text-purple-600" : "text-black"
-                            }`}
+                            key={path}
+                            href={path}
+                            className={`text-lg font-bold hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"
+                                }`}
                         >
                             {name}
                         </Link>
                     ))}
                 </div>
+
                 {user ? (
                     <UserHeader currentUser={user} />
                 ) : (
