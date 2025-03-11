@@ -19,6 +19,10 @@ const navbarItems = [
 export default function Navbar() {
     const { user } = useAuth();
     const pathname = usePathname(); // Obtener la ruta actual
+
+    // Condición para ocultar los enlaces de navegación en la página de administración
+    const isAdminPage = pathname === "/administration";  // Ajusta esta ruta si es necesario
+    
     return (
         <header className="w-full border-b">
             <nav className="w-full flex h-16 items-center justify-between px-4">
@@ -32,6 +36,8 @@ export default function Navbar() {
                     />
                 </Link>
 
+                {/* Solo renderizar los enlaces de navegación si no estamos en la página de administración */}
+                {!isAdminPage && (
                 <div className="hidden items-center gap-12 md:flex">
                     {navbarItems.map(({ name, path }) => (
                         <Link
@@ -44,6 +50,7 @@ export default function Navbar() {
                         </Link>
                     ))}
                 </div>
+                )}
 
                 {user ? (
                     <UserHeader currentUser={user} />
