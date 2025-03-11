@@ -10,4 +10,5 @@ export interface Post {
     sharedCounter: number;
     publicationDate: string;
     imageUrl : string;
+    postTypeName: string;
 }
