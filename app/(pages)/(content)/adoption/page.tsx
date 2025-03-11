@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Banners from '@components/banners'
-import PetCard from '@/components/petCard/pet-card'
+import PetCard from '@/components/pet-card/pet-card'
 import { loginMock } from "@utils/login-mock";
 import { getPosts } from '@utils/posts-api';
 import Cookies from "js-cookie";

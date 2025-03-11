@@ -11,7 +11,7 @@ import { Facebook, Instagram, Mail, Phone, MessageCircle } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MapWithNoSSR = dynamic(
-  () => import('@/components/ui/map'),
+  () => import('@/components/ui/Map'),
   { ssr: false }
 );
 

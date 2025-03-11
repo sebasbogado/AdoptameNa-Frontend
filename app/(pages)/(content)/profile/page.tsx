@@ -6,7 +6,7 @@ import MenuButton from '@/components/buttons/menu-button';
 import Banners from '@components/banners';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
-import Section from '@/components/section';
+import Section from '@/components/Section';
 
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';

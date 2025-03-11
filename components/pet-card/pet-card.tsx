@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from "react";
 import clsx from "clsx";
-import CardImage from "@/components/petCard/card-image";
+import CardImage from "@/components/pet-card/card-image";
 import CardText from "./card-text";
 import FavoriteButton from "../buttons/favorite-button";
 import { Post } from "@/types/post";

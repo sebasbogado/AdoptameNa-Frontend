@@ -1,8 +1,8 @@
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
-import PetCard from "@/components/petCard/petCard";
+import PetCard from "@/components/pet-card/pet-card";
 import Title from "./title";
 
-import {titleText } from "../types/titles"
+import {titleText } from "../types/title"
 
 interface SectionProps {
   title: string;
