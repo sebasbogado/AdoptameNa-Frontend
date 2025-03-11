@@ -39,7 +39,7 @@ const bodyData = [
   },
   {
     imageSrc: "/about-us/mision.png",
-    title: "Valor  ",
+    title: "Valores",
     text: (
       <>
         <strong>Compasión:</strong> Nos mueve el amor y el respeto hacia todos los animales, buscando siempre su bienestar y protección. <br /><br />
