@@ -23,7 +23,7 @@ const AboutBody: React.FC<SectionBodyProps> = ({ imageSrc, title, children }) =>
 
       {/* Contenedor del Texto */}
       <div className="w-[600px] min-h-[200px] text-left flex items-center">
-        <p className="mt-2 text-gray text-lg leading-relaxed">{children}</p>
+        <p className="mt-2 text-gray text-xl leading-relaxed">{children}</p>
       </div>
     </div>
   );

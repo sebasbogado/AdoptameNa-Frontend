@@ -14,8 +14,8 @@ const AboutHeader: React.FC<AboutHeaderProps> = ({ title, text, imageSrc, imageA
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center w-full min-h-[500px]">
         {/* Texto principal (izquierda) */}
         <div className="order-2 md:order-1 px-4 md:px-8 flex flex-col justify-center py-12">
-          <h1 className="text-[#FFAE34] text-4xl font-bold">{title}</h1>
-          <p className="mt-4 text-gray-700 text-lg leading-relaxed text-left">
+          <h1 className="text-[#FFAE34] text-5xl font-bold">{title}</h1>
+          <p className="mt-4 text-gray-700 text-xl leading-relaxed text-left">
             {text}
           </p>
         </div>

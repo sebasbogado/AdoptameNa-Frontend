@@ -66,7 +66,7 @@ export default function Page() {
         />
 
         {/* Secciones de Misión, Visión y Valores */}
-        <div className="space-y-8 md:space-y-12 py-8 md:py-12">
+        <div className="space-y-16 md:space-y-24 py-8 md:py-12">
           {bodyData.map((section, index) => (
             <SectionBody
               key={index}
