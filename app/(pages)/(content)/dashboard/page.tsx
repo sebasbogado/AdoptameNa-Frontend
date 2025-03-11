@@ -2,52 +2,42 @@
 
 import Banners from '@components/banners'
 
-import PetCard from '@components/petCard/pet-card'
-import Title from '@/components/title'
 import Footer from '@/components/footer'
-import getPost from "@utils/post-client";
 import { useEffect, useState } from 'react'
-import { Pet } from '@/types/pet'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/contexts/authContext'
 import { getPosts } from '@/utils/posts.http'
 import { Post } from '@/types/post'
-import { getPostType } from '@/utils/post-type-client'
 
 import Section from '@/components/section'
 
+type FetchContentDataParams = {
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setError: React.Dispatch<React.SetStateAction<string | null>>;
+};
+
+
+const fetchContentData = async ({setPosts, setLoading, setError}: FetchContentDataParams) => { 
+
+    try {
+        const postData = await getPosts({});
+        setPosts(Array.isArray(postData) ? postData : []);
+    } catch (err) {
+        console.error("Error al cargar contenido:", err);
+        setError("No se pudo cargar el contenido del perfil");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 export default function Page() {
-    const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [profileLoading, setProfileLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [postType, setPostType] = useState<string>('');
     useEffect(() => {
-        if (!authLoading) {
-        }
+        fetchContentData({ setPosts, setLoading, setError });
+    }, []);
 
-    }, [authLoading]);
-    
-     useEffect(() => {
-        const fetchContentData = async () => {
-            if (authLoading ) return;
-            console.log("authLoading", authLoading);
-
-            try {
-                // Cargar posts del usuario
-                const postData = await getPosts({ });
-                setPosts(Array.isArray(postData) ? postData : []);
-            } catch (err) {
-                console.error("Error al cargar contenido:", err);
-                setError("No se pudo cargar el contenido del perfil");
-
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchContentData();
-    }, [ authLoading]);
 
   
 
