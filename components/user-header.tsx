@@ -40,12 +40,15 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
               <div className="text-xs text-gray-500 pl-6">{currentUser.email}</div>
             </div>
 
+            {/* Administration menu */}
+            {currentUser.role === "admin" && (
             <div className="px-3 py-2 border-b border-gray-200 mb-1">
               <Link href="/administration" className="flex items-center gap-2 mb-1">
                 <FolderCog size={16} className="text-gray-500" />
                 <span className="font-medium text-sm text-gray-800">Administration</span>
               </Link>
             </div>
+            )}
 
             {/* Logout option */}
             <DropdownMenu.Item
