@@ -1,7 +1,7 @@
 'use client'
 
 import Banners from '@components/banners'
-import PetCard from '@components/petCard/petCard'
+import PetCard from '@components/petCard/pet-card'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
 import getPost from "@utils/post-client";
