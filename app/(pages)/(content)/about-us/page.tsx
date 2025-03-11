@@ -1,9 +1,32 @@
-import Section from "@/components/about-us/AboutBody";
+import SectionBody from "@/components/about-us/AboutBody";
 import Footer from "@/components/footer";
-import AboutSection from "@/components/about-us/AboutHeader";
+import AboutHeader from "@/components/about-us/AboutHeader";
+
+
+const headerData = {
+  title: (
+    <>
+      SOBRE <br />
+      NOSOTROS
+    </>
+  ),
+  text: (
+    <>
+      Somos una plataforma que actúa de nexo para rescatar animales
+      en situación de calle y peligro, con las personas interesadas en ayudar
+      de cualquier manera posible.<br /> <br />
+      Ya sea a través de rescates directos, indicación de direcciones
+      y animalitos perdidos, o donaciones solidarias de cualquier persona
+      interesada en la ayuda, protección y rescate.
+    </>
+  ),
+  imageSrc: "/7.avif",
+  imageAlt: "Perro mirada intensa"
+};
+
 
 // Datos de las secciones Misión, Visión y Valores
-const sectionsData = [
+const bodyData = [
   {
     imageSrc: "/about-us/mision.png",
     title: "Misión",
@@ -16,7 +39,7 @@ const sectionsData = [
   },
   {
     imageSrc: "/about-us/mision.png",
-    title: "Valores",
+    title: "Valor  ",
     text: (
       <>
         <strong>Compasión:</strong> Nos mueve el amor y el respeto hacia todos los animales, buscando siempre su bienestar y protección. <br /><br />
@@ -35,23 +58,23 @@ export default function Page() {
     <>
       <div className="w-full">
         {/* Sección de encabezado */}
-        <AboutSection
-          title="SOBRE <br /> NOSOTROS"
-          text="Somos una plataforma que actúa de nexo para rescatar animales en situación de calle y gatos, con las personas interesadas en ayudar de cualquier manera posible. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultricies, justo non suscipit vehicula, libero nisl imperdiet risus, ac varius nulla metus ut libero."
-          imageSrc="/7.avif"
-          imageAlt="Perro mirada intensa"
+        <AboutHeader
+          title={headerData.title}
+          text={headerData.text}
+          imageSrc={headerData.imageSrc}
+          imageAlt={headerData.imageAlt}
         />
 
         {/* Secciones de Misión, Visión y Valores */}
         <div className="space-y-8 md:space-y-12 py-8 md:py-12">
-          {sectionsData.map((section, index) => (
-            <Section
+          {bodyData.map((section, index) => (
+            <SectionBody
               key={index}
               imageSrc={section.imageSrc}
               title={section.title}
             >
               {section.text}
-            </Section>
+            </SectionBody>
           ))}
           <div className="h-12 md:h-10" />
         </div>

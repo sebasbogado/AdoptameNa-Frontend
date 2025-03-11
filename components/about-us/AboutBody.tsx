@@ -1,16 +1,16 @@
 import React from "react";
 
-type SectionProps = {
+type SectionBodyProps = {
   imageSrc: string;
   title: string;
   children: React.ReactNode;
 };
 
-const AboutBody: React.FC<SectionProps> = ({ imageSrc, title, children }) => {
+const AboutBody: React.FC<SectionBodyProps> = ({ imageSrc, title, children }) => {
   return (
     <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-[12rem]">
       {/* Contenedor de Imagen y Título */}
-      <div className="flex flex-col items-center text-center">
+      <div className="flex flex-col items-center text-center w-[200px]">
         <div className="w-20 h-20 mb-4">
           <img
             src={imageSrc}
