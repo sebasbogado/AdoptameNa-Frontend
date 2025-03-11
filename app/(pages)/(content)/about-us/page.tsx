@@ -1,14 +1,62 @@
-import Navbar from "@/components/navbar";
-import AboutUs from "@/app/(pages)/(content)/about-us/about-us";
+import Section from "@/components/about-us/AboutBody";
 import Footer from "@/components/footer";
+import AboutSection from "@/components/about-us/AboutHeader";
 
-const AboutPage = () => {
+// Datos de las secciones Misión, Visión y Valores
+const sectionsData = [
+  {
+    imageSrc: "/about-us/mision.png",
+    title: "Misión",
+    text: "Queremos generar un impacto positivo ante la problemática de los animales en situación de calle, creando herramientas que les acerquen a oportunidades de adopción.",
+  },
+  {
+    imageSrc: "/about-us/vision.png",
+    title: "Visión",
+    text: "Ser una plataforma líder que conecte a animales abandonados con hogares amorosos, promoviendo una cultura de adopción responsable en todo el mundo.",
+  },
+  {
+    imageSrc: "/about-us/mision.png",
+    title: "Valores",
+    text: (
+      <>
+        <strong>Compasión:</strong> Nos mueve el amor y el respeto hacia todos los animales, buscando siempre su bienestar y protección. <br /><br />
+        <strong>Colaboración:</strong> Fomentamos el trabajo conjunto entre rescatistas, voluntarios, donantes y adoptantes, creando una red sólida y efectiva para ayudar a los animales. <br /><br />
+        <strong>Transparencia:</strong> Actuamos con honestidad y claridad, manteniendo a nuestra comunidad informada y asegurando que todas nuestras acciones sean visibles y comprensibles. <br /><br />
+        <strong>Compromiso:</strong> Estamos dedicados a nuestra misión de rescatar y proteger a los animales en situación de calle, trabajando con perseverancia y dedicación. <br /><br />
+        <strong>Empatía:</strong> Valoramos las necesidades y sentimientos tanto de los animales como de las personas involucradas, fomentando un ambiente de comprensión y apoyo mutuo. <br /><br />
+        <strong>Educación:</strong> Creemos en la importancia de informar y sensibilizar a la comunidad sobre el rescate, cuidado y adopción de animales, promoviendo una cultura de responsabilidad y amor hacia ellos.
+      </>
+    ),
+  },
+];
+
+export default function Page() {
   return (
     <>
-      <AboutUs />
+      <div className="w-full">
+        {/* Sección de encabezado */}
+        <AboutSection
+          title="SOBRE <br /> NOSOTROS"
+          text="Somos una plataforma que actúa de nexo para rescatar animales en situación de calle y gatos, con las personas interesadas en ayudar de cualquier manera posible. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ultricies, justo non suscipit vehicula, libero nisl imperdiet risus, ac varius nulla metus ut libero."
+          imageSrc="/7.avif"
+          imageAlt="Perro mirada intensa"
+        />
+
+        {/* Secciones de Misión, Visión y Valores */}
+        <div className="space-y-8 md:space-y-12 py-8 md:py-12">
+          {sectionsData.map((section, index) => (
+            <Section
+              key={index}
+              imageSrc={section.imageSrc}
+              title={section.title}
+            >
+              {section.text}
+            </Section>
+          ))}
+          <div className="h-12 md:h-10" />
+        </div>
+      </div>
       <Footer />
     </>
   );
-};
-
-export default AboutPage;
+}
