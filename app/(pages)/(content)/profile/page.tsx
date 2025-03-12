@@ -3,10 +3,10 @@
 import Button from '@/components/buttons/button';
 import EditButton from '@/components/buttons/edit-button';
 import MenuButton from '@/components/buttons/menu-button';
-import Banners from '@components/banners';
+import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
-import Section from '@/components/section';
+import { Section } from '@/components/section';
 
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                 <MenuButton size="lg" />
             </div>
             {/* Pets Section */}
-            <Section title="Mis Mascotas" postType='blog'path='#' items={pets} loading={loading} error={error} />
+            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
 
 
             {/* Posts Section */}

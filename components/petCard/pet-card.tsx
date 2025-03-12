@@ -4,7 +4,7 @@ import clsx from "clsx";
 import CardImage from "@/components/petCard/card-image";
 import CardText from "./card-text";
 import FavoriteButton from "../buttons/favorite-button";
-import { Post } from "@/types/post";
+import { Post } from "@/types/posts";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
