@@ -9,11 +9,11 @@ interface SectionProps {
     title: string;
     postTypeName?: keyof typeof titleText;
     path: string;
-    items: Post[] | Pet[];
+    items: (Post | Pet)[];
     loading: boolean;
     error: string | null;
     filterByType?: boolean;
-    itemType: "post" | "pet"; // 👈 Nuevo prop para diferenciar el tipo de item
+    itemType: "post" | "pet"; // Nuevo prop para diferenciar el tipo de item
 }
 
 export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType }: SectionProps) {
