@@ -1,6 +1,6 @@
-import SectionBody from "@/components/about-us/AboutBody";
+import SectionBody from "@/components/about-us/about-body";
 import Footer from "@/components/footer";
-import AboutHeader from "@/components/about-us/AboutHeader";
+import AboutHeader from "@/components/about-us/about-header";
 
 
 const headerData = {
