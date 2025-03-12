@@ -1,5 +1,4 @@
 import React from "react";
-import clsx from "clsx";
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,12 +7,7 @@ interface ModalProps {
   title?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  children,
-  title,
-}) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title, }) => {
   if (!isOpen) return null;
 
   return (
@@ -23,7 +17,7 @@ const Modal: React.FC<ModalProps> = ({
           onClick={onClose}
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
         >
-          ✕
+          <span className="material-symbols-outlined">close</span>
         </button>
         {title && <h2 className="text-xl font-bold">{title}</h2>}
         {children}
