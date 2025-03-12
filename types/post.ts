@@ -9,5 +9,6 @@ export interface Post {
     status: string;
     sharedCounter: number;
     publicationDate: string;
-    imageUrl: string;
+    imageUrl : string;
+    postTypeName: string;
 }
