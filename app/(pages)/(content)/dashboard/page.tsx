@@ -48,25 +48,68 @@ export default function Page() {
     return (
         <div className='flex flex-col gap-3'>
             <Banners images={bannerImages} />
-            {/* Sección de Adopción 
-                Los postTypeId seran numero magicos mientras se cambia en el back
-            */}
-            <Section title='En adopcion' path='adoption' postType="adoption" items={posts} loading={loading} error={error}></Section>
+         
+            <Section 
+                title='En adopcion' 
+                path='adoption' 
+                postTypeName="adoption" 
+                items={posts} 
+                loading={loading} 
+                error={error}  
+                itemType='post'>
+            </Section>
 
 
             {/* Sección de Desaparecidos */}
-            <Section title='Extraviados' path='missing' postType="missing" items={posts} loading={loading} error={error}></Section>
+            <Section 
+                title='Extraviados'
+                path='missing' 
+                postTypeName="missing" 
+                items={posts} 
+                loading={loading} 
+                error={error}
+                filterByType={true } 
+                itemType='post'>
 
-
+            </Section>
+          
             {/* Sección de Voluntariado */}
-            <Section title='Voluntariado' path='volunteering' postType="volunteering" items={posts} loading={loading} error={error}></Section>
+            <Section 
+                title='Voluntariado' 
+                itemType='post' filterByType={true }  
+                path='volunteering' 
+                postTypeName="volunteering" 
+                items={posts} 
+                loading={loading} 
+                error={error}>               
+             </Section>
 
 
             {/* Sección de Blogs */}
-            <Section title='Blog' path='blog' postType="blog" items={posts} loading={loading} error={error}></Section>
+            <Section 
+                title='Blog' 
+                path='blog' 
+                itemType='post' 
+                filterByType={true }  
+                postTypeName="blog" 
+                items={posts} 
+                loading={loading} 
+                error={error}>
+
+            </Section>
 
             {/* Marketplace */}
-            <Section title='Tienda' path='marketplace' postType="marketplace" items={posts} loading={loading} error={error}></Section>
+            <Section 
+                title='Tienda' 
+                path='marketplace' 
+                itemType='post' 
+                filterByType={true}  
+                postTypeName="marketplace" 
+                items={posts} 
+                loading={loading} 
+                error={error}>
+
+            </Section>
             <Footer />
         </div>
     )
