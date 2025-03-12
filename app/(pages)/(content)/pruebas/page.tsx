@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ReportButton from "@/components/buttons/report-button";
 import Modal from "@/components/modal";
+import Button from "@/components/buttons/button";
 
 export default function Page() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -18,12 +19,13 @@ export default function Page() {
           title="Reportar contenido"
         >
           <p>Futuro form</p>
-          <button
+          <Button
             onClick={() => setModalOpen(false)}
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+            variant="danger"
+            size="md"
           >
             Confirmar Reporte
-          </button>
+          </Button>
         </Modal>
       </div>
     </>
