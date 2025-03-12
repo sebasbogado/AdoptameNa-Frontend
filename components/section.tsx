@@ -7,20 +7,19 @@ import { Pet } from "@/types/pet";
 
 interface SectionProps {
     title: string;
-    postType: keyof typeof titleText;
-    postTypeId?: number;
+    postTypeName?: keyof typeof titleText;
     path: string;
     items: Post[] | Pet[];
     loading: boolean;
     error: string | null;
+    filterByType?: boolean;
+    itemType: "post" | "pet"; // 👈 Nuevo prop para diferenciar el tipo de item
 }
-const isPost = (item: Post | Pet): item is Post => {
-    return (item as Post).postTypeName !== undefined;
-};
-export function Section({ title, postType, path, items, loading, error }: SectionProps) {
+
+export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType }: SectionProps) {
     return (
         <div className="mt-12 ml-6">
-            <Title title={title} postType={postType} path={path}></Title>
+            <Title title={title} postType={postTypeName} path={path}></Title>
 
             {loading ? (
                 <p className="text-gray-500">Cargando {title.toLowerCase()}...</p>
@@ -29,10 +28,11 @@ export function Section({ title, postType, path, items, loading, error }: Sectio
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
                     {items
-                        .filter(isPost)
-                        .filter((post) => post.postTypeName == postType)
+                        .filter((item) => itemType === "pet" || ("postTypeName" in item && (!filterByType || item.postTypeName === postTypeName))) // ✅ Filtramos solo si es necesario
                         .slice(0, 5)
-                        .map((post) => <PetCard key={post.id} post={post} />)}
+                        .map((item) => (
+                            <PetCard key={item.id} post={item} />
+                        ))}
                 </div>
             )}
         </div>

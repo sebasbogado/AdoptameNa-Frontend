@@ -5,7 +5,7 @@ import { titleColor, titleText } from "../types/title"
 
 interface TitleProps {
     title?: string;
-    postType: keyof typeof titleText;
+    postType?: keyof typeof titleText;
     path: string;
 }
 

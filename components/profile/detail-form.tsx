@@ -18,7 +18,7 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile }: InputP
         <input
           type="text"
           disabled={isDisable}
-          value={userProfile?.fullName}
+          value={userProfile?.fullName ?? ""} 
           className="text-5xl font-black bg-transparent border-none focus:outline-none w-full"
           onChange={(e) =>
             setUserProfile((prev) => prev ? { ...prev, fullName: e.target.value } : null)
@@ -27,7 +27,7 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile }: InputP
         <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
         <textarea
           disabled={isDisable}
-          value={userProfile?.description}
+          value={userProfile?.description ?? ""} 
           className="mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-none focus:outline-none w-full resize-none"
           onChange={(e) =>
             setUserProfile((prev) => prev ? { ...prev, description: e.target.value } : null)

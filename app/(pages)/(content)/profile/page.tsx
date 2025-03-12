@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
-
+import { Detail } from '@/components/profile/detail-form';
 export default function ProfilePage() {
     const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
@@ -28,6 +28,9 @@ export default function ProfilePage() {
     const [error, setError] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
+    const [isEditing, setIsEditing] = useState(false)
+    const [postsError, setPostsError] = useState<string | null>(null);
+    const [petsError, setPetsError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -69,15 +72,19 @@ export default function ProfilePage() {
             try {
                 // Cargar posts del usuario
                 const postParams = { user: user.id }; // Usamos el ID del usuario actual
-                const postData = await getPosts(authToken, postParams);
+                const postData = await getPosts(postParams);
                 setPosts(Array.isArray(postData) ? postData : []);
-
+            } catch (err) {
+                console.error("Error al cargar posts:", err);
+                setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+            }
+            try {
                 // Cargar mascotas del usuario
-                const petData = await getPets(user.id, authToken); // Usamos el ID del usuario actual
+                const petData = await getPets(user.id); // Usamos el ID del usuario actual
                 setPets(Array.isArray(petData) ? petData : []);
             } catch (err) {
                 console.error("Error al cargar contenido:", err);
-                setError("No se pudo cargar el contenido del perfil");
+                setPetsError("No se pudieron cargar las mascotas."); // 👈 Manejo de error separado
 
             } finally {
                 setLoading(false);
@@ -97,13 +104,14 @@ export default function ProfilePage() {
             {/* Banner */}
             <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
 
-            {/* User Info */}
-            <div className="relative  p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5  font-roboto z-40 p-6 bg-white shadow-lg rounded-lg mt-[-50px]  w-[55vw]">
-                <h1 className="text-5xl font-black">{user?.fullName}</h1>
-                <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{userProfile?.description || 'Sin descripción'}</p>
-
-            </div>
+             {/* User Info */}
+             <Detail 
+            user={user}
+            posts={posts}
+            userProfile={userProfile}
+            setUserProfile={setUserProfile} // <-- Pasar el setter
+            isDisable={!isEditing}
+            />
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
                 <EditButton size="lg" id='edit-button' />
@@ -111,11 +119,27 @@ export default function ProfilePage() {
                 <MenuButton size="lg" />
             </div>
             {/* Pets Section */}
-            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
+            <Section 
+                title="Mis Mascotas"
+                itemType="pet" 
+                path='#' 
+                items={pets} 
+                loading={loading} 
+                error={petsError} 
+                filterByType={false} //  No se filtran tipos de mascota
+            />
 
-
-            {/* Posts Section */}
-            <Section title={`Publicaciones de ${user?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
+            {/* Posts Section (Con filtrado) */}
+            <Section 
+                title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                itemType="post"
+                postTypeName="adoption" 
+                path='#' 
+                items={posts} 
+                loading={loading} 
+                error={postsError} 
+                filterByType={false } 
+            /> 
             {/* Footer */}
             <Footer />
         </div>
