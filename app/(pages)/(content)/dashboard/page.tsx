@@ -1,8 +1,8 @@
 'use client'
 
 
-import Banners from '@components/banners'
-import PetCard from '@components/petCard/pet-card'
+import Banners from '@/components/banners'
+import PetCard from '@/components/petCard/pet-card'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
 import { useEffect, useState } from 'react'
@@ -10,7 +10,7 @@ import { getPosts } from '@/utils/posts.http'
 import { Post } from '@/types/post'
 
 
-import Section from '@/components/Section'
+import { Section } from '@/components/section'
 
 type FetchContentDataParams = {
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
