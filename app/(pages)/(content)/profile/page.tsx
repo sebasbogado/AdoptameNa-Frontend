@@ -32,6 +32,9 @@ export default function ProfilePage() {
     const [postsError, setPostsError] = useState<string | null>(null);
     const [petsError, setPetsError] = useState<string | null>(null);
 
+    const [initialProfileData, setInitialProfileData] = useState<UserProfile | null>(null);
+    const [modifiedProfileData, setModifiedProfileData] = useState<UserProfile | null>(null);
+
     useEffect(() => {
         if (!authLoading && !authToken) {
             console.log("authLoading", authLoading);
@@ -40,6 +43,7 @@ export default function ProfilePage() {
         }
 
     }, [authToken, authLoading, router]);
+
 
 
     useEffect(() => {
@@ -53,6 +57,8 @@ export default function ProfilePage() {
                 // Cargar perfil de usuario
                 const profile = await getUserProfile(user.id, authToken);
                 setUserProfile(profile);
+                setInitialProfileData(profile); // Guardar datos iniciales
+                setModifiedProfileData(profile);
             } catch (err) {
                 console.error("Error al cargar el perfil:", err);
                 setError("No se pudo cargar la información del perfil");
@@ -98,48 +104,76 @@ export default function ProfilePage() {
     }
 
     if (!user) return;
+    const handleEditButtonClick = () => {
+        setIsEditing(!isEditing);
+        if (isEditing) {
+            // Si estamos saliendo del modo de edición, restaurar los datos sin guardar
+            setModifiedProfileData(initialProfileData);
 
+        }
+    };
+
+    // Lógica para guardar los cambios
+    const handleSaveButtonClick = () => {
+        setUserProfile(modifiedProfileData); // Guardar cambios en el perfil
+        setIsEditing(false); // Salir del modo de edición
+    };
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
             <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
 
-             {/* User Info */}
-             <Detail 
-            user={user}
-            posts={posts}
-            userProfile={userProfile}
-            setUserProfile={setUserProfile} // <-- Pasar el setter
-            isDisable={!isEditing}
+            {/* User Info */}
+            <Detail
+                user={user}
+                posts={posts}
+                userProfile={modifiedProfileData}
+                setUserProfile={setModifiedProfileData} 
+                isDisable={!isEditing}
             />
             {/* Action Buttons */}
-            <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
-                <EditButton size="lg" id='edit-button' />
-                <Button variant="cta" size="lg">Contactar</Button>
-                <MenuButton size="lg" />
+            <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                <EditButton
+                    size="lg"
+                    isEditing={isEditing}
+                    id='edit-button'
+                    onClick={handleEditButtonClick}
+                />
+                {isEditing && (
+                    <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
+                        Guardar
+                    </Button>
+                )}   
+                {!isEditing && (
+                    <>
+                    <Button variant="cta" size="lg">Contactar</Button>
+                    <MenuButton size="lg" />
+                    </>
+                    
+                )}
             </div>
             {/* Pets Section */}
-            <Section 
+            <Section
                 title="Mis Mascotas"
-                itemType="pet" 
-                path='#' 
-                items={pets} 
-                loading={loading} 
-                error={petsError} 
+                itemType="pet"
+                path='#'
+                items={pets}
+                loading={loading}
+                error={petsError}
                 filterByType={false} //  No se filtran tipos de mascota
             />
 
             {/* Posts Section (Con filtrado) */}
-            <Section 
+            <Section
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
-                postTypeName="adoption" 
-                path='#' 
-                items={posts} 
-                loading={loading} 
-                error={postsError} 
-                filterByType={false } 
-            /> 
+                postTypeName="adoption"
+                path='#'
+                items={posts}
+                loading={loading}
+                error={postsError}
+                filterByType={false}
+            />
             {/* Footer */}
             <Footer />
         </div>
