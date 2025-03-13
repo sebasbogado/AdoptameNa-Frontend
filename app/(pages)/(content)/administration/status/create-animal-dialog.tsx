@@ -61,7 +61,7 @@ export function CreateAnimalStatusDialog({ open, onOpenChange, onSave }: CreateA
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-4 py-2 bg-violet-500 text-white rounded-md hover:bg-violet-600"
+                        className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
                     >
                         Guardar
                     </button>
