@@ -114,15 +114,15 @@ export default function ProfilePage() {
     };
 
     const handleContactClick = () => {
-        // Aquí puedes personalizar el correo, por ejemplo:
-        const destinatario = "willian.martinez@fiuni.edu.py"; // El correo al que quieres enviar el mensaje
-        const asunto = "Consulta desde tu sitio web";
-        const mensaje = "Hola, tengo una consulta sobre..."; // El cuerpo del mensaje que se prellenará
+        
+        const destinatario = user.email ; 
+        const asunto = "Consulta desde Adoptamena";
+        const mensaje = "Hola, tengo una consulta sobre..."; 
     
-        // Crear la URL mailto
+        
         const mailtoUrl = `mailto:${destinatario}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(mensaje)}`;
         
-        // Abrir la URL mailto
+        
         window.location.href = mailtoUrl;
       };
     
