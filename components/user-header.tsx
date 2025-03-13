@@ -1,12 +1,10 @@
 "use client";
-import { Bell, FolderCog, LogOut, User } from "lucide-react";
+import { Bell, FolderCog, LogOut, User, Heart } from "lucide-react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { User as UserType } from "@/types/auth";
 import { useAuth } from "@/contexts/authContext";
-
-
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
   const { logout } = useAuth();
@@ -42,13 +40,23 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
 
             {/* Administration menu */}
             {currentUser.role === "admin" && (
-            <div className="px-3 py-2 border-b border-gray-200 mb-1">
-              <Link href="/administration" className="flex items-center gap-2 mb-1">
-                <FolderCog size={16} className="text-gray-500" />
-                <span className="font-medium text-sm text-gray-800">Administration</span>
+              <div className="px-3 py-2 border-b border-gray-200 mb-1">
+                <Link href="/administration" className="flex items-center gap-2 mb-1">
+                  <FolderCog size={16} className="text-gray-500" />
+                  <span className="font-medium text-sm text-gray-800">Administration</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Mis favoritos */}
+            <div className="py-2 border-b border-gray-200 mb-1">
+              <Link href="/profile/favorites" className="flex items-center gap-2">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                  <Heart size={16} />
+                  Mis favoritos
+                </DropdownMenu.Item>
               </Link>
             </div>
-            )}
 
             {/* Logout option */}
             <DropdownMenu.Item
