@@ -10,13 +10,14 @@ import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import Footer from '@/components/footer';
 import Loading from '@/app/loading';
+import { Favorites } from '@/types/favorites';
 
 const publicationsTypes = ["Adopción","Extraviado","Voluntariado","Blog","Tienda"];
 const pets = ["Todos", "Conejo", "Perro", "Gato"];
 
 export default function Page() {
   const { authToken, loading: authLoading } = useAuth();
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<Favorites[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
