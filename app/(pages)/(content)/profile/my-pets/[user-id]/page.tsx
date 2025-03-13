@@ -4,7 +4,8 @@
 import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 
-import { getPosts } from '@/utils/posts.http';
+import { getPets } from '@/utils/pets.http';
+import { UserProfile } from '@/types/user-profile';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
@@ -16,36 +17,40 @@ import Footer from '@/components/footer';
 
 
 const fetchContentData = async (
-    setPosts: React.Dispatch<React.SetStateAction<Pet[]>>,
+    setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
-    userId: string,
-) => {
-
+    setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
+    userId: string, 
+) => { 
+   
 
     try {
-        // Cargar posts del usuario
-        const postParams = { user: userId }; // Usamos el ID del usuario actual
-        const postData = await getPosts(postParams);
-        setPosts(Array.isArray(postData) ? postData : []);
+        // Cargar mascotas del usuario
+        const petData = await getPets(userId); // Usamos el ID del usuario actual
+        setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
-        setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+        console.error("Error al cargar contenido:", err);
+        setPetsError("No se pudieron cargar las mascotas."); // 👈 Manejo de error separado
+
     } finally {
         setLoading(false);
     }
 };
-export default function MyPostsPage() {
+export default function MyPetsPage() {
     const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
     const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
     const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
     const { authToken, user, loading: authLoading } = useAuth();
-    const [pets, setPosts] = useState<Pet[]>([]);
+    const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
-    const [petsError, setPostsError] = useState<string | null>(null);
+    const [isEditing, setIsEditing] = useState(false)
+    const [petsError, setPetsError] = useState<string | null>(null);
 
+    const [initialProfileData, setInitialProfileData] = useState<UserProfile | null>(null);
+    const [modifiedProfileData, setModifiedProfileData] = useState<UserProfile | null>(null);
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
@@ -63,7 +68,7 @@ export default function MyPostsPage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         console.log("authLoading", authLoading);
-        fetchContentData(setPosts, setLoading, setPostsError, user.id);
+        fetchContentData(setPets, setLoading, setPetsError, user.id);
     }, [authToken, authLoading, user?.id]);
 
     if (authLoading) {
