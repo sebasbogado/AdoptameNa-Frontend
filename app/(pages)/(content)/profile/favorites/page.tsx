@@ -9,6 +9,7 @@ import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import Footer from '@/components/footer';
+import Loading from '@/app/loading';
 
 const publicationsTypes = ["Adopción","Extraviado","Voluntariado","Blog","Tienda"];
 const pets = ["Todos", "Conejo", "Perro", "Gato"];
@@ -23,6 +24,21 @@ export default function Page() {
   const [selectedPublicationType, setSelectedPublicationType] = useState<string | null>(null);
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
 
+  // Función para cargar las publicaciones favoritas
+  const fetchFavorites = async (token: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getFavorites(token);
+      setFavorites(data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && !authToken) {
       console.log("authLoading", authLoading);
@@ -32,24 +48,15 @@ export default function Page() {
   }, [authToken, authLoading, router]);
 
   useEffect(() => {
-    const fetchFavorites = async () => {
-      try {
-        if (!authToken) return;
-        const data = await getFavorites(authToken);
-        setFavorites(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (authToken) {
-      fetchFavorites();
-    }
-  }, [authToken]);
+    if (authLoading || !authToken) return;
 
-  if (loading) return <p>Cargando favoritos...</p>;
-  if (error) return <p>Error: {error}</p>;
+    fetchFavorites(authToken);
+  }, [authToken, authLoading]);
+
+  // Uso de la página de loading ya implementada
+  if (authLoading) {
+    return Loading();
+  }
 
   const bannerImages = ["../banner1.png","../banner2.png","../banner3.png","../banner4.png"];
 
