@@ -12,11 +12,12 @@ import Loading from '@/app/loading';
 import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import Footer from '@/components/footer';
+import { Post } from '@/types/post';
 
 
 
 const fetchContentData = async (
-    setPosts: React.Dispatch<React.SetStateAction<Pet[]>>,
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
     userId: string,
@@ -41,7 +42,7 @@ export default function MyPostsPage() {
     const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
     const { authToken, user, loading: authLoading } = useAuth();
-    const [pets, setPosts] = useState<Pet[]>([]);
+    const [pets, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const router = useRouter();
     const [petsError, setPostsError] = useState<string | null>(null);
