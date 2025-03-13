@@ -21,6 +21,8 @@ interface Pet {
     idPostType: number;
     locationCoordinates: string;
     contactNumber: string;
+    urlPhoto: string | null;
+
     status: string;
     sharedCounter: number;
     publicationDate: string;
