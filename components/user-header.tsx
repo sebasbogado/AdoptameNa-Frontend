@@ -49,9 +49,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             )}
 
             {/* Mis favoritos */}
-            <div className="py-2 border-b border-gray-200">
+            <div className="border-b border-gray-200">
               <Link href="/profile/favorites" className="flex items-center gap-2">
-                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
                   <Heart size={16} />
                   Mis favoritos
                 </DropdownMenu.Item>
@@ -59,9 +59,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             </div>
 
             {/* Mis solicitudes */}
-            <div className="py-2 border-b border-gray-200">
+            <div className="border-b border-gray-200">
               <Link href="/profile/received-request" className="flex items-center gap-2">
-                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
                   <FileText size={16} />
                   Mis solicitudes
                 </DropdownMenu.Item>
@@ -69,9 +69,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             </div>
 
             {/* Mi Perfil */}
-            <div className="py-2 border-b border-gray-200">
+            <div className="border-b border-gray-200">
               <Link href="/profile" className="flex items-center gap-2">
-                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
                   <UserCircle size={16} />
                   Mi Perfil
                 </DropdownMenu.Item>
@@ -80,7 +80,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
 
             {/* Logout option */}
             <DropdownMenu.Item
-              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 outline-none cursor-pointer hover:bg-gray-100 rounded-md"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 outline-none cursor-pointer hover:bg-red-100 rounded-md"
               onClick={logout}
             >
               <LogOut size={16} />
