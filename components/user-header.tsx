@@ -1,5 +1,5 @@
 "use client";
-import { Bell, FolderCog, LogOut, User, Heart } from "lucide-react";
+import { Bell, FolderCog, LogOut, User, Heart, FileText, UserCircle } from "lucide-react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
@@ -49,11 +49,31 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             )}
 
             {/* Mis favoritos */}
-            <div className="py-2 border-b border-gray-200 mb-1">
+            <div className="py-2 border-b border-gray-200">
               <Link href="/profile/favorites" className="flex items-center gap-2">
-                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
                   <Heart size={16} />
                   Mis favoritos
+                </DropdownMenu.Item>
+              </Link>
+            </div>
+
+            {/* Mis solicitudes */}
+            <div className="py-2 border-b border-gray-200">
+              <Link href="/profile/received-request" className="flex items-center gap-2">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                  <FileText size={16} />
+                  Mis solicitudes
+                </DropdownMenu.Item>
+              </Link>
+            </div>
+
+            {/* Mi Perfil */}
+            <div className="py-2 border-b border-gray-200">
+              <Link href="/profile" className="flex items-center gap-2">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                  <UserCircle size={16} />
+                  Mi Perfil
                 </DropdownMenu.Item>
               </Link>
             </div>
