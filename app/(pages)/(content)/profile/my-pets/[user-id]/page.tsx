@@ -4,8 +4,7 @@
 import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 
-import { getPets } from '@/utils/pets.http';
-import { UserProfile } from '@/types/user-profile';
+import { getPosts } from '@/utils/posts.http';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
@@ -13,6 +12,8 @@ import Loading from '@/app/loading';
 import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import Footer from '@/components/footer';
+import { Post } from '@/types/post';
+import { getPets } from '@/utils/pets.http';
 
 
 
@@ -20,23 +21,22 @@ const fetchContentData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
-    userId: string, 
-) => { 
-   
+    userId: string,
+) => {
+
 
     try {
-        // Cargar mascotas del usuario
-        const petData = await getPets(userId); // Usamos el ID del usuario actual
+        // Cargar posts del usuario
+        const petData = await getPets(userId);
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
-        console.error("Error al cargar contenido:", err);
-        setPetsError("No se pudieron cargar las mascotas."); // 👈 Manejo de error separado
-
+        console.error("Error al cargar posts:", err);
+        setPetsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
     } finally {
         setLoading(false);
     }
 };
-export default function MyPetsPage() {
+export default function MyPostsPage() {
     const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
     const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
     const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
@@ -44,13 +44,9 @@ export default function MyPetsPage() {
     const { authToken, user, loading: authLoading } = useAuth();
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
-    const [isEditing, setIsEditing] = useState(false)
     const [petsError, setPetsError] = useState<string | null>(null);
 
-    const [initialProfileData, setInitialProfileData] = useState<UserProfile | null>(null);
-    const [modifiedProfileData, setModifiedProfileData] = useState<UserProfile | null>(null);
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);

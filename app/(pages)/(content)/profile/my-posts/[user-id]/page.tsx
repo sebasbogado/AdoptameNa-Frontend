@@ -42,10 +42,10 @@ export default function MyPostsPage() {
     const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
     const { authToken, user, loading: authLoading } = useAuth();
-    const [pets, setPosts] = useState<Post[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const router = useRouter();
-    const [petsError, setPostsError] = useState<string | null>(null);
+    const [postsError, setPostsError] = useState<string | null>(null);
 
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
@@ -112,8 +112,8 @@ export default function MyPostsPage() {
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                     {/* 🔥 Mapeo de las mascotas */}
-                    {pets.length > 0 ? (
-                        pets.map((post) => (
+                    {posts.length > 0 ? (
+                        posts.map((post) => (
                             <PetCard key={post.id} post={post} />
                         ))
                     ) : (
