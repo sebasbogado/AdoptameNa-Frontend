@@ -10,8 +10,8 @@ import { Section } from '@/components/section';
 
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
-import { getUserProfile } from '@/utils/user-profile-client';
-import { UserProfile } from '@/types/user-profile';
+import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
+import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,71 @@ import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
+const getUserProfileData = async (
+
+    setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
+    setInitialProfileData: React.Dispatch<React.SetStateAction<UserProfile | null>>,
+    setModifiedProfileData: React.Dispatch<React.SetStateAction<UserProfile | null>>,
+
+    setProfileLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    userId: string,
+) => {
+          
+    try {
+        // Cargar perfil de usuario
+        const profile = await getUserProfile(userId);
+        setUserProfile(profile);
+        setInitialProfileData(profile); // Guardar datos iniciales
+        setModifiedProfileData(profile);
+    } catch (err) {
+        console.error("Error al cargar el perfil:", err);
+        setError("No se pudo cargar la información del perfil");
+    } finally {
+        setProfileLoading(false);
+    }
+};
+
+const getPostsData = async (
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
+    userId: string,
+) => {
+
+
+    try {
+        // Cargar posts del usuario
+        const postParams = { user: userId }; // Usamos el ID del usuario actual
+        const postData = await getPosts(postParams);
+        setPosts(Array.isArray(postData) ? postData : []);
+    } catch (err) {
+        console.error("Error al cargar posts:", err);
+        setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+    } finally {
+        setLoading(false);
+    }
+};
+const getPetsData = async (
+    setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
+    userId: string,
+) => {
+
+
+    try {
+        // Cargar posts del usuario
+        const petData = await getPets(userId);
+        setPets(Array.isArray(petData) ? petData : []);
+    } catch (err) {
+        console.error("Error al cargar posts:", err);
+        setPetsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+    } finally {
+        setLoading(false);
+    }
+};
+
 export default function ProfilePage() {
     const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
@@ -45,59 +110,39 @@ export default function ProfilePage() {
     }, [authToken, authLoading, router]);
 
 
+    useEffect(() => {
+        if (authLoading || !authToken || !user?.id) return;
+
+        setLoading(true);
+        setError(null);
+
+   
+        getUserProfileData(
+            setUserProfile, 
+            setInitialProfileData,  // ✅ Ahora está en el lugar correcto
+            setModifiedProfileData, // ✅ También corregido
+            setProfileLoading, 
+            setError, 
+            user.id
+        );    }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
-        const fetchProfileData = async () => {
-            if (authLoading || !authToken || !user?.id) return;
+        if (authLoading || !authToken || !user?.id) return;
 
-            setLoading(true);
-            setError(null);
+        setLoading(true);
+        setError(null);
 
-            try {
-                // Cargar perfil de usuario
-                const profile = await getUserProfile(user.id, authToken);
-                setUserProfile(profile);
-                setInitialProfileData(profile); // Guardar datos iniciales
-                setModifiedProfileData(profile);
-            } catch (err) {
-                console.error("Error al cargar el perfil:", err);
-                setError("No se pudo cargar la información del perfil");
-            } finally {
-                setProfileLoading(false);
-            }
-        };
 
-        fetchProfileData();
+
+        getPetsData(setPets, setLoading, setPetsError, user.id);
+
     }, [authToken, authLoading, user?.id]);
 
-    useEffect(() => {
-        const fetchContentData = async () => {
-            if (authLoading || !authToken || !user?.id) return;
-            console.log("authLoading", authLoading);
-
-            try {
-                // Cargar posts del usuario
-                const postParams = { user: user.id }; // Usamos el ID del usuario actual
-                const postData = await getPosts(postParams);
-                setPosts(Array.isArray(postData) ? postData : []);
-            } catch (err) {
-                console.error("Error al cargar posts:", err);
-                setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
-            }
-            try {
-                // Cargar mascotas del usuario
-                const petData = await getPets(user.id); // Usamos el ID del usuario actual
-                setPets(Array.isArray(petData) ? petData : []);
-            } catch (err) {
-                console.error("Error al cargar contenido:", err);
-                setPetsError("No se pudieron cargar las mascotas."); // 👈 Manejo de error separado
-
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchContentData();
-    }, [authToken, authLoading, user?.id]);
+        useEffect(() => {
+           if (authLoading || !authToken || !user?.id) return;
+           console.log("authLoading", authLoading);
+           getPostsData(setPosts, setLoading, setPostsError, user.id);
+       }, [authToken, authLoading, user?.id]);
 
     if (authLoading) {
         return Loading();
@@ -112,11 +157,46 @@ export default function ProfilePage() {
 
         }
     };
+    const updateProfile = async () => {
+        if (authLoading || !authToken || !user?.id) return;
+    
+        const { id, ...profileWithoutId } = modifiedProfileData || {};
+    
+        const profileToUpdate: UpdateUserProfile = {
+            ...profileWithoutId,
+            organizationName: modifiedProfileData?.organizationName ?? "",
+            fullName: modifiedProfileData?.fullName ?? "",
+            address: modifiedProfileData?.address ?? null,
+            description: modifiedProfileData?.description ?? "",
+            gender: modifiedProfileData?.gender ?? null,
+            birthdate: modifiedProfileData?.birthdate ?? null,
+            document: modifiedProfileData?.document ?? null,
+            phoneNumber: modifiedProfileData?.phoneNumber ?? null,
+            earnedPoints: modifiedProfileData?.earnedPoints ?? 0,
+            addressCoordinates: modifiedProfileData?.addressCoordinates ?? null,
+            bannerImages: modifiedProfileData?.bannerImages ?? [],
+        };
+    
+        setProfileLoading(true); // Solo afecta el perfil
+        setError(null);
+    
+        try {
+            const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
+            setUserProfile(updatedProfile);
+            setInitialProfileData(updatedProfile);
+            setModifiedProfileData(updatedProfile);
+        } catch (err) {
+            console.error("Error al actualizar el perfil:", err);
+            setError("No se pudo actualizar la información del perfil");
+        } finally {
+            setProfileLoading(false); // Asegurar que el perfil deja de estar en carga
+        }
+    };
 
     // Lógica para guardar los cambios
     const handleSaveButtonClick = () => {
-        setUserProfile(modifiedProfileData); // Guardar cambios en el perfil
         setIsEditing(false); // Salir del modo de edición
+        updateProfile()
     };
     return (
         <div className="w-full font-roboto">

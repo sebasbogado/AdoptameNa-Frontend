@@ -22,20 +22,20 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile }: InputP
         <input
           type="text"
           disabled={isDisable}
-          value={userProfile?.fullName ?? ""} // Vincula al estado de `userProfile`
+          value={userProfile?.fullName ?? ""} 
           className={`text-5xl font-black bg-transparent border-2 ${
             !isDisable ? "border-blue-500 focus:border-blue-700" : "border-transparent"
           } focus:outline-none w-full`}
-          onChange={(e) => handleInputChange('fullName', e.target.value)} // Cambiar valor en `modifiedProfileData`
+          onChange={(e) => handleInputChange('fullName', e.target.value)} 
         />
         <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
         <textarea
           disabled={isDisable}
-          value={userProfile?.description ?? ""} // Vincula al estado de `userProfile`
+          value={userProfile?.description ?? ""} 
           className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${
             !isDisable ? "border-blue-900 focus:border-blue-700" : "border-transparent"
           } focus:outline-none w-full resize-none`}
-          onChange={(e) => handleInputChange('description', e.target.value)} // Cambiar valor en `modifiedProfileData`
+          onChange={(e) => handleInputChange('description', e.target.value)}
         />
       </form>
     </div>
