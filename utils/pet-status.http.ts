@@ -10,7 +10,7 @@ export type AnimalStatus = {
 // Función para obtener los estados de los animales
 export const fetchAnimalStatuses = async (): Promise<AnimalStatus[]> => {
     try {
-        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com:8080/pet-status?page=0&size=10", {
+        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com/api/pet-status?page=0&size=10", {
             headers: { Accept: "application/json" }
         })
         return response.data
@@ -22,7 +22,7 @@ export const fetchAnimalStatuses = async (): Promise<AnimalStatus[]> => {
 
 export const fetchAnimalStatusesAsc = async (): Promise<AnimalStatus[]> => {
     try {
-        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com:8080/pet-status?page=0&size=10&sort=name,asc", {
+        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com/api/pet-status?page=0&size=10&sort=name,asc", {
             headers: { Accept: "application/json" }
         })
         return response.data
@@ -34,7 +34,7 @@ export const fetchAnimalStatusesAsc = async (): Promise<AnimalStatus[]> => {
 
 export const fetchAnimalStatusesDesc = async (): Promise<AnimalStatus[]> => {
     try {
-        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com:8080/pet-status?page=0&size=10&sort=name,desc", {
+        const response = await axios.get("https://adoptamena-api.rodrigomaidana.com/api/pet-status?page=0&size=10&sort=name,desc", {
             headers: { Accept: "application/json" }
         })
         return response.data
@@ -49,7 +49,7 @@ export const fetchAnimalStatusesDesc = async (): Promise<AnimalStatus[]> => {
 export const createAnimalStatus = async (token: string, name: string, description: string): Promise<AnimalStatus | null> => {
     try {
       const response = await axios.post(
-        "https://adoptamena-api.rodrigomaidana.com:8080/pet-status",
+        "https://adoptamena-api.rodrigomaidana.com/api/pet-status",
         { name, description },
         {
           headers: {
