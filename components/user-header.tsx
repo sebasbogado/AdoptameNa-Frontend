@@ -1,5 +1,4 @@
 "use client";
-import { Bell, FolderCog, LogOut, User, Heart, FileText, UserCircle } from "lucide-react";
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
@@ -10,7 +9,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
   const { logout } = useAuth();
   return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
-      <Bell className="h-5 w-5 text-amber-500" />
+      <span className="material-symbols-outlined text-amber-500">
+        notifications
+      </span>
 
 
       <DropdownMenu.Root>
@@ -32,7 +33,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             {/* User info section */}
             <div className="px-3 py-2 border-b border-gray-200 mb-1">
               <Link href="/profile" className="flex items-center gap-2 mb-1">
-                <User size={16} className="text-gray-500" />
+                <span className="material-symbols-outlined font-material">Person</span>
                 <span className="font-medium text-sm text-gray-800">{currentUser.fullName}</span>
               </Link>
               <div className="text-xs text-gray-500 pl-6">{currentUser.email}</div>
@@ -42,7 +43,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             {currentUser.role === "admin" && (
               <div className="px-3 py-2 border-b border-gray-200 mb-1">
                 <Link href="/administration" className="flex items-center gap-2 mb-1">
-                  <FolderCog size={16} className="text-gray-500" />
+                  <span className="material-symbols-outlined text-gray-500">
+                    shield_person
+                  </span>
                   <span className="font-medium text-sm text-gray-800">Administration</span>
                 </Link>
               </div>
@@ -52,8 +55,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile/favorites" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <Heart size={16} />
-                  Mis favoritos
+                  <span className="material-symbols-outlined">
+                    favorite
+                  </span>Mis favoritos
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -62,8 +66,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile/received-request" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <FileText size={16} />
-                  Mis solicitudes
+                  <span className="material-symbols-outlined">
+                    article
+                  </span>Mis solicitudes
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -72,8 +77,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <UserCircle size={16} />
-                  Mi Perfil
+                  <span className="material-symbols-outlined">
+                    account_circle
+                  </span>Mi perfil
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -83,8 +89,9 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
               className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 outline-none cursor-pointer hover:bg-red-100 rounded-md"
               onClick={logout}
             >
-              <LogOut size={16} />
-              Cerrar sesión
+              <span className="material-symbols-outlined">
+                logout
+              </span>Cerrar sesión
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
