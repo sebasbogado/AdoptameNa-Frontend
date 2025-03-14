@@ -12,6 +12,8 @@ import {
     AnimalStatus
 } from "@/utils/pet-status.http"
 import { useAuth } from "@/contexts/authContext"
+import EditButton from "@/components/buttons/edit-button";
+import TrashButton from "@/components/buttons/trash-button";
 
 export default function AnimalStatusList() {
     const [animalStatuses, setAnimalStatuses] = useState<AnimalStatus[]>([])
@@ -19,6 +21,7 @@ export default function AnimalStatusList() {
     const [isLoading, setIsLoading] = useState(true)
     const { authToken } = useAuth() // Obtener el token de autenticación
     const [editingStatus, setEditingStatus] = useState<AnimalStatus | null>(null);
+    const [editingId, setEditingId] = useState<number | null>(null); // ID del estado en edición
 
     useEffect(() => {
         const loadStatuses = async () => {
@@ -68,8 +71,15 @@ export default function AnimalStatusList() {
 
 
     const editAnimalStatus = (status: AnimalStatus) => {
-        setEditingStatus(status); // Guardar el estado a editar
+        setEditingStatus(status);
+        setEditingId(status.id);
         setIsCreateDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setIsCreateDialogOpen(false);
+        setEditingStatus(null);
+        setEditingId(null);
     };
 
     const updateStatus = async (id: number, name: string, description: string) => {
@@ -127,18 +137,16 @@ export default function AnimalStatusList() {
                                         <td className="py-4 px-4">{status.description}</td>
                                         <td className="text-right py-4 px-4">
                                             <div className="flex justify-end gap-2">
-                                                <button
+                                                <EditButton
                                                     onClick={() => editAnimalStatus(status)}
                                                     className="h-8 w-8 border border-amber-500 text-amber-500 rounded-md hover:bg-amber-100 hover:text-amber-600 flex items-center justify-center"
+                                                    isEditing={editingId === status.id}                  
                                                 >
-                                                    <Pencil className="h-4 w-4" />
-                                                </button>
-                                                <button
+                                                </EditButton>
+                                                <TrashButton
                                                     onClick={() => handleDelete(status.id)}
                                                     className="h-8 w-8 border border-red-500 text-red-500 rounded-md hover:bg-red-100 hover:text-red-600 flex items-center justify-center"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
+                                                ></TrashButton>
                                             </div>
                                         </td>
                                     </tr>
@@ -149,10 +157,7 @@ export default function AnimalStatusList() {
 
                     <CreateAnimalStatusDialog
                         open={isCreateDialogOpen}
-                        onOpenChange={(open) => {
-                            setIsCreateDialogOpen(open);
-                            if (!open) setEditingStatus(null);
-                        }}
+                        onOpenChange={handleCloseDialog}
                         onSave={addAnimalStatus}
                         onUpdate={updateStatus}
                         editingStatus={editingStatus}
