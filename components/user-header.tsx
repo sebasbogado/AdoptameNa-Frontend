@@ -41,12 +41,14 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
 
             {/* Administration menu */}
             {currentUser.role === "admin" && (
-              <div className="px-3 py-2 border-b border-gray-200 mb-1">
-                <Link href="/administration" className="flex items-center gap-2 mb-1">
-                  <span className="material-symbols-outlined text-gray-500">
+              <div className="py-2 border-b border-gray-200 mb-1">
+                <Link href="/administration" className="flex items-center gap-2 mb-1 ">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                  <span className="material-symbols-outlined">
                     shield_person
                   </span>
                   <span className="font-medium text-sm text-gray-800">Administration</span>
+                </DropdownMenu.Item>
                 </Link>
               </div>
             )}
