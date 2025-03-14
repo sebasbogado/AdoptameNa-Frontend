@@ -217,7 +217,7 @@ export default function ProfilePage() {
             <Section
                 title="Mis Mascotas"
                 itemType="pet"
-                path='#'
+                path={`/profile/my-pets/${user.id}`}
                 items={pets}
                 loading={loading}
                 error={petsError}
@@ -229,7 +229,7 @@ export default function ProfilePage() {
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
                 postTypeName="adoption"
-                path='#'
+                path={`/profile/my-posts/${user.id}`}
                 items={posts}
                 loading={loading}
                 error={postsError}
