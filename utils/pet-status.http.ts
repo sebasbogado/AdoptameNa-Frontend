@@ -65,3 +65,18 @@ export const createAnimalStatus = async (token: string, name: string, descriptio
       return null
     }
   }
+
+  export const deleteAnimalStatus = async (authToken: string, id: number) => {
+  try {
+    const response = await axios.delete(`https://adoptamena-api.rodrigomaidana.com/api/pet-status/${id}`, {
+      headers: {
+        "Accept": "*/*",
+        "Authorization": `Bearer ${authToken}`, // Enviar token de autenticación
+      },
+    });
+    return response.status === 200; // Si devuelve 200, significa que se eliminó correctamente
+  } catch (error) {
+    console.error("Error al eliminar el estado de animal:", error);
+    return false;
+  }
+};

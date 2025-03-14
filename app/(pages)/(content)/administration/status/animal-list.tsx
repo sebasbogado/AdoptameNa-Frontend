@@ -7,7 +7,7 @@ import {
     fetchAnimalStatuses,
     fetchAnimalStatusesAsc,
     fetchAnimalStatusesDesc,
-    createAnimalStatus,
+    deleteAnimalStatus,
     AnimalStatus
 } from "@/utils/pet-status.http"
 import { useAuth } from "@/contexts/authContext"
@@ -38,9 +38,21 @@ export default function AnimalStatusList() {
         }
     }
 
-    const deleteAnimalStatus = (id: number) => {
-        setAnimalStatuses(animalStatuses.filter((status) => status.id !== id))
-    }
+    const handleDelete = async (id: number) => {
+        if (!authToken) {
+          console.error("No hay token de autenticación disponible.");
+          return;
+        }
+      
+        // Mostrar advertencia antes de eliminar
+        const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este estado?");
+        if (!confirmDelete) return; // Si el usuario cancela, no se ejecuta la eliminación
+      
+        const success = await deleteAnimalStatus(authToken, id);
+        if (success) {
+          setAnimalStatuses((prev) => prev.filter((status) => status.id !== id)); // Filtrar la lista
+        }
+      };
 
     const addAnimalStatus = async () => {
         const loadStatuses = async () => {
@@ -100,7 +112,7 @@ export default function AnimalStatusList() {
                                                     <Pencil className="h-4 w-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => deleteAnimalStatus(status.id)}
+                                                    onClick={() => handleDelete(status.id)}
                                                     className="h-8 w-8 border border-red-500 text-red-500 rounded-md hover:bg-red-100 hover:text-red-600 flex items-center justify-center"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
