@@ -35,22 +35,22 @@ export default function VerifyEmailClient() {
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <div className="bg-white p-6 rounded-lg shadow-md text-center w-96">
                 {status === "loading" && (
-                    <Typography className="text-gray-700">Verificando correo...</Typography>
+                    <p className="text-gray-700">Verificando correo...</p>
                 )}
                 {status === "success" && (
                     <>
-                        <Typography className="text-green-600 font-bold">
+                        <p className="text-green-600 font-bold">
                             ¡Correo verificado con éxito!
-                        </Typography>
-                        <Typography className="text-gray-600">
+                        </p>
+                        <p className="text-gray-600">
                             Serás redirigido en unos segundos...
-                        </Typography>
+                        </p>
                     </>
                 )}
                 {status === "error" && (
-                    <Typography className="text-red-600 font-bold">
+                    <p className="text-red-600 font-bold">
                         Error al verificar el correo
-                    </Typography>
+                    </p>
                 )}
             </div>
         </div>

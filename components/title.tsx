@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
-import { titleColor, titleText } from "../types/titles"
+import { titleColor, titleText } from "../types/title"
 
 interface TitleProps {
     title?: string;
-    postType: keyof typeof titleText;
+    postType?: keyof typeof titleText;
     path: string;
 }
 

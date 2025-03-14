@@ -1,4 +1,4 @@
-import axiosInstance from "../utils/axiosInstace";
+import axiosInstance from "../utils/axios-instance";
 
 interface RequestOptions {
     path: string;

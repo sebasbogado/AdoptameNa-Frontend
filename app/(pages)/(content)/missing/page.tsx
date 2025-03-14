@@ -1,17 +1,16 @@
 'use client'
 
 import { useState } from "react";
-import { Card, CardContent } from "@components/ui/card";
-import { Input } from "@components/ui/input";
-import { Textarea } from "@components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import dynamic from 'next/dynamic';
 import Footer from "@/components/footer";
 import Image from "next/image";
-import { Facebook, Instagram, Mail, Phone, MessageCircle } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MapWithNoSSR = dynamic(
-  () => import('@/components/ui/Map'),
+  () => import('@/components/ui/map'),
   { ssr: false }
 );
 

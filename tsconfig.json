@@ -24,24 +24,6 @@
     "paths": {
       "@/*": [
         "./*"
-      ],
-      "@styles/*": [
-        "./styles/*"
-      ],
-      "@components/*": [
-        "./components/*"
-      ],
-      "@contexts/*": [
-        "./contexts/*"
-      ],
-      "@utils/*": [
-        "./utils/*"
-      ],
-      "@hooks/*": [
-        "./hooks/*"
-      ],
-      "@services/*": [
-        "./services/*"
       ]
     },
     "target": "ES2017"

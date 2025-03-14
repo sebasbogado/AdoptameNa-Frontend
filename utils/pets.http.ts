@@ -2,11 +2,10 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
-export const getPets = async (id: string, token?: string) => {
+export const getPets = async (id: string) => {
   try {
     const response = await axios.get(`${API_URL}/${id}/user`, {
       headers: {
-        Authorization: token ? `Bearer ${token}` : "",
         "Content-Type": "application/json",
       },
     });

@@ -1,5 +1,5 @@
 import React from "react";
-import { footerSections } from "@utils/footerLinks"; // Importamos la lista de secciones
+import { footerSections } from "@/utils/footer-link"; // Importamos la lista de secciones
 import Link from "next/link";
 
 const Footer: React.FC = () => {
@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
             </div>
 
             <img
-                src="footer_img.png"
+                src="/footer_img.png"
                 alt="Imagen de footer"
                 className="absolute -bottom-3 right-0 w-52 h-auto"
             />

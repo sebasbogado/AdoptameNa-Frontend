@@ -1,118 +1,179 @@
 'use client';
 
-import Button from '@/components/buttons/Button';
-import EditButton from '@/components/buttons/EditButton';
-import MenuButton from '@/components/buttons/MenuButton';
-import Banners from '@components/banners';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import Button from '@/components/buttons/button';
+import EditButton from '@/components/buttons/edit-button';
+import MenuButton from '@/components/buttons/menu-button';
+import Banners from '@/components/banners';
+import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
-import Section from '@/components/Section';
+import { Section } from '@/components/section';
 
-import { User } from '@/types/users';
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
-import { getUser } from '@/utils/users.http';
-import { getUserProfile } from '@/utils/userProfile.http';
-import { UserProfile } from '@/types/userProfile';
-import { Post } from '@/types/posts';
-import { Pet } from '@/types/pets';
+import { getUserProfile } from '@/utils/user-profile-client';
+import { UserProfile } from '@/types/user-profile';
+import { Post } from '@/types/post';
+import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
-import { AuthContext } from '@/contexts/authContext';
-
-
-
-
-export default function Page() {
-    const { authToken, currentUser } = useContext(AuthContext);
-
+import { useAuth } from '@/contexts/authContext';
+import { SplineIcon } from 'lucide-react';
+import Loading from '@/app/loading';
+import { Detail } from '@/components/profile/detail-form';
+export default function ProfilePage() {
+    const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [profileLoading, setProfileLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [data, setData] = useState<Post[]>([]);
-    const [userData, setUserData] = useState<UserProfile | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
+    const [isEditing, setIsEditing] = useState(false)
+    const [postsError, setPostsError] = useState<string | null>(null);
+    const [petsError, setPetsError] = useState<string | null>(null);
+
+    const [initialProfileData, setInitialProfileData] = useState<UserProfile | null>(null);
+    const [modifiedProfileData, setModifiedProfileData] = useState<UserProfile | null>(null);
+
+    useEffect(() => {
+        if (!authLoading && !authToken) {
+            console.log("authLoading", authLoading);
+            console.log("authToken", authToken);
+            router.push("/auth/login");
+        }
+
+    }, [authToken, authLoading, router]);
+
 
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchProfileData = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+
             setLoading(true);
+            setError(null);
+
             try {
-                console.log(authToken);
-                if (!authToken) {
-                    setLoading(false);
-                    console.error("No hay token de autenticación");
-                    router.push("/auth/login");
-                    return;
-                }
+                // Cargar perfil de usuario
+                const profile = await getUserProfile(user.id, authToken);
+                setUserProfile(profile);
+                setInitialProfileData(profile); // Guardar datos iniciales
+                setModifiedProfileData(profile);
+            } catch (err) {
+                console.error("Error al cargar el perfil:", err);
+                setError("No se pudo cargar la información del perfil");
+            } finally {
+                setProfileLoading(false);
+            }
+        };
 
-                const postParams = { keyword: "7" };
-                const postData = await getPosts(authToken, postParams);
+        fetchProfileData();
+    }, [authToken, authLoading, user?.id]);
 
-                if (Array.isArray(postData)) {
-                    setPosts(postData);
-                } else {
-                    console.error("La respuesta no contiene un array de posts:", postData);
-                    setPosts([]);
-                }
-                const userId = "7";
+    useEffect(() => {
+        const fetchContentData = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+            console.log("authLoading", authLoading);
 
-                const userData = await getUserProfile(userId, authToken);
-                if (userData) {
-                    setUserData(userData);
-                } else {
-                    console.error("No se pudo obtener el usuario");
-                    setUserData(null);
-                }
+            try {
+                // Cargar posts del usuario
+                const postParams = { user: user.id }; // Usamos el ID del usuario actual
+                const postData = await getPosts(postParams);
+                setPosts(Array.isArray(postData) ? postData : []);
+            } catch (err) {
+                console.error("Error al cargar posts:", err);
+                setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+            }
+            try {
+                // Cargar mascotas del usuario
+                const petData = await getPets(user.id); // Usamos el ID del usuario actual
+                setPets(Array.isArray(petData) ? petData : []);
+            } catch (err) {
+                console.error("Error al cargar contenido:", err);
+                setPetsError("No se pudieron cargar las mascotas."); // 👈 Manejo de error separado
 
-                const petData = await getPets(userId, authToken);
-
-                if (Array.isArray(petData)) {
-                    setPets(petData);
-                } else {
-                    console.error("La respuesta no contiene un array de pets:", petData);
-                    setPets([]);
-                }
-
-            } catch (error) {
-                console.error("Error al obtener los posts:", error);
             } finally {
                 setLoading(false);
             }
         };
+        fetchContentData();
+    }, [authToken, authLoading, user?.id]);
 
-        fetchData();
-    }, [authToken]);
-    const user: User = {
-        name: 'Jorge Daniel Figueredo Amarilla',
-        description:
-            'Miembro de MymbaUni, en mis ratos libres me gusta rescatar gatitos y participar de campañas de recaudación de fondos.',
+    if (authLoading) {
+        return Loading();
+    }
+
+    if (!user) return;
+    const handleEditButtonClick = () => {
+        setIsEditing(!isEditing);
+        if (isEditing) {
+            // Si estamos saliendo del modo de edición, restaurar los datos sin guardar
+            setModifiedProfileData(initialProfileData);
+
+        }
     };
-    const images = ['profile/slider/img-slider-1.png'];
 
+    // Lógica para guardar los cambios
+    const handleSaveButtonClick = () => {
+        setUserProfile(modifiedProfileData); // Guardar cambios en el perfil
+        setIsEditing(false); // Salir del modo de edición
+    };
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={images} />
+            <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
 
             {/* User Info */}
-            <div className="relative  p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl p-5  font-roboto z-40 p-6 bg-white shadow-lg rounded-lg mt-[-50px]  w-[55vw]">
-                <h1 className="text-5xl font-black">{currentUser?.fullName}</h1>
-                <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-                <p className="mt-2 text-foreground text-gray-700 mt-8 text-3xl">{user.description || userData?.description}</p>
-            </div>
+            <Detail
+                user={user}
+                posts={posts}
+                userProfile={modifiedProfileData}
+                setUserProfile={setModifiedProfileData} 
+                isDisable={!isEditing}
+            />
             {/* Action Buttons */}
-            <div className=" relative md:top-[-20rem]  lg:top-[-12rem]  flex justify-end gap-2 items-center ">
-                <EditButton size="lg" id='edit-button' />
-                <Button variant="cta" size="lg">Contactar</Button>
-                <MenuButton size="lg" />
+            <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                <EditButton
+                    size="lg"
+                    isEditing={isEditing}
+                    id='edit-button'
+                    onClick={handleEditButtonClick}
+                />
+                {isEditing && (
+                    <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
+                        Guardar
+                    </Button>
+                )}   
+                {!isEditing && (
+                    <>
+                    <Button variant="cta" size="lg">Contactar</Button>
+                    <MenuButton size="lg" />
+                    </>
+                    
+                )}
             </div>
             {/* Pets Section */}
-            <Section title="Mis Mascotas" postType='blog' path='#' items={pets} loading={loading} error={error} />
+            <Section
+                title="Mis Mascotas"
+                itemType="pet"
+                path={`/profile/my-pets/${user.id}`}
+                items={pets}
+                loading={loading}
+                error={petsError}
+                filterByType={false} //  No se filtran tipos de mascota
+            />
 
-
-            {/* Posts Section */}
-            <Section title={`Publicaciones de ${currentUser?.fullName.split(' ')[0]}`} postType='adoption' path='#' items={posts} loading={loading} error={error} />
+            {/* Posts Section (Con filtrado) */}
+            <Section
+                title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                itemType="post"
+                postTypeName="adoption"
+                path={`/profile/my-posts/${user.id}`}
+                items={posts}
+                loading={loading}
+                error={postsError}
+                filterByType={false}
+            />
             {/* Footer */}
             <Footer />
         </div>
