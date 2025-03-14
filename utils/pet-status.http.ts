@@ -1,7 +1,7 @@
 import axios from "axios"
 
 // URL base de la API
-const BASE_URL = "https://adoptamena-api.rodrigomaidana.com/api/pet-status"
+const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pet-status`
 
 // Tipo para los datos de estados de animales
 export type AnimalStatus = {
