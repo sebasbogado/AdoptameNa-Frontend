@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 export default function ProfilePage() {
     const { authToken, user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<Post[]>([]);
@@ -160,7 +161,38 @@ export default function ProfilePage() {
                 )}   
                 {!isEditing && (
                     <>
-                    <Button variant="cta" size="lg" onClick={handleContactClick}>Contactar</Button>
+                    <DropdownMenu.Root>
+                        {/* Botón para desplegar el menú */}
+                        <DropdownMenu.Trigger asChild>
+                            <Button 
+                                variant="cta" 
+                                size="lg" 
+                            >
+                            Contactar
+                            </Button>
+                        </DropdownMenu.Trigger>
+
+                        {/* Contenido del menú desplegable */}
+                        <DropdownMenu.Portal>
+                            <DropdownMenu.Content
+                                className="min-w-[125px] bg-white rounded-md p-2 shadow-md"
+                                sideOffset={5}
+                            >
+                                {/* Agrega las opciones del menú aquí */}
+                                <DropdownMenu.Item>
+                                    <button onClick={handleContactClick}>
+                                        <span className="font-medium text-sm text-gray-800">Correo: </span>
+                                        <span className="font-medium text-sm text-gray-500">{user.email}</span>
+                                    </button>
+                                </DropdownMenu.Item>
+                                
+                                <DropdownMenu.Item>
+                                    <button><span className="font-medium text-sm text-gray-800">WhatsApp</span></button>
+                                </DropdownMenu.Item>
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+
                     <MenuButton size="lg" />
                     </>
                     
