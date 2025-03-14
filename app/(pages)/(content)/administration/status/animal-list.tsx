@@ -8,6 +8,7 @@ import {
     fetchAnimalStatusesAsc,
     fetchAnimalStatusesDesc,
     deleteAnimalStatus,
+    updateAnimalStatus,
     AnimalStatus
 } from "@/utils/pet-status.http"
 import { useAuth } from "@/contexts/authContext"
@@ -17,6 +18,7 @@ export default function AnimalStatusList() {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const { authToken } = useAuth() // Obtener el token de autenticación
+    const [editingStatus, setEditingStatus] = useState<AnimalStatus | null>(null);
 
     useEffect(() => {
         const loadStatuses = async () => {
@@ -40,19 +42,19 @@ export default function AnimalStatusList() {
 
     const handleDelete = async (id: number) => {
         if (!authToken) {
-          console.error("No hay token de autenticación disponible.");
-          return;
+            console.error("No hay token de autenticación disponible.");
+            return;
         }
-      
+
         // Mostrar advertencia antes de eliminar
         const confirmDelete = window.confirm("¿Estás seguro de que quieres eliminar este estado?");
         if (!confirmDelete) return; // Si el usuario cancela, no se ejecuta la eliminación
-      
+
         const success = await deleteAnimalStatus(authToken, id);
         if (success) {
-          setAnimalStatuses((prev) => prev.filter((status) => status.id !== id)); // Filtrar la lista
+            setAnimalStatuses((prev) => prev.filter((status) => status.id !== id)); // Filtrar la lista
         }
-      };
+    };
 
     const addAnimalStatus = async () => {
         const loadStatuses = async () => {
@@ -63,6 +65,23 @@ export default function AnimalStatusList() {
 
         loadStatuses()
     }
+
+
+    const editAnimalStatus = (status: AnimalStatus) => {
+        setEditingStatus(status); // Guardar el estado a editar
+        setIsCreateDialogOpen(true);
+    };
+
+    const updateStatus = async (id: number, name: string, description: string) => {
+        if (!authToken) return;
+        const updatedStatus = await updateAnimalStatus(authToken, id, name, description);
+        if (updatedStatus) {
+            setAnimalStatuses((prev) =>
+                prev.map((status) => (status.id === id ? updatedStatus : status))
+            );
+            setEditingStatus(null);
+        }
+    };
 
     return (
         <div className="rounded-lg border border-gray-900 p-6">
@@ -108,7 +127,10 @@ export default function AnimalStatusList() {
                                         <td className="py-4 px-4">{status.description}</td>
                                         <td className="text-right py-4 px-4">
                                             <div className="flex justify-end gap-2">
-                                                <button className="h-8 w-8 border border-amber-500 text-amber-500 rounded-md hover:bg-amber-100 hover:text-amber-600 flex items-center justify-center">
+                                                <button
+                                                    onClick={() => editAnimalStatus(status)}
+                                                    className="h-8 w-8 border border-amber-500 text-amber-500 rounded-md hover:bg-amber-100 hover:text-amber-600 flex items-center justify-center"
+                                                >
                                                     <Pencil className="h-4 w-4" />
                                                 </button>
                                                 <button
@@ -127,8 +149,13 @@ export default function AnimalStatusList() {
 
                     <CreateAnimalStatusDialog
                         open={isCreateDialogOpen}
-                        onOpenChange={setIsCreateDialogOpen}
+                        onOpenChange={(open) => {
+                            setIsCreateDialogOpen(open);
+                            if (!open) setEditingStatus(null);
+                        }}
                         onSave={addAnimalStatus}
+                        onUpdate={updateStatus}
+                        editingStatus={editingStatus}
                     />
                 </>
             )}

@@ -80,3 +80,23 @@ export const createAnimalStatus = async (token: string, name: string, descriptio
     return false;
   }
 };
+
+export const updateAnimalStatus = async (authToken: string, id: number, name: string, description: string) => {
+  try {
+      const response = await axios.put(
+          `https://adoptamena-api.rodrigomaidana.com/api/pet-status/${id}`,
+          { name, description },
+          {
+              headers: {
+                  "Accept": "application/json",
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${authToken}`,
+              },
+          }
+      );
+      return response.data;
+  } catch (error) {
+      console.error("Error al actualizar el estado del animal:", error);
+      return null;
+  }
+};
