@@ -7,6 +7,7 @@ import {
     fetchAnimalStatuses,
     fetchAnimalStatusesAsc,
     fetchAnimalStatusesDesc,
+    createAnimalStatus,
     deleteAnimalStatus,
     updateAnimalStatus,
     AnimalStatus
@@ -59,15 +60,28 @@ export default function AnimalStatusList() {
         }
     };
 
-    const addAnimalStatus = async () => {
-        const loadStatuses = async () => {
-            const data = await fetchAnimalStatuses()
-            setAnimalStatuses(data)
-            setIsLoading(false)
+    const addAnimalStatus = async (name: string, description: string) => {
+        setIsLoading(true); // Activar el estado de carga mientras se realiza la operación
+    
+        if (!authToken) {
+            console.error("No hay token de autenticación disponible.");
+            setIsLoading(false);
+            return;
         }
 
-        loadStatuses()
-    }
+        try {
+            // Llamada a la API para crear un nuevo estado
+            await createAnimalStatus(authToken, name, description);
+    
+            // Recargar la lista de estados después de agregar uno nuevo
+            const data = await fetchAnimalStatuses();
+            setAnimalStatuses(data);
+        } catch (error) {
+            console.error("Error al agregar el estado del animal:", error);
+        } finally {
+            setIsLoading(false); // Desactivar el estado de carga al finalizar
+        }
+    };
 
 
     const editAnimalStatus = (status: AnimalStatus) => {
