@@ -7,13 +7,16 @@ import {
     fetchAnimalStatuses,
     fetchAnimalStatusesAsc,
     fetchAnimalStatusesDesc,
+    createAnimalStatus,
     AnimalStatus
 } from "@/utils/pet-status.http"
+import { useAuth } from "@/contexts/authContext"
 
 export default function AnimalStatusList() {
     const [animalStatuses, setAnimalStatuses] = useState<AnimalStatus[]>([])
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const { authToken } = useAuth() // Obtener el token de autenticación
 
     useEffect(() => {
         const loadStatuses = async () => {
@@ -39,9 +42,14 @@ export default function AnimalStatusList() {
         setAnimalStatuses(animalStatuses.filter((status) => status.id !== id))
     }
 
-    const addAnimalStatus = (name: string, description: string) => {
-        const newId = animalStatuses.length > 0 ? Math.max(...animalStatuses.map((a) => a.id)) + 1 : 1
-        setAnimalStatuses([...animalStatuses, { id: newId, name, description }])
+    const addAnimalStatus = async () => {
+        const loadStatuses = async () => {
+            const data = await fetchAnimalStatuses()
+            setAnimalStatuses(data)
+            setIsLoading(false)
+        }
+
+        loadStatuses()
     }
 
     return (
@@ -108,7 +116,7 @@ export default function AnimalStatusList() {
                     <CreateAnimalStatusDialog
                         open={isCreateDialogOpen}
                         onOpenChange={setIsCreateDialogOpen}
-                        onSave={(name, description) => addAnimalStatus(name, description)}
+                        onSave={addAnimalStatus}
                     />
                 </>
             )}

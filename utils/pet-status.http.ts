@@ -43,3 +43,25 @@ export const fetchAnimalStatusesDesc = async (): Promise<AnimalStatus[]> => {
         return []
     }
 }
+
+
+// Función para crear un nuevo estado de animal con autenticación
+export const createAnimalStatus = async (token: string, name: string, description: string): Promise<AnimalStatus | null> => {
+    try {
+      const response = await axios.post(
+        "https://adoptamena-api.rodrigomaidana.com:8080/pet-status",
+        { name, description },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` // Agregar el token aquí
+          }
+        }
+      )
+      return response.data
+    } catch (error) {
+      console.error("Error al crear el estado del animal:", error)
+      return null
+    }
+  }
