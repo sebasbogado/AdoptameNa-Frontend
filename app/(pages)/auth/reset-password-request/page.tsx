@@ -50,6 +50,10 @@ export default function ResetPassword() {
         <div className="flex justify-center mb-4">
           <Image src={logo} alt="Logo" width={150} height={50} />
         </div>
+
+        <p className="text-gray-700 mb-4">
+          Ingresa tu correo para recibir un link para cambiar tu contraseña
+        </p>
         
         {error && (
           <p className="text-red-500 text-sm text-center mb-2">
