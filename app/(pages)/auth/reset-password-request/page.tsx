@@ -46,12 +46,12 @@ export default function ResetPassword() {
 
   return (
     <div >
-      <div className="w-full max-w-sm min-w-[539px] min-h-[576px] p-8 shadow-lg rounded-lg bg-white text-center top-[214px] left-[453px]">
+      <div className="w-full max-w-sm min-w-[350px] min-h-[450px] p-8 shadow-lg rounded-lg bg-white text-center top-[214px] left-[453px]">
         <div className="flex justify-center mb-4">
           <Image src={logo} alt="Logo" width={150} height={50} />
         </div>
 
-        <p className="text-gray-700 mb-4">
+        <p className="text-gray-700 mb-4 ">
           Ingresa tu correo para recibir un link para cambiar tu contraseña
         </p>
         
