@@ -5,30 +5,37 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/authContext";
 import Loading from "@/app/loading";
+import axios from "axios";
+import rps from "@/services/request-password-service";
 
 
 export default function ResetPassword() {
-  const [email, setEmail] = useState("");
   const [credentials, setCredentials] = useState({ email: "" });
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { loading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const requestData = { email };
 
     try {
-      
-      console.log("Recuperar contraseña para:", credentials.email);
-      
-    } catch (error: any) {
-      console.error("Error al recuperar contraseña")
-      setError("Hubo un problema al procesar la solicitud.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        const response = await rps.post({email: credentials.email});
+        console.log("Recuperar contraseña para:", credentials.email);
+        console.log("Console responde: " + response.data)
+
+
+        if (response) {
+            console.log("Console responde: " + response.data)
+        setMessage("Se ha enviado un correo para la recuperación de contraseña.");
+      }
+    } catch (err: any) {
+       
+        setError(err.response?.data || "Ocurrió un error al procesar la solicitud.");
+      } finally {
+        setIsSubmitting(false); // Volvemos a habilitar el botón después de procesar
+      }
+    };
 
   if (loading) {
       return <Loading/>;
@@ -64,6 +71,7 @@ export default function ResetPassword() {
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
+            {message && <p className="text-green-500 text-sm">{message}</p>}  
             <button
               type="submit"
               className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48 disabled:opacity-70"
