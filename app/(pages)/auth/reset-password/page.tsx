@@ -1,18 +1,29 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useAuth } from "@/contexts/authContext";
 import Loading from "@/app/loading";
+import rps from "@/services/request-password-service";
 
-export default function Login() {
-  const { login, user, loading } = useAuth();
+export default function ResetPasswordConfirm() {
+  const { loading } = useAuth();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [credentials, setCredentials] = useState({ password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [token, setToken] = useState<string | null>(null);
+
+  // Obtener el token de la URL
+    useEffect(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tokenFromUrl = urlParams.get("token");
+      if (tokenFromUrl) {
+        setToken(tokenFromUrl);
+      }
+    }, []);
 
   // Función para manejar el cambio de los campos de entrada
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,17 +54,15 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Error en login:", error);
-
-      if (error.code === 401) {
-        setError("❌ Correo o contraseña incorrectos.");
-      } else if (error.code === 403) {
-        setError("⚠️ Tu cuenta aún no está verificada. Revisa tu correo para activarla.");
-      } else {
-        setError("❌ Error de autenticación. Por favor intenta nuevamente.");
+      const response = await rps.postPassword({password: credentials.password, token: token});
+      if (response) {
+        console.log("Console responde: " + response.data)
       }
+      // Redirigir al login
+      router.push("/auth/login");
+    } catch (error: any) {
+      console.error("Error al restablecer la contraseña:", error);
+      setError("❌ Ocurrió un error al restablecer la contraseña. Intenta nuevamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -66,7 +75,7 @@ export default function Login() {
 
   return (
     <div>
-      <div className="w-full max-w-sm min-h-[500px] p-8 shadow-lg rounded-lg bg-white text-center">
+      <div className="w-full max-w-sm min-w-[350px] min-h-[450px] p-8 shadow-lg rounded-lg bg-white text-center">
         <div className="flex justify-center mb-4">
           <Image src={logo} alt="Logo" width={150} height={50} />
         </div>
