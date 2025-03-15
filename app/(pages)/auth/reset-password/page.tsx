@@ -54,7 +54,7 @@ export default function ResetPasswordConfirm() {
     setIsSubmitting(true);
 
     try {
-      const response = await rps.postPassword({password: credentials.password, token: token});
+      const response = await rps.postPassword({newPassword: credentials.password, token: token});
       if (response) {
         console.log("Console responde: " + response.data)
       }
