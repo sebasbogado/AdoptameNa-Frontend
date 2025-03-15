@@ -97,7 +97,7 @@ export default function Login() {
           </div>
 
           <a
-            href="/auth/reset-password"
+            href="/auth/reset-password-request"
             className="text-blue-600 hover:underline text-sm text-right block"
           >
             Olvidé mi contraseña
