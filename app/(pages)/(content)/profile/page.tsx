@@ -22,25 +22,21 @@ import { Detail } from '@/components/profile/detail-form';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
-    setInitialProfileData: React.Dispatch<React.SetStateAction<UserProfile | null>>,
-    setModifiedProfileData: React.Dispatch<React.SetStateAction<UserProfile | null>>,
-
-    setProfileLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setError: React.Dispatch<React.SetStateAction<string | null>>,
     userId: string,
 ) => {
-          
+
     try {
         // Cargar perfil de usuario
         const profile = await getUserProfile(userId);
         setUserProfile(profile);
-        setInitialProfileData(profile); // Guardar datos iniciales
-        setModifiedProfileData(profile);
+
     } catch (err) {
         console.error("Error al cargar el perfil:", err);
         setError("No se pudo cargar la información del perfil");
     } finally {
-        setProfileLoading(false);
+        setLoading(false);
     }
 };
 
@@ -59,7 +55,7 @@ const getPostsData = async (
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+        setPostsError("No se pudieron cargar las publicaciones.");
     } finally {
         setLoading(false);
     }
@@ -73,12 +69,11 @@ const getPetsData = async (
 
 
     try {
-        // Cargar posts del usuario
         const petData = await getPets(userId);
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPetsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
+        setPetsError("No se pudieron cargar las publicaciones.");
     } finally {
         setLoading(false);
     }
@@ -96,10 +91,43 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false)
     const [postsError, setPostsError] = useState<string | null>(null);
     const [petsError, setPetsError] = useState<string | null>(null);
+    const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
 
-    const [initialProfileData, setInitialProfileData] = useState<UserProfile | null>(null);
-    const [modifiedProfileData, setModifiedProfileData] = useState<UserProfile | null>(null);
+  
+    const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
+        if (authLoading || !authToken || !user?.id) return;
+    
+        setProfileLoading(true);
+        setError(null);
+    
+        try {
+            const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
+            setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
+        } catch (err) {
+            console.error("Error al actualizar el perfil:", err);
+            setError("No se pudo actualizar la información del perfil");
+        } finally {
+            setProfileLoading(false);
+        }
+    };
+  
 
+    const handleEditButtonClick = () => {
+        if (!isEditing) {
+            setTempUserProfile(userProfile); // Guardar valores originales
+        }
+        setIsEditing(!isEditing);
+    };
+
+    const handleSaveButtonClick = async () => {
+        setIsEditing(false);
+        if (tempUserProfile) {
+            setUserProfile(tempUserProfile); // Actualizamos el estado
+            await updateProfile(tempUserProfile); // Solo se ejecuta una vez
+        }
+    };
+
+    
     useEffect(() => {
         if (!authLoading && !authToken) {
             console.log("authLoading", authLoading);
@@ -112,92 +140,34 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-
         setLoading(true);
         setError(null);
-
-   
         getUserProfileData(
-            setUserProfile, 
-            setInitialProfileData,  // ✅ Ahora está en el lugar correcto
-            setModifiedProfileData, // ✅ También corregido
-            setProfileLoading, 
-            setError, 
+            setUserProfile,
+            setProfileLoading,
+            setError,
             user.id
-        );    }, [authToken, authLoading, user?.id]);
+        );
+    }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-
         setLoading(true);
         setError(null);
-
-
-
         getPetsData(setPets, setLoading, setPetsError, user.id);
 
     }, [authToken, authLoading, user?.id]);
 
-        useEffect(() => {
-           if (authLoading || !authToken || !user?.id) return;
-           console.log("authLoading", authLoading);
-           getPostsData(setPosts, setLoading, setPostsError, user.id);
-       }, [authToken, authLoading, user?.id]);
-
-    if (authLoading) {
-        return Loading();
-    }
-
-    if (!user) return;
-    const handleEditButtonClick = () => {
-        setIsEditing(!isEditing);
-        if (isEditing) {
-            // Si estamos saliendo del modo de edición, restaurar los datos sin guardar
-            setModifiedProfileData(initialProfileData);
-
-        }
-    };
-    const updateProfile = async () => {
+    useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-    
-        const { id, ...profileWithoutId } = modifiedProfileData || {};
-    
-        const profileToUpdate: UpdateUserProfile = {
-            ...profileWithoutId,
-            organizationName: modifiedProfileData?.organizationName ?? "",
-            fullName: modifiedProfileData?.fullName ?? "",
-            address: modifiedProfileData?.address ?? null,
-            description: modifiedProfileData?.description ?? "",
-            gender: modifiedProfileData?.gender ?? null,
-            birthdate: modifiedProfileData?.birthdate ?? null,
-            document: modifiedProfileData?.document ?? null,
-            phoneNumber: modifiedProfileData?.phoneNumber ?? null,
-            earnedPoints: modifiedProfileData?.earnedPoints ?? 0,
-            addressCoordinates: modifiedProfileData?.addressCoordinates ?? null,
-            bannerImages: modifiedProfileData?.bannerImages ?? [],
-        };
-    
-        setProfileLoading(true); // Solo afecta el perfil
-        setError(null);
-    
-        try {
-            const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
-            setUserProfile(updatedProfile);
-            setInitialProfileData(updatedProfile);
-            setModifiedProfileData(updatedProfile);
-        } catch (err) {
-            console.error("Error al actualizar el perfil:", err);
-            setError("No se pudo actualizar la información del perfil");
-        } finally {
-            setProfileLoading(false); // Asegurar que el perfil deja de estar en carga
-        }
-    };
+        console.log("authLoading", authLoading);
+        getPostsData(setPosts, setLoading, setPostsError, user.id);
+    }, [authToken, authLoading, user?.id]);
 
-    // Lógica para guardar los cambios
-    const handleSaveButtonClick = () => {
-        setIsEditing(false); // Salir del modo de edición
-        updateProfile()
-    };
+    if (authLoading || loading){
+        return <Loading />;
+      }
+    if (!user) return;
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
@@ -207,9 +177,10 @@ export default function ProfilePage() {
             <Detail
                 user={user}
                 posts={posts}
-                userProfile={modifiedProfileData}
-                setUserProfile={setModifiedProfileData} 
+                userProfile={isEditing ? tempUserProfile : userProfile}
+                setUserProfile={setTempUserProfile}
                 isDisable={!isEditing}
+                
             />
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
@@ -220,16 +191,18 @@ export default function ProfilePage() {
                     onClick={handleEditButtonClick}
                 />
                 {isEditing && (
-                    <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                        Guardar
-                    </Button>
-                )}   
+                    <>
+                        <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
+                            Guardar
+                        </Button>
+                    </>
+                )}
                 {!isEditing && (
                     <>
-                    <Button variant="cta" size="lg">Contactar</Button>
-                    <MenuButton size="lg" />
+                        <Button variant="cta" size="lg">Contactar</Button>
+                        <MenuButton size="lg" />
                     </>
-                    
+
                 )}
             </div>
             {/* Pets Section */}
@@ -240,11 +213,11 @@ export default function ProfilePage() {
                 items={pets}
                 loading={loading}
                 error={petsError}
-                filterByType={false} //  No se filtran tipos de mascota
+                filterByType={false}
             />
 
             {/* Posts Section (Con filtrado) */}
-            <Section
+            <Section    
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
                 postTypeName="adoption"
