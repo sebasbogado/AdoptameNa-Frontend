@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
@@ -16,14 +16,18 @@ export default function ResetPasswordConfirm() {
   const [error, setError] = useState("");
   const [token, setToken] = useState<string | null>(null);
 
+  const searchParams = useSearchParams();
+
   // Obtener el token de la URL
     useEffect(() => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tokenFromUrl = urlParams.get("token");
+      const tokenFromUrl = searchParams.get("token");
       if (tokenFromUrl) {
         setToken(tokenFromUrl);
+        setError(""); 
+      }else{
+        setError("El token no existe o es invalido")
       }
-    }, []);
+    }, [searchParams]);
 
   // Función para manejar el cambio de los campos de entrada
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
