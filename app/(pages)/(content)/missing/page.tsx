@@ -150,10 +150,10 @@ const AdoptionForm = () => {
       console.log("position: ", position);
       console.log("params: ", params);
       console.log("token: ", authToken);
-      /*const response = await postPets(params, authToken)
+      const response = await postPets(params, authToken)
       if (response) {
         console.log("Guardado ", response)
-      }*/
+      }
 
       // Submit form data to backend or handle accordingly
     }
@@ -411,15 +411,7 @@ const AdoptionForm = () => {
 
                 {/* Buttons */}
                 <div className="flex justify-between items-center mt-6 w-full">
-                  {/* Botón a la izquierda */}
-                  <button
-                    type="button"
-                    className="px-5 py-2 rounded-md bg-red-700 text-white font-semibold shadow-md hover:bg-red-800 transition"
-                  >
-                    Eliminar publicación
-                  </button>
 
-                  {/* Contenedor alineado a la derecha */}
                   <div className="flex gap-4">
                     <button
                       type="button"
