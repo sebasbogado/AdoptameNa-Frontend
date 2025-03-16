@@ -47,7 +47,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
                   <span className="material-symbols-outlined">
                     shield_person
                   </span>
-                  <span className="font-medium text-sm text-gray-800">Administration</span>
+                  <span className="font-medium text-sm text-gray-800">Administración</span>
                 </DropdownMenu.Item>
                 </Link>
               </div>
