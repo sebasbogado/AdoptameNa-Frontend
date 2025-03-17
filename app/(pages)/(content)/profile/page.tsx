@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileSchema } from '@/app/validations/user-profile';
 const getUserProfileData = async (
 
@@ -95,19 +96,13 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-
+  
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
-        if (!validateProfile(profileToUpdate)) {
-            setIsEditing(true)
-            return
-        }
-            
-            
-
+    
         setProfileLoading(true);
         setError(null);
-
+    
         try {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
@@ -118,7 +113,7 @@ export default function ProfilePage() {
             setProfileLoading(false);
         }
     };
-
+  
 
     const handleEditButtonClick = () => {
         if (!isEditing) {
@@ -135,7 +130,7 @@ export default function ProfilePage() {
         }
     };
 
-
+    
     useEffect(() => {
         if (!authLoading && !authToken) {
             console.log("authLoading", authLoading);
@@ -171,7 +166,27 @@ export default function ProfilePage() {
         console.log("authLoading", authLoading);
         getPostsData(setPosts, setLoading, setPostsError, user.id);
     }, [authToken, authLoading, user?.id]);
-    const validateProfile = (profileData: UpdateUserProfile) => {
+    
+    const handleContactClick = () => {
+        
+        const destinatario = userProfile?.email ; 
+        const asunto = "Consulta desde Adoptamena";
+        const mensaje = "Hola, tengo una consulta sobre..."; 
+    
+        
+        const mailtoUrl = `mailto:${destinatario}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(mensaje)}`;
+        
+        
+        window.location.href = mailtoUrl;
+      };
+
+      const handleWhatsAppClick = () => {
+        const phoneNumber = userProfile?.phoneNumber;  
+        const url = `https://wa.me/${phoneNumber}`;
+        window.open(url, '_blank');  // Esto abrirá WhatsApp en una nueva pestaña
+      };
+    
+      const validateProfile = (profileData: UpdateUserProfile) => {
         const result = profileSchema.safeParse(profileData);
         if (!result.success) {
             const errors: Record<string, string> = {};
@@ -185,17 +200,18 @@ export default function ProfilePage() {
         return true;
     };
 
-    if (authLoading || loading) {
+
+    if (authLoading || loading){
         return <Loading />;
-    }
+      }
     if (!user) return;
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
             <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
 
-            {/* User Info */}
-            <Detail
+             {/* User Info */}
+             <Detail
                 posts={posts} user={user}
                 userProfile={isEditing ? tempUserProfile : userProfile}
                 setUserProfile={setTempUserProfile}
@@ -221,6 +237,48 @@ export default function ProfilePage() {
                     <>
                         <Button variant="cta" size="lg">Contactar</Button>
                         <MenuButton size="lg" />
+                    <DropdownMenu.Root>
+                        {/* Botón para desplegar el menú */}
+                        <DropdownMenu.Trigger asChild>
+                            <Button 
+                                variant="cta" 
+                                size="lg" 
+                            >
+                            Contactar
+                            </Button>
+                        </DropdownMenu.Trigger>
+
+                        {/* Contenido del menú desplegable */}
+                        <DropdownMenu.Portal>
+                            <DropdownMenu.Content
+                                className="min-w-[125px] bg-white rounded-md p-2 shadow-md space-y-2"
+                                sideOffset={5}
+                            >
+                                {/* Agrega las opciones del menú aquí */}
+                                <DropdownMenu.Item>
+                                    <button onClick={handleContactClick}  className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
+                                        ${!userProfile?.email || userProfile?.email === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
+                                    disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
+                                        <Mail size={16} className="text-gray-500 items-center" />
+                                        <span className="font-medium text-sm text-gray-800">Correo: </span>
+                                        <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
+                                    </button>
+                                </DropdownMenu.Item>
+                                
+                                <DropdownMenu.Item>
+                                    <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
+                                        ${!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
+                                        disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
+                                        <Phone size={16} className="text-gray-500 items-center" />
+                                        <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
+                                        <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>
+                                    </button>
+                                </DropdownMenu.Item>
+                            </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                    </DropdownMenu.Root>
+
+                    <MenuButton size="lg" />
                     </>
 
                 )}
@@ -237,7 +295,7 @@ export default function ProfilePage() {
             />
 
             {/* Posts Section (Con filtrado) */}
-            <Section
+            <Section    
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
                 postTypeName="adoption"
