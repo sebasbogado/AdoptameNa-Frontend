@@ -7,7 +7,7 @@ const navbarAdminItems = [
     { name: "Administrar Publicaciones", path: "" },
     {name: "Publicaciones Eliminadas", path: ""},
     { name: "Reportes", path: "" },
-    { name: "Configuraciones", path: "" }
+    { name: "Configuraciones", path: "/administration/configuration" }
 ];
 
 export default function NavbarAdmin(){
