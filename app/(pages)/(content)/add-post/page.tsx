@@ -26,18 +26,18 @@ export default function Page() {
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [formData, setFormData] = useState<Partial<Post>>({
-        id: 0,
         idUser: user ? Number(user.id) : 0,
         title: "",
         content: "",
         idPostType: 0,
         locationCoordinates: "",
         contactNumber: "",
-        status: "",
+        status: "activo",
         sharedCounter: 0,
         publicationDate: new Date().toISOString()
     });
 
+    {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -55,11 +55,14 @@ export default function Page() {
         }
     };
 
+    {/* Obtenemos los tipos de publicaciones existentes */ }
     useEffect(() => {
         if (authLoading || !authToken) return;
         fetchPostTypes();
     }, [authToken, authLoading]);
 
+
+    {/* Función para manejar los cambios en los inputs */ }
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
@@ -73,6 +76,7 @@ export default function Page() {
         }
     };
 
+    {/* Validación de los campos */ }
     const validateForm = (): FormErrors => {
         const errors: FormErrors = {};
 
@@ -101,6 +105,7 @@ export default function Page() {
         return errors;
     };
 
+    {/* Función para enviar la publicación */ }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -120,6 +125,7 @@ export default function Page() {
             return;
         }
 
+
         const payload = {
             ...formData,
             idPostType: Number(formData.idPostType),
@@ -127,7 +133,7 @@ export default function Page() {
         };
 
         try {
-            const response = await postPosts(payload as Post, authToken);
+            await postPosts(payload as Post, authToken);
             setSuccessMessage("¡Publicación creada exitosamente!");
 
             setTimeout(() => {
@@ -139,7 +145,7 @@ export default function Page() {
                     idPostType: 0,
                     locationCoordinates: "",
                     contactNumber: "",
-                    status: "",
+                    status: "activo",
                     sharedCounter: 0,
                     publicationDate: new Date().toISOString()
                 });
@@ -242,28 +248,33 @@ export default function Page() {
                     <p className="text-red-500 text-sm mb-4">{formErrors.contactNumber}</p>
                 )}
 
-                <div className="flex justify-between mt-4">
+                <div className="flex justify-between items-center mt-6 gap-10">
+                    {/* Botón eliminar a la izquierda */}
                     <button
                         type="button"
-                        className="bg-red-600 text-white px-4 py-2 rounded"
+                        className="bg-red-600 text-white px-6 py-2 rounded opacity-0"
                         disabled={loading}
                     >
                         Eliminar publicación
                     </button>
-                    <button
-                        type="button"
-                        className="border px-4 py-2 rounded"
-                        disabled={loading}
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        className="bg-purple-600 text-white px-4 py-2 rounded disabled:bg-purple-400"
-                        disabled={loading}
-                    >
-                        {loading ? "Creando..." : "Crear publicación"}
-                    </button>
+
+                    {/* Contenedor de cancelar y confirmar a la derecha */}
+                    <div className="flex gap-4">
+                        <button
+                            type="button"
+                            className="border px-6 py-2 rounded"
+                            disabled={loading}
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400"
+                            disabled={loading}
+                        >
+                            {loading ? "Creando..." : "Crear publicación"}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
