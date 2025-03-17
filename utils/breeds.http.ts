@@ -57,3 +57,18 @@ export const updateBreed = async (token: string, id: number, name: string, anima
     throw error;
   }
 };
+
+export const deleteBreed = async (id: number, token: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(`Raza con ID ${id} eliminada correctamente.`);
+  } catch (error) {
+    console.error("Error al eliminar la raza:", error);
+    throw error;
+  }
+};
