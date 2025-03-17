@@ -24,14 +24,30 @@ export default function PetBreeds() {
   const [filterOpen, setFilterOpen] = useState(false);
   const { authToken } = useAuth();
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedBreed, setSelectedBreed] = useState<Breed | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [loadingBreeds, setLoadingBreeds] = useState(true);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loadingAnimals, setLoadingAnimals] = useState(true);
 
-  const handleBreedCreated = (newBreed: Breed) => {
-    setBreeds((prevBreeds) => [...prevBreeds, newBreed]); // Agrega la nueva raza a la lista
+  const handleBreedSaved = (updatedBreed: Breed) => {
+    setBreeds((prevBreeds) =>
+      prevBreeds.some((b) => b.id === updatedBreed.id)
+        ? prevBreeds.map((b) => (b.id === updatedBreed.id ? updatedBreed : b))
+        : [...prevBreeds, updatedBreed]
+    );
+  };
+
+  const handleCreateBreed = () => {
+    setSelectedBreed(null); // Modal se abre sin datos -> modo "crear"
+    setIsModalOpen(true);
+  };
+  
+  const handleEditBreed = (breed: Breed) => {
+    setSelectedBreed(breed); // Modal se abre con datos -> modo "editar"
+    setIsModalOpen(true);
   };
 
   useEffect(() => {
@@ -146,6 +162,7 @@ export default function PetBreeds() {
             <button
               className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
               key={breed.id}
+              onClick={() => handleEditBreed(breed)}
             >
               {breed.name}
             </button>
@@ -154,7 +171,7 @@ export default function PetBreeds() {
           <p>No se encontraron razas.</p>
         )}
         <button className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => handleCreateBreed()}
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -164,7 +181,8 @@ export default function PetBreeds() {
         open={isModalOpen}
         setOpen={setIsModalOpen}
         animalList={animals}
-        onBreedCreated={handleBreedCreated} // Pasar la función de actualización
+        onBreedSaved={handleBreedSaved}
+        breedToEdit={selectedBreed} // Será `null` si es nueva raza
       />
     </div>
   );

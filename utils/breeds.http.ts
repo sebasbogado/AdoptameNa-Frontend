@@ -36,3 +36,24 @@ export const createBreed = async (token: string, name: string, animalId: number)
     throw error;
   }
 };
+
+// 🔹 Función para actualizar una raza
+export const updateBreed = async (token: string, id: number, name: string, animalId: number) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/${id}`,
+      { name, animalId },
+      {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar la raza:", error);
+    throw error;
+  }
+};
