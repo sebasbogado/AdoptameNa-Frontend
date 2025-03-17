@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/authContext';
 import { SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
+import { profileSchema } from '@/app/validations/user-profile';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -92,14 +93,21 @@ export default function ProfilePage() {
     const [postsError, setPostsError] = useState<string | null>(null);
     const [petsError, setPetsError] = useState<string | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  
+
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
-    
+        if (!validateProfile(profileToUpdate)) {
+            setIsEditing(true)
+            return
+        }
+            
+            
+
         setProfileLoading(true);
         setError(null);
-    
+
         try {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
@@ -110,7 +118,7 @@ export default function ProfilePage() {
             setProfileLoading(false);
         }
     };
-  
+
 
     const handleEditButtonClick = () => {
         if (!isEditing) {
@@ -127,7 +135,7 @@ export default function ProfilePage() {
         }
     };
 
-    
+
     useEffect(() => {
         if (!authLoading && !authToken) {
             console.log("authLoading", authLoading);
@@ -163,10 +171,23 @@ export default function ProfilePage() {
         console.log("authLoading", authLoading);
         getPostsData(setPosts, setLoading, setPostsError, user.id);
     }, [authToken, authLoading, user?.id]);
+    const validateProfile = (profileData: UpdateUserProfile) => {
+        const result = profileSchema.safeParse(profileData);
+        if (!result.success) {
+            const errors: Record<string, string> = {};
+            result.error.errors.forEach(err => {
+                errors[err.path[0]] = err.message;
+            });
+            setValidationErrors(errors);
+            return false;
+        }
+        setValidationErrors({});
+        return true;
+    };
 
-    if (authLoading || loading){
+    if (authLoading || loading) {
         return <Loading />;
-      }
+    }
     if (!user) return;
     return (
         <div className="w-full font-roboto">
@@ -175,12 +196,11 @@ export default function ProfilePage() {
 
             {/* User Info */}
             <Detail
-                user={user}
-                posts={posts}
+                posts={posts} user={user}
                 userProfile={isEditing ? tempUserProfile : userProfile}
                 setUserProfile={setTempUserProfile}
                 isDisable={!isEditing}
-                
+                validationErrors={validationErrors}
             />
             {/* Action Buttons */}
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
@@ -217,7 +237,7 @@ export default function ProfilePage() {
             />
 
             {/* Posts Section (Con filtrado) */}
-            <Section    
+            <Section
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
                 postTypeName="adoption"
