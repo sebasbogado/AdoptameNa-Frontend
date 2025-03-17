@@ -6,6 +6,7 @@ import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from "@/contexts/authContext";
 import AnimalBreedModal from "./animal-breed-modal"
+//import button  from "@/components/buttons/button"
 
 interface Breed {
   id: number;
@@ -26,28 +27,39 @@ export default function PetBreeds() {
 
   const [selectedBreed, setSelectedBreed] = useState<Breed | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [loadingBreeds, setLoadingBreeds] = useState(true);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loadingAnimals, setLoadingAnimals] = useState(true);
 
   const handleBreedSaved = (updatedBreed: Breed) => {
-    setBreeds((prevBreeds) =>
-      prevBreeds.some((b) => b.id === updatedBreed.id)
-        ? prevBreeds.map((b) => (b.id === updatedBreed.id ? updatedBreed : b))
-        : [...prevBreeds, updatedBreed]
-    );
+    setBreeds((prev) => {
+      const existingIndex = prev.findIndex((b) => b.id === updatedBreed.id);
+      if (existingIndex !== -1) {
+        // Actualiza la raza en la lista
+        return prev.map((b) => (b.id === updatedBreed.id ? updatedBreed : b));
+      } else {
+        // Agrega la nueva raza
+        return [...prev, updatedBreed];
+      }
+    });
+    setSelectedBreed(null);
   };
 
   const handleCreateBreed = () => {
     setSelectedBreed(null); // Modal se abre sin datos -> modo "crear"
     setIsModalOpen(true);
   };
-  
+
   const handleEditBreed = (breed: Breed) => {
     setSelectedBreed(breed); // Modal se abre con datos -> modo "editar"
     setIsModalOpen(true);
+  };
+
+  const handleBreedDeleted = (deletedId: number) => {
+    setBreeds((prev) => prev.filter((b) => b.id !== deletedId));
+    setSelectedBreed(null);
   };
 
   useEffect(() => {
@@ -181,8 +193,9 @@ export default function PetBreeds() {
         open={isModalOpen}
         setOpen={setIsModalOpen}
         animalList={animals}
+        selectedBreed={selectedBreed}
         onBreedSaved={handleBreedSaved}
-        breedToEdit={selectedBreed} // Será `null` si es nueva raza
+        onBreedDeleted={handleBreedDeleted}
       />
     </div>
   );

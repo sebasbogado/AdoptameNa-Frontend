@@ -58,7 +58,7 @@ export const updateBreed = async (token: string, id: number, name: string, anima
   }
 };
 
-export const deleteBreed = async (id: number, token: string): Promise<void> => {
+export const deleteBreed = async (token: string, id: number): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/${id}`, {
       headers: {
