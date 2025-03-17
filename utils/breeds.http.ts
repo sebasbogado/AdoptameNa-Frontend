@@ -16,3 +16,23 @@ export const getBreeds = async (token: string, page: number = 0, size: number = 
     throw error;
   }
 };
+
+export const createBreed = async (token: string, name: string, animalId: number) => {
+  try {
+    const response = await axios.post(
+      API_URL,
+      { name, animalId },
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating breed:", error);
+    throw error;
+  }
+};

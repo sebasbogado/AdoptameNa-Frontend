@@ -5,6 +5,7 @@ import { Search, ChevronDown, Plus } from "lucide-react";
 import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from "@/contexts/authContext";
+import AnimalBreedModal from "./animal-breed-modal"
 
 interface Breed {
   id: number;
@@ -23,10 +24,15 @@ export default function PetBreeds() {
   const [filterOpen, setFilterOpen] = useState(false);
   const { authToken } = useAuth();
 
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [breeds, setBreeds] = useState<Breed[]>([]);
   const [loadingBreeds, setLoadingBreeds] = useState(true);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loadingAnimals, setLoadingAnimals] = useState(true);
+
+  const handleBreedCreated = (newBreed: Breed) => {
+    setBreeds((prevBreeds) => [...prevBreeds, newBreed]); // Agrega la nueva raza a la lista
+  };
 
   useEffect(() => {
     const fetchAnimals = async () => {
@@ -147,10 +153,19 @@ export default function PetBreeds() {
         ) : (
           <p>No se encontraron razas.</p>
         )}
-        <button className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200">
+        <button className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
+          onClick={() => setIsModalOpen(true)}
+        >
           <Plus className="h-4 w-4" />
         </button>
       </div>
+
+      <AnimalBreedModal
+        open={isModalOpen}
+        setOpen={setIsModalOpen}
+        animalList={animals}
+        onBreedCreated={handleBreedCreated} // Pasar la función de actualización
+      />
     </div>
   );
 }
