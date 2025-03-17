@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/authContext';
 import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
 import { getPetStatus } from "@/utils/pet-status.http";
+import { PlusCircle } from "lucide-react";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -30,6 +31,9 @@ const AdoptionForm = () => {
   const [animals, setAnimals] = useState<any[] | null>(null)
   const [breed, setBreed] = useState<any[] | null>(null)
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
 
 
   const [position, setPosition] = useState<[number, number] | null>(null);
@@ -62,13 +66,6 @@ const AdoptionForm = () => {
     "breedId": 0,
     "petStatusId": 0
   }*/
-  const [selectedImages, setSelectedImages] = useState<string[]>([
-    "/1.avif",
-    "/2.avif",
-    "/3.avif",
-    "/4.avif"
-  ]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const getFromData = async () => {
     const respAnimals = await getAnimals({ size: 100, page: 0 }, authToken)
@@ -86,11 +83,26 @@ const AdoptionForm = () => {
       console.log("Resultado PetStatus", respPetStatus)
       setPetsStatus(respPetStatus)
     }
+    const respImageSelected = await getPetStatus({ size: 100, page: 0 }, authToken)
+    if (respImageSelected) {
+      console.log("Resultado PetStatus", respImageSelected)
+      setPetsStatus(respImageSelected)
+    }
   }
 
   useEffect(() => {
     getFromData()
   }, [])
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files).map((file) =>
+        URL.createObjectURL(file)
+      );
+
+      setSelectedImages((prevImages) => [...prevImages, ...filesArray]);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -216,9 +228,28 @@ const AdoptionForm = () => {
                     onClick={() => setCurrentImageIndex(index)}
                   />
                 </div>
+                
               ))}
+              <div className="mt-4 flex flex-col items-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="fileInput"
+                />
+                <label
+                  htmlFor="fileInput"
+                  className="cursor-pointer w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md hover:bg-blue-600 transition"
+                >
+                  <PlusCircle size={40} />
+                </label>
+              </div>
             </div>
+
           </CardContent>
+          
         </div>
         {/* Wrapped Card Component */}
         <div className="w-full max-w-2xl">
