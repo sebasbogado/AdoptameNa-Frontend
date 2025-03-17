@@ -6,7 +6,6 @@ import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from "@/contexts/authContext";
 import AnimalBreedModal from "./animal-breed-modal"
-//import button  from "@/components/buttons/button"
 
 interface Breed {
   id: number;

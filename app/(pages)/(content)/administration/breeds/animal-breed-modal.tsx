@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { createBreed, updateBreed, deleteBreed } from "@/utils/breeds.http";
 import { useAuth } from "@/contexts/authContext"; // Si necesitas el token
+import Button from "@/components/buttons/button"
 
 interface Breed {
   id: number;
@@ -128,26 +129,32 @@ export default function AnimalBreedModal({
 
           <div className="flex gap-4 mt-4">
             {selectedBreed ? (
-              <button
-                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
+              <Button
+                variant="danger"
+                size="md"
                 onClick={handleDelete}
+                className="flex-1"
               >
                 Borrar
-              </button>
+              </Button>
             ) : (
-              <button
-                className="flex-1 bg-gray-300 hover:bg-gray-400 text-black py-2 rounded-lg"
+              <Button
+                variant="secondary"
+                size="md"
                 onClick={() => setOpen(false)}
+                className="flex-1"
               >
                 Cancelar
-              </button>
+              </Button>
             )}
-            <button
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg"
+            <Button
+              variant="primary"
+              size="md"
               onClick={handleSave}
+              className="flex-1"
             >
               {selectedBreed ? "Guardar Cambios" : "Guardar"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
