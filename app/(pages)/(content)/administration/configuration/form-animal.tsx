@@ -6,7 +6,7 @@ import { Animal } from '@/types/animal';
 
 interface FormAnimalsProps {
   onCreate: (newAnimal: any) => void;
-  onDelete: () => void;
+  onDelete: (event: React.FormEvent) => void;
   animalData: Animal;
 }
 

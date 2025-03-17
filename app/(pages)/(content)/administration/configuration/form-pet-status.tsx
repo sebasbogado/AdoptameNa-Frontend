@@ -6,7 +6,7 @@ import { PetStatus } from '@/types/pet-status';
 
 interface FormPetStatusProps {
   onCreate: (newStatus: PetStatus) => void;
-  onDelete: () => void;
+  onDelete: (event: React.FormEvent) => void;
   petStatusData: PetStatus;
 }
 

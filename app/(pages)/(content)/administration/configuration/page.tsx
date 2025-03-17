@@ -1,7 +1,6 @@
 "use client"
 
-import { Card } from "@/components/ui/card";
-import ClickableTag from "@/components/admin-card/clickable-tag";
+import Card  from "../card"
 import { Animal } from "@/types/animal";
 import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
@@ -11,15 +10,14 @@ import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus} from
 import { PetStatus } from "@/types/pet-status";
 import FormAnimals from "./form-animal";
 import FormPetStatus from "./form-pet-status";
-
+import ConfirmationModal from "@/components/confirm-modal";
 
 export default function page() {
-  /*Logica para manejar lo de animales y razas */
   const [modalAnimal, setModalAnimal] = useState(false);
   const [modalPetStatus, setModalPetStatus] = useState(false);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]);
-  //entidades seleccionadas
+  const [isOpenModal, setIsOpenModal] = useState(false);
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
 
@@ -64,25 +62,14 @@ export default function page() {
     }
   }
 
-  const handleDeleteAnimal = async () => {
+  const handleDeleteAnimal = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (animalSelected.id === 0) {
       setModalAnimal(false);
       return;
     }
-
-    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este animal?");
-    if (!confirmDelete) return;
-
-    try {
-      if (!authToken) return;
-      //eliminar animal
-      await deleteAnimal(authToken, animalSelected.id);
-      //actualizar lista de animales
-      setAnimals(animals.filter((animal) => animal.id !== animalSelected.id));
-      setModalAnimal(false);
-    } catch (error) {
-      console.error('Error al eliminar animal:', error);
-    }
+    setIsOpenModal(true);
+    return;
   }
 
   const openEditAnimal = (animal: Animal) => {
@@ -117,62 +104,74 @@ export default function page() {
     }
   }  
 
-  const handleDeletePetStatus = async () => {
-    if(!authToken) return;
+  const handleDeletePetStatus = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (petStatusSelected.id === 0) {
       setModalPetStatus(false);
       return;
     }
-
-    const confirmDelete = window.confirm("¿Estás seguro de que deseas eliminar este estado?");
-    if (!confirmDelete) return;
-    try{
+    setIsOpenModal(true);
+    return;
+  }
+  const confirmDeleteAnimal = async () => {
+    try {
+      if (!authToken) return;
+      //eliminar animal
+      await deleteAnimal(authToken, animalSelected.id);
+      //actualizar lista de animales
+      setAnimals(animals.filter((animal) => animal.id !== animalSelected.id));
+      setModalAnimal(false);
+    } catch (error) {
+      console.error('Error al eliminar animal:', error);
+    }finally{
+      setIsOpenModal(false);
+    }
+  }
+  
+  const confirmDeletePetStatus = async () => {
+    try {
+      if (!authToken) return;
+      //eliminar estado
       await deletePetStatus(authToken, petStatusSelected.id);
+      //actualizar lista de estados
       setPetStatuses(petStatuses.filter((petStatus) => petStatus.id !== petStatusSelected.id));
       setModalPetStatus(false);
-    }catch(error){
+    } catch (error) {
       console.error('Error al eliminar estado:', error);
+    }finally{
+      setIsOpenModal(false);
     }
+  }
+  const onClickLabelAddAnimal = () => {
+    setAnimalSelected({ id: 0, name: "" });
+    setModalAnimal(true);
+  }
+
+  const onClickLabelAddPetStatus = () => {
+    setPetStatusSelected({ id: 0, name: "", description: "" });
+    setModalPetStatus(true);
   }
   return (
     <>
       <div className="rounded-lg border border-gray-900 p-6">
 
         <div className="flex justify-center">
+          {/*Modal Section */}
           <Modal isOpen={modalAnimal} onClose={() => setModalAnimal(false)} title={animalSelected.id === 0 ? "Crear animal" : "Editar animal"}>
             <FormAnimals onCreate={handleSubmitAnimal} onDelete={handleDeleteAnimal} animalData={animalSelected} />
           </Modal>
-
           <Modal isOpen={modalPetStatus} onClose={() => setModalPetStatus(false)} title={petStatusSelected.id === 0 ? "Crear estado" : "Editar estado"}>
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
-          <Card>
-            <>
-              <h4>Animales</h4>
-              <div className="flex flex-wrap max-h-full max-w-72 overflow-hidden gap-1 mt-2">
-                {animals.map((animal) => (
-                  <ClickableTag key={animal.id} label={animal.name} onClick={() => openEditAnimal(animal)}></ClickableTag>
-                ))}
-                <ClickableTag type="add" onClick={() => { setAnimalSelected({ id: 0, name: "" }); setModalAnimal(true)}}></ClickableTag>
-              </div>
-            </>
-          </Card>
 
-          <Card>
-            <>
-              <h4>Estados de mascotas</h4>
-              <div className="flex flex-wrap max-h-full max-w-72 overflow-hidden gap-1 mt-2">
-                {petStatuses.map((element) => (
-                  <ClickableTag key={element.id} label={element.name} onClick={() => openEditPetStatus(element)}></ClickableTag>
-                ))}
-                <ClickableTag type="add" onClick={() => { setPetStatusSelected({ id: 0, name: "", description: "" }); setModalPetStatus(true)}}></ClickableTag>
-              </div>
-            </>
-          </Card>
+          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeleteAnimal}/>
+          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeletePetStatus} />
+
+          {/**Cards*/}
+          <Card title="Animales" content={animals} isBreed={false} onClickLabelDefault={openEditAnimal} onClickLabelAdd={onClickLabelAddAnimal} />
+          <Card title="Estados de mascotas" content={petStatuses} isBreed={false} onClickLabelDefault={openEditPetStatus} onClickLabelAdd={onClickLabelAddPetStatus} />
         </div>
       </div>
-
-
     </>
   )
 }
