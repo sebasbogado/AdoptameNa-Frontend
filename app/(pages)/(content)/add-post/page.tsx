@@ -36,6 +36,7 @@ export default function Page() {
         sharedCounter: 0,
         publicationDate: new Date().toISOString()
     });
+    const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
 
     {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
@@ -105,13 +106,14 @@ export default function Page() {
         return errors;
     };
 
-    {/* Función para enviar la publicación */ }
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setSuccessMessage(null);
+        setIsModalOpen(true); // Mostrar el modal en lugar de enviar directamente
+    };
 
+    const confirmSubmit = async () => {
+        setIsModalOpen(false); // Cerrar el modal
+        setLoading(true);
         const validationErrors = validateForm();
         if (Object.keys(validationErrors).length > 0) {
             setFormErrors(validationErrors);
@@ -135,7 +137,8 @@ export default function Page() {
         try {
             await postPosts(payload as Post, authToken);
             setSuccessMessage("¡Publicación creada exitosamente!");
-
+            {/* Realizar de alguna forma de crear la publicacion y luego reedirigirlo al detalle del post creado*/ }
+            //setTimeout(() => router.push(`/post/${post.id}`), 1500); // Redirige después de mostrar el mensaje
             setTimeout(() => {
                 setFormData({
                     id: 0,
@@ -158,7 +161,10 @@ export default function Page() {
         }
     };
 
-    // Función para cancelar y redirigir a /post/{id}
+    const closeModal = () => {
+        setIsModalOpen(false); // Cerrar el modal sin confirmar
+    };
+
     const handleCancel = () => {
         router.push("/dashboard");
     };
@@ -267,7 +273,7 @@ export default function Page() {
                     <div className="flex gap-4">
                         <button
                             type="button"
-                            className="border px-6 py-2 rounded"
+                            className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
                             onClick={handleCancel}
                             disabled={loading}
                         >
@@ -275,7 +281,7 @@ export default function Page() {
                         </button>
                         <button
                             type="submit"
-                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400"
+                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400 hover:bg-purple-700"
                             disabled={loading}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
@@ -283,6 +289,31 @@ export default function Page() {
                     </div>
                 </div>
             </form>
+            {/* Modal de confirmación */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                        <h2 className="text-lg font-semibold mb-4">Confirmar creación</h2>
+                        <p className="mb-6">¿Estás seguro de que deseas crear esta publicación?</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                type="button"
+                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
+                                onClick={closeModal}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                                onClick={confirmSubmit}
+                            >
+                                Confirmar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

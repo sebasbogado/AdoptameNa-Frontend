@@ -41,6 +41,8 @@ export default function Page() {
         sharedCounter: 0,
         publicationDate: undefined,
     });
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal para confirmar cambios
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal para eliminar
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -127,7 +129,11 @@ export default function Page() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData);
+        setIsEditModalOpen(true); // Mostrar modal de confirmación de cambios
+    };
+
+    const confirmEdit = async () => {
+        setIsEditModalOpen(false); // Cerrar el modal
         if (!post || !authToken) return;
 
         const payload = {
@@ -136,32 +142,46 @@ export default function Page() {
             idUser: user ? Number(user.id) : 0,
         };
 
+        setLoading(true);
         try {
             await updatePost(String(post.id), payload as Post, authToken);
-            alert("¡Publicación actualizada!");
-            router.push(`/post/${post.id}`);
+            setSuccessMessage('¡Publicación actualizada con éxito!');
+            setTimeout(() => router.push(`/post/${post.id}`), 1500); // Redirige después de mostrar el mensaje
         } catch (error) {
-            console.error("Error al actualizar la publicación", error);
-            //setPostsError("Hubo un problema al actualizar la publicación.");
+            console.error('Error al actualizar la publicación', error);
+            setError('Hubo un problema al actualizar la publicación.');
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
+        setIsDeleteModalOpen(true); // Mostrar modal de eliminación
+    };
+
+    const confirmDelete = async () => {
+        setIsDeleteModalOpen(false); // Cerrar el modal
         if (!post?.id || !authToken) {
             console.error('Falta el ID de la publicación o el token');
             return;
         }
 
-        setLoading(true); // Deshabilita el botón mientras se procesa
+        setLoading(true);
         try {
-            await deletePost(String(postId), authToken); // Llama al método deletePost
-            router.push('/dashboard'); // Redirige al dashboard si es exitoso
+            await deletePost(String(post.id), authToken);
+            setSuccessMessage('Publicación eliminada con éxito');
+            setTimeout(() => router.push('/dashboard'), 1500); // Redirige después de mostrar el mensaje
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
-            // Aquí podrías mostrar un mensaje de error al usuario si lo deseas
+            setError('Hubo un problema al eliminar la publicación.');
         } finally {
-            setLoading(false); // Reactiva el botón
+            setLoading(false);
         }
+    };
+
+    const closeModal = () => {
+        setIsEditModalOpen(false); // Cerrar modal de edición
+        setIsDeleteModalOpen(false); // Cerrar modal de eliminación
     };
 
     // Función para manejar el clic en "Cancelar"
@@ -267,7 +287,7 @@ export default function Page() {
                     {/* Botón eliminar a la izquierda */}
                     <button
                         type="button"
-                        className="bg-red-600 text-white px-6 py-2 rounded"
+                        className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
                         onClick={handleDelete}
                         disabled={loading}
                     >
@@ -278,7 +298,7 @@ export default function Page() {
                     <div className="flex gap-4">
                         <button
                             type="button"
-                            className="border px-6 py-2 rounded"
+                            className="border px-6 py-2 rounded hover:bg-gray-100"
                             onClick={handleCancel}
                             disabled={loading}
                         >
@@ -286,7 +306,7 @@ export default function Page() {
                         </button>
                         <button
                             type="submit"
-                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400"
+                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400 hover:bg-purple-700"
                             disabled={loading}
                         >
                             {loading ? "Editando..." : "Confirmar cambios"}
@@ -294,6 +314,57 @@ export default function Page() {
                     </div>
                 </div>
             </form>
+            {/* Modal de confirmación de cambios */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                        <h2 className="text-lg font-semibold mb-4">Confirmar cambios</h2>
+                        <p className="mb-6">¿Estás seguro de que deseas guardar los cambios en esta publicación?</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                type="button"
+                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
+                                onClick={closeModal}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+                                onClick={confirmEdit}
+                            >
+                                Confirmar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de confirmación de eliminación */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                        <h2 className="text-lg font-semibold mb-4">Confirmar eliminación</h2>
+                        <p className="mb-6">¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.</p>
+                        <div className="flex justify-end gap-4">
+                            <button
+                                type="button"
+                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
+                                onClick={closeModal}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                onClick={confirmDelete}
+                            >
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
