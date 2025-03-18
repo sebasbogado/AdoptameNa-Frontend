@@ -51,8 +51,8 @@ export default function Page() {
         if (!formData.email || !formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
             newErrors.email = "Correo inválido";
         }
-        if (!formData.password || formData.password.length < 6) {
-            newErrors.password = "La contraseña debe tener al menos 6 caracteres";
+        if (!formData.password || formData.password.length < 8) {
+            newErrors.password = "La contraseña debe tener al menos 8 caracteres";
         }
         if (formData.password !== formData.confirmPassword) {
             newErrors.confirmPassword = "Las contraseñas no coinciden";
