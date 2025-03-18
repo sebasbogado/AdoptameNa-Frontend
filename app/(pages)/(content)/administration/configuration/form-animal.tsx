@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/authContext';
 import Button from '@/components/buttons/button';
 import { Animal } from '@/types/animal';
+import { Alert } from '@material-tailwind/react';
 
 interface FormAnimalsProps {
   onCreate: (newAnimal: any) => void;
@@ -13,12 +13,13 @@ interface FormAnimalsProps {
 const FormAnimals: React.FC<FormAnimalsProps> = ({ onCreate , onDelete, animalData }) => {
   const [formData, setFormData] = useState(animalData);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState <string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     //validaciones
     if (!formData.name.trim()) {
-      alert("El nombre del animal no puede estar vacío.");
+      setErrors("El nombre del animal no puede estar vacío.");
       return;
     }
     onCreate(formData);
@@ -30,6 +31,12 @@ const FormAnimals: React.FC<FormAnimalsProps> = ({ onCreate , onDelete, animalDa
 
   return (
     <form className="mt-5">
+      {errors && (
+        <Alert color="red" className="py-2">
+          {errors}
+        </Alert>
+      )}
+
       <div className="mb-2">
         <label className="block mb-1">Nombre </label>
         <Input

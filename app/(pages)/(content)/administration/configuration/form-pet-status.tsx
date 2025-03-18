@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/authContext';
 import Button from '@/components/buttons/button';
 import { PetStatus } from '@/types/pet-status';
+import { Alert } from '@material-tailwind/react';
 
 interface FormPetStatusProps {
   onCreate: (newStatus: PetStatus) => void;
@@ -13,16 +13,17 @@ interface FormPetStatusProps {
 const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petStatusData }) => {
   const [formData, setFormData] = useState<PetStatus>(petStatusData);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     //validaciones
     if (!formData.name.trim()) {
-      alert("El nombre del estado no puede estar vacío.");
+      setErrors("El nombre del estado no puede estar vacío.");
       return;
     }
-    if(formData.description.length < 3){
-      alert("La descripción del estado debe tener al menos 3 caracteres.");
+    if (formData.description.length < 3) {
+      setErrors("La descripción del estado debe tener al menos 3 caracteres.");
       return;
     }
 
@@ -37,6 +38,11 @@ const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petSt
 
   return (
     <form className="mt-5">
+      {errors && (
+        <Alert color="red" className="py-2">
+          {errors}
+        </Alert>
+      )}
       <div className="mb-2">
         <label className="block mb-1">Nombre </label>
         <Input
