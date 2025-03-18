@@ -208,6 +208,7 @@ export default function ProfilePage() {
         return true;
     };
 
+    const petImages = pets.map(pet => pet.urlPhoto).filter(url => url !== null);
 
     if (authLoading || loading) {
         return <Loading />;
@@ -216,7 +217,7 @@ export default function ProfilePage() {
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
+            <Banners images={petImages.length > 0 ? petImages : ['/logo.png']} />
 
             {/* User Info */}
             <Detail
