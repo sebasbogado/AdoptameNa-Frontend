@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/authContext";
 import { Post } from "@/types/post";
 import { PostType } from "@/types/post-type";
 import { getPostType } from "@/utils/post-type.http";
-import { getPostById, updatePost } from "@/utils/posts.http";
+import { deletePost, getPostById, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -18,42 +18,13 @@ interface FormErrors {
     contactNumber?: string;
 }
 
-const fetchContentData = async (
-    setPost: React.Dispatch<React.SetStateAction<Post | null>>,
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPostError: React.Dispatch<React.SetStateAction<string | null>>,
-    setFormData: React.Dispatch<React.SetStateAction<Partial<Post>>>, // Agregar setFormData
-    postId: string
-) => {
-    try {
-        // Cargar posts del usuario
-        const postData = await getPostById(postId);
-        setPost(postData);
-        setFormData({
-            title: postData.title || "",
-            content: postData.content || "",
-            idPostType: postData.idPostType || 0,
-            locationCoordinates: postData.locationCoordinates || "",
-            contactNumber: postData.contactNumber || "",
-            status: postData.status || "",
-            sharedCounter: postData.sharedCounter || 0,
-            publicationDate: postData.publicationDate,
-        });
-    } catch (err) {
-        console.error("Error al cargar posts:", err);
-        setPostError("No se pudieron cargar las publicaciones.");
-    } finally {
-        setLoading(false);
-    }
-};
-
 export default function Page() {
     const { postId } = useParams();
     const { authToken, user, loading: authLoading } = useAuth();
     const [post, setPost] = useState<Post | null>(null);
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [postsError, setPostsError] = useState<string | null>(null);
+    //const [postsError, setPostsError] = useState<string | null>(null);
     const router = useRouter();
 
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -92,17 +63,54 @@ export default function Page() {
     };
 
     useEffect(() => {
-        if (authLoading || !authToken || !user?.id) return;
-        console.log("authLoading", authLoading);
-        console.log("URL params", postId);
-        fetchContentData(setPost, setLoading, setError, setFormData, String(postId));
+        const fetchPost = async () => {
+            if (authLoading || !authToken || !user?.id) return;
+
+            try {
+                const postData = await getPostById(String(postId));
+                setPost(postData); // Estado asíncrono, aún NO refleja el cambio aquí
+                console.log("postData recibido:", postData);
+            } catch (err) {
+                console.error("Error al cargar posts:", err);
+                //setPostsError("No se pudieron cargar las publicaciones.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPost();
         fetchPostTypes();
+    }, [authToken, authLoading, user?.id, postId]); // Agregar postId a las dependencias
 
-    }, [authToken, authLoading, user?.id]);
+    // Nuevo useEffect para validar permisos después de que post cambie
+    useEffect(() => {
+        if (!post || !user?.id) return;
 
-    if (authLoading) {
-        return Loading();
-    }
+        console.log("Verificando permisos con post:", post.idUser);
+        console.log("Usuario actual:", user.id);
+
+        if (String(post.idUser) !== String(user.id)) {
+            //setPostsError("No tienes permisos para editar esta publicación.");
+            router.push("/dashboard");
+            return;
+        }
+
+        // Solo si el usuario tiene permisos, actualizamos el formulario
+        setFormData({
+            title: post.title || "",
+            content: post.content || "",
+            idPostType: post.idPostType || 0,
+            locationCoordinates: post.locationCoordinates || "",
+            contactNumber: post.contactNumber || "",
+            status: post.status || "",
+            sharedCounter: post.sharedCounter || 0,
+            publicationDate: post.publicationDate,
+        });
+
+    }, [post, user?.id]); // Se ejecuta cuando post o user.id cambian
+
+    if (authLoading) return Loading();
+    if (loading) return Loading();
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -118,17 +126,51 @@ export default function Page() {
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         console.log(formData);
-        // e.preventDefault();
-        // if (!post || !authToken) return;
-        // try {
-        //     await updatePost(post.id.toString(), post, authToken);
-        //     alert("¡Publicación actualizada!");
-        //     router.push("/");
-        // } catch (error) {
-        //     console.error("Error al actualizar la publicación", error);
-        //     setPostsError("Hubo un problema al actualizar la publicación.");
-        // }
+        if (!post || !authToken) return;
+
+        const payload = {
+            ...formData,
+            idPostType: Number(formData.idPostType),
+            idUser: user ? Number(user.id) : 0,
+        };
+
+        try {
+            await updatePost(String(post.id), payload as Post, authToken);
+            alert("¡Publicación actualizada!");
+            router.push(`/post/${post.id}`);
+        } catch (error) {
+            console.error("Error al actualizar la publicación", error);
+            //setPostsError("Hubo un problema al actualizar la publicación.");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!post?.id || !authToken) {
+            console.error('Falta el ID de la publicación o el token');
+            return;
+        }
+
+        setLoading(true); // Deshabilita el botón mientras se procesa
+        try {
+            await deletePost(String(postId), authToken); // Llama al método deletePost
+            router.push('/dashboard'); // Redirige al dashboard si es exitoso
+        } catch (error) {
+            console.error('Error al eliminar la publicación:', error);
+            // Aquí podrías mostrar un mensaje de error al usuario si lo deseas
+        } finally {
+            setLoading(false); // Reactiva el botón
+        }
+    };
+
+    // Función para manejar el clic en "Cancelar"
+    const handleCancel = () => {
+        if (!post?.id) {
+            console.error('Falta el ID de la publicación');
+            return;
+        }
+        router.push(`/post/${post.id}`); // Redirige a /post/{id}
     };
 
     return (
@@ -153,7 +195,7 @@ export default function Page() {
                     onChange={handleChange}
                     className={`w-full p-2 border rounded mb-4 ${formErrors.idPostType ? 'border-red-500' : ''}`}
                 >
-                    <option value={0}>Seleccione un tipo</option>
+                    <option value="">Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
@@ -226,9 +268,10 @@ export default function Page() {
                     <button
                         type="button"
                         className="bg-red-600 text-white px-6 py-2 rounded"
+                        onClick={handleDelete}
                         disabled={loading}
                     >
-                        Eliminar publicación
+                        {loading ? 'Eliminando...' : 'Eliminar publicación'} {/* Texto dinámico */}
                     </button>
 
                     {/* Contenedor de cancelar y confirmar a la derecha */}
@@ -236,6 +279,7 @@ export default function Page() {
                         <button
                             type="button"
                             className="border px-6 py-2 rounded"
+                            onClick={handleCancel}
                             disabled={loading}
                         >
                             Cancelar
@@ -251,6 +295,5 @@ export default function Page() {
                 </div>
             </form>
         </div>
-
     );
 }

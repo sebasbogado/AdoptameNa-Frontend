@@ -158,6 +158,11 @@ export default function Page() {
         }
     };
 
+    // Función para cancelar y redirigir a /post/{id}
+    const handleCancel = () => {
+        router.push("/dashboard");
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <div className="flex gap-2 mb-4">
@@ -263,6 +268,7 @@ export default function Page() {
                         <button
                             type="button"
                             className="border px-6 py-2 rounded"
+                            onClick={handleCancel}
                             disabled={loading}
                         >
                             Cancelar

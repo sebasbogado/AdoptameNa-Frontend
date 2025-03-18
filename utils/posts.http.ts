@@ -74,3 +74,21 @@ export async function updatePost(postId: string, postData: Post, token: string) 
     throw new Error(error.message || "Error al crear Post");
   }
 };
+
+export async function deletePost(postId: string, token: string) {
+  try {
+    const response = await axios.put(`${API_URL}/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al crear Post");
+  }
+};
