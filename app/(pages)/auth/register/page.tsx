@@ -8,9 +8,17 @@ import { Input, Button, Typography, Card, Radio, Alert } from "@material-tailwin
 import Image from "next/image";
 import logo from "@/public/logo.png";
 
+interface form {
+    organizationName?: string;
+    fullName?: string;
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+}
+
 export default function Page() {
     const [accountType, setAccountType] = useState("persona");
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<form>({
         organizationName: "",
         fullName: "",
         email: "",
@@ -19,31 +27,31 @@ export default function Page() {
     });
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [errors, setErrors] = useState<form>({});
 
-    const handleAccountTypeChange = (e) => {
+    const handleAccountTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAccountType(e.target.value);
     };
 
     const router = useRouter();
-    const [errors, setErrors] = useState({});
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const validate = () => {
-        let newErrors = {};
+        let newErrors: form = {};
 
-        if (formData.fullName.length < 5 || formData.fullName.length > 50) {
+        if (!formData.fullName || formData.fullName.length < 5 || formData.fullName.length > 50) {
             newErrors.fullName = "Nombre inválido (Máx. 50 caracteres, min. 5)";
         }
-        if (accountType === "organizacion" && (formData.organizationName.length < 5 || formData.organizationName.length > 50)) {
+        if (accountType === "organizacion" && (!formData.organizationName || formData.organizationName.length < 5 || formData.organizationName.length > 50)) {
             newErrors.organizationName = "Nombre de la organización inválido (Máx. 50 caracteres, min. 5)";
         }
-        if (!formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
+        if (!formData.email || !formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
             newErrors.email = "Correo inválido";
         }
-        if (formData.password.length < 6) {
+        if (!formData.password || formData.password.length < 6) {
             newErrors.password = "La contraseña debe tener al menos 6 caracteres";
         }
         if (formData.password !== formData.confirmPassword) {
@@ -54,7 +62,7 @@ export default function Page() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setErrorMessage("");
         if (!validate()) return;
@@ -88,7 +96,7 @@ export default function Page() {
                 }, 3000); // Redirige después de 3 segundos
             }
 
-        } catch (error) {
+        } catch (error: any) {
             if (error.response?.status === 409) {
                 setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
             } else {
@@ -191,7 +199,7 @@ export default function Page() {
                     </div>
 
                     <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-                        <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48" variant="small">
+                        <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48" >
                             Crear Cuenta
                         </Button>
                         <Link href="/auth/login" className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48">

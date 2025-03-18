@@ -7,6 +7,7 @@ import logo from "@/public/logo.png";
 import { useAuth } from "@/contexts/authContext";
 import Loading from "@/app/loading";
 
+
 export default function Login() {
   const { login, user, loading } = useAuth();
   const router = useRouter();
@@ -29,6 +30,12 @@ export default function Login() {
     setError("");
     setIsSubmitting(true);
 
+    if (credentials.password.length < 8) {
+      setError("❌ La contraseña debe tener al menos 8 caracteres.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await login(credentials);
       router.push("/dashboard");
@@ -47,15 +54,16 @@ export default function Login() {
     }
   };
 
+
   if (loading) {
     return Loading();
   }
 
   return (
-    <div >
+    <div>
       <div className="w-full max-w-sm min-h-[500px] p-8 shadow-lg rounded-lg bg-white text-center">
         <div className="flex justify-center mb-4">
-          <Image src={logo} alt="Logo" width={150} height={50} />
+          <Image src={logo} alt="Logo" width={150} />
         </div>
         <p className="text-gray-700 mb-4">
           Debes estar registrado para poder interactuar con la comunidad
@@ -113,7 +121,7 @@ export default function Login() {
                 <div className="flex items-center justify-center">
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Procesando...
                 </div>
@@ -121,6 +129,24 @@ export default function Login() {
                 "Iniciar sesión"
               )}
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const googleAuthUrl = `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/google-auth`;
+                window.location.href = googleAuthUrl;
+              }}
+              className="border border-gray-300 text-gray-700 py-3 rounded-xl bg-white w-48 flex items-center justify-center space-x-2 hover:bg-gray-100"
+              disabled={isSubmitting}
+            >
+              <img
+                src="/Google_logo.svg" // URL del logo oficial
+                alt="Google Logo"
+                className="w-5 h-5"
+              />
+              <span>Iniciar con Google</span>
+            </button>
+
             <Link
               href="/auth/register"
               className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48 flex items-center justify-center"
