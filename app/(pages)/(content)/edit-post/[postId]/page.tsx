@@ -24,7 +24,7 @@ export default function Page() {
     const [post, setPost] = useState<Post | null>(null);
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [postsError, setPostsError] = useState<string | null>(null);
+    const [postError, setPostError] = useState<string | null>(null);
     const router = useRouter();
 
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -99,10 +99,9 @@ export default function Page() {
             try {
                 const postData = await getPostById(String(postId));
                 setPost(postData); // Estado asíncrono, aún NO refleja el cambio aquí
-                console.log("postData recibido:", postData);
             } catch (err) {
                 console.error("Error al cargar posts:", err);
-                setPostsError("No se pudieron cargar las publicaciones.");
+                setPostError("No se pudieron cargar las publicaciones.");
             } finally {
                 setLoading(false);
             }
@@ -114,6 +113,10 @@ export default function Page() {
 
     // Nuevo useEffect para validar permisos después de que post cambie
     useEffect(() => {
+        if (postError === null) {
+            router.push("/");
+        }
+
         if (!post || !user?.id) return;
 
         console.log("Verificando permisos con post:", post.idUser);
@@ -121,7 +124,7 @@ export default function Page() {
 
         if (String(post.idUser) !== String(user.id)) {
             //setPostsError("No tienes permisos para editar esta publicación.");
-            router.push("/dashboard");
+            router.push("/");
             return;
         }
 
