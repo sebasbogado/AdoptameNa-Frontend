@@ -77,7 +77,7 @@ export async function updatePost(postId: string, postData: Post, token: string) 
 
 export async function deletePost(postId: string, token: string) {
   try {
-    const response = await axios.put(`${API_URL}/${postId}`, {
+    const response = await axios.delete(`${API_URL}/${postId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

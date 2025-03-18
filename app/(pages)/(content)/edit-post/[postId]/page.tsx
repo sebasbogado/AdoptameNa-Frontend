@@ -24,7 +24,7 @@ export default function Page() {
     const [post, setPost] = useState<Post | null>(null);
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    //const [postsError, setPostsError] = useState<string | null>(null);
+    const [postsError, setPostsError] = useState<string | null>(null);
     const router = useRouter();
 
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -41,6 +41,34 @@ export default function Page() {
         sharedCounter: 0,
         publicationDate: undefined,
     });
+    {/* Validación de los campos */ }
+    const validateForm = (): FormErrors => {
+        const errors: FormErrors = {};
+
+        if (!formData.idPostType || formData.idPostType === 0) {
+            errors.idPostType = "Seleccione un tipo de publicación";
+        }
+        if (!formData.title?.trim()) {
+            errors.title = "El título es requerido";
+        } else if (formData.title.length < 3) {
+            errors.title = "El título debe tener al menos 3 caracteres";
+        }
+        if (!formData.content?.trim()) {
+            errors.content = "La descripción es requerida";
+        } else if (formData.content.length < 10) {
+            errors.content = "La descripción debe tener al menos 10 caracteres";
+        }
+        if (!formData.locationCoordinates?.trim()) {
+            errors.locationCoordinates = "La ubicación es requerida";
+        }
+        if (!formData.contactNumber?.trim()) {
+            errors.contactNumber = "El número de contacto es requerido";
+        } else if (!/^\+?\d{9,15}$/.test(formData.contactNumber)) {
+            errors.contactNumber = "Número inválido (9-15 dígitos)";
+        }
+
+        return errors;
+    };
     const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal para confirmar cambios
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Modal para eliminar
 
@@ -74,7 +102,7 @@ export default function Page() {
                 console.log("postData recibido:", postData);
             } catch (err) {
                 console.error("Error al cargar posts:", err);
-                //setPostsError("No se pudieron cargar las publicaciones.");
+                setPostsError("No se pudieron cargar las publicaciones.");
             } finally {
                 setLoading(false);
             }
@@ -142,6 +170,13 @@ export default function Page() {
             idUser: user ? Number(user.id) : 0,
         };
 
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setFormErrors(validationErrors);
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         try {
             await updatePost(String(post.id), payload as Post, authToken);
@@ -186,7 +221,7 @@ export default function Page() {
 
     // Función para manejar el clic en "Cancelar"
     const handleCancel = () => {
-        if (!post?.id) {
+        if (!post) {
             console.error('Falta el ID de la publicación');
             return;
         }
