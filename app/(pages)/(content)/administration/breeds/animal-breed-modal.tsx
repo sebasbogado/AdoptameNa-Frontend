@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { X } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import { createBreed, updateBreed, deleteBreed } from "@/utils/breeds.http";
-import { useAuth } from "@/contexts/authContext"; // Si necesitas el token
-import Button from "@/components/buttons/button"
+import { useAuth } from "@/contexts/authContext";
+import Button from "@/components/buttons/button";
+import ConfirmationModal from "@/components/confirm-modal"; // Importa el modal de confirmación
 
 interface Breed {
   id: number;
@@ -16,11 +16,10 @@ interface AnimalBreedModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   animalList: { id: number; name: string }[];
-  selectedBreed?: Breed | null; // <-- Raza a editar (opcional)
+  selectedBreed?: Breed | null;
   onBreedSaved: (breed: Breed) => void;
   onBreedDeleted: (id: number) => void;
 }
-
 
 export default function AnimalBreedModal({
   open,
@@ -30,34 +29,31 @@ export default function AnimalBreedModal({
   onBreedSaved,
   onBreedDeleted,
 }: AnimalBreedModalProps) {
-  const { authToken } = useAuth(); // Obtener el token del contexto
-
-  const [breedName, setBreedName] = useState(selectedBreed?.name || ""); // Si hay una raza seleccionada, usa su nombre
-  const [animalType, setAnimalType] = useState(selectedBreed?.animalId?.toString() || "");
+  const { authToken } = useAuth();
+  
+  const [breedName, setBreedName] = useState("");
+  const [animalType, setAnimalType] = useState("");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado para el modal de confirmación
 
   useEffect(() => {
-    if (selectedBreed) {
-      setBreedName(selectedBreed.name);
-      setAnimalType(selectedBreed.animalId.toString());
-    } else {
-      setBreedName("");
-      setAnimalType("");
-    }
-  }, [selectedBreed]); // <-- Se ejecuta cuando cambia la raza seleccionada
+    setBreedName(selectedBreed?.name || "");
+    setAnimalType(selectedBreed?.animalId?.toString() || "");
+  }, [selectedBreed]);
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!authToken) {
       console.error("No hay token disponible");
       return;
     }
+    setIsConfirmModalOpen(true); // Abre el modal de confirmación
+  };
 
-    if (selectedBreed) {
-      const confirmDelete = window.confirm(`¿Seguro que quieres eliminar la raza "${selectedBreed.name}"?`);
-      if (confirmDelete) {
-        await deleteBreed(authToken, selectedBreed.id);
-        onBreedDeleted(selectedBreed.id);
-        setOpen(false);
-      }
+  const confirmDelete = async () => {
+    if (selectedBreed && authToken) {
+      await deleteBreed(authToken, selectedBreed.id);
+      onBreedDeleted(selectedBreed.id);
+      setOpen(false);
+      setIsConfirmModalOpen(false); // Cierra el modal de confirmación
     }
   };
 
@@ -74,11 +70,9 @@ export default function AnimalBreedModal({
 
     try {
       if (selectedBreed) {
-        // Editar raza existente
         const updatedBreed = await updateBreed(authToken, selectedBreed.id, breedName, Number(animalType));
         onBreedSaved(updatedBreed);
       } else {
-        // Crear nueva raza
         const newBreed = await createBreed(authToken, breedName, Number(animalType));
         onBreedSaved(newBreed);
       }
@@ -129,34 +123,28 @@ export default function AnimalBreedModal({
 
           <div className="flex gap-4 mt-4">
             {selectedBreed ? (
-              <Button
-                variant="danger"
-                size="md"
-                onClick={handleDelete}
-                className="flex-1"
-              >
+              <Button variant="danger" size="md" onClick={handleDelete} className="flex-1">
                 Borrar
               </Button>
             ) : (
-              <Button
-                variant="secondary"
-                size="md"
-                onClick={() => setOpen(false)}
-                className="flex-1"
-              >
+              <Button variant="secondary" size="md" onClick={() => setOpen(false)} className="flex-1">
                 Cancelar
               </Button>
             )}
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleSave}
-              className="flex-1"
-            >
+            <Button variant="primary" size="md" onClick={handleSave} className="flex-1">
               {selectedBreed ? "Guardar Cambios" : "Guardar"}
             </Button>
           </div>
         </div>
+
+        {/* Modal de Confirmación */}
+        <ConfirmationModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={confirmDelete}
+          title="Eliminar Raza"
+          message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`}
+        />
       </div>
     )
   );
