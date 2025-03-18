@@ -21,5 +21,4 @@ export const profileSchema = z.object({
   fullName: fullNameSchema,
 });
 
-// 📌 Inferir el tipo basado en el esquema
 export type ProfileValues = z.infer<typeof profileSchema>;

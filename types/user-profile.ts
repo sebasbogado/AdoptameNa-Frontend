@@ -11,6 +11,7 @@ export interface UserProfile {
   earnedPoints: number;
   addressCoordinates: string | null;
   bannerImages: string[];
+  email: string;
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 
