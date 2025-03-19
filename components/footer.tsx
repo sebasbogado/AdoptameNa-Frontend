@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
             </div>
 
             <img
-                src="footer_img.png"
+                src="/footer_img.png"
                 alt="Imagen de footer"
                 className="absolute -bottom-3 right-0 w-52 h-auto"
             />
