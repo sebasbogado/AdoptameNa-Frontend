@@ -30,10 +30,11 @@ export default function AnimalBreedModal({
   onBreedDeleted,
 }: AnimalBreedModalProps) {
   const { authToken } = useAuth();
-  
+
   const [breedName, setBreedName] = useState("");
   const [animalType, setAnimalType] = useState("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado para el modal de confirmación
+  const [isLoading, setIsLoading] = useState(false); // Estado para bloquear el botón
 
   useEffect(() => {
     setBreedName(selectedBreed?.name || "");
@@ -68,6 +69,8 @@ export default function AnimalBreedModal({
       return;
     }
 
+    setIsLoading(true); // Bloquear botón antes de la petición
+
     try {
       if (selectedBreed) {
         const updatedBreed = await updateBreed(authToken, selectedBreed.id, breedName, Number(animalType));
@@ -79,6 +82,8 @@ export default function AnimalBreedModal({
       setOpen(false);
     } catch (error) {
       console.error("Error al guardar la raza", error);
+    } finally {
+      setIsLoading(false); // Desbloquear botón después de la petición
     }
   };
 
@@ -117,7 +122,11 @@ export default function AnimalBreedModal({
                 onChange={(e) => setBreedName(e.target.value)}
                 placeholder="Ingrese el nombre de la raza"
                 className="w-full border rounded-lg p-2"
+                maxLength={30} // Limita la cantidad de caracteres
               />
+              {breedName.length > 0 && breedName.length < 3 && (
+                <p className="text-red-500 text-sm">El nombre debe tener al menos 3 caracteres.</p>
+              )}
             </div>
           </div>
 
@@ -131,7 +140,13 @@ export default function AnimalBreedModal({
                 Cancelar
               </Button>
             )}
-            <Button variant="primary" size="md" onClick={handleSave} className="flex-1">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleSave}
+              className="flex-1"
+              disabled={isLoading || breedName.length < 3} // Bloquear si está cargando o la validación falla
+            >
               {selectedBreed ? "Guardar Cambios" : "Guardar"}
             </Button>
           </div>
@@ -145,7 +160,7 @@ export default function AnimalBreedModal({
           title="Eliminar Raza"
           message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`}
         />
-      </div>
+      </div >
     )
   );
 }
