@@ -1,0 +1,102 @@
+{
+    "comments": [
+        {
+            "id": "comment-1",
+            "user": {
+                "id": "user-2",
+                "fullName": "Mario López",
+                "email": "user@example.com",
+                "role": "user"
+            },
+            "content": "Es igual al perro que tenía cuando era chico, lo quiero adoptar!",
+            "createdAt": "2025-03-01T15:30:00.000Z",
+            "likes": 5,
+            "liked": false,
+            "replies": []
+        },
+        {
+            "id": "comment-2",
+            "user": {
+                "id": "user-3",
+                "fullName": "Ana Sosa",
+                "email": "user@example.com",
+                "role": "user"
+            },
+            "content": "Que hermoso! lo quiero adoptar!! Cumplo todos los requisitos que piden",
+            "createdAt": "2025-03-05T10:15:00.000Z",
+            "likes": 2,
+            "liked": false,
+            "replies": []
+        },
+        {
+            "id": "comment-3",
+            "user": {
+                "id": "user-4",
+                "fullName": "Carmen Benítez Pérez",
+                "email": "user@example.com",
+                "role": "user"
+            },
+            "content": "Que bello, espero que pronto encuentre un hogar, yo no lo puedo tener porque vivo en departamento :c",
+            "createdAt": "2025-02-28T08:45:00.000Z",
+            "likes": 8,
+            "liked": false,
+            "replies": [
+                {
+                    "id": "reply-1",
+                    "user": {
+                        "id": "user-5",
+                        "fullName": "Roberto Méndez",
+                        "email": "user@example.com",
+                        "role": "user"
+                    },
+                    "content": "Te entiendo, yo tampoco puedo tener mascotas en mi edificio :/",
+                    "createdAt": "2025-02-28T09:30:00.000Z",
+                    "likes": 3,
+                    "liked": false
+                }
+            ]
+        },
+        {
+            "id": "comment-4",
+            "user": {
+                "id": "user-6",
+                "fullName": "Lucía Fernandez",
+                "email": "user@example.com",
+                "role": "user"
+            },
+            "content": "Yo lo adopté hace una semana y es súper cariñoso! Gracias por la oportunidad",
+            "createdAt": "2025-03-04T16:20:00.000Z",
+            "likes": 12,
+            "liked": false,
+            "replies": []
+        },
+        {
+            "id": "comment-5",
+            "user": {
+                "id": "user-7",
+                "fullName": "Diego Martínez",
+                "email": "user@example.com",
+                "role": "user"
+            },
+            "content": "¿Cuánto tiempo estará disponible para adopción? Me interesa pero estoy de viaje hasta el fin de semana.",
+            "createdAt": "2025-03-03T11:05:00.000Z",
+            "likes": 1,
+            "liked": false,
+            "replies": [
+                {
+                    "id": "reply-2",
+                    "user": {
+                        "id": "user-admin",
+                        "fullName": "Refugio Animales",
+                        "email": "user@example.com",
+                        "role": "user"
+                    },
+                    "content": "Estará disponible hasta encontrar un hogar adecuado. Puedes escribirnos cuando regreses.",
+                    "createdAt": "2025-03-03T11:30:00.000Z",
+                    "likes": 4,
+                    "liked": false
+                }
+            ]
+        }
+    ]
+}
