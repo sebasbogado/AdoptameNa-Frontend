@@ -63,8 +63,9 @@ export default function PetBreeds() {
 
   useEffect(() => {
     const fetchAnimals = async () => {
+      if (!authToken) return;
       try {
-        const data = await getAnimals();
+        const data = await getAnimals(authToken);
         if (data) {
           setAnimals(data);
         }
@@ -76,7 +77,7 @@ export default function PetBreeds() {
     };
 
     fetchAnimals();
-  }, []);
+  }, [authToken]);
 
   useEffect(() => {
     if (!authToken) return;
