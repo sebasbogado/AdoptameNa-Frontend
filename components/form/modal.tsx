@@ -11,7 +11,7 @@ interface ModalProps {
   }
   
   export function ConfirmationModal({ isOpen, title, textConfirm, message, confirmVariant, onClose, onConfirm }: ModalProps) {
-    if (!isOpen) return null;
+    if (!isOpen) return;
   
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -20,6 +20,7 @@ interface ModalProps {
           <p className="mb-6">{message}</p>
           <div className="flex justify-end gap-4">
             <Button
+              type="button"
               variant="tertiary"
               size="md"
               className="border rounded text-gray-700 hover:bg-gray-100"
@@ -28,6 +29,7 @@ interface ModalProps {
               Cancelar
             </Button>
             <Button
+              type="button"
               variant={confirmVariant}
               size="md"
               className="rounded hover:bg-purple-700"

@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useAuth } from "@/contexts/authContext";
 import { Post } from "@/types/post";
 import { PostType } from "@/types/post-type";
-import { getPostType } from "@/utils/post-type.http";
-import { deletePost, getPostById, updatePost } from "@/utils/posts.http";
+import { getPostsType } from "@/utils/post-type.http";
+import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Button from "@/components/buttons/button";
@@ -85,7 +85,7 @@ export default function Page() {
 
     const fetchPostTypes = async () => {
         try {
-            const data = await getPostType();
+            const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
             setError(error.message);
@@ -99,7 +99,7 @@ export default function Page() {
             if (authLoading || !authToken || !user?.id) return;
 
             try {
-                const postData = await getPostById(String(postId));
+                const postData = await getPost(String(postId));
                 setFormData(postData)
                 setPost(postData); // Estado asíncrono, aún NO refleja el cambio aquí
             } catch (err) {
@@ -205,11 +205,9 @@ export default function Page() {
 
     // Función para manejar el clic en "Cancelar"
     const handleCancel = () => {
-        if (!post) {
-            console.error('Falta el ID de la publicación');
-            return;
-        }
-        router.push(`/post/${post.id}`); // Redirige a /post/{id}
+        console.log("desde el handle cancel", isDeleteModalOpen)
+        console.log(isEditModalOpen)
+        //router.push(`/post/${post.id}`); // Redirige a /post/{id}
     };
 
     return (
@@ -305,6 +303,7 @@ export default function Page() {
                 <div className="flex justify-between items-center mt-6 gap-10">
                     {/* Botón eliminar a la izquierda */}
                     <Button
+                        type="button"
                         variant="danger"
                         size="md"
                         className="rounded hover:bg-red-700"
@@ -317,6 +316,7 @@ export default function Page() {
                     {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
                         <Button
+                            type="button"
                             variant="tertiary"
                             size="md"
                             className="border rounded text-gray-700 hover:bg-gray-100"
@@ -330,6 +330,7 @@ export default function Page() {
                             variant="cta"
                             size="md"
                             className="rounded hover:bg-purple-700"
+                            onClick={confirmEdit}
                             disabled={loading}
                         >
                             {loading ? "Editando..." : "Confirmar cambios"}
@@ -338,26 +339,28 @@ export default function Page() {
                 </div>
             </form>
             {/* Modal de confirmación de cambios */}
-            <ConfirmationModal
-                isOpen={isEditModalOpen}
-                title="Confirmar cambios"
-                message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
-                textConfirm="Confirmar cambios"
-                confirmVariant="cta"
-                onClose={closeModal}
-                onConfirm={confirmEdit}
-            />
+            {isEditModalOpen &&
+                <ConfirmationModal
+                    isOpen={isEditModalOpen}
+                    title="Confirmar cambios"
+                    message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
+                    textConfirm="Confirmar cambios"
+                    confirmVariant="cta"
+                    onClose={closeModal}
+                    onConfirm={confirmEdit}
+                />}
 
             {/* Modal de confirmación de eliminación */}
-            <ConfirmationModal
-                isOpen={isDeleteModalOpen}
-                title="Confirmar eliminación"
-                message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
-                textConfirm="Eliminar"
-                confirmVariant="danger"
-                onClose={closeModal}
-                onConfirm={confirmDelete}
-            />
+            {isDeleteModalOpen &&
+                <ConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    title="Confirmar eliminación"
+                    message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
+                    textConfirm="Eliminar"
+                    confirmVariant="danger"
+                    onClose={closeModal}
+                    onConfirm={confirmDelete}
+                />}
         </div>
     );
 }

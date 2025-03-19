@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { getPostType } from "@/utils/post-type.http";
+import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/authContext";
 import { useRouter } from "next/navigation";
 import { postPosts } from "@/utils/posts.http";
@@ -41,7 +41,7 @@ export default function Page() {
     });
     const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
 
- {/* Realizando la autenticación para ingresar a crear publicación */ }
+    {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -50,7 +50,7 @@ export default function Page() {
 
     const fetchPostTypes = async () => {
         try {
-            const data = await getPostType();
+            const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
             setError(error.message);
@@ -218,7 +218,7 @@ export default function Page() {
                     <p className="text-red-500 text-sm mb-4">{formErrors.title}</p>
                 )}
 
-                 {/* Descripción */}
+                {/* Descripción */}
                 <label className="block text-sm font-medium">
                     Descripción <span className="text-red-500">*</span>
                 </label>
@@ -265,6 +265,7 @@ export default function Page() {
                 <div className="flex justify-between items-center mt-6 gap-10">
                     {/* Botón eliminar a la izquierda */}
                     <Button
+                        type="button"
                         variant="danger"
                         size="md"
                         className="rounded opacity-0"
@@ -272,10 +273,11 @@ export default function Page() {
                     >
                         Eliminar publicación
                     </Button>
-                    
+
                     {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
                         <Button
+                            type="button"
                             variant="tertiary"
                             className="border rounded text-gray-700 hover:bg-gray-100"
                             onClick={handleCancel}
@@ -284,6 +286,7 @@ export default function Page() {
                             Cancelar
                         </Button>
                         <Button
+                            type="submit"
                             variant="cta"
                             className="rounded hover:bg-purple-700"
                             disabled={loading}
@@ -295,15 +298,16 @@ export default function Page() {
             </form>
 
             {/* Modal confirmacion de creación*/}
-            <ConfirmationModal
-                isOpen={isModalOpen}
-                title="Confirmar creación"
-                message="¿Estás seguro de que deseas crear esta publicación?"
-                textConfirm="Confirmar"
-                confirmVariant="cta"
-                onClose={closeModal}
-                onConfirm={confirmSubmit}
-            />
+            {isModalOpen &&
+                <ConfirmationModal
+                    isOpen={isModalOpen}
+                    title="Confirmar creación"
+                    message="¿Estás seguro de que deseas crear esta publicación?"
+                    textConfirm="Confirmar"
+                    confirmVariant="cta"
+                    onClose={closeModal}
+                    onConfirm={confirmSubmit}
+                />}
         </div>
     );
 }
