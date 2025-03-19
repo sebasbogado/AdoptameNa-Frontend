@@ -1,8 +1,14 @@
 'use client'
 
+import { Pet } from "@/types/pet";
 import { Post } from "@/types/post";
 
-export const PostHeader = ({ post }: { post: Post }) => {
+interface PostHeaderProps {
+    post?: Post;
+    pet?: Pet
+}
+
+export const PostHeader = ({ post, pet }: PostHeaderProps) => {
 
 
     return (
@@ -10,10 +16,17 @@ export const PostHeader = ({ post }: { post: Post }) => {
             <h1
                 className={`text-5xl font-black bg-transparent border-2 border-transparent focus:outline-none w-full`}
             >
-                {post.title}
+                {post?.title || pet?.name}
             </h1>
             <p className="text-2xl text-gray-700 mt-8">
-                Publicado por {post.idUser} {/* Reemplazar por el nombre de usuario */} el {new Date(post.publicationDate).toLocaleDateString()}
+                {post ? <span>
+                    Publicado por {post?.idUser} {/* Reemplazar por el nombre de usuario */} el {new Date(post?.publicationDate).toLocaleDateString()}
+                </span> :
+                    <span>
+                        {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},
+                        {pet?.isVaccinated ? " vacunado" : " no vacunado"}
+                    </span>
+                }
             </p>
         </div >
     );
