@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/favorites`;
 
-export const getFavorites = async (token: string, queryParams?: Favorites) => {
+export const getFavorites = async (token: string, queryParams?: any) => {
     try {
         const response = await axios.get(API_URL, {
             params:queryParams,
