@@ -64,7 +64,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idPost }) => {
 
     try {
       const response = await createReport(authToken, report);
-      console.log("Reporte enviado con éxito:", response);
+      handleClose();
     } catch (error) {
       console.error("Error al enviar el reporte:", error);
     }
