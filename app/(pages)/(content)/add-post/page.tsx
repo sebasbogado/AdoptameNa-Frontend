@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { postPosts } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { Post } from "@/types/post";
+import Button from "@/components/buttons/button";
+import { ConfirmationModal } from "@/components/form/modal";
 
 interface FormErrors {
     idPostType?: string;
@@ -34,11 +36,12 @@ export default function Page() {
         contactNumber: "",
         status: "activo",
         sharedCounter: 0,
+        urlPhoto: "",
         publicationDate: new Date().toISOString()
     });
     const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
 
-    {/* Realizando la autenticación para ingresar a crear publicación */ }
+ {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -127,21 +130,16 @@ export default function Page() {
             return;
         }
 
-
-        const payload = {
-            ...formData,
-            idPostType: Number(formData.idPostType),
-            idUser: user ? Number(user.id) : 0,
-        };
-
         try {
-            await postPosts(payload as Post, authToken);
-            setSuccessMessage("¡Publicación creada exitosamente!");
-            {/* Realizar de alguna forma de crear la publicacion y luego reedirigirlo al detalle del post creado*/ }
-            //setTimeout(() => router.push(`/post/${post.id}`), 1500); // Redirige después de mostrar el mensaje
-            setTimeout(() => {
+            const payload = {
+                ...formData,
+                idPostType: Number(formData.idPostType),
+                idUser: user ? Number(user.id) : 0, // Usamos directamente user.id aquí
+            };
+            const response = await postPosts(payload as Post, authToken);
+            if (response) {
+                setSuccessMessage("¡Publicación creada exitosamente!");
                 setFormData({
-                    id: 0,
                     idUser: user ? Number(user.id) : 0,
                     title: "",
                     content: "",
@@ -150,10 +148,14 @@ export default function Page() {
                     contactNumber: "",
                     status: "activo",
                     sharedCounter: 0,
+                    urlPhoto: "",
                     publicationDate: new Date().toISOString()
                 });
                 setSuccessMessage(null);
-            }, 2000);
+                //router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
+            } else {
+                setError("Error al guardar publicación")
+            }
         } catch (error: any) {
             setError(error.message || "Error al crear la publicación");
         } finally {
@@ -166,6 +168,7 @@ export default function Page() {
     };
 
     const handleCancel = () => {
+        setIsModalOpen(false);
         router.push("/dashboard");
     };
 
@@ -215,7 +218,7 @@ export default function Page() {
                     <p className="text-red-500 text-sm mb-4">{formErrors.title}</p>
                 )}
 
-                {/* Descripción */}
+                 {/* Descripción */}
                 <label className="block text-sm font-medium">
                     Descripción <span className="text-red-500">*</span>
                 </label>
@@ -261,59 +264,46 @@ export default function Page() {
 
                 <div className="flex justify-between items-center mt-6 gap-10">
                     {/* Botón eliminar a la izquierda */}
-                    <button
-                        type="button"
-                        className="bg-red-600 text-white px-6 py-2 rounded opacity-0"
+                    <Button
+                        variant="danger"
+                        size="md"
+                        className="rounded opacity-0"
                         disabled={loading}
                     >
                         Eliminar publicación
-                    </button>
-
+                    </Button>
+                    
                     {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
-                        <button
-                            type="button"
-                            className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
+                        <Button
+                            variant="tertiary"
+                            className="border rounded text-gray-700 hover:bg-gray-100"
                             onClick={handleCancel}
                             disabled={loading}
                         >
                             Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400 hover:bg-purple-700"
+                        </Button>
+                        <Button
+                            variant="cta"
+                            className="rounded hover:bg-purple-700"
                             disabled={loading}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </form>
-            {/* Modal de confirmación */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                        <h2 className="text-lg font-semibold mb-4">Confirmar creación</h2>
-                        <p className="mb-6">¿Estás seguro de que deseas crear esta publicación?</p>
-                        <div className="flex justify-end gap-4">
-                            <button
-                                type="button"
-                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
-                                onClick={closeModal}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                                onClick={confirmSubmit}
-                            >
-                                Confirmar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
+            {/* Modal confirmacion de creación*/}
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                title="Confirmar creación"
+                message="¿Estás seguro de que deseas crear esta publicación?"
+                textConfirm="Confirmar"
+                confirmVariant="cta"
+                onClose={closeModal}
+                onConfirm={confirmSubmit}
+            />
         </div>
     );
 }

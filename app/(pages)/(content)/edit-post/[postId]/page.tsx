@@ -9,6 +9,8 @@ import { getPostType } from "@/utils/post-type.http";
 import { deletePost, getPostById, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Button from "@/components/buttons/button";
+import { ConfirmationModal } from "@/components/form/modal";
 
 interface FormErrors {
     idPostType?: string;
@@ -98,6 +100,7 @@ export default function Page() {
 
             try {
                 const postData = await getPostById(String(postId));
+                setFormData(postData)
                 setPost(postData); // Estado asíncrono, aún NO refleja el cambio aquí
             } catch (err) {
                 console.error("Error al cargar posts:", err);
@@ -113,32 +116,10 @@ export default function Page() {
 
     // Nuevo useEffect para validar permisos después de que post cambie
     useEffect(() => {
-        if (postError === null) {
-            router.push("/");
-        }
-
         if (!post || !user?.id) return;
-
-        console.log("Verificando permisos con post:", post.idUser);
-        console.log("Usuario actual:", user.id);
-
-        if (String(post.idUser) !== String(user.id)) {
-            //setPostsError("No tienes permisos para editar esta publicación.");
+        if ((postError !== null) || (String(post.idUser) !== String(user.id))) {
             router.push("/");
-            return;
         }
-
-        // Solo si el usuario tiene permisos, actualizamos el formulario
-        setFormData({
-            title: post.title || "",
-            content: post.content || "",
-            idPostType: post.idPostType || 0,
-            locationCoordinates: post.locationCoordinates || "",
-            contactNumber: post.contactNumber || "",
-            status: post.status || "",
-            sharedCounter: post.sharedCounter || 0,
-            publicationDate: post.publicationDate,
-        });
 
     }, [post, user?.id]); // Se ejecuta cuando post o user.id cambian
 
@@ -323,86 +304,60 @@ export default function Page() {
 
                 <div className="flex justify-between items-center mt-6 gap-10">
                     {/* Botón eliminar a la izquierda */}
-                    <button
-                        type="button"
-                        className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                    <Button
+                        variant="danger"
+                        size="md"
+                        className="rounded hover:bg-red-700"
                         onClick={handleDelete}
                         disabled={loading}
                     >
                         {loading ? 'Eliminando...' : 'Eliminar publicación'} {/* Texto dinámico */}
-                    </button>
+                    </Button>
 
                     {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
-                        <button
-                            type="button"
-                            className="border px-6 py-2 rounded hover:bg-gray-100"
+                        <Button
+                            variant="tertiary"
+                            size="md"
+                            className="border rounded text-gray-700 hover:bg-gray-100"
                             onClick={handleCancel}
                             disabled={loading}
                         >
                             Cancelar
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="bg-purple-600 text-white px-6 py-2 rounded disabled:bg-purple-400 hover:bg-purple-700"
+                            variant="cta"
+                            size="md"
+                            className="rounded hover:bg-purple-700"
                             disabled={loading}
                         >
                             {loading ? "Editando..." : "Confirmar cambios"}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </form>
             {/* Modal de confirmación de cambios */}
-            {isEditModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                        <h2 className="text-lg font-semibold mb-4">Confirmar cambios</h2>
-                        <p className="mb-6">¿Estás seguro de que deseas guardar los cambios en esta publicación?</p>
-                        <div className="flex justify-end gap-4">
-                            <button
-                                type="button"
-                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
-                                onClick={closeModal}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-                                onClick={confirmEdit}
-                            >
-                                Confirmar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmationModal
+                isOpen={isEditModalOpen}
+                title="Confirmar cambios"
+                message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
+                textConfirm="Confirmar cambios"
+                confirmVariant="cta"
+                onClose={closeModal}
+                onConfirm={confirmEdit}
+            />
 
             {/* Modal de confirmación de eliminación */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-                        <h2 className="text-lg font-semibold mb-4">Confirmar eliminación</h2>
-                        <p className="mb-6">¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer.</p>
-                        <div className="flex justify-end gap-4">
-                            <button
-                                type="button"
-                                className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
-                                onClick={closeModal}
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                type="button"
-                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                                onClick={confirmDelete}
-                            >
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Confirmar eliminación"
+                message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
+                textConfirm="Eliminar"
+                confirmVariant="danger"
+                onClose={closeModal}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }
