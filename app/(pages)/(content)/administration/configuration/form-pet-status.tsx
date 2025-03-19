@@ -67,7 +67,7 @@ const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petSt
 
       <div className="flex justify-end items-center mt-6 w-full">
         <div className="flex gap-4">
-          <Button variant='danger' onClick={onDelete}>
+          <Button variant={formData.id === 0 ? "secondary" : "danger"} onClick={onDelete}>
             {formData.id === 0 ? "Cancelar" : "Eliminar"}
           </Button>
 

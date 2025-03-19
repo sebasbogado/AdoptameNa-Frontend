@@ -16,7 +16,7 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
     ...props
 }) => {
     const baseStyles =
-        "border border-gray-300 text-gray-700 rounded-xl bg-white flex items-center justify-center space-x-2 hover:bg-gray-100 transition-all duration-200";
+        "w-full border border-gray-300 text-gray-700 rounded-xl bg-white flex items-center justify-center space-x-2 hover:bg-gray-100 transition-all duration-200";
 
     const sizes = {
         sm: "py-2 px-4 w-36",

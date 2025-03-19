@@ -4,7 +4,9 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 
-const PostButtons = () => {
+const PostButtons = ({
+    isPet = false,
+}: { isPet?: boolean }) => {
     const [copied, setCopied] = useState(false);
 
     const handleShare = () => {
@@ -17,7 +19,12 @@ const PostButtons = () => {
 
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
-            <Button variant="cta" size="lg">Adoptar</Button>
+            {
+                isPet && (
+                    <Button variant="cta" size="lg">Adoptar</Button>
+
+                )
+            }
 
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />

@@ -10,11 +10,11 @@ const MapWithNoSSR = dynamic(
 );
 
 interface PostLocationMapProps {
-    post: Post | null;
+    location?: string;
 }
 
-const PostLocationMap = ({ post }: PostLocationMapProps) => {
-    const coordinates = post?.locationCoordinates?.split(',').map(coord => parseFloat(coord.trim())) ?? [];
+const PostLocationMap = ({ location }: PostLocationMapProps) => {
+    const coordinates = location?.split(',').map(coord => parseFloat(coord.trim())) ?? [];
 
     const validCoordinates = coordinates.length === 2 &&
         !isNaN(coordinates[0]) &&
