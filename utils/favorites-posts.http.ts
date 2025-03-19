@@ -1,10 +1,12 @@
+import { Favorites } from '@/types/favorites';
 import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/favorites`;
 
-export const getFavorites = async (token: string) => {
+export const getFavorites = async (token: string, queryParams?: Favorites) => {
     try {
         const response = await axios.get(API_URL, {
+            params:queryParams,
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',

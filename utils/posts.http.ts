@@ -3,9 +3,10 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
-export const getPosts = async () => {
+export const getPosts = async (queryParams?: Post) => {
   try {
     const response = await axios.get(API_URL, {
+      params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
