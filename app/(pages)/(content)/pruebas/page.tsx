@@ -3,7 +3,6 @@
 import { useState } from "react";
 import ReportButton from "@/components/buttons/report-button";
 import Modal from "@/components/modal";
-import Button from "@/components/buttons/button";
 import ReportForm from "@/components/report-form";
 
 export default function Page() {
@@ -15,7 +14,7 @@ export default function Page() {
         <ReportButton size="lg" onClick={() => setModalOpen(true)} />
 
         <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Reportar contenido">
-          <ReportForm />
+          <ReportForm handleClose={() => setModalOpen(false)} />
         </Modal>
       </div>
     </>
