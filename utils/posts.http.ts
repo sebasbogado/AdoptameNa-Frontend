@@ -3,10 +3,9 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
-export const getPosts = async ( queryParams?: any) => {
+export const getPosts = async () => {
   try {
     const response = await axios.get(API_URL, {
-      params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,9 +39,9 @@ export const postPosts = async (data: Post, token: string) => {
   }
 };
 
-export async function getPostById(postId: string) {
+export async function getPostById(id: string) {
   try {
-    const response = await axios.get(`${API_URL}/${postId}`, {
+    const response = await axios.get(`${API_URL}/${id}`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,9 +56,9 @@ export async function getPostById(postId: string) {
   }
 };
 
-export async function updatePost(postId: string, postData: Post, token: string) {
+export async function updatePost(id: string, postData: Post, token: string) {
   try {
-    const response = await axios.put(`${API_URL}/${postId}`, postData, {
+    const response = await axios.put(`${API_URL}/${id}`, postData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -75,9 +74,9 @@ export async function updatePost(postId: string, postData: Post, token: string) 
   }
 };
 
-export async function deletePost(postId: string, token: string) {
+export async function deletePost(id: string, token: string) {
   try {
-    const response = await axios.delete(`${API_URL}/${postId}`, {
+    const response = await axios.delete(`${API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
