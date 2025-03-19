@@ -12,7 +12,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
 
 
     return (
-        <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-40  mt-[-50px] w-[55vw]">
+        <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
             <h1
                 className={`text-5xl font-black bg-transparent border-2 border-transparent focus:outline-none w-full`}
             >
