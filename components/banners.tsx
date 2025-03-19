@@ -3,11 +3,12 @@
 import { Carousel } from "@material-tailwind/react";
 interface CarouselProps {
   images: string[]
+  className?: string
 }
 
-export default function Banners({ images = [] }: CarouselProps) {
+export default function Banners({ images = [], className }: CarouselProps) {
   return (
-    <Carousel className="rounded-xl overflow-hidden h-[400px] relative"
+    <Carousel className={`rounded-xl overflow-hidden h-[400px] relative ${className}`}
       loop
       autoplay
       autoplayDelay={10000}
