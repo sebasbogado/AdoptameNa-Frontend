@@ -32,6 +32,32 @@ class AuthClient {
       throw new AuthError("Error de autenticación", 500);
     }
   }
+
+  async loginWithGoogle(code: string): Promise<AuthResponse> {
+    try {
+      const response = await fetch(`${API_URL}/auth/google-callback?${code}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new AuthError(
+          "Error de autenticación con Google",
+          response.status
+        );
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new AuthError("Error de autenticación con Google", 500);
+    }
+  }
 }
 
 const authClient = new AuthClient();
