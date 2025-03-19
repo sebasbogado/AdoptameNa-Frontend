@@ -5,6 +5,7 @@ import { CommentForm } from "./comment-form";
 import { User } from "@/types/auth";
 import { UserAvatar } from "../ui/user-avatar";
 import { Comment } from "@/types/comment";
+import { Alert } from "@material-tailwind/react";
 
 interface CommentItemProps {
     comment: Comment;
@@ -24,6 +25,7 @@ export function CommentItem({
     level = 0
 }: CommentItemProps) {
     const [showReplyForm, setShowReplyForm] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
 
     const handleReply = (content: string) => {
         if (onReply) {
@@ -45,6 +47,16 @@ export function CommentItem({
         return date.toLocaleDateString();
     };
 
+    const handleAction = (action: () => void) => {
+        if (showAlert) return;
+        if (currentUser) {
+            action();
+        } else {
+            setShowAlert(true);
+            setTimeout(() => setShowAlert(false), 5000);
+        }
+    };
+
     return (
         <div className={`flex gap-3 ${level > 0 ? 'ml-12' : ''}`}>
             <UserAvatar user={comment.user} />
@@ -60,7 +72,7 @@ export function CommentItem({
 
                             {onLike && (
                                 <button
-                                    onClick={() => onLike(comment.id)}
+                                    onClick={() => handleAction(() => onLike(comment.id))}
                                     className={`hover:text-light-blue-600 ${comment.liked ? 'text-light-blue-600 font-medium' : ''}`}
                                 >
                                     Me gusta{comment.likes ? ` (${comment.likes})` : ''}
@@ -69,7 +81,7 @@ export function CommentItem({
 
                             {onReport && (
                                 <button
-                                    onClick={() => onReport(comment.id)}
+                                    onClick={() => handleAction(() => onReport(comment.id))}
                                     className={`hover:text-red-600 ${comment.reported ? 'text-red-600' : ''}`}
                                 >
                                     Reportar
@@ -78,7 +90,7 @@ export function CommentItem({
 
                             {onReply && level < 2 && (
                                 <button
-                                    onClick={() => setShowReplyForm(!showReplyForm)}
+                                    onClick={() => handleAction(() => setShowReplyForm(!showReplyForm))}
                                     className="hover:text-light-blue-600"
                                 >
                                     Responder
@@ -113,6 +125,17 @@ export function CommentItem({
                     </div>
                 )}
             </div>
+
+
+            {showAlert && (
+                <Alert
+                    color="red"
+                    onClose={() => setShowAlert(false)}
+                    className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                >
+                    Debes estar logueado para dar like, reportar o responder.
+                </Alert>
+            )}
         </div>
     );
 }
