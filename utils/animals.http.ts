@@ -2,12 +2,11 @@ import axios from "axios";
 import { Animal } from "@/types/animal";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/animals`;
 
-export const getAnimals = async ( token:string, queryParams?: any) => {
+export const getAnimals = async (queryParams?: any) => {
   try {
     const response = await axios.get(API_URL, {
       params: queryParams,
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });

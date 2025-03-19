@@ -7,8 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import dynamic from 'next/dynamic';
 import Footer from "@/components/footer";
 import Image from "next/image";
-import { Facebook, Instagram, Mail, Phone, MessageCircle } from "lucide-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MapProps } from "@/types/map-props";
 import { useAppContext } from "@/contexts/appContext";
 //import Axios from "@/utils/axiosInstace";
@@ -17,8 +15,10 @@ import { useAuth } from '@/contexts/authContext';
 import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
 import { getPetStatus } from "@/utils/pet-status.http";
-import { PlusCircle } from "lucide-react";
 import { postMedia } from "@/utils/media.http";
+import Button from '@/components/buttons/button';
+import { ImagePlus } from "lucide-react";
+import Banners from "@/components/banners";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -47,7 +47,7 @@ const AdoptionForm = () => {
     descripcion: "",
     vacunado: "",
     esterilizado: "",
-    genero: "", 
+    genero: "",
     edad: "",
     peso: ""
   });
@@ -55,22 +55,22 @@ const AdoptionForm = () => {
 
 
   const getFromData = async () => {
-    const respAnimals = await getAnimals({ size: 100, page: 0 }, authToken)
+    const respAnimals = await getAnimals({ size: 100, page: 0 })
     if (respAnimals) {
       console.log("Resultado Animals", respAnimals)
       setAnimals(respAnimals)
     }
-    const respBreed = await getBreed({ size: 100, page: 0 }, authToken)
+    const respBreed = await getBreed({ size: 100, page: 0 })
     if (respBreed) {
       console.log("Resultado Breed", respBreed)
       setBreed(respBreed)
     }
-    const respPetStatus = await getPetStatus({ size: 100, page: 0 }, authToken)
+    const respPetStatus = await getPetStatus({ size: 100, page: 0 })
     if (respPetStatus) {
       console.log("Resultado PetStatus", respPetStatus)
       setPetsStatus(respPetStatus)
     }
-    const respImageSelected = await getPetStatus({ size: 100, page: 0 }, authToken)
+    const respImageSelected = await getPetStatus({ size: 100, page: 0 })
     if (respImageSelected) {
       console.log("Resultado PetStatus", respImageSelected)
       setPetsStatus(respImageSelected)
@@ -86,12 +86,17 @@ const AdoptionForm = () => {
       const file = e.target.files[0];
       const formData = new FormData();
       formData.append("file", file);
+      console.log("imagen: ", file);
+
+      if (!authToken) {
+        throw new Error("El token de autenticación es requerido");
+      }
 
       try {
         const response = await postMedia(formData, authToken);
         console.log("Respuesta de postMedia:", response);
         if (response) {
-          setSelectedImages([...selectedImages, { file, url_API: response.url , url: URL.createObjectURL(file) }]);
+          setSelectedImages([...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }]);
         }
       } catch (error) {
         console.error("Error al subir la imagen", error);
@@ -108,7 +113,7 @@ const AdoptionForm = () => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({
         ...prev,
-        [name]: checked ? value : "" 
+        [name]: checked ? value : ""
       }));
     } else {
       // Handle other inputs (text, textarea, select)
@@ -130,6 +135,13 @@ const AdoptionForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  useEffect(() => {
+    if (authLoading || !authToken || !user?.id) return;
+    console.log("authLoading", authLoading);
+  }, [authToken, authLoading, user?.id]);
+
+
+  console.log("Selectimages- : ", selectedImages[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); if (!authToken) {
@@ -155,7 +167,7 @@ const AdoptionForm = () => {
         "petStatusId": Number(formData.estado),
         "addressCoordinates": `${position?.[0]}, ${position?.[1]}`
       }
-
+      console.log("Selectimagespost: ", selectedImages[0].url_API);
       const response = await postPets(params, authToken)
       if (response) {
         console.log("Guardado ", response)
@@ -173,76 +185,47 @@ const AdoptionForm = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
   };
 
-
+  const arrayImages = selectedImages?.map(image => image?.url_API) || [];
 
   return (
     <div>
       <div className="flex flex-col items-center p-6">
         <div className="border p-4 w-full max-w-5xl rounded-lg shadow">
-          <CardContent>
-            {/* Contenedor Principal */}
-            <div className="relative w-[800px] h-[300px] mx-auto flex items-center justify-center">
-              {/* Botón Izquierdo */}
-              <button
-                className="absolute left-2 z-10 bg-white p-2 rounded-full shadow-md"
-                onClick={handlePrev}
-              >
-                <ChevronLeft size={40} />
-              </button>
+          <Banners images={arrayImages}>
 
-              {/* Imagen Principal */}
-              <div className="relative w-full h-full">
-                {selectedImages[currentImageIndex]?.url && <Image
-                  src={selectedImages[currentImageIndex]?.url}
+          </Banners>
+          <div className="flex gap-2 mt-2 justify-center items-center">
+
+            {selectedImages.map((src, index) => (
+              <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+                <Image
+                  src={src.url}
                   alt="pet"
                   fill
-                  className="object-cover rounded-md"                  
-                />}
-              </div>
-
-              {/* Botón Derecho */}
-              <button
-                className="absolute right-2 z-10 bg-white p-2 rounded-full shadow-md"
-                onClick={handleNext}
-              >
-                <ChevronRight size={40} />
-              </button>
-            </div>
-
-            {/* Miniaturas */}
-            <div className="flex gap-2 mt-2 justify-center items-center">
-              {selectedImages.map((src, index) => (
-                <div key={index} className="relative w-[60px] h-[60px] cursor-pointer">
-                  <Image
-                    src={src.url}
-                    alt="pet"
-                    fill
-                    className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''
-                      }`}
-                    onClick={() => setCurrentImageIndex(index)}
-                  />
-                </div>
-
-              ))}
-              <div className="mt-4 flex flex-col items-center">
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  id="fileInput"
+                  className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''
+                    }`}
+                  onClick={() => setCurrentImageIndex(index)}
                 />
-                <label
-                  htmlFor="fileInput"
-                  className="cursor-pointer w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-md hover:bg-blue-600 transition"
-                >
-                  <PlusCircle size={40} />
-                </label>
               </div>
-            </div>
 
-          </CardContent>
+            ))}
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden object-cover rounded-md transition-all duration-200 hover:scale-110"
+              id="fileInput"
+              onChange={handleImageUpload}
+            />
+            <label
+              htmlFor="fileInput"
+              className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 transition bg-white"
+            >
+              <ImagePlus size={20} className="text-blue-500" />
+            </label>
+
+          </div>
 
 
 
@@ -440,16 +423,15 @@ const AdoptionForm = () => {
                 <div className="flex justify-between items-center mt-6 w-full">
 
                   <div className="flex gap-4">
-                    <button
+                    <Button
                       type="button"
-                      className="px-5 py-2 rounded-md border border-blue-500 text-blue-500 font-semibold hover:bg-blue-100 transition"
                     >
                       Cancelar
-                    </button>
+                    </Button>
 
-                    <button onClick={handleSubmit}>
+                    <Button onClick={handleSubmit}>
                       Crear
-                    </button>
+                    </Button>
 
                   </div>
                 </div>

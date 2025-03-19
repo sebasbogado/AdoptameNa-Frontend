@@ -21,15 +21,13 @@ export const getMedia = async (queryParams?: any, token?: string | null) => {
   }
 };
 
-export const postMedia = async (params?: any, token?: string | null) => {
+export const postMedia = async (params: any, token: string) => {
   try {
-    
     const response = await axios.post(`${API_URL}/upload`, params, {
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data"
       },
-      maxBodyLength: Infinity,
     });
     
     return response.data;
