@@ -7,11 +7,10 @@ interface ReportButtonProps
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
   //temp hasta que se tenga el endpoint para reportar pets
-  idPost?: number;
 }
 
 //props para idUser, idPost
-const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idPost, ...props }) => {
+const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, ...props }) => {
   const [modal, setModal] = useState(false);
   const baseStyles =
     "bg-btn-danger text-btn-primary-text rounded-lg transition-all duration-200 flex items-center  justify-center w-fit";
@@ -28,7 +27,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idP
         <span className="material-symbols-outlined">block</span>
       </button>
       <Modal isOpen={modal} onClose={() => setModal(false)} title="Reportar contenido">
-        <ReportForm idPost={idPost ? idPost : 0} handleClose={() => setModal(false)} />
+        <ReportForm handleClose={() => setModal(false)} />
       </Modal>
     </>
   );

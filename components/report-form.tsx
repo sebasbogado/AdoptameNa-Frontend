@@ -6,23 +6,24 @@ import { useAuth } from '@/contexts/authContext';
 import { ReportReason } from '@/types/report-reason';
 import { Report } from '@/types/report';
 import { createReport } from '@/utils/reports.http';
-
+import { useParams } from 'next/navigation';
 interface ReportFormProps {
   handleClose: () => void;
-  idPost: number;
 }
-const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idPost }) => {
+const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   const [reportReasons, setReportReasons] = useState([]);
   const [report, setReport] = useState<Report>({
     id: 0,
     idUser: 0,
-    idPost: idPost,
+    idPost: 0,
     idReportReason: 0,
     description: "",
     reportDate: new Date().toISOString(),
     status: "",
   });
   const { authToken, user } = useAuth();
+  const params = useParams();
+  const idPostParam = parseInt(params.id as string);
 
   useEffect(() => {
     const fetchReportReasons = async () => {
@@ -34,6 +35,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idPost }) => {
           setReport((prevReport) => ({
             ...prevReport,
             idUser: parseInt(user?.id),
+            idPost: idPostParam,
           }));
         }
       } catch (error) {

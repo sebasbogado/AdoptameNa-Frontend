@@ -6,9 +6,8 @@ import { Alert } from "@material-tailwind/react";
 
 interface PostButtonsProps {
     isPet?: boolean;
-    idPost?: number;
 }
-const PostButtons = ({ isPet = false, idPost }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false }: PostButtonsProps) => {
     const [copied, setCopied] = useState(false);
 
     const handleShare = () => {
@@ -37,7 +36,7 @@ const PostButtons = ({ isPet = false, idPost }: PostButtonsProps) => {
                 )}
             </div>
 
-            <ReportButton idPost={idPost} size="lg" />
+            <ReportButton size="lg" />
         </div>
     );
 };
