@@ -6,14 +6,27 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useAuth } from "@/contexts/authContext";
 import Loading from "@/app/loading";
-
+import { useForm } from "react-hook-form";
+import { LoginFormValues, loginSchema } from "@/validations/login-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import GoogleLoginButton from "@/components/buttons/google-login-button";
 
 export default function Login() {
   const { login, user, loading } = useAuth();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting }
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
+  });
 
   useEffect(() => {
     if (user && !loading) {
@@ -21,23 +34,11 @@ export default function Login() {
     }
   }, [user, loading, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormValues) => {
     setError("");
-    setIsSubmitting(true);
-
-    if (credentials.password.length < 8) {
-      setError("❌ La contraseña debe tener al menos 8 caracteres.");
-      setIsSubmitting(false);
-      return;
-    }
 
     try {
-      await login(credentials);
+      await login(data);
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Error en login:", error);
@@ -49,11 +50,8 @@ export default function Login() {
       } else {
         setError("❌ Error de autenticación. Por favor intenta nuevamente.");
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
-
 
   if (loading) {
     return Loading();
@@ -75,33 +73,31 @@ export default function Login() {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="text-left">
             <label className="text-gray-700 font-medium text-sm block mb-1">Correo</label>
             <input
               type="email"
-              name="email"
-              value={credentials.email}
-              onChange={handleChange}
-              required
-              maxLength={50}
-              className={`w-full border ${!!error && error.includes("Correo") ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
+              {...register("email")}
+              className={`w-full border ${errors.email ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
               disabled={isSubmitting}
             />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="text-left">
             <label className="text-gray-700 font-medium text-sm block mb-1">Contraseña</label>
             <input
               type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-              maxLength={20}
-              className={`w-full border ${!!error && error.includes("contraseña") ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
+              {...register("password")}
+              className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
               disabled={isSubmitting}
             />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+            )}
           </div>
 
           <a
@@ -130,22 +126,14 @@ export default function Login() {
               )}
             </button>
 
-            <button
-              type="button"
+            <GoogleLoginButton
+              size="md"
               onClick={() => {
                 const googleAuthUrl = `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/google-auth`;
                 window.location.href = googleAuthUrl;
               }}
-              className="border border-gray-300 text-gray-700 py-3 rounded-xl bg-white w-48 flex items-center justify-center space-x-2 hover:bg-gray-100"
               disabled={isSubmitting}
-            >
-              <img
-                src="/Google_logo.svg" // URL del logo oficial
-                alt="Google Logo"
-                className="w-5 h-5"
-              />
-              <span>Iniciar con Google</span>
-            </button>
+            />
 
             <Link
               href="/auth/register"
