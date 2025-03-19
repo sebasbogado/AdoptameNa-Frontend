@@ -18,6 +18,7 @@ import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
 import { getPetStatus } from "@/utils/pet-status.http";
 import { PlusCircle } from "lucide-react";
+import { postMedia } from "@/utils/media.http";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -31,14 +32,14 @@ const AdoptionForm = () => {
   const [animals, setAnimals] = useState<any[] | null>(null)
   const [breed, setBreed] = useState<any[] | null>(null)
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
 
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [formData, setFormData] = useState({
-    estado: 1,
+    estado: 12,
     tipoAnimal: 1,
     raza: 1,
     titulo: "",
@@ -46,26 +47,12 @@ const AdoptionForm = () => {
     descripcion: "",
     vacunado: "",
     esterilizado: "",
-    genero: "", // Updated to use a single value for gender
+    genero: "", 
     edad: "",
     peso: ""
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  console.log("position: ", position);
-  console.log("Estado de las mascotas:", petsStatus);
-  /*{
-    "name": "formData.titulo",
-    "isVaccinated": true,
-    "description": "string",
-    "birthdate": "2025-03-13T01:35:36.066Z",
-    "gender": "MALE",
-    "urlPhoto": "string",
-    "isSterilized": true,
-    "userId": currentUser.id,
-    "animalId": 0,
-    "breedId": 0,
-    "petStatusId": 0
-  }*/
+
 
   const getFromData = async () => {
     const respAnimals = await getAnimals({ size: 100, page: 0 }, authToken)
@@ -94,15 +81,24 @@ const AdoptionForm = () => {
     getFromData()
   }, [])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files).map((file) =>
-        URL.createObjectURL(file)
-      );
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
 
-      setSelectedImages((prevImages) => [...prevImages, ...filesArray]);
+      try {
+        const response = await postMedia(formData, authToken);
+        console.log("Respuesta de postMedia:", response);
+        if (response) {
+          setSelectedImages([...selectedImages, { file, url_API: response.url , url: URL.createObjectURL(file) }]);
+        }
+      } catch (error) {
+        console.error("Error al subir la imagen", error);
+      }
     }
   };
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -112,7 +108,7 @@ const AdoptionForm = () => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({
         ...prev,
-        [name]: checked ? value : "" // Set genero to the value if checked, otherwise clear it
+        [name]: checked ? value : "" 
       }));
     } else {
       // Handle other inputs (text, textarea, select)
@@ -134,8 +130,6 @@ const AdoptionForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const animalId = Number(formData.tipoAnimal);
-  const breedId = Number(formData.raza);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); if (!authToken) {
@@ -143,7 +137,9 @@ const AdoptionForm = () => {
       return;
     }
 
+
     if (validateForm()) {
+
       console.log(formData);
       const params = {
         "name": formData.titulo,
@@ -151,17 +147,15 @@ const AdoptionForm = () => {
         "description": formData.descripcion,
         "birthdate": formData.cumpleanhos,
         "gender": formData.genero,
-        "urlPhoto": null,
+        "urlPhoto": selectedImages[0].url_API,
         "isSterilized": formData.esterilizado === "Si",
-        "userId": user?.id,
-        "animalId": formData.tipoAnimal,
-        "breedId": formData.raza,
-        "petStatusId": formData.estado,
+        "userId": Number(user?.id),
+        "animalId": Number(formData.tipoAnimal),
+        "breedId": Number(formData.raza),
+        "petStatusId": Number(formData.estado),
         "addressCoordinates": `${position?.[0]}, ${position?.[1]}`
       }
-      console.log("position: ", position);
-      console.log("params: ", params);
-      console.log("token: ", authToken);
+
       const response = await postPets(params, authToken)
       if (response) {
         console.log("Guardado ", response)
@@ -198,12 +192,12 @@ const AdoptionForm = () => {
 
               {/* Imagen Principal */}
               <div className="relative w-full h-full">
-                <Image
-                  src={selectedImages[currentImageIndex]}
+                {selectedImages[currentImageIndex]?.url && <Image
+                  src={selectedImages[currentImageIndex]?.url}
                   alt="pet"
                   fill
-                  className="object-cover rounded-md"
-                />
+                  className="object-cover rounded-md"                  
+                />}
               </div>
 
               {/* Botón Derecho */}
@@ -220,7 +214,7 @@ const AdoptionForm = () => {
               {selectedImages.map((src, index) => (
                 <div key={index} className="relative w-[60px] h-[60px] cursor-pointer">
                   <Image
-                    src={src}
+                    src={src.url}
                     alt="pet"
                     fill
                     className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''
@@ -228,7 +222,7 @@ const AdoptionForm = () => {
                     onClick={() => setCurrentImageIndex(index)}
                   />
                 </div>
-                
+
               ))}
               <div className="mt-4 flex flex-col items-center">
                 <input
@@ -249,7 +243,9 @@ const AdoptionForm = () => {
             </div>
 
           </CardContent>
-          
+
+
+
         </div>
         {/* Wrapped Card Component */}
         <div className="w-full max-w-2xl">
@@ -261,7 +257,7 @@ const AdoptionForm = () => {
                   <label className="block mb-1">Estado de la mascota</label>
                   <select
                     className="w-full p-2 border rounded"
-                    name="tipoPublicacion"
+                    name="estado"
                     value={formData.estado}
                     onChange={handleChange}
                   >
