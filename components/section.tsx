@@ -4,6 +4,7 @@ import Title from "./title";
 import { titleText } from "../types/title"
 import { Post } from "@/types/post";
 import { Pet } from "@/types/pet";
+import { SectionCards } from "./section-cards";
 
 interface SectionProps {
     title: string;
@@ -26,14 +27,19 @@ export function Section({ title, postTypeName, path, items, loading, error, filt
             ) : error ? (
                 <p className="text-red-500">{error}</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-                    {items
-                        .filter((item) => itemType === "pet" || ("postTypeName" in item && (!filterByType || item.postTypeName === postTypeName))) // ✅ Filtramos solo si es necesario
-                        .slice(0, 5)
-                        .map((item) => (
-                            <PetCard key={item.id} post={item} />
-                        ))}
-                </div>
+                <SectionCards items={items} itemType={itemType} filterByType={filterByType} postTypeName={postTypeName}>
+                {(item) => <PetCard key={item.id} post={item} />}
+                 </SectionCards>
+                 
+                // <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                //     {items
+                //         .filter((item) => itemType === "pet" || ("postTypeName" in item && (!filterByType || item.postTypeName === postTypeName))) 
+                //         .slice(0, 5)
+                //         .map((item) => (
+                //             <PetCard key={item.id} post={item} />
+                //         ))}
+                //     <SectionCards items= {items} itemType={itemType} filterByType={filterByType} postTypeName={postTypeName} ></SectionCards>
+                // </div>
             )}
         </div>
     );

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/id`;
 
 export const getPosts = async ( queryParams?: any) => {
   try {
