@@ -5,7 +5,9 @@ import { Search, ChevronDown, Plus } from "lucide-react";
 import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from "@/contexts/authContext";
-import AnimalBreedModal from "./animal-breed-modal"
+import AnimalBreedModal from "@/components/animal-breed-modal";
+import SearchBar from "@/components/search-bar";
+import AnimalFilter from "@/components/animal-filter";
 
 interface Breed {
   id: number;
@@ -111,58 +113,15 @@ export default function PetBreeds() {
 
       <div className="flex gap-4 mb-6">
         {/* 🔎 Barra de búsqueda */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Buscar raza"
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-        {/* 🏷️ Filtro por animal */}
-        <div className="relative">
-          <button
-            className="flex justify-between w-56 bg-white text-gray-700 font-normal border border-gray-300 rounded-lg px-4 py-2"
-            onClick={() => setFilterOpen(!filterOpen)}
-          >
-            {selectedFilter === "Todos" ? "Filtrar por animal" : selectedFilter}
-            <ChevronDown className="h-4 w-4 ml-2" />
-          </button>
-
-          {filterOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg">
-              <div
-                className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                onClick={() => {
-                  setSelectedFilter("Todos");
-                  setFilterOpen(false);
-                }}
-              >
-                Todos
-              </div>
-
-              {loadingAnimals ? (
-                <p className="px-4 py-2 text-gray-500">Cargando...</p>
-              ) : (
-                animals.map((animal) => (
-                  <div
-                    key={animal.id}
-                    onClick={() => {
-                      setSelectedFilter(animal.name);
-                      setFilterOpen(false);
-                    }}
-                    className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                  >
-                    {animal.name}
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
+        {/* 🏷️ Filtro por animal (ahora con el nuevo componente) */}
+        <AnimalFilter
+          selectedFilter={selectedFilter}
+          setSelectedFilter={setSelectedFilter}
+          animals={animals}
+          loadingAnimals={loadingAnimals}
+        />
       </div>
 
       {/* 🎯 Mostrar razas filtradas */}
