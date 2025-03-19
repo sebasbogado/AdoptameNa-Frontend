@@ -25,9 +25,9 @@ export function Comments({
     currentUser,
 }: CommentsProps) {
     return (
-        <div className="pl-12 w-full bg-white rounded-lg  shadow-sm overflow-hidden">
+        <div className="mt-16 pl-12 w-full bg-white rounded-lg  shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-2xl font-semibold text-gray-700 ">{title}</h2>
+                <h2 className="text-xl font-semibold text-gray-700 ">{title}</h2>
             </div>
             <div className="p-6 space-y-6">
                 {onAddComment && currentUser && (
