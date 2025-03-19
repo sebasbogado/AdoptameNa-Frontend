@@ -10,6 +10,7 @@ import { PostType } from "@/types/post-type";
 import { Post } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
+import { postMedia } from "@/utils/media.http";
 
 interface FormErrors {
     idPostType?: string;
@@ -17,6 +18,11 @@ interface FormErrors {
     content?: string;
     locationCoordinates?: string;
     contactNumber?: string;
+}
+
+interface ImagePreview {
+    file: File;
+    url: string;
 }
 
 export default function Page() {
@@ -40,8 +46,10 @@ export default function Page() {
         publicationDate: new Date().toISOString()
     });
     const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
+    const [previewImages, setPreviewImages] = useState<ImagePreview[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
- {/* Realizando la autenticación para ingresar a crear publicación */ }
+    {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -131,10 +139,18 @@ export default function Page() {
         }
 
         try {
+            let mediaUrl = "";
+            if (selectedFiles.length > 0 && authToken) {
+                mediaUrl = await postMedia(selectedFiles[0], authToken);
+                // Actualizamos formData con la URL de la imagen
+                setFormData((prev) => ({ ...prev, urlPhoto: mediaUrl }));
+            }
+
             const payload = {
                 ...formData,
                 idPostType: Number(formData.idPostType),
                 idUser: user ? Number(user.id) : 0, // Usamos directamente user.id aquí
+                urlPhoto: mediaUrl // Asignamos directamente la URL obtenida
             };
             const response = await postPosts(payload as Post, authToken);
             if (response) {
@@ -151,17 +167,22 @@ export default function Page() {
                     urlPhoto: "",
                     publicationDate: new Date().toISOString()
                 });
+                setPreviewImages([]);
+                setSelectedFiles([]);
                 setSuccessMessage(null);
                 //router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
             } else {
                 setError("Error al guardar publicación")
             }
+
+
         } catch (error: any) {
             setError(error.message || "Error al crear la publicación");
         } finally {
             setLoading(false);
         }
     };
+
 
     const closeModal = () => {
         setIsModalOpen(false); // Cerrar el modal sin confirmar
@@ -172,11 +193,47 @@ export default function Page() {
         router.push("/dashboard");
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            const file = files[0];
+            setSelectedFiles([file]);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImages([{ file, url: reader.result as string }]);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <div className="flex gap-2 mb-4">
-                <Image src="/adopcion.jpg" alt="Preview" width={100} height={100} className="rounded-lg" />
+            <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                    Subir imagen
+                </label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full p-2 border rounded"
+                />
             </div>
+
+            {previewImages.length > 0 && (
+                <div className="flex gap-2 mb-4">
+                    {previewImages.map((img, index) => (
+                        <Image
+                            key={index}
+                            src={img.url}
+                            alt="Preview"
+                            width={500}
+                            height={500}
+                            className="rounded-lg object-cover object-center"
+                        />
+                    ))}
+                </div>
+            )}
 
             {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
             {successMessage && (
@@ -218,7 +275,7 @@ export default function Page() {
                     <p className="text-red-500 text-sm mb-4">{formErrors.title}</p>
                 )}
 
-                 {/* Descripción */}
+                {/* Descripción */}
                 <label className="block text-sm font-medium">
                     Descripción <span className="text-red-500">*</span>
                 </label>
@@ -272,7 +329,7 @@ export default function Page() {
                     >
                         Eliminar publicación
                     </Button>
-                    
+
                     {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
                         <Button
