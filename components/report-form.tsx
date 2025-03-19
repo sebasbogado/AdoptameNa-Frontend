@@ -9,19 +9,20 @@ import { createReport } from '@/utils/reports.http';
 
 interface ReportFormProps {
   handleClose: () => void;
+  idPost: number;
 }
-const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
+const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idPost }) => {
   const [reportReasons, setReportReasons] = useState([]);
   const [report, setReport] = useState<Report>({
     id: 0,
-    idUser: 7,
-    idPost: 2,
+    idUser: 0,
+    idPost: idPost,
     idReportReason: 0,
-    description: new Date().toISOString(),
-    reportDate: "",
+    description: "",
+    reportDate: new Date().toISOString(),
     status: "",
   });
-  const { authToken } = useAuth();
+  const { authToken, user } = useAuth();
 
   useEffect(() => {
     const fetchReportReasons = async () => {
@@ -29,16 +30,18 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
         if (!authToken) return;
         const reasons = await getReportReasons(authToken);
         setReportReasons(reasons);
+        if (user?.id) {
+          setReport((prevReport) => ({
+            ...prevReport,
+            idUser: parseInt(user?.id),
+          }));
+        }
       } catch (error) {
         console.error('Error al obtener razones de reporte:', error);
       }
     };
     fetchReportReasons();
-  }, [authToken]);
-
-  useEffect(() => {
-    console.log(reportReasons);
-  }, [reportReasons]);
+  }, [authToken, user?.id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -49,7 +52,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   };
 
   const handleSubmit = async () => {
-    if (!authToken) {
+    if (!authToken || !user?.id) {
       console.error("Error: No hay token de autenticación.");
       return;
     }
