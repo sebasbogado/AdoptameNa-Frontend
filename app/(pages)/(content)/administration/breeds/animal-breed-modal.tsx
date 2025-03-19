@@ -145,7 +145,8 @@ export default function AnimalBreedModal({
               size="md"
               onClick={handleSave}
               className="flex-1"
-              disabled={isLoading || breedName.length < 3} // Bloquear si está cargando o la validación falla
+              disabled={isLoading || breedName.length < 3 || animalType === ""}
+            // Bloquear si está cargando, si el nombre es menor a 3 caracteres o si no hay tipo de animal seleccionado
             >
               {selectedBreed ? "Guardar Cambios" : "Guardar"}
             </Button>
