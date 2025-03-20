@@ -168,7 +168,7 @@ export default function Page() {
         try {
             await updatePost(String(post.id), payload as Post, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/post/${post.id}`), 1500); // Redirige después de mostrar el mensaje
+            setTimeout(() => router.push(`/posts/${post.id}`), 1500); // Redirige después de mostrar el mensaje
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setError('Hubo un problema al actualizar la publicación.');
@@ -208,9 +208,8 @@ export default function Page() {
 
     // Función para manejar el clic en "Cancelar"
     const handleCancel = () => {
-        console.log("desde el handle cancel", isDeleteModalOpen)
-        console.log(isEditModalOpen)
-        //router.push(`/post/${post.id}`); // Redirige a /post/{id}
+        if (!post) return
+        router.push(`/posts/${post.id}`); // Redirige a /post/{id}
     };
 
     return (
