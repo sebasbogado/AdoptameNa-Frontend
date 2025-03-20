@@ -61,10 +61,6 @@ export default function Page() {
         }
     }, [authToken, authLoading, router]);
 
-    useEffect(() => {
-
-    })
-
     const fetchPostTypes = async () => {
         try {
             const data = await getPostsType();
