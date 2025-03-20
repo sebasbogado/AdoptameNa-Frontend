@@ -420,19 +420,19 @@ const AdoptionForm = () => {
                 </div>
 
                 {/* Buttons */}
-                <div className="flex justify-between items-center mt-6 w-full">
-
+                <div className="flex justify-end items-center mt-6 w-full">
                   <div className="flex gap-4">
                     <Button
+                      variant="tertiary"
+                      className="border rounded text-gray-700"
                       type="button"
                     >
                       Cancelar
                     </Button>
 
-                    <Button onClick={handleSubmit}>
+                    <Button onClick={handleSubmit} variant="cta">
                       Crear
                     </Button>
-
                   </div>
                 </div>
 
