@@ -11,6 +11,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
+import NotFound from "@/app/not-found";
 
 interface FormErrors {
     idPostType?: string;
@@ -105,6 +106,7 @@ export default function Page() {
             } catch (err) {
                 console.error("Error al cargar posts:", err);
                 setPostError("No se pudieron cargar las publicaciones.");
+                return NotFound();
             } finally {
                 setLoading(false);
             }
@@ -125,6 +127,7 @@ export default function Page() {
 
     if (authLoading) return Loading();
     if (loading) return Loading();
+    if (postError !== null) return NotFound();
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
