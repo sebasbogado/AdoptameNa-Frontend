@@ -1,8 +1,9 @@
+import { Pet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
-export const getPets = async (id: string) => {
+export const getPetsByUserId = async (id: string) => {
   try {
     const response = await axios.get(`${API_URL}/${id}/user`, {
       headers: {
@@ -19,35 +20,36 @@ export const getPets = async (id: string) => {
   }
 };
 
-export const getPetsList = async (page = 0, size = 25) => {
+export const getPet = async (id: string): Promise<Pet> => {
   try {
-    const response = await axios.get(`${API_URL}`, {
-      params: { page, size },
+    const response = await axios.get(`${API_URL}/${id}`, {
       headers: {
-        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     });
 
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Error al obtener la lista de Pets");
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
   }
 };
 
-export const getPetsAdoption = async (page = 0, size = 25) => {
+export const getPets = async (): Promise<Pet[]> => {
   try {
-    const response = await axios.get(`${API_URL}`, {
-      params: { page, size },
+    const response = await axios.get(API_URL, {
       headers: {
-        Accept: "application/json",
+        "Content-Type": "application/json",
       },
     });
 
-    // Filtrar solo las mascotas con petStatusId = 16
-    const filteredPets = response.data.filter((pet: any) => pet.petStatusId === 16);
-
-    return filteredPets;
+    return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Error al obtener la lista de Pets");
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
   }
 };

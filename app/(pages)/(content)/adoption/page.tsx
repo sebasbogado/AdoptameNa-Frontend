@@ -3,27 +3,12 @@
 import { useEffect, useState } from "react";
 import Banners from '@/components/banners'
 import PetCard from '@/components/petCard/pet-card'
-import { getPetsAdoption } from "@/utils/pets.http";
-import { getPetStatusList } from "@/utils/pet-status.http";
+import { getPets } from "@/utils/pets.http";
 import { getAnimals } from "@/utils/animals.http"; // Importar la nueva función
-
+import { useAuth } from "@/contexts/authContext";
 import LabeledSelect from "@/components/labeled-selected";
+import { Pet } from "@/types/pet";
 
-interface Pet {
-    id: number;
-    name: string;
-    isVaccinated: boolean;
-    description: string;
-    birthdate: string;
-    gender: string;
-    urlPhoto: string;
-    isSterilized: boolean;
-    userId: number;
-    animalId: number;
-    breedId: number;
-    petStatusId: number;
-    addressCoordinates: string;
-}
 
 export default function Page() {
     const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
@@ -34,25 +19,31 @@ export default function Page() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
+    const { authToken } = useAuth();
+
     useEffect(() => {
+        if (!authToken) return;
+
         const fetchData = async () => {
             try {
-                const data = await getPetsAdoption();
-                const dataStatus = await getPetStatusList();
-                const animals = await getAnimals(); // Obtener los tipos de animales
+                const data = await getPets();
+                const animals = await getAnimals(authToken); // Obtener los tipos de animales
 
+                console.log("MAscotas: ", data)
+                // Filtrar solo los pets con animalId = 16
+                const filteredPets = data.filter((pet: Pet) => pet.petStatusId === 16);
 
                 // Extraer solo los nombres y agregar "Todos"
-                setAnimalTypes(["Todos", ...animals.map(animal => animal.name)]);
+                setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
                 setAnimals(animals);
-                setPets(data);
+                setPets(filteredPets);
             } catch (err: any) {
                 console.log(err.message);
             }
         };
 
         fetchData();
-    }, []);
+    }, [authToken]);
 
     const filteredPets = pets.filter((pet) => {
         if (selectedVacunado && selectedVacunado !== "Todos") {
