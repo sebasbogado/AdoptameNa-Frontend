@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { getPostType } from "@/utils/post-type.http";
+import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/authContext";
 import { useRouter } from "next/navigation";
 import { postPosts } from "@/utils/posts.http";
@@ -67,7 +67,7 @@ export default function Page() {
 
     const fetchPostTypes = async () => {
         try {
-            const data = await getPostType();
+            const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
             setError(error.message);
