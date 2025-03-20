@@ -29,7 +29,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
     const fetchReportReasons = async () => {
       try {
         if (!authToken) return;
-        const reasons = await getReportReasons(authToken);
+        const reasons = await getReportReasons();
         setReportReasons(reasons);
         if (user?.id) {
           setReport((prevReport) => ({

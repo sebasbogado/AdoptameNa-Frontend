@@ -1,11 +1,10 @@
 import axios from "axios";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reportReasons`;
 
-export const getReportReasons = async (token:string, queryParams?:any) => {
+export const getReportReasons = async (queryParams?:any) => {
   try {
     const response = await axios.get(API_URL, {
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
