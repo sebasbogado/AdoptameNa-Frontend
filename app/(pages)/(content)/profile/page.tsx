@@ -9,7 +9,7 @@ import Footer from '@/components/footer';
 import { Section } from '@/components/section';
 
 import { getPosts } from '@/utils/posts.http';
-import { getPets } from '@/utils/pets.http';
+import { getPetsByUserId } from '@/utils/pets.http';
 import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
 import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
@@ -71,7 +71,7 @@ const getPetsData = async (
 
 
     try {
-        const petData = await getPets(userId);
+        const petData = await getPetsByUserId(userId);
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);

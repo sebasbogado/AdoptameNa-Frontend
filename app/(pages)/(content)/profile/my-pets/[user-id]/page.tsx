@@ -13,7 +13,7 @@ import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import Footer from '@/components/footer';
 import { Post } from '@/types/post';
-import { getPets } from '@/utils/pets.http';
+import { getPetsByUserId } from '@/utils/pets.http';
 
 
 
@@ -27,7 +27,7 @@ const fetchContentData = async (
 
     try {
         // Cargar posts del usuario
-        const petData = await getPets(userId);
+        const petData = await getPetsByUserId(userId);
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);

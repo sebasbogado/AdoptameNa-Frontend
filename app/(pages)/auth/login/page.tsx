@@ -110,7 +110,7 @@ export default function Login() {
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
             <button
               type="submit"
-              className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48 disabled:opacity-70"
+              className="bg-[#9747FF] text-white py-3 rounded-xl px-6 disabled:opacity-70 w-full"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -137,7 +137,7 @@ export default function Login() {
 
             <Link
               href="/auth/register"
-              className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48 flex items-center justify-center"
+              className="w-full border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent flex items-center justify-center"
             >
               Crear cuenta
             </Link>
