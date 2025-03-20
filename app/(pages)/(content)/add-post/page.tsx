@@ -62,7 +62,7 @@ export default function Page() {
     }, [authToken, authLoading, router]);
 
     useEffect(() => {
-        
+
     })
 
     const fetchPostTypes = async () => {
@@ -98,28 +98,28 @@ export default function Page() {
     };
 
     {/* Validación de los campos */ }
-    const validateForm = (): FormErrors => {
+    const validateForm = (updatedFormData: any): FormErrors => {
         const errors: FormErrors = {};
 
-        if (!formData.idPostType || formData.idPostType === 0) {
+        if (!updatedFormData.idPostType || formData.idPostType === 0) {
             errors.idPostType = "Seleccione un tipo de publicación";
         }
-        if (!formData.title?.trim()) {
+        if (!updatedFormData.title?.trim()) {
             errors.title = "El título es requerido";
-        } else if (formData.title.length < 3) {
+        } else if (updatedFormData.title.length < 3) {
             errors.title = "El título debe tener al menos 3 caracteres";
         }
-        if (!formData.content?.trim()) {
+        if (!updatedFormData.content?.trim()) {
             errors.content = "La descripción es requerida";
-        } else if (formData.content.length < 10) {
+        } else if (updatedFormData.content.length < 10) {
             errors.content = "La descripción debe tener al menos 10 caracteres";
         }
-        if (!formData.locationCoordinates?.trim()) {
+        if (!updatedFormData.locationCoordinates?.trim()) {
             errors.locationCoordinates = "La ubicación es requerida";
         }
-        if (!formData.contactNumber?.trim()) {
+        if (!updatedFormData.contactNumber?.trim()) {
             errors.contactNumber = "El número de contacto es requerido";
-        } else if (!/^\+?\d{9,15}$/.test(formData.contactNumber)) {
+        } else if (!/^\+?\d{9,15}$/.test(updatedFormData.contactNumber)) {
             errors.contactNumber = "Número inválido (9-15 dígitos)";
         }
 
@@ -135,18 +135,14 @@ export default function Page() {
         setIsModalOpen(false); // Cerrar el modal
         setLoading(true);
 
-        console.log("mapa coodenadas position", `${position?.[0]}, ${position?.[1]}`)
-        setFormData((prevFormData) => ({
-            ...prevFormData, // Mantiene los valores actuales
-            idPostType: Number(prevFormData.idPostType),
-            idUser: user ? Number(user.id) : 0, // Usamos directamente user.id aquí
+        const updatedFormData = {
+            ...formData,
+            idPostType: Number(formData.idPostType),
+            idUser: user ? Number(user.id) : 0,
             locationCoordinates: `${position?.[0]}, ${position?.[1]}`
-        }));
+        };
 
-        console.log("formData", formData)
-        console.log("locationCoordinates", formData.locationCoordinates)
-
-        const validationErrors = validateForm();
+        const validationErrors = validateForm(updatedFormData);
         if (Object.keys(validationErrors).length > 0) {
             setFormErrors(validationErrors);
             setLoading(false);
@@ -160,7 +156,7 @@ export default function Page() {
         }
 
         try {
-            const response = await postPosts(formData as Post, authToken);
+            const response = await postPosts(updatedFormData as Post, authToken);
             if (response) {
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setFormData({
@@ -177,11 +173,10 @@ export default function Page() {
                 });
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("Se ha creado correctamente la publicacion.");
-                //router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
+                router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
             } else {
                 setError("Error al guardar publicación")
             }
-
 
         } catch (error: any) {
             setError(error.message || "Error al crear la publicación");
@@ -213,7 +208,7 @@ export default function Page() {
                 const response = await postMedia(formData, authToken);
                 setFormData((prevFormData) => ({
                     ...prevFormData, // Mantiene los valores actuales
-                    urlPhoto: response.url  
+                    urlPhoto: response.url
                 }));
                 console.log("Respuesta de postMedia:", response);
                 if (response) {
