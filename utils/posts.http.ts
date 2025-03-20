@@ -1,4 +1,4 @@
-import { Post } from "@/types/post";
+import { Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
@@ -53,3 +53,30 @@ export const getPostReports = async (queryParams?: any)=>{
         throw new Error(error.message || "Error al obtener Posts reportados");
   }
 }
+
+
+
+export const updatePostById = async (
+  id: number,
+  updatedPost: UpdatePost | null, 
+  token: string
+) => {
+  try {
+    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/${id}`;
+
+    const response = await axios.put(API_URL, updatedPost, {
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      throw new Error(error.response.data.message || 'Error al actualizar el perfil');
+    } else {
+      throw new Error(error.message || 'Error al actualizar el perfil');
+    }
+  }
+};

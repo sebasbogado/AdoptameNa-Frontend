@@ -18,9 +18,13 @@ const getPostsData = async (
 
 
     try {
-        // Cargar posts del usuario
         const postData = await getPostReports();
         setPosts(Array.isArray(postData) ? postData : []);
+
+        const activePosts = Array.isArray(postData) ? postData.filter(post => post.status === 'activo') : [];
+        
+        // Actualizar el estado con los posts activos
+        setPosts(activePosts);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setPostsError("No se pudieron cargar las publicaciones.");
@@ -97,14 +101,16 @@ export default function Page() {
         if (authLoading || !authToken || !user?.id) return;
         console.log("authLoading", authLoading);
         getPostsData(setPosts, setLoading, setPostsError, user.id);
+        
     }, [authToken, authLoading, user?.id]);
     
     return (
-        <>
+        <div className="p-6">
+           
             <SectionAdmin title="Aprobar o rechazar denuncias">Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
             <SectionCards  items={posts}  filterByType={false} >
                 {(item) => <CardReport key={item.id} post={item}/>}
             </SectionCards>       
-        </>
+        </div>
     )
 }

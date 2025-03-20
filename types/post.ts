@@ -1,6 +1,7 @@
 export interface Post {
     id: number;
     idUser: number;
+    userFullName?: string;
     title: string;
     content: string;
     idPostType: number;
@@ -12,3 +13,4 @@ export interface Post {
     imageUrl : string;
     postTypeName: string;
 }
+export type UpdatePost = Omit<Post, 'id'>;
