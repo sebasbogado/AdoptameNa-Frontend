@@ -151,8 +151,8 @@ export default function Page() {
                     urlPhoto: "",
                     publicationDate: new Date().toISOString()
                 });
-                setSuccessMessage(null);
-                //router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
+                setSuccessMessage("Se creo la publicación correctamente.");
+                router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
             } else {
                 setError("Error al guardar publicación")
             }
