@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,7 @@ import { postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
+import { Maximize, Minimize } from "lucide-react";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -124,6 +125,44 @@ const AdoptionForm = () => {
     }
   };
 
+  const bannerRef = useRef<HTMLDivElement>(null);
+
+  const adjustImageSize = () => {
+    if (!bannerRef.current) return;
+
+    const images = bannerRef.current.querySelectorAll("img"); // Obtener TODAS las imágenes
+    images.forEach((img) => {
+      if (document.fullscreenElement) {
+        img.style.width = "100vw";
+        img.style.height = "100vh";
+        img.style.objectFit = "contain"; // Evita cortes
+      } else {
+        img.style.width = "";
+        img.style.height = "";
+        img.style.objectFit = "";
+      }
+    });
+  };
+
+  const toggleFullScreen = () => {
+    if (!bannerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      bannerRef.current.requestFullscreen()
+        .then(() => {
+          adjustImageSize();
+        })
+        .catch((err) => console.error("Error al activar pantalla completa:", err));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("fullscreenchange", adjustImageSize);
+    return () => document.removeEventListener("fullscreenchange", adjustImageSize);
+  }, []);
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.titulo) newErrors.titulo = "Título es requerido";
@@ -144,7 +183,8 @@ const AdoptionForm = () => {
   console.log("Selectimages- : ", selectedImages[0]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!authToken) {
+    e.preventDefault();
+    if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
@@ -191,9 +231,17 @@ const AdoptionForm = () => {
     <div>
       <div className="flex flex-col items-center p-6">
         <div className="border p-4 w-full max-w-5xl rounded-lg shadow">
-          <Banners images={arrayImages}>
-
-          </Banners>
+          <div className="relative">
+            <div ref={bannerRef}>
+              <Banners images={arrayImages} />
+            </div>
+            <button
+              onClick={toggleFullScreen}
+              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+            >
+              <Maximize size={20} />
+            </button>
+          </div>
           <div className="flex gap-2 mt-2 justify-center items-center">
 
             {selectedImages.map((src, index) => (
