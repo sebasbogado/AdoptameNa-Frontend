@@ -21,11 +21,9 @@ export const getMedia = async (token: string) => {
     }
 };
 
-export const postMedia = async (file: File, token: string) => {
-    const formData = new FormData();
-    formData.append('file', file);
+export const postMedia = async (params: any, token: string) => {
     try {
-        const response = await axios.post(`${API_URL}/upload`, file, {
+        const response = await axios.post(`${API_URL}/upload`, params, {
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "multipart/form-data"
@@ -33,7 +31,7 @@ export const postMedia = async (file: File, token: string) => {
             maxBodyLength: Infinity,
         });
 
-        return response.data.url;
+        return response.data;
     } catch (error: any) {
         if (error.response && error.response.status === 404) {
             throw new Error("No encontrada");
