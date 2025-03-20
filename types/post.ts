@@ -10,7 +10,7 @@ export interface Post {
     status: string;
     sharedCounter: number;
     publicationDate: string;
-    imageUrl : string;
+    urlPhoto : string;
     postTypeName: string;
 }
 export type UpdatePost = Omit<Post, 'id'>;
