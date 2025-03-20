@@ -126,20 +126,23 @@ const AdoptionForm = () => {
   };
 
   const bannerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const adjustImageSize = () => {
     if (!bannerRef.current) return;
 
-    const images = bannerRef.current.querySelectorAll("img"); // Obtener TODAS las imágenes
+    const images = bannerRef.current.querySelectorAll("img");
     images.forEach((img) => {
       if (document.fullscreenElement) {
         img.style.width = "100vw";
         img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Evita cortes
+        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
+        setIsFullscreen(true);
       } else {
         img.style.width = "";
         img.style.height = "";
         img.style.objectFit = "";
+        setIsFullscreen(false);
       }
     });
   };
@@ -149,9 +152,7 @@ const AdoptionForm = () => {
 
     if (!document.fullscreenElement) {
       bannerRef.current.requestFullscreen()
-        .then(() => {
-          adjustImageSize();
-        })
+        .then(() => adjustImageSize())
         .catch((err) => console.error("Error al activar pantalla completa:", err));
     } else {
       document.exitFullscreen();
@@ -231,10 +232,8 @@ const AdoptionForm = () => {
     <div>
       <div className="flex flex-col items-center p-6">
         <div className="border p-4 w-full max-w-5xl rounded-lg shadow">
-          <div className="relative">
-            <div ref={bannerRef}>
-              <Banners images={arrayImages} />
-            </div>
+          <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+            <Banners images={arrayImages} className={`${isFullscreen ? "w-screen h-screen" : "h-[400px]"}`} />
             <button
               onClick={toggleFullScreen}
               className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
