@@ -9,7 +9,7 @@ import Footer from '@/components/footer';
 import { Section } from '@/components/section';
 
 import { getPosts } from '@/utils/posts.http';
-import { getPets } from '@/utils/pets.http';
+import { getPetsByUserId } from '@/utils/pets.http';
 import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
 import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
@@ -20,7 +20,7 @@ import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { profileSchema } from '@/app/validations/user-profile';
+import { profileSchema } from '@/validations/user-profile';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -71,7 +71,7 @@ const getPetsData = async (
 
 
     try {
-        const petData = await getPets(userId);
+        const petData = await getPetsByUserId(userId);
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
@@ -122,13 +122,13 @@ export default function ProfilePage() {
 
 
     const handleEditButtonClick = () => {
-        
+
         if (!isEditing) {
             setTempUserProfile(userProfile); // Guardar valores originales
         }
         setValidationErrors({});
         setIsEditing(!isEditing);
-        
+
     };
 
     const handleSaveButtonClick = async () => {
@@ -243,7 +243,7 @@ export default function ProfilePage() {
                 )}
                 {!isEditing && (
                     <>
-                       
+
                         <DropdownMenu.Root>
                             {/* Botón para desplegar el menú */}
                             <DropdownMenu.Trigger asChild>
