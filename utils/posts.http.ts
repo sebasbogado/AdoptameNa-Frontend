@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
-export const getPosts = async () => {
+export const getPosts = async (queryParams?: any) => {
   try {
     const response = await axios.get(API_URL, {
       headers: {
@@ -20,6 +20,22 @@ export const getPosts = async () => {
   }
 };
 
+export const getPost = async (id: string): Promise<Post> => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Post");
+  }
+};
 
 export const postPosts = async (data: Post, token: string) => {
   try {
@@ -39,22 +55,7 @@ export const postPosts = async (data: Post, token: string) => {
   }
 };
 
-export async function getPostById(id: string) {
-  try {
-    const response = await axios.get(`${API_URL}/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
 
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
-    }
-    throw new Error(error.message || "Error al crear Post");
-  }
-};
 
 export async function updatePost(id: string, postData: Post, token: string) {
   try {

@@ -2,7 +2,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  role: string
+  role: string;
 }
 
 export interface AuthState {
@@ -19,6 +19,7 @@ export interface LoginCredentials {
 export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<boolean>;
   logout: () => void;
+  loginWithGoogle: (code: string) => Promise<void>;
 }
 
 export interface AuthResponse {

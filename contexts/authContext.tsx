@@ -58,6 +58,26 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (code: string): Promise<void> => {
+    try {
+      const { token, user } = await authClient.loginWithGoogle(code);
+
+      if (!token || !user) throw new Error('Error de autenticación con Google');
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+      }
+
+      setUser(user);
+      setAuthToken(token);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error de login con Google:', error);
+      throw error;
+    }
+  }
+
   const logout = (): void => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('authToken');
@@ -69,7 +89,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );
