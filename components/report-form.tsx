@@ -28,7 +28,6 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   useEffect(() => {
     const fetchReportReasons = async () => {
       try {
-        if (!authToken) return;
         const reasons = await getReportReasons();
         setReportReasons(reasons);
         if (user?.id) {
