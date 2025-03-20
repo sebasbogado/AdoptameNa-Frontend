@@ -4,7 +4,7 @@ interface CardImageProps {
     image?: string;
 }
 
-const notFoundSrc = "logo.png";
+const notFoundSrc = "/logo.png";
 
 const CardImage: React.FC<CardImageProps> = ({ image }) => {
     return (

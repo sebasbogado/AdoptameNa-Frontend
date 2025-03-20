@@ -4,9 +4,12 @@ import { usePathname } from "next/navigation";
 
 // Lista de enlaces de navegación
 const navbarAdminItems = [
-    { name: "Mascotas", path: "/pets" },
-    {name: "Razas", path: "/breed"},
-    { name: "Estados de la mascota", path: "/pet-status" }
+    { name: "Administrar Publicaciones", path: "" },
+    {name: "Publicaciones Eliminadas", path: ""},
+    { name: "Reportes", path: "" },
+    { name: "Configuraciones", path: "" },
+    { name: "Animales y Mascotas", path: "/administration/configuration" },
+    { name: "Razas", path: "/administration/breeds" }
 ];
 
 export default function NavbarAdmin(){
