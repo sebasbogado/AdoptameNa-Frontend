@@ -28,8 +28,7 @@ export default function Page() {
                 const animals = await getAnimals(); // Obtener los tipos de animales
 
                 console.log("MAscotas: ", data)
-                // Filtrar solo los pets con animalId = 16
-                const filteredPets = data.filter((pet: Pet) => pet.petStatusId === 16);
+                const filteredPets = data.filter((pet: Pet) => pet.petStatusId === 12);
 
                 // Extraer solo los nombres y agregar "Todos"
                 setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
