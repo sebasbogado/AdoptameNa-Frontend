@@ -101,7 +101,9 @@ export default function Page() {
         getPostsData(setPosts, setLoading, setPostsError, user.id);
         
     }, [authToken, authLoading, user?.id]);
-    
+    if (!posts.length) {
+        return <p className="text-gray-500 text-center mt-4">No hay reportes disponibles.</p>;
+      }
     return (
         <div className="p-6">
            
@@ -109,7 +111,7 @@ export default function Page() {
             <SectionCards  items={posts}  filterByType={false} >
                 {(item) => <CardReport key={item.id} post={item}/>}
             </SectionCards> 
-           
+            
                 
         </div>
     )
