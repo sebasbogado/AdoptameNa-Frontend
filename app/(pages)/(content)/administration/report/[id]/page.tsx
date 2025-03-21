@@ -4,7 +4,7 @@ import NotFound from "@/app/not-found";
 import { SectionCards } from "@/components/section-cards";
 import { useAuth } from "@/contexts/authContext";
 import { Report } from "@/types/report";
-import { getReportById, getReports } from "@/utils/report-client";
+import { deleteReport, deleteReportsByPost, getReportById, getReports } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CardReport from "@/components/administration/report/card-button";
@@ -13,6 +13,8 @@ import { getPost, getPostReports, updatePostById } from "@/utils/posts.http";
 import ReportList from "@/components/administration/report/report-list";
 import SectionAdmin from "@/components/administration/section";
 import Button from "@/components/buttons/button";
+import { report } from "process";
+import { Alert } from "@material-tailwind/react";
 
 const getReportsPost = async (
     id: string,
@@ -60,6 +62,9 @@ const ReportsPost = () => {
     const params = useParams();
     const { authToken, user, loading: authLoading } = useAuth();
     const route = useRouter();
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
     useEffect(() => {
         if (!authToken) return;
 
@@ -83,9 +88,8 @@ const ReportsPost = () => {
             const data = await updatePostById(post.id, updatedPost, authToken);
             setPost(data); // Actualizamos el estado después de recibir la respuesta
             console.log(post)
-            route.push("/administration/report")
         } catch (err) {
-            console.error("Error al actualizar el perfil:", err);
+            console.error("Error al actualizar el post:", err);
         }
     };
     useEffect(() => {
@@ -114,7 +118,7 @@ const ReportsPost = () => {
         }
     }, [params.id, posts]);
     const handleAprove = async () => {
-        if (!post || post.status === "activo") return; // Solo actualizar si NO está ya activo
+        if (!post) return; // Solo actualizar si NO está ya activo
 
         const updatedPost: UpdatePost = {
             idUser: post.idUser,
@@ -125,9 +129,14 @@ const ReportsPost = () => {
             contactNumber: post.contactNumber,
             status: "activo",
             urlPhoto: post.urlPhoto
-        };       
-        updatePost(updatedPost);
-        console.log("desdeAprove")
+        };
+        try {
+            await deleteReportByPost(post.id);
+            await updatePost(updatedPost);
+            setSuccessMessage("Post aprovado exitosamente");
+        } catch (err) {
+            setErrorMessage("Hubo un error al aprobar el post.");
+        }
     }
     const handleDesaprove = async () => {
         if (!post || post.status === "desactivo") return; // Solo actualizar si NO está ya desactivo
@@ -142,14 +151,46 @@ const ReportsPost = () => {
             status: "desactivo",
             urlPhoto: post.urlPhoto
         };
-        updatePost(updatedPost);
-        console.log("desdeAprove")
+        try {
+            await updatePost(updatedPost);
+            setSuccessMessage("El post ha sido baneado con éxito.");
+        } catch (err) {
+            setErrorMessage("Hubo un error al banear el post.");
+        }
+    }
+    const deleteReportById = async (reportId: number) => {
+        if (authLoading || !authToken || !post?.id) return;
+        try {
+            await deleteReport(reportId, authToken);
+            setReports((prevReports) => prevReports.filter((r) => r.id !== reportId)); // Actualiza la UI eliminando el reporte
+
+        } catch (error) {
+            console.error("Error al eliminar el reporte:", error);
+            setErrorMessage("Hubo un error al banear el post.");
+
+        }
+    };
+
+    const deleteReportByPost = async (reportId: number) => {
+        if (authLoading || !authToken || !post?.id) return;
+        try {
+            await deleteReportsByPost(reportId, authToken);
+            setReports([]); // Actualiza la UI eliminando el reporte
+
+        } catch (error) {
+            console.error("Error al eliminar el reporte:", error);
+            setErrorMessage("Hubo un error al banear el post.");
+
+        }
+    };
+    const handleDeleteReport = async (reportId: number) => {
+        await deleteReportById(reportId);
     }
 
     const nextPost = () => {
         console.log("current", currentIndex);
         console.log("length", posts.length);
-    
+
         if (currentIndex < posts.length - 1) {
             const nextPostId = posts[currentIndex + 1].id;
             setCurrentIndex(currentIndex + 1);
@@ -158,6 +199,20 @@ const ReportsPost = () => {
             alert("No hay más posts reportados.");
         }
     };
+
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => setSuccessMessage(""), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
+    useEffect(() => {
+        if (errorMessage) {
+            const timer = setTimeout(() => setErrorMessage(""), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
     if (loading) {
         return Loading();
     }
@@ -170,17 +225,31 @@ const ReportsPost = () => {
         <div className="p-6 ">
 
             <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
-           
-           <div className="w-full flex justify-end">
-           <Button size="sm" onClick={nextPost} className="bg-gray-700 mb-12 mr-12 flex items-center justify-center">
-                <span className="material-symbols-outlined">
-                    arrow_forward
-                </span> Siguiente
-            </Button>
+
+            <div className="w-full flex justify-end">
+                <Button size="sm" onClick={nextPost} className="bg-gray-700 mb-12 mr-12 flex items-center justify-center">
+                    <span className="material-symbols-outlined">
+                        arrow_forward
+                    </span> Siguiente
+                </Button>
+                {successMessage && (
+                    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
+                        <Alert color="green" onClose={() => setSuccessMessage("")} className="text-sm px-4 py-2 w-fit flex items-center">
+                            {successMessage}
+                        </Alert>
+                    </div>
+                )}
+                {errorMessage && (
+                    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
+                        <Alert color="red" onClose={() => setErrorMessage("")} className="text-sm px-4 py-2 w-fit flex items-center">
+                            {errorMessage}
+                        </Alert>
+                    </div>
+                )}
             </div>
             <div className=" flex justify-around">
 
-                <ReportList reports={reports} post={post} />
+                <ReportList reports={reports} post={post} handleDeleteReport={handleDeleteReport} />
                 <CardReport post={post} isReportedPage={true} handleAprove={handleAprove} handleDesaprove={handleDesaprove} />
             </div>
         </div>

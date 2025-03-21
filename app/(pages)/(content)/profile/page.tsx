@@ -216,7 +216,7 @@ export default function ProfilePage() {
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.bannerImages || ['/profile/slider/img-slider-1.png']} />
+            <Banners images={userProfile?.bannerImages || ['/logo.png']} />
 
             {/* User Info */}
             <Detail

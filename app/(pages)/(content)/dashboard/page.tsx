@@ -23,7 +23,11 @@ type FetchContentDataParams = {
 const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContentDataParams) => {
 
     try {
-        const postData = await getPosts({});
+        const queryParam = {
+            size: 50,
+
+        }
+        const postData = await getPosts(queryParam);
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar contenido:", err);

@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/authContext";
 import { Post } from "@/types/post";
 import { getPostReports, getPosts } from '@/utils/posts.http';
 import { deleteReport, getReports} from "@/utils/report-client"
+import { Alert } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 const getPostsData = async (
@@ -73,12 +74,9 @@ const getReportData = async (
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
-    const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [postsError, setPostsError] = useState<string | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
-    const [idReport, setIdReport] = useState()
     useEffect(() => {
         if (!authLoading && !authToken) {
             console.log("authLoading", authLoading);
@@ -110,7 +108,9 @@ export default function Page() {
             <SectionAdmin title="Aprobar o rechazar denuncias">Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
             <SectionCards  items={posts}  filterByType={false} >
                 {(item) => <CardReport key={item.id} post={item}/>}
-            </SectionCards>       
+            </SectionCards> 
+           
+                
         </div>
     )
 }

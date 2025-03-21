@@ -68,9 +68,26 @@ export const updateReport = async (
 
 
 
-export const deleteReport = async (id: string, token: string) => {
+export const deleteReport = async (id: number, token: string) => {
     try {
       const response = await axios.delete(`${API_URL}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Error al eliminar el reporte"
+      );
+    }
+  };
+
+
+  export const deleteReportsByPost = async (id: number, token: string) => {
+    try {
+      const response = await axios.delete(`${API_URL}/byPostId/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
