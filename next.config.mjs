@@ -4,7 +4,9 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
+
     domains: ["adoptamena-api.rodrigomaidana.com/**", "https://adoptamena-api.rodrigomaidana.com/api/**"],
+
   },
 };
 

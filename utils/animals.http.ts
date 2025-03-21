@@ -15,7 +15,7 @@ export const getAnimals = async (queryParams?: any) => {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
-    throw new Error(error.message || "Error al obtener Posts");
+    throw new Error(error.message || "Error al obtener animales");
   }
 };
 
