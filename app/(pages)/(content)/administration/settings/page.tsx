@@ -21,6 +21,7 @@ export default function page() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
+  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | null>(null);
 
   const { authToken, user } = useAuth();
 
@@ -69,6 +70,7 @@ export default function page() {
       setModalAnimal(false);
       return;
     }
+    setDeleteType("animal");
     setIsOpenModal(true);
     return;
   }
@@ -141,6 +143,7 @@ export default function page() {
       console.error('Error al eliminar estado:', error);
     } finally {
       setIsOpenModal(false);
+      setModalAnimal(false)
     }
   }
   const onClickLabelAddAnimal = () => {
@@ -165,8 +168,7 @@ export default function page() {
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
 
-          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeleteAnimal} />
-          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeletePetStatus} />
+          <ConfirmationModal isOpen={isOpenModal} onClose={() => { setIsOpenModal(false); setDeleteType(null) }} onConfirm={deleteType === "animal" ? confirmDeleteAnimal : confirmDeletePetStatus} />
 
           {/**Cards*/}
           <Card title="Animales" content={animals} isBreed={false} onClickLabelDefault={openEditAnimal} onClickLabelAdd={onClickLabelAddAnimal} />
