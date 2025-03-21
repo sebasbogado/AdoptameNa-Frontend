@@ -141,7 +141,7 @@ export default function Page() {
                             "isVaccinated" in item ? (
                                 <PetCard key={item.id} post={item} />
                             ) : (
-                                <PetCard key={item.id} post={item} />
+                                <PetCard key={item.id} post={item} isPost />
                             )
                         )
                     )}
