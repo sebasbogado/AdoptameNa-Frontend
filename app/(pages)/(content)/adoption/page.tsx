@@ -19,15 +19,13 @@ export default function Page() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-    const { authToken } = useAuth();
 
     useEffect(() => {
-        if (!authToken) return;
 
         const fetchData = async () => {
             try {
                 const data = await getPets();
-                const animals = await getAnimals(authToken); // Obtener los tipos de animales
+                const animals = await getAnimals(); // Obtener los tipos de animales
 
                 console.log("MAscotas: ", data)
                 // Filtrar solo los pets con animalId = 16
@@ -43,7 +41,7 @@ export default function Page() {
         };
 
         fetchData();
-    }, [authToken]);
+    }, []);
 
     const filteredPets = pets.filter((pet) => {
         if (selectedVacunado && selectedVacunado !== "Todos") {

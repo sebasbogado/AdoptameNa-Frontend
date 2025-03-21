@@ -169,7 +169,7 @@ export default function Page() {
                 });
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("Se ha creado correctamente la publicacion.");
-                router.push(`/post/${response.id}`); // Asumiendo que la respuesta incluye el ID
+                router.push(`/posts/${response.id}`); // Asumiendo que la respuesta incluye el ID
             } else {
                 setError("Error al guardar publicación")
             }
