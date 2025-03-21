@@ -20,7 +20,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             </h1>
             <p className="text-2xl text-gray-700 mt-8">
                 {post ? <span>
-                    Publicado por {post?.idUser} {/* Reemplazar por el nombre de usuario */} el {new Date(post?.publicationDate).toLocaleDateString()}
+                    Publicado por {post?.userFullName} {/* Reemplazar por el nombre de usuario */} el {new Date(post?.publicationDate).toLocaleDateString()}
                 </span> :
                     <span>
                         {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},

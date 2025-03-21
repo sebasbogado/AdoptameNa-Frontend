@@ -2,12 +2,11 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/breed`;
 
-export const getBreeds = async (token: string, page: number = 0, size: number = 25) => {
+export const getBreeds = async (page: number = 0, size: number = 25) => {
   try {
     const response = await axios.get(`${API_URL}?page=${page}&size=${size}`, {
       headers: {
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -17,7 +16,11 @@ export const getBreeds = async (token: string, page: number = 0, size: number = 
   }
 };
 
-export const createBreed = async (token: string, name: string, animalId: number) => {
+export const createBreed = async (
+  token: string,
+  name: string,
+  animalId: number
+) => {
   try {
     const response = await axios.post(
       API_URL,
@@ -38,16 +41,21 @@ export const createBreed = async (token: string, name: string, animalId: number)
 };
 
 // 🔹 Función para actualizar una raza
-export const updateBreed = async (token: string, id: number, name: string, animalId: number) => {
+export const updateBreed = async (
+  token: string,
+  id: number,
+  name: string,
+  animalId: number
+) => {
   try {
     const response = await axios.put(
       `${API_URL}/${id}`,
       { name, animalId },
       {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json",
+          Accept: "application/json",
         },
       }
     );

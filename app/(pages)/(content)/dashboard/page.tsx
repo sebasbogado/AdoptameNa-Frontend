@@ -11,6 +11,7 @@ import { Post } from '@/types/post'
 
 
 import { Section } from '@/components/section'
+import Link from 'next/link'
 
 type FetchContentDataParams = {
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
@@ -48,68 +49,76 @@ export default function Page() {
     return (
         <div className='flex flex-col gap-3'>
             <Banners images={bannerImages} />
-         
-            <Section 
-                title='En adopcion' 
-                path='adoption' 
-                postTypeName="adoption" 
-                items={posts} 
-                loading={loading} 
-                error={error}  
+
+            <Section
+                title='En adopcion'
+                path='adoption'
+                postTypeName="adoption"
+                items={posts}
+                loading={loading}
+                error={error}
                 itemType='post'>
             </Section>
 
 
             {/* Sección de Desaparecidos */}
-            <Section 
+            <Section
                 title='Extraviados'
-                path='missing' 
-                postTypeName="missing" 
-                items={posts} 
-                loading={loading} 
+                path='missing'
+                postTypeName="missing"
+                items={posts}
+                loading={loading}
                 error={error}
-                filterByType={true } 
+                filterByType={true}
                 itemType='post'>
 
             </Section>
-          
+
             {/* Sección de Voluntariado */}
-            <Section 
-                title='Voluntariado' 
-                itemType='post' filterByType={true }  
-                path='volunteering' 
-                postTypeName="volunteering" 
-                items={posts} 
-                loading={loading} 
-                error={error}>               
-             </Section>
+            <Section
+                title='Voluntariado'
+                itemType='post' filterByType={true}
+                path='volunteering'
+                postTypeName="volunteering"
+                items={posts}
+                loading={loading}
+                error={error}>
+            </Section>
 
 
             {/* Sección de Blogs */}
-            <Section 
-                title='Blog' 
-                path='blog' 
-                itemType='post' 
-                filterByType={true }  
-                postTypeName="blog" 
-                items={posts} 
-                loading={loading} 
+            <Section
+                title='Blog'
+                path='blog'
+                itemType='post'
+                filterByType={true}
+                postTypeName="blog"
+                items={posts}
+                loading={loading}
                 error={error}>
 
             </Section>
 
             {/* Marketplace */}
-            <Section 
-                title='Tienda' 
-                path='marketplace' 
-                itemType='post' 
-                filterByType={true}  
-                postTypeName="marketplace" 
-                items={posts} 
-                loading={loading} 
+            <Section
+                title='Tienda'
+                path='marketplace'
+                itemType='post'
+                filterByType={true}
+                postTypeName="marketplace"
+                items={posts}
+                loading={loading}
                 error={error}>
 
             </Section>
+            <Link href="/add-post">
+                <div className="fixed bottom-5 right-5">
+                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
+                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
+                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
+                    </button>
+                </div>
+            </Link>
             <Footer />
         </div>
     )

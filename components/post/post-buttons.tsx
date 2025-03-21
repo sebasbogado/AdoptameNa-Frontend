@@ -4,9 +4,10 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 
-const PostButtons = ({
-    isPet = false,
-}: { isPet?: boolean }) => {
+interface PostButtonsProps {
+    isPet?: boolean;
+}
+const PostButtons = ({ isPet = false }: PostButtonsProps) => {
     const [copied, setCopied] = useState(false);
 
     const handleShare = () => {

@@ -16,10 +16,11 @@ import Link from "next/link";
 type PetCardProps = {
     post: any;
     className?: string
+    isPost?: boolean;
 };
 
 
-export default function PetCard({ post, className }: PetCardProps) {
+export default function PetCard({ post, className, isPost }: PetCardProps) {
     const [isFavorite, setIsFavorite] = useState<boolean>(false);
     // Leer el estado del 'localStorage' (si existe) al cargar el componente
     // const [isFavorite, setIsFavorite] = useState<boolean>(() => {
@@ -37,13 +38,13 @@ export default function PetCard({ post, className }: PetCardProps) {
     //     localStorage.setItem(post.id, JSON.stringify(newFavoriteState));
     // };
     // console.log(post)
-    const isPost = "postTypeName" in post;
+
     return (
         <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`} >
             <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
                 <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={() => setIsFavorite(!isFavorite)} className="absolute top-2 right-2 z-10" />
-                <CardImage image={isPost ? (post as Post).imageUrl : (post as Pet).urlPhoto || ""} />
+                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
                 <CardText post={post} />
             </div>
         </Link>
