@@ -30,7 +30,7 @@ const PostButtons = ({ isPet = false }: PostButtonsProps) => {
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (
-                    <Alert color="gray" className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-auto p-2">
+                    <Alert color="gray" className=" absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2">
                         ¡Enlace copiado al portapapeles!
                     </Alert>
                 )}
