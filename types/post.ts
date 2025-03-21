@@ -13,3 +13,14 @@ export interface Post {
   urlPhoto: string;
   postType: PostType;
 }
+
+export interface UpdatePost {
+    idUser: number
+    title: string
+    content: string
+    idPostType: number
+    locationCoordinates: string
+    contactNumber: string
+    status: string
+    urlPhoto: string
+  }

@@ -114,14 +114,34 @@ const ReportsPost = () => {
         }
     }, [params.id, posts]);
     const handleAprove = async () => {
-        if (!post || post.status === "visible") return; // Solo actualizar si NO está ya visible
-        const updatedPost = { ...post, status: "activo" }
+        if (!post || post.status === "activo") return; // Solo actualizar si NO está ya activo
+
+        const updatedPost: UpdatePost = {
+            idUser: post.idUser,
+            title: post.title,
+            content: post.content,
+            idPostType: post.postType.id,
+            locationCoordinates: post.locationCoordinates,
+            contactNumber: post.contactNumber,
+            status: "activo",
+            urlPhoto: post.urlPhoto
+        };       
         updatePost(updatedPost);
         console.log("desdeAprove")
     }
     const handleDesaprove = async () => {
-        if (!post || post.status === "visible") return; // Solo actualizar si NO está ya visible
-        const updatedPost = { ...post, status: "desactivo" }
+        if (!post || post.status === "desactivo") return; // Solo actualizar si NO está ya desactivo
+
+        const updatedPost: UpdatePost = {
+            idUser: post.idUser,
+            title: post.title,
+            content: post.content,
+            idPostType: post.postType.id,
+            locationCoordinates: post.locationCoordinates,
+            contactNumber: post.contactNumber,
+            status: "desactivo",
+            urlPhoto: post.urlPhoto
+        };
         updatePost(updatedPost);
         console.log("desdeAprove")
     }
