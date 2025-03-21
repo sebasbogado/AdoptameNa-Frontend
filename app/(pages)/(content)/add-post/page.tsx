@@ -17,7 +17,7 @@ import Banners from "@/components/banners";
 import { ImagePlus } from "lucide-react";
 
 interface FormErrors {
-    idPostType?: string;
+    postType?: string;  // Cambiado de idPostType a postType
     title?: string;
     content?: string;
     locationCoordinates?: string;
@@ -41,7 +41,11 @@ export default function Page() {
         idUser: user ? Number(user.id) : 0,
         title: "",
         content: "",
-        idPostType: 0,
+        postType: {
+            id: 0,
+            name: "",
+            description: "",
+        },
         locationCoordinates: "",
         contactNumber: "",
         status: "activo",
@@ -49,12 +53,11 @@ export default function Page() {
         urlPhoto: "",
         publicationDate: new Date().toISOString()
     });
-    const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<any[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
 
-    {/* Realizando la autenticación para ingresar a crear publicación */ }
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -72,19 +75,24 @@ export default function Page() {
         }
     };
 
-    {/* Obtenemos los tipos de publicaciones existentes */ }
     useEffect(() => {
         if (authLoading || !authToken) return;
         fetchPostTypes();
     }, [authToken, authLoading]);
 
-
-    {/* Función para manejar los cambios en los inputs */ }
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        if (name === "postType") {
+            const selectedPostType = postTypes.find(type => type.id === Number(value));
+            setFormData((prev) => ({
+                ...prev,
+                postType: selectedPostType || { id: 0, name: "", description: "" }
+            }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
         if (formErrors[name as keyof FormErrors]) {
             setFormErrors((prev) => ({
                 ...prev,
@@ -93,12 +101,11 @@ export default function Page() {
         }
     };
 
-    {/* Validación de los campos */ }
     const validateForm = (updatedFormData: any): FormErrors => {
         const errors: FormErrors = {};
 
-        if (!updatedFormData.idPostType || formData.idPostType === 0) {
-            errors.idPostType = "Seleccione un tipo de publicación";
+        if (!updatedFormData.postType?.id || updatedFormData.postType.id === 0) {
+            errors.postType = "Seleccione un tipo de publicación";
         }
         if (!updatedFormData.title?.trim()) {
             errors.title = "El título es requerido";
@@ -124,18 +131,18 @@ export default function Page() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsModalOpen(true); // Mostrar el modal en lugar de enviar directamente
+        setIsModalOpen(true);
     };
 
     const confirmSubmit = async () => {
-        setIsModalOpen(false); // Cerrar el modal
+        setIsModalOpen(false);
         setLoading(true);
 
         const updatedFormData = {
             ...formData,
-            idPostType: Number(formData.idPostType),
+            idPostType: Number(formData.postType?.id),  // Para compatibilidad con el backend
             idUser: user ? Number(user.id) : 0,
-            locationCoordinates: `${position?.[0]}, ${position?.[1]}`
+            locationCoordinates: position ? `${position[0]}, ${position[1]}` : ""
         };
 
         const validationErrors = validateForm(updatedFormData);
@@ -159,7 +166,11 @@ export default function Page() {
                     idUser: user ? Number(user.id) : 0,
                     title: "",
                     content: "",
-                    idPostType: 0,
+                    postType: {
+                        id: 0,
+                        name: "",
+                        description: "",
+                    },
                     locationCoordinates: "",
                     contactNumber: "",
                     status: "activo",
@@ -168,12 +179,11 @@ export default function Page() {
                     publicationDate: new Date().toISOString()
                 });
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
-                setSuccessMessage("Se ha creado correctamente la publicacion.");
-                router.push(`/posts/${response.id}`); // Asumiendo que la respuesta incluye el ID
+                setSuccessMessage("Se ha creado correctamente la publicación.");
+                router.push(`/posts/${response.id}`);
             } else {
-                setError("Error al guardar publicación")
+                setError("Error al guardar publicación");
             }
-
         } catch (error: any) {
             setError(error.message || "Error al crear la publicación");
         } finally {
@@ -182,7 +192,7 @@ export default function Page() {
     };
 
     const closeModal = () => {
-        setIsModalOpen(false); // Cerrar el modal sin confirmar
+        setIsModalOpen(false);
     };
 
     const handleCancel = () => {
@@ -203,10 +213,9 @@ export default function Page() {
             try {
                 const response = await postMedia(formData, authToken);
                 setFormData((prevFormData) => ({
-                    ...prevFormData, // Mantiene los valores actuales
+                    ...prevFormData,
                     urlPhoto: response.url
                 }));
-                console.log("Respuesta de postMedia:", response);
                 if (response) {
                     setSelectedImages([...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }]);
                 }
@@ -216,25 +225,23 @@ export default function Page() {
         }
     };
 
-    const arrayImages = selectedImages?.map(image => image?.url_API) || [];
+    const arrayImages = selectedImages.map(image => image.url_API);
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
             <div className="flex gap-2 mt-2 justify-center items-center">
-
                 {selectedImages.map((src, index) => (
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
                         <Image
                             src={src.url}
                             alt="pet"
                             fill
-                            className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''
-                                }`}
+                            className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
                             onClick={() => setCurrentImageIndex(index)}
                         />
                     </div>
                 ))}
-
                 <input
                     type="file"
                     accept="image/*"
@@ -262,18 +269,18 @@ export default function Page() {
                     Tipo de publicación <span className="text-red-500">*</span>
                 </label>
                 <select
-                    name="idPostType"
-                    value={formData.idPostType}
+                    name="postType"
+                    value={formData.postType?.id || 0}
                     onChange={handleChange}
-                    className={`w-full p-2 border rounded mb-4 ${formErrors.idPostType ? 'border-red-500' : ''}`}
+                    className={`w-full p-2 border rounded mb-4 ${formErrors.postType ? 'border-red-500' : ''}`}
                 >
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {formErrors.idPostType && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.idPostType}</p>
+                {formErrors.postType && (
+                    <p className="text-red-500 text-sm mb-4">{formErrors.postType}</p>
                 )}
 
                 {/* Título */}
@@ -322,8 +329,7 @@ export default function Page() {
 
                 {/* Mapa */}
                 <div
-                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""
-                        }`}
+                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                 >
                     <MapWithNoSSR position={position} setPosition={setPosition} />
                 </div>
@@ -332,7 +338,6 @@ export default function Page() {
                 )}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
-                    {/* Botón eliminar a la izquierda */}
                     <Button
                         type="button"
                         variant="danger"
@@ -343,7 +348,6 @@ export default function Page() {
                         Eliminar publicación
                     </Button>
 
-                    {/* Contenedor de cancelar y confirmar a la derecha */}
                     <div className="flex gap-4">
                         <Button
                             type="button"
@@ -366,7 +370,6 @@ export default function Page() {
                 </div>
             </form>
 
-            {/* Modal confirmacion de creación*/}
             {isModalOpen &&
                 <ConfirmationModal
                     isOpen={isModalOpen}
