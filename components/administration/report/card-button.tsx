@@ -34,9 +34,9 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
             {isReportedPage ?
 
                 <div onClick={(e) => e.stopPropagation()}>
-                    <PetCard post={post} />
+                    <PetCard post={post} isPost={true} />
                 </div> :
-                    <PetCard post={post} />}
+                    <PetCard post={post}  isPost={true}/>}
             {isReportedPage ?
                 <div className=" flex m-4 flex gap-2 justify-center">
 

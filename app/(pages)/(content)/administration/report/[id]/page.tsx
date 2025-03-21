@@ -196,9 +196,12 @@ const ReportsPost = () => {
             setCurrentIndex(currentIndex + 1);
             route.push(`/administration/report/${nextPostId}`, { scroll: false });
         } else {
-            alert("No hay más posts reportados.");
+            setErrorMessage("Ya no hay reportes")
         }
     };
+    const back = () => {
+        route.push(`/administration/report/`);
+}
 
     useEffect(() => {
         if (successMessage) {
@@ -223,12 +226,20 @@ const ReportsPost = () => {
 
     return (
         <div className="p-6 ">
+            <Button size="sm" onClick={back} className="mb-6 mr-12 bg-white flex items-center justify-center shadow -md">
 
+                <span className="material-symbols-outlined text-gray-800">
+                    arrow_back
+                </span>
+            </Button>
             <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 
             <div className="w-full flex justify-end">
-                <Button size="sm" onClick={nextPost} className="bg-gray-700 mb-12 mr-12 flex items-center justify-center">
-                    <span className="material-symbols-outlined">
+
+
+                <Button size="sm" onClick={nextPost} className="bg-white mb-12 mr-12 flex items-center justify-center shadow -md text-gray-800">
+
+                    <span className="material-symbols-outlined text-gray-800">
                         arrow_forward
                     </span> Siguiente
                 </Button>
