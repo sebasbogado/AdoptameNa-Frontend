@@ -14,12 +14,13 @@ import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/authContext';
 import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
-import { getPetStatus } from "@/utils/pet-status.http";
 import { postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
 import { Maximize, Minimize } from "lucide-react";
+import { getPetStatuses } from "@/utils/pet-statuses.http";
+
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -29,20 +30,20 @@ const MapWithNoSSR = dynamic<MapProps>(
 const AdoptionForm = () => {
 
   const { authToken, user, loading: authLoading } = useAuth();
-  const { currentUser } = useAppContext()
   const [animals, setAnimals] = useState<any[] | null>(null)
   const [breed, setBreed] = useState<any[] | null>(null)
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [formData, setFormData] = useState({
-    estado: 12,
-    tipoAnimal: 1,
-    raza: 1,
+    estado: 0,
+    tipoAnimal: 0,
+    raza: 0,
     titulo: "",
     cumpleanhos: "",
     descripcion: "",
@@ -56,6 +57,7 @@ const AdoptionForm = () => {
 
 
   const getFromData = async () => {
+
     const respAnimals = await getAnimals({ size: 100, page: 0 })
     if (respAnimals) {
       console.log("Resultado Animals", respAnimals)
@@ -66,12 +68,12 @@ const AdoptionForm = () => {
       console.log("Resultado Breed", respBreed)
       setBreed(respBreed)
     }
-    const respPetStatus = await getPetStatus({ size: 100, page: 0 })
+    const respPetStatus = await getPetStatuses({ size: 100, page: 0 })
     if (respPetStatus) {
       console.log("Resultado PetStatus", respPetStatus)
       setPetsStatus(respPetStatus)
     }
-    const respImageSelected = await getPetStatus({ size: 100, page: 0 })
+    const respImageSelected = await getPetStatuses({ size: 100, page: 0 })
     if (respImageSelected) {
       console.log("Resultado PetStatus", respImageSelected)
       setPetsStatus(respImageSelected)
@@ -81,6 +83,19 @@ const AdoptionForm = () => {
   useEffect(() => {
     getFromData()
   }, [])
+
+  useEffect(() => {
+    if (petsStatus && petsStatus.length > 0 &&
+      animals && animals.length > 0 &&
+      breed && breed.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        estado: petsStatus[0].id, // Primer estado disponible
+        tipoAnimal: animals[0].id, // Primer tipo de animal disponible
+        raza: breed.find(b => b.animalId === animals[0].id)?.id || breed[0].id // Primera raza correspondiente al animal
+      }));
+    }
+  }, [petsStatus, animals, breed]); // Se ejecuta cuando los datos están disponibles
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -126,20 +141,23 @@ const AdoptionForm = () => {
   };
 
   const bannerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const adjustImageSize = () => {
     if (!bannerRef.current) return;
 
-    const images = bannerRef.current.querySelectorAll("img"); // Obtener TODAS las imágenes
+    const images = bannerRef.current.querySelectorAll("img");
     images.forEach((img) => {
       if (document.fullscreenElement) {
         img.style.width = "100vw";
         img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Evita cortes
+        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
+        setIsFullscreen(true);
       } else {
         img.style.width = "";
         img.style.height = "";
         img.style.objectFit = "";
+        setIsFullscreen(false);
       }
     });
   };
@@ -149,9 +167,7 @@ const AdoptionForm = () => {
 
     if (!document.fullscreenElement) {
       bannerRef.current.requestFullscreen()
-        .then(() => {
-          adjustImageSize();
-        })
+        .then(() => adjustImageSize())
         .catch((err) => console.error("Error al activar pantalla completa:", err));
     } else {
       document.exitFullscreen();
@@ -184,36 +200,41 @@ const AdoptionForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSubmitting) return; // 🔒 Evita múltiples clics
+
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
 
-
     if (validateForm()) {
+      setIsSubmitting(true); // 🚀 Bloquea permanentemente el botón
 
-      console.log(formData);
-      const params = {
-        "name": formData.titulo,
-        "isVaccinated": formData.vacunado === "Si",
-        "description": formData.descripcion,
-        "birthdate": formData.cumpleanhos,
-        "gender": formData.genero,
-        "urlPhoto": selectedImages[0].url_API,
-        "isSterilized": formData.esterilizado === "Si",
-        "userId": Number(user?.id),
-        "animalId": Number(formData.tipoAnimal),
-        "breedId": Number(formData.raza),
-        "petStatusId": Number(formData.estado),
-        "addressCoordinates": `${position?.[0]}, ${position?.[1]}`
-      }
-      console.log("Selectimagespost: ", selectedImages[0].url_API);
-      const response = await postPets(params, authToken)
-      if (response) {
-        console.log("Guardado ", response)
-      }
+      try {
+        console.log(formData);
+        const params = {
+          name: formData.titulo,
+          isVaccinated: formData.vacunado === "Si",
+          description: formData.descripcion,
+          birthdate: formData.cumpleanhos,
+          gender: formData.genero,
+          urlPhoto: selectedImages[0]?.url_API,
+          isSterilized: formData.esterilizado === "Si",
+          userId: Number(user?.id),
+          animalId: Number(formData.tipoAnimal),
+          breedId: Number(formData.raza),
+          petStatusId: Number(formData.estado),
+          addressCoordinates: `${position?.[0]}, ${position?.[1]}`
+        };
 
-      // Submit form data to backend or handle accordingly
+        const response = await postPets(params, authToken);
+        if (response) {
+          console.log("Guardado ", response);
+        }
+      } catch (error) {
+        console.error("Error al enviar el formulario", error);
+      }
     }
   };
 
@@ -231,10 +252,8 @@ const AdoptionForm = () => {
     <div>
       <div className="flex flex-col items-center p-6">
         <div className="border p-4 w-full max-w-5xl rounded-lg shadow">
-          <div className="relative">
-            <div ref={bannerRef}>
-              <Banners images={arrayImages} />
-            </div>
+          <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+            <Banners images={arrayImages} className={`${isFullscreen ? "w-screen h-screen" : "h-[400px]"}`} />
             <button
               onClick={toggleFullScreen}
               className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
@@ -283,18 +302,18 @@ const AdoptionForm = () => {
           <Card>
             <CardContent className="p-4">
               <form>
-                {/* Select for Tipo de Publicación */}
                 <div className="w-full mb-2">
                   <label className="block mb-1">Estado de la mascota</label>
                   <select
                     className="w-full p-2 border rounded"
+                    placeholder="Seleccione estado de la mascota"
                     name="estado"
                     value={formData.estado}
                     onChange={handleChange}
                   >
-                    {
-                      petsStatus?.map((a, i) => <option key={i} value={a.id}>{a.name}</option>)
-                    }
+                    {petsStatus?.map((a, i) => (
+                      <option key={i} value={a.id}>{a.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -478,8 +497,14 @@ const AdoptionForm = () => {
                       Cancelar
                     </Button>
 
-                    <Button onClick={handleSubmit} variant="cta">
-                      Crear
+                    <Button
+                      onClick={handleSubmit}
+                      variant="cta"
+                      disabled={isSubmitting}
+                      className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+                        }`}
+                    >
+                      {isSubmitting ? "Creando..." : "Crear"}
                     </Button>
                   </div>
                 </div>
