@@ -7,9 +7,7 @@ const navbarAdminItems = [
     { name: "Administrar Publicaciones", path: "/administration/posts" },
     { name: "Publicaciones Eliminadas", path: "/administration/deleted-posts" },
     { name: "Reportes", path: "/administration/reports" },
-    { name: "Configuraciones", path: "/administration/settings" },
-    { name: "Animales y Mascotas", path: "/administration/configuration" },
-    { name: "Razas", path: "/administration/breeds" }
+    { name: "Configuraciones", path: "/administration/settings" }
 ];
 
 export default function NavbarAdmin() {

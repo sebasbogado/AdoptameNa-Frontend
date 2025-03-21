@@ -1,12 +1,21 @@
-"use client"
-import Loading from "@/app/loading";
-import Footer from "@/components/footer";
-import NavbarAdmin from "@/components/navbar-admin";
-import { useAuth } from "@/contexts/authContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+'use client';
 
-export default function Page() {
+import { Roboto } from "next/font/google";
+import "@/styles/globals.css";
+import { AuthProvider, useAuth } from "@/contexts/authContext";
+import NavbarAdmin from "@/components/navbar-admin";
+import Footer from "@/components/footer";
+import { useRouter } from "next/navigation";
+import Loading from "@/app/loading";
+import { useEffect } from "react";
+const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
+
+
+interface RootLayoutProps {
+    children: React.ReactNode;
+}
+
+export default function RootLayout({ children }: RootLayoutProps) {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
 
@@ -32,9 +41,12 @@ export default function Page() {
     return (
         <>
 
-            <div>
-                Administration
+
+            <div className="flex align-items-center justify-center">
+                <NavbarAdmin />
             </div>
+            {children}
         </>
+
     );
 }
