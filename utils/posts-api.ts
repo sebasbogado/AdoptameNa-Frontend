@@ -1,3 +1,4 @@
+import { Post } from "@/types/post";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -26,7 +27,7 @@ api.interceptors.request.use(
 );
 
 // Función para obtener los posts
-export const getPosts = async () => {
+export const getPosts = async (): Promise<Post[]> => {
   try {
     const response = await api.get("/posts");
     return response.data;

@@ -1,91 +1,129 @@
 'use client'
 
-import Banners from '@components/banners'
-import PetCard from '@components/petCard/petCard'
+
+import Banners from '@/components/banners'
+import PetCard from '@/components/petCard/pet-card'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
-import getPost from "@utils/post-client";
+import { useEffect, useState } from 'react'
+import { getPosts } from '@/utils/posts.http'
+import { Post } from '@/types/post'
 
-type Post = {
-    postId: string;
-    postType: string;
-    title: string;
-    author?: string;
-    content: string;
-    date: string;
-    imageUrl: string;
-    tags: {
-        race?: string;
-        vaccinated?: boolean;
-        sterilyzed?: boolean;
-        age?: string;
-        female?: boolean;
-        male?: boolean;
-        distance?: string;
-    };
+
+import { Section } from '@/components/section'
+import Link from 'next/link'
+
+type FetchContentDataParams = {
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    setError: React.Dispatch<React.SetStateAction<string | null>>;
 };
 
-export default function Page() {
 
-    const posts = getPost();
-    //const [posts, setPosts] = useState<Post[]>([])
+const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContentDataParams) => {
+
+    try {
+        const queryParam = {
+            size: 50,
+
+        }
+        const postData = await getPosts(queryParam);
+        setPosts(Array.isArray(postData) ? postData : []);
+    } catch (err) {
+        console.error("Error al cargar contenido:", err);
+        setError("No se pudo cargar el contenido del perfil");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+export default function Page() {
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    useEffect(() => {
+        fetchContentData({ setPosts, setLoading, setError });
+    }, []);
+
+
+
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
-
-
     return (
         <div className='flex flex-col gap-3'>
             <Banners images={bannerImages} />
-            {/* Sección de Adopción */}
-            <Title postType='adoption' path='adoption' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'adoption')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+
+            <Section
+                title='En adopcion'
+                path='adoption'
+                postTypeName="adoption"
+                items={posts}
+                loading={loading}
+                error={error}
+                itemType='post'>
+            </Section>
+
 
             {/* Sección de Desaparecidos */}
-            <Title postType='missing' path='missing' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'missing')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section
+                title='Extraviados'
+                path='missing'
+                postTypeName="missing"
+                items={posts}
+                loading={loading}
+                error={error}
+                filterByType={true}
+                itemType='post'>
 
+            </Section>
 
             {/* Sección de Voluntariado */}
-            <Title postType='volunteering' path='voluntariado' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'volunteering')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section
+                title='Voluntariado'
+                itemType='post' filterByType={true}
+                path='volunteering'
+                postTypeName="volunteering"
+                items={posts}
+                loading={loading}
+                error={error}>
+            </Section>
+
 
             {/* Sección de Blogs */}
-            <Title postType='blog' path='blog' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'blog')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section
+                title='Blog'
+                path='blog'
+                itemType='post'
+                filterByType={true}
+                postTypeName="blog"
+                items={posts}
+                loading={loading}
+                error={error}>
+
+            </Section>
 
             {/* Marketplace */}
-            <Title title='Tienda' path='marketplace' postType='marketplace' />
-            <div className='flex h-fit w-full justify-evenly  overflow-x-auto flex-wrap pb-8'>
-                {posts
-                    .filter((post) => post.postType === 'marketplace')
-                    .slice(0, 5)
-                    .map((post) => <PetCard key={post.postId} post={post} />)}
-            </div>
+            <Section
+                title='Tienda'
+                path='marketplace'
+                itemType='post'
+                filterByType={true}
+                postTypeName="marketplace"
+                items={posts}
+                loading={loading}
+                error={error}>
 
-
+            </Section>
+            <Link href="/add-post">
+                <div className="fixed bottom-5 right-5">
+                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
+                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
+                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
+                    </button>
+                </div>
+            </Link>
             <Footer />
         </div>
     )
 }
-
-

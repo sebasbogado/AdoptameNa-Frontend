@@ -1,119 +1,152 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Banners from '@components/banners'
-import PetCard from '@components/petCard/petCard'
-import { loginMock } from "@utils/login-mock";
-import { getPosts } from '@utils/posts-api';
-import Cookies from "js-cookie";
-
-import LabeledSelect from "@/components/labeledSelect";
-
-const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
-const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
-const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
-
-interface Pet {
-    id: number;
-    idUser: number;
-    title: string;
-    content: string;
-    idPostType: number;
-    locationCoordinates: string;
-    contactNumber: string;
-    status: string;
-    sharedCounter: number;
-    publicationDate: string;
-    tags: Record<string, string>; // Un objeto con claves dinámicas y valores string
-}
+import Banners from '@/components/banners';
+import PetCard from '@/components/petCard/pet-card';
+import { getPets } from "@/utils/pets.http";
+import { getAnimals } from "@/utils/animals.http";
+import LabeledSelect from "@/components/labeled-selected";
+import { Pet } from "@/types/pet";
+import { Post } from "@/types/post";
+import { getPosts } from "@/utils/posts.http";
 
 export default function Page() {
-    const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
-    const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
-    const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
-
-    const [pets, setPets] = useState<Pet[]>([]); // Ahora pets tiene el tipo correcto
+    const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
+    const [selectedEsterilizado, setSelectedEsterilizado] = useState<string | null>(null);
+    const [selectedGenero, setSelectedGenero] = useState<string | null>(null);
+    const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
+    const [animalTypes, setAnimalTypes] = useState<string[]>([]);
+    const [pets, setPets] = useState<Pet[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
     useEffect(() => {
-        async function fetchData() {
+        const fetchData = async () => {
             try {
-                // 1️⃣ Realizar login y obtener el token
-                const token = await loginMock();
+                const pets = await getPets();
+                const post = await getPosts({
+                    size: 500,
+                    postType: "adoption",
 
-                // 2️⃣ Guardar el token en cookies
-                Cookies.set("token", token, { expires: 1 }); // Expira en 1 día
+                });
+                console.log("post", post);
+                const animals = await getAnimals();
 
-                // 3️⃣ Llamar a la API de posts con el token guardado
-                const fetchedPosts = await getPosts();
-                // 4️⃣ Asegurar que cada post tenga `tags` y agregar "Mascota"
-                const postsWithTags = fetchedPosts.map((post: { tags: { especie: any; }; }) => ({
-                    ...post,
-                    tags: {
-                        ...post.tags,  // Conservar los tags existentes
-                        Mascota: post.tags?.especie || "Desconocida" // Agregar un tag "Mascota"
-                    }
-                }));
+                const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() == "adoption");
+                const filteredPets = pets.filter((pet: Pet) => pet.petStatusId === 12);
 
-                console.log("Posts:", postsWithTags);
+                setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
+                setAnimals(animals);
+                setPets(filteredPets);
+                setPosts(filteredPosts);
+            } catch (err: any) {
+                console.log(err.message);
+            }
+        };
 
-                setPets(postsWithTags || []); // Asegurar que sea un array
-            } catch (error) {
-                console.error("Error en la autenticación o al obtener posts:", error);
+        fetchData();
+    }, []);
+
+    // Combinar mascotas y posts
+    const combinedData = [...pets, ...posts];
+    console.log("combinedData", combinedData);
+
+    // Filtrar los datos combinados
+    const filteredData = combinedData.filter((item) => {
+        // Filtrar mascotas
+        if ("isVaccinated" in item) {
+            if (selectedVacunado && selectedVacunado !== "Todos") {
+                const isVaccinated = selectedVacunado === "Sí";
+                if (item.isVaccinated !== isVaccinated) return false;
+            }
+
+            if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
+                const isSterilized = selectedEsterilizado === "Sí";
+                if (item.isSterilized !== isSterilized) return false;
+            }
+
+            if (selectedGenero && selectedGenero !== "Todos") {
+                const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
+                if (item.gender !== gender) return false;
+            }
+
+            if (selectedAnimal && selectedAnimal !== "Todos") {
+                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+                if (!selectedAnimalObj || item.animalId !== selectedAnimalObj.id) return false;
             }
         }
 
-        fetchData();
-    }, []); // 🔄 Se ejecuta solo una vez al montar el componente
+        // Filtrar posts
+        if ("postType" in item) {
+            if (selectedAnimal && selectedAnimal !== "Todos") {
+                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+                if (!selectedAnimalObj) return false;
+            }
+        }
 
+        return true;
+    });
+
+    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
 
     return (
         <div className='flex flex-col gap-5'>
-            <Banners />
+            <Banners images={bannerImages} />
 
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-                    {/* Select Ciudad */}
+                    {/* Select Está Vacunado */}
                     <LabeledSelect
-                        label="Ciudad"
-                        options={ciudades}
-                        selected={selectedCiudad}
-                        setSelected={setSelectedCiudad}
+                        label="Vacunado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedVacunado}
+                        setSelected={setSelectedVacunado}
                     />
 
-
-                    {/* Select Mascota */}
+                    {/* Select Está Esterilizado */}
                     <LabeledSelect
-                        label="Mascota"
-                        options={mascotas}
-                        selected={selectedMascota}
-                        setSelected={setSelectedMascota}
+                        label="Esterilizado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedEsterilizado}
+                        setSelected={setSelectedEsterilizado}
                     />
 
-                    {/* Select Edad */}
+                    {/* Select Género */}
                     <LabeledSelect
-                        label="Edad"
-                        options={edades}
-                        selected={selectedEdad}
-                        setSelected={setSelectedEdad}
+                        label="Género"
+                        options={["Todos", "Femenino", "Masculino"]}
+                        selected={selectedGenero}
+                        setSelected={setSelectedGenero}
+                    />
+
+                    {/* Select Tipo de Animal */}
+                    <LabeledSelect
+                        label="Animal"
+                        options={animalTypes}
+                        selected={selectedAnimal}
+                        setSelected={setSelectedAnimal}
                     />
                 </div>
             </div>
 
-
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {/* 🔥 Mapeo de las mascotas */}
-                    {pets.length > 0 ? (
-                        pets.map((post) => (
-                            <PetCard key={post.id} post={post} />
-                        ))
+                    {combinedData.length === 0 ? (
+                        <p className="text-center col-span-full">Cargando datos...</p>
+                    ) : filteredData.length === 0 ? (
+                        <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
-                        <p className="text-center col-span-full">Cargando mascotas...</p>
+                        filteredData.map((item) =>
+                            "isVaccinated" in item ? (
+                                <PetCard key={item.id} post={item} />
+                            ) : (
+                                <PetCard key={item.id} post={item} isPost />
+                            )
+                        )
                     )}
-
                 </div>
             </section>
         </div>
-    )
+    );
 }

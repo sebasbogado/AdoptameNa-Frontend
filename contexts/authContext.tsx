@@ -1,111 +1,104 @@
-"use client";
+'use client';
+import { createContext, useContext, useState, useEffect, FC, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { User, AuthContextType, LoginCredentials } from '../types/auth';
+import authClient from '@/utils/auth-client';
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAppContext } from "@/contexts/appContext";
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-type AuthContextType = {
-  authToken: string | null;
-  setAuthToken: (token: string | null) => void;
-  logout: () => void;
-  singIn: (token: string, user: { fullName: string, email: string }) => void;
-  currentUser: { fullName: string, email: string } | null;
-};
+interface AuthProviderProps {
+  children: ReactNode;
+}
 
-// Create context with default values
-export const AuthContext = createContext<AuthContextType>({
-  authToken: null,
-  setAuthToken: () => { },
-  logout: () => { },
-  singIn: () => { },
-  currentUser: null
-});
-
-// Helper function to check if code is running in the browser
-const isBrowser = () => typeof window !== "undefined";
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setCurrentUser } = useAppContext();
+export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [currentUser, setLocalCurrentUser] = useState<{ fullName: string, email: string } | null>(null);
   const router = useRouter();
 
-  // Load user data and token on initial mount
+
   useEffect(() => {
-    // Only run on the client-side
-    if (!isBrowser()) return;
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('authToken');
+      const userData = localStorage.getItem('userData');
 
-    // Retrieve token and user from localStorage
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
-
-    if (storedToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setAuthToken(storedToken);
-        setLocalCurrentUser(parsedUser);
-        setCurrentUser(parsedUser);
-      } catch (error) {
-        console.error("Error parsing stored user:", error);
-        // Handle corrupted data by clearing it
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
+      if (token && userData) {
+        try {
+          setUser(JSON.parse(userData));
+          setAuthToken(token);
+        } catch (e) {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userData');
+        }
       }
     }
-  }, [setCurrentUser]); // Add setCurrentUser as dependency
+    setLoading(false);
+  }, []);
 
-  // Handle token updates
-  useEffect(() => {
-    if (!isBrowser()) return;
+  const login = async (credentials: LoginCredentials): Promise<boolean> => {
+    try {
+      const data = await authClient.login(credentials);
 
-    if (authToken) {
-      localStorage.setItem("authToken", authToken);
-    } else {
-      localStorage.removeItem("authToken");
-    }
-  }, [authToken]);
+      if (!data) throw new Error('Error de autenticación');
 
-  // Handle user updates in local storage
-  useEffect(() => {
-    if (!isBrowser()) return;
+      const { token, user } = data;
 
-    if (currentUser) {
-      localStorage.setItem("user", JSON.stringify(currentUser));
-      setCurrentUser(currentUser);
-    } else {
-      localStorage.removeItem("user");
-      setCurrentUser(null);
-    }
-  }, [currentUser, setCurrentUser]);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+      }
 
-  const singIn = (token: string, user: { fullName: string, email: string }) => {
-    setAuthToken(token);
-    setLocalCurrentUser(user);
+      setUser(user);
+      setAuthToken(token);
 
-    if (isBrowser()) {
-      router.push("/dashboard");
-    }
-  }
-
-  const logout = () => {
-    setAuthToken(null);
-    setLocalCurrentUser(null);
-
-    if (isBrowser()) {
-      router.push("/auth/login");
+      return true;
+    } catch (error) {
+      console.error('Error de login:', error);
+      throw error;
     }
   };
 
+  const loginWithGoogle = async (code: string): Promise<void> => {
+    try {
+      const { token, user } = await authClient.loginWithGoogle(code);
+
+      if (!token || !user) throw new Error('Error de autenticación con Google');
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(user));
+      }
+
+      setUser(user);
+      setAuthToken(token);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error de login con Google:', error);
+      throw error;
+    }
+  }
+
+  const logout = (): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+    }
+    setUser(null);
+    setAuthToken(null);
+    router.push('/auth/login');
+  };
+
   return (
-    <AuthContext.Provider value={{
-      authToken,
-      setAuthToken,
-      logout,
-      singIn,
-      currentUser
-    }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+  }
+  return context;
+};
