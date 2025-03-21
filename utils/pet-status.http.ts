@@ -1,20 +1,18 @@
 import axios from "axios";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pet-status`;
+const API_URL_STATUS = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pet-status`;
 
-export const getPetStatus = async (queryParams?: any) => {
+export const getPetStatusList = async (page = 0, size = 25) => {
   try {
-    const response = await axios.get(`${API_URL}`, {
-      params: queryParams,
+    const response = await axios.get(API_URL_STATUS, {
+      params: { page, size },
       headers: {
-        "Content-Type": "application/json",
+        Accept: "application/json",
       },
     });
+
     return response.data;
   } catch (error: any) {
-    if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
-    }
-    throw new Error(error.message || "Error al obtener animales");
+    throw new Error(error.response?.data?.message || "Error al obtener el estado de las mascotas");
   }
 };

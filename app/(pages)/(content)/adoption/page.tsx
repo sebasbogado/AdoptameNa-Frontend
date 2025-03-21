@@ -3,118 +3,122 @@
 import { useEffect, useState } from "react";
 import Banners from '@/components/banners'
 import PetCard from '@/components/petCard/pet-card'
-import { loginMock } from "@/utils/login-mock";
-import { getPosts } from '@/utils/posts-api';
-import Cookies from "js-cookie";
-
+import { getPets } from "@/utils/pets.http";
+import { getAnimals } from "@/utils/animals.http"; // Importar la nueva función
+import { useAuth } from "@/contexts/authContext";
 import LabeledSelect from "@/components/labeled-selected";
+import { Pet } from "@/types/pet";
 
-const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
-const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
-const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
-
-interface Pet {
-    id: number;
-    idUser: number;
-    title: string;
-    content: string;
-    idPostType: number;
-    locationCoordinates: string;
-    contactNumber: string;
-    urlPhoto: string | null;
-
-    status: string;
-    sharedCounter: number;
-    publicationDate: string;
-    tags: Record<string, string>; // Un objeto con claves dinámicas y valores string
-}
 
 export default function Page() {
-    const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
-    const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
-    const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
+    const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
+    const [selectedEsterilizado, setSelectedEsterilizado] = useState<string | null>(null);
+    const [selectedGenero, setSelectedGenero] = useState<string | null>(null);
+    const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
+    const [animalTypes, setAnimalTypes] = useState<string[]>([]); // Estado para almacenar los tipos de animales
+    const [pets, setPets] = useState<Pet[]>([]);
+    const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-    const [pets, setPets] = useState<Pet[]>([]); // Ahora pets tiene el tipo correcto
 
     useEffect(() => {
-        async function fetchData() {
+
+        const fetchData = async () => {
             try {
-                // 1️⃣ Realizar login y obtener el token
-                const token = await loginMock();
+                const data = await getPets();
+                const animals = await getAnimals(); // Obtener los tipos de animales
 
-                // 2️⃣ Guardar el token en cookies
-                Cookies.set("token", token, { expires: 1 }); // Expira en 1 día
+                console.log("MAscotas: ", data)
+                // Filtrar solo los pets con animalId = 16
+                const filteredPets = data.filter((pet: Pet) => pet.petStatusId === 16);
 
-                // 3️⃣ Llamar a la API de posts con el token guardado
-                const fetchedPosts = await getPosts();
-                // 4️⃣ Asegurar que cada post tenga `tags` y agregar "Mascota"
-                const postsWithTags = fetchedPosts.map((post: { tags: { especie: any; }; }) => ({
-                    ...post,
-                    tags: {
-                        ...post.tags,  // Conservar los tags existentes
-                        Mascota: post.tags?.especie || "Desconocida" // Agregar un tag "Mascota"
-                    }
-                }));
-
-                console.log("Posts:", postsWithTags);
-
-                setPets(postsWithTags || []); // Asegurar que sea un array
-            } catch (error) {
-                console.error("Error en la autenticación o al obtener posts:", error);
+                // Extraer solo los nombres y agregar "Todos"
+                setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
+                setAnimals(animals);
+                setPets(filteredPets);
+            } catch (err: any) {
+                console.log(err.message);
             }
-        }
+        };
 
         fetchData();
-    }, []); // 🔄 Se ejecuta solo una vez al montar el componente
+    }, []);
 
-    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
+    const filteredPets = pets.filter((pet) => {
+        if (selectedVacunado && selectedVacunado !== "Todos") {
+            const isVaccinated = selectedVacunado === "Sí";
+            if (pet.isVaccinated !== isVaccinated) return false;
+        }
+
+        if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
+            const isSterilized = selectedEsterilizado === "Sí";
+            if (pet.isSterilized !== isSterilized) return false;
+        }
+
+        if (selectedGenero && selectedGenero !== "Todos") {
+            const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
+            if (pet.gender !== gender) return false;
+        }
+
+        if (selectedAnimal && selectedAnimal !== "Todos") {
+            const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+            if (!selectedAnimalObj || pet.animalId !== selectedAnimalObj.id) return false;
+        }
+
+        return true;
+    });
+
+    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
 
     return (
         <div className='flex flex-col gap-5'>
             <Banners images={bannerImages} />
 
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-                    {/* Select Ciudad */}
+                    {/* Select Está Vacunado */}
                     <LabeledSelect
-                        label="Ciudad"
-                        options={ciudades}
-                        selected={selectedCiudad}
-                        setSelected={setSelectedCiudad}
+                        label="Vacunado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedVacunado}
+                        setSelected={setSelectedVacunado}
                     />
 
-
-                    {/* Select Mascota */}
+                    {/* Select Está Esterilizado */}
                     <LabeledSelect
-                        label="Mascota"
-                        options={mascotas}
-                        selected={selectedMascota}
-                        setSelected={setSelectedMascota}
+                        label="Esterilizado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedEsterilizado}
+                        setSelected={setSelectedEsterilizado}
                     />
 
-                    {/* Select Edad */}
+                    {/* Select Género */}
                     <LabeledSelect
-                        label="Edad"
-                        options={edades}
-                        selected={selectedEdad}
-                        setSelected={setSelectedEdad}
+                        label="Género"
+                        options={["Todos", "Femenino", "Masculino"]}
+                        selected={selectedGenero}
+                        setSelected={setSelectedGenero}
+                    />
+
+                    {/* Select Tipo de Animal */}
+                    <LabeledSelect
+                        label="Animal"
+                        options={animalTypes}
+                        selected={selectedAnimal}
+                        setSelected={setSelectedAnimal}
                     />
                 </div>
             </div>
 
-
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {/* 🔥 Mapeo de las mascotas */}
-                    {pets.length > 0 ? (
-                        pets.map((post) => (
-                            <PetCard key={post.id} post={post} />
-                        ))
-                    ) : (
+                    {pets.length === 0 ? (
                         <p className="text-center col-span-full">Cargando mascotas...</p>
+                    ) : filteredPets.length === 0 ? (
+                        <p className="text-center col-span-full">No se han encontrado mascotas</p>
+                    ) : (
+                        filteredPets.map((post) => <PetCard key={post.id} post={post} />)
                     )}
-
                 </div>
             </section>
         </div>

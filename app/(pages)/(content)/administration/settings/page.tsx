@@ -1,16 +1,17 @@
 "use client"
 
-import Card  from "../card"
+import Card from "@/components/card"
 import { Animal } from "@/types/animal";
 import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import { useAuth } from "@/contexts/authContext";
-import { getAnimals, createAnimal, deleteAnimal, updateAnimal} from "@/utils/animals.http";
-import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus} from "@/utils/pet-statuses.http";
+import { getAnimals, createAnimal, deleteAnimal, updateAnimal } from "@/utils/animals.http";
+import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
-import FormAnimals from "./form-animal";
-import FormPetStatus from "./form-pet-status";
+import FormAnimals from "@/components/form-animal";
+import FormPetStatus from "@/components/form-pet-status";
 import ConfirmationModal from "@/components/confirm-modal";
+import PetBreeds from "@/components/pet-breeds";
 
 export default function page() {
   const [modalAnimal, setModalAnimal] = useState(false);
@@ -21,14 +22,14 @@ export default function page() {
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
 
-  const { authToken, user} = useAuth();
+  const { authToken, user } = useAuth();
 
   useEffect(() => {
     const fetchAnimals = async () => {
       try {
         if (!authToken || !user || user.role !== "admin") return;
-        const animals = await getAnimals(authToken);
-        const petStatuses = await getPetStatuses(authToken);
+        const animals = await getAnimals();
+        const petStatuses = await getPetStatuses();
 
         setAnimals(animals);
         setPetStatuses(petStatuses);
@@ -102,7 +103,7 @@ export default function page() {
     } catch (error) {
       console.error('Error al crear estado:', error);
     }
-  }  
+  }
 
   const handleDeletePetStatus = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -123,11 +124,11 @@ export default function page() {
       setModalAnimal(false);
     } catch (error) {
       console.error('Error al eliminar animal:', error);
-    }finally{
+    } finally {
       setIsOpenModal(false);
     }
   }
-  
+
   const confirmDeletePetStatus = async () => {
     try {
       if (!authToken) return;
@@ -138,7 +139,7 @@ export default function page() {
       setModalPetStatus(false);
     } catch (error) {
       console.error('Error al eliminar estado:', error);
-    }finally{
+    } finally {
       setIsOpenModal(false);
     }
   }
@@ -153,9 +154,9 @@ export default function page() {
   }
   return (
     <>
-      <div className="rounded-lg border border-gray-900 p-6">
+      <div className="rounded-lg  p-6">
 
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-3">
           {/*Modal Section */}
           <Modal isOpen={modalAnimal} onClose={() => setModalAnimal(false)} title={animalSelected.id === 0 ? "Crear animal" : "Editar animal"}>
             <FormAnimals onCreate={handleSubmitAnimal} onDelete={handleDeleteAnimal} animalData={animalSelected} />
@@ -164,12 +165,15 @@ export default function page() {
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
 
-          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeleteAnimal}/>
+          <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeleteAnimal} />
           <ConfirmationModal isOpen={isOpenModal} onClose={() => setIsOpenModal(false)} onConfirm={confirmDeletePetStatus} />
 
           {/**Cards*/}
           <Card title="Animales" content={animals} isBreed={false} onClickLabelDefault={openEditAnimal} onClickLabelAdd={onClickLabelAddAnimal} />
           <Card title="Estados de mascotas" content={petStatuses} isBreed={false} onClickLabelDefault={openEditPetStatus} onClickLabelAdd={onClickLabelAddPetStatus} />
+        </div>
+        <div className="flex justify-center mt-10">
+          <PetBreeds />
         </div>
       </div>
     </>

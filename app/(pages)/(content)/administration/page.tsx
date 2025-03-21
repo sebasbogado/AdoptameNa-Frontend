@@ -7,43 +7,34 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Page() {
-
     const { authToken, user, loading: authLoading } = useAuth();
-
     const router = useRouter();
 
+    // Handle authentication check
     useEffect(() => {
-        if (!authLoading && !authToken) {
-            console.log("authLoading", authLoading);
-            console.log("authToken", authToken);
-            router.push("/auth/login");
+        if (!authLoading) {
+            // If not authenticated, redirect to login
+            if (!authToken) {
+                router.push("/auth/login");
+            }
+            // If authenticated but not admin, redirect to dashboard
+            else if (user && user.role !== "admin") {
+                router.push("/dashboard");
+            }
         }
+    }, [authToken, user, authLoading, router]);
 
-    }, [authToken, authLoading, router]);
-    
-    
-    useEffect(() => {
-        // Verifica si el usuario no tiene rol de 'admin'
-        if (!user || user.role !== "admin") {
-          // Si el rol no es 'admin', redirige a la página de home
-          router.push("/dashboard") 
-        }
-      }, [user, router]); // El efecto se ejecuta cuando el usuario o el router cambian
-    
-      if (!user || user.role !== "admin" || authLoading) {
-        // Mostrar una interfaz de carga mientras se procesa la redirección
-        return <Loading/>
-      }
-      
-    return (<>
-        <div className="flex flex-col items-center justify-center">
-            <NavbarAdmin/>
-        </div>
-        <div>
-            Administration
-            <Footer/>
-        </div>
+    // Show loading while checking auth or if not admin
+    if (authLoading || !user || user.role !== "admin") {
+        return <Loading />;
+    }
+
+    return (
+        <>
+
+            <div>
+                Administration
+            </div>
         </>
-
-    )
+    );
 }

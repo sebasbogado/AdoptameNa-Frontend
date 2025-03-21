@@ -17,9 +17,12 @@ export const getAnimals = async (queryParams?: any) => {
     }
     throw new Error(error.message || "Error al obtener animales");
   }
-}
+};
 
-export const createAnimal = async (token: string, animalData: { name: string }) => {
+export const createAnimal = async (
+  token: string,
+  animalData: { name: string }
+) => {
   try {
     const response = await axios.post(API_URL, animalData, {
       headers: {
@@ -29,7 +32,9 @@ export const createAnimal = async (token: string, animalData: { name: string }) 
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Error al crear el animal");
+    throw new Error(
+      error.response?.data?.message || "Error al crear el animal"
+    );
   }
 };
 
@@ -43,19 +48,27 @@ export const deleteAnimal = async (token: string, animalId: number) => {
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Error al eliminar el animal");
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el animal"
+    );
   }
-}
+};
 export const updateAnimal = async (token: string, animalData: Animal) => {
   try {
-    const response = await axios.put(`${API_URL}/${animalData.id}`, animalData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.put(
+      `${API_URL}/${animalData.id}`,
+      animalData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || "Error al editar el animal");
+    throw new Error(
+      error.response?.data?.message || "Error al editar el animal"
+    );
   }
 };
