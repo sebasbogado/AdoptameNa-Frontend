@@ -1,39 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Banners from '@/components/banners'
-import PetCard from '@/components/petCard/pet-card'
+import Banners from '@/components/banners';
+import PetCard from '@/components/petCard/pet-card';
 import { getPets } from "@/utils/pets.http";
-import { getAnimals } from "@/utils/animals.http"; // Importar la nueva función
-import { useAuth } from "@/contexts/authContext";
+import { getAnimals } from "@/utils/animals.http";
 import LabeledSelect from "@/components/labeled-selected";
 import { Pet } from "@/types/pet";
-
+import { Post } from "@/types/post";
+import { getPosts } from "@/utils/posts.http";
 
 export default function Page() {
     const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
     const [selectedEsterilizado, setSelectedEsterilizado] = useState<string | null>(null);
     const [selectedGenero, setSelectedGenero] = useState<string | null>(null);
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
-    const [animalTypes, setAnimalTypes] = useState<string[]>([]); // Estado para almacenar los tipos de animales
+    const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
+    const [posts, setPosts] = useState<Post[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-
     useEffect(() => {
-
         const fetchData = async () => {
             try {
-                const data = await getPets();
-                const animals = await getAnimals(); // Obtener los tipos de animales
+                const pets = await getPets();
+                const post = await getPosts({
+                    size: 500,
+                    postType: "adoption",
 
-                console.log("MAscotas: ", data)
-                const filteredPets = data.filter((pet: Pet) => pet.petStatusId === 12);
+                });
+                console.log("post", post);
+                const animals = await getAnimals();
 
-                // Extraer solo los nombres y agregar "Todos"
+                const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() == "adoption");
+                const filteredPets = pets.filter((pet: Pet) => pet.petStatusId === 12);
+
                 setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
                 setAnimals(animals);
                 setPets(filteredPets);
+                setPosts(filteredPosts);
             } catch (err: any) {
                 console.log(err.message);
             }
@@ -42,25 +47,41 @@ export default function Page() {
         fetchData();
     }, []);
 
-    const filteredPets = pets.filter((pet) => {
-        if (selectedVacunado && selectedVacunado !== "Todos") {
-            const isVaccinated = selectedVacunado === "Sí";
-            if (pet.isVaccinated !== isVaccinated) return false;
+    // Combinar mascotas y posts
+    const combinedData = [...pets, ...posts];
+    console.log("combinedData", combinedData);
+
+    // Filtrar los datos combinados
+    const filteredData = combinedData.filter((item) => {
+        // Filtrar mascotas
+        if ("isVaccinated" in item) {
+            if (selectedVacunado && selectedVacunado !== "Todos") {
+                const isVaccinated = selectedVacunado === "Sí";
+                if (item.isVaccinated !== isVaccinated) return false;
+            }
+
+            if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
+                const isSterilized = selectedEsterilizado === "Sí";
+                if (item.isSterilized !== isSterilized) return false;
+            }
+
+            if (selectedGenero && selectedGenero !== "Todos") {
+                const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
+                if (item.gender !== gender) return false;
+            }
+
+            if (selectedAnimal && selectedAnimal !== "Todos") {
+                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+                if (!selectedAnimalObj || item.animalId !== selectedAnimalObj.id) return false;
+            }
         }
 
-        if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
-            const isSterilized = selectedEsterilizado === "Sí";
-            if (pet.isSterilized !== isSterilized) return false;
-        }
-
-        if (selectedGenero && selectedGenero !== "Todos") {
-            const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
-            if (pet.gender !== gender) return false;
-        }
-
-        if (selectedAnimal && selectedAnimal !== "Todos") {
-            const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
-            if (!selectedAnimalObj || pet.animalId !== selectedAnimalObj.id) return false;
+        // Filtrar posts
+        if ("postType" in item) {
+            if (selectedAnimal && selectedAnimal !== "Todos") {
+                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+                if (!selectedAnimalObj) return false;
+            }
         }
 
         return true;
@@ -111,15 +132,21 @@ export default function Page() {
 
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {pets.length === 0 ? (
-                        <p className="text-center col-span-full">Cargando mascotas...</p>
-                    ) : filteredPets.length === 0 ? (
-                        <p className="text-center col-span-full">No se han encontrado mascotas</p>
+                    {combinedData.length === 0 ? (
+                        <p className="text-center col-span-full">Cargando datos...</p>
+                    ) : filteredData.length === 0 ? (
+                        <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
-                        filteredPets.map((post) => <PetCard key={post.id} post={post} />)
+                        filteredData.map((item) =>
+                            "isVaccinated" in item ? (
+                                <PetCard key={item.id} post={item} />
+                            ) : (
+                                <PetCard key={item.id} post={item} />
+                            )
+                        )
                     )}
                 </div>
             </section>
         </div>
-    )
+    );
 }
