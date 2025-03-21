@@ -235,8 +235,6 @@ const ReportsPost = () => {
             <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 
             <div className="w-full flex justify-end">
-
-
                 <Button size="sm" onClick={nextPost} className="bg-white mb-12 mr-12 flex items-center justify-center shadow -md text-gray-800">
 
                     <span className="material-symbols-outlined text-gray-800">
@@ -245,14 +243,14 @@ const ReportsPost = () => {
                 </Button>
                 {successMessage && (
                     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-                        <Alert color="green" onClose={() => setSuccessMessage("")} className="text-sm px-4 py-2 w-fit flex items-center">
+                        <Alert color="green" onClose={() => setSuccessMessage("")} className="text-sm px-4  w-fit flex items-center">
                             {successMessage}
                         </Alert>
                     </div>
                 )}
                 {errorMessage && (
                     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-                        <Alert color="red" onClose={() => setErrorMessage("")} className="text-sm px-4 py-2 w-fit flex items-center">
+                        <Alert color="red" onClose={() => setErrorMessage("")} className="text-sm px-4  w-fit flex items-center">
                             {errorMessage}
                         </Alert>
                     </div>
