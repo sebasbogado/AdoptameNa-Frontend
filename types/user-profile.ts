@@ -15,3 +15,13 @@ export interface UserProfile {
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 
+export type UserReport = Omit<UserProfile,   'organizationName' |
+'address' |
+'description' |
+'gender' |
+'birthdate' |
+'document' |
+'phoneNumber' |
+'earnedPoints' |
+'addressCoordinates' |
+'bannerImages'>;
