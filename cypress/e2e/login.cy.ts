@@ -7,6 +7,7 @@ describe("Pruebas de Login - TypeScript", () => {
 
   it("TC-LGN-01: El usuario inicia sesión exitosamente y es redirigido al dashboard", () => {
     cy.log("Interceptando la solicitud de inicio de sesión...");
+    cy.log(`API Base URL: ${Cypress.env("NEXT_PUBLIC_BASE_API_URL")}`);
     cy.intercept(
       "POST",
       `${Cypress.env("NEXT_PUBLIC_BASE_API_URL")}/auth/login`,
@@ -103,6 +104,7 @@ describe("Pruebas de Login - TypeScript", () => {
   });
 
   it("TC-LGN-05: Login: Cuenta no verificada muestra mensaje especial", () => {
+    cy.log(`API Base URL: ${Cypress.env("NEXT_PUBLIC_BASE_API_URL")}`);
     cy.intercept(
       "POST",
       `${Cypress.env("NEXT_PUBLIC_BASE_API_URL")}/auth/login`,

@@ -29,7 +29,9 @@ describe("User Profile Functionality - TC-PROFILE-01", () => {
     cy.wait(4500);
     cy.get('[id="edit-button"]').click();
     cy.wait(4500);
-    cy.get("input").should("have.value", "Jose Ivan").clear().type("Teste{backspace} Automatizado{enter}");
-     
+    cy.get("input").should("have.value", "Jose Ivan").type("Teste{backspace} Automatizado");
+    cy.wait(4500);
+    cy.get("textarea").type("Teste{backspace} Automatizado");
+    cy.get("button").contains("Guardar").click();
   });
 });
