@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const navbarAdminItems = [
     { name: "Administrar Publicaciones", path: "/administration/posts" },
     { name: "Publicaciones Eliminadas", path: "/administration/deleted-posts" },
-    { name: "Reportes", path: "/administration/reports" },
+    { name: "Reportes", path: "/administration/report" },
     { name: "Configuraciones", path: "/administration/settings" }
 ];
 
