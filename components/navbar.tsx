@@ -21,7 +21,7 @@ export default function Navbar() {
     const pathname = usePathname(); // Obtener la ruta actual
 
     // Condición para ocultar los enlaces de navegación en la página de administración
-    const isAdminPage = pathname === "/administration";  // Ajusta esta ruta si es necesario
+    const isAdminPage = pathname.includes("/administration");
 
     return (
         <header className="w-full border-b">
@@ -38,20 +38,20 @@ export default function Navbar() {
 
                 {/* Solo renderizar los enlaces de navegación si no estamos en la página de administración */}
                 {!isAdminPage && (
-                <div className="hidden items-center gap-12 md:flex">
-                    {navbarItems.map(({ name, path }) => (
-                        <Link
-                            key={path}
-                            href={path}
-                            className={`text-lg font-bold hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"
-                                }`}
-                        >
-                            {name}
-                        </Link>
-                    ))}
-                </div>
+                    <div className="hidden items-center gap-12 md:flex">
+                        {navbarItems.map(({ name, path }) => (
+                            <Link
+                                key={path}
+                                href={path}
+                                className={`text-lg font-bold hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"
+                                    }`}
+                            >
+                                {name}
+                            </Link>
+                        ))}
+                    </div>
                 )}
-                
+
                 {user ? (
                     <UserHeader currentUser={user} />
                 ) : (

@@ -3,6 +3,7 @@ import { PostType } from "./post-type";
 export interface Post {
   id: number;
   idUser: number;
+  userFullName: string;
   title: string;
   content: string;
   locationCoordinates: string;
