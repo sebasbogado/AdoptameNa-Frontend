@@ -7,6 +7,7 @@ import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 import Footer from '@/components/footer';
 import { Section } from '@/components/section';
+import { ConfirmationModal } from "@/components/form/modal";
 
 import { getPosts } from '@/utils/posts.http';
 import { getPetsByUserId } from '@/utils/pets.http';
@@ -95,7 +96,7 @@ export default function ProfilePage() {
     const [petsError, setPetsError] = useState<string | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-
+    const [isOpen , setIsOpen] = useState(false)   
 
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
@@ -131,13 +132,18 @@ export default function ProfilePage() {
 
     };
 
-    const handleSaveButtonClick = async () => {
-        setIsEditing(false);
-        if (tempUserProfile) {
-            await updateProfile(tempUserProfile); // Solo se ejecuta una vez
-        }
+
+    const handleSaveButtonClick = () => {
+        setIsOpen(true); // Abre el modal de confirmación
     };
 
+    const handleConfirmSave = async () => {
+        setIsOpen(false); // Cierra el modal
+        setIsEditing(false);
+        if (tempUserProfile) {
+            await updateProfile(tempUserProfile);
+        }
+    };
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -217,7 +223,16 @@ export default function ProfilePage() {
         <div className="w-full font-roboto">
             {/* Banner */}
             <Banners images={userProfile?.bannerImages || ['/logo.png']} />
-
+            {isOpen &&
+                <ConfirmationModal
+                    isOpen={isOpen}
+                    title="Confirmar cambios"
+                    message="¿Estás seguro de que deseas guardar los cambios?"
+                    textConfirm="Confirmar cambios"
+                    confirmVariant="cta"
+                    onClose={() => setIsOpen(false)}
+                    onConfirm={handleConfirmSave}
+                />}
             {/* User Info */}
             <Detail
                 posts={posts} user={user}
