@@ -3,6 +3,7 @@ import Button from "../buttons/button";
 import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
+import FavoriteButton from "../buttons/favorite-button";
 
 interface PostButtonsProps {
     isPet?: boolean;
@@ -37,6 +38,8 @@ const PostButtons = ({ isPet = false }: PostButtonsProps) => {
             </div>
 
             <ReportButton size="lg" />
+            
+            <FavoriteButton size="lg" className="relative top-[-60px] shadow-md left-[40px]"/>
         </div>
     );
 };
