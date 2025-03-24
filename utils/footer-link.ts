@@ -4,8 +4,7 @@ export const footerSections = [
     {
       title: "Ayuda",
       links: [
-        { name: "Preguntas frecuentes", path: "/faq" },
-        { name: "Centro de ayuda", path: "/help" },
+        { name: "Preguntas frecuentes", path: "/faq" }
       ],
     },
     {

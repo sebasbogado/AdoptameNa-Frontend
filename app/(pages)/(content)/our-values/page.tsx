@@ -44,7 +44,6 @@ const bodyData = [
     ))}
     <div className="h-12 md:h-10" />
   </div>
-    <Footer/>
   </>
   );
   }
