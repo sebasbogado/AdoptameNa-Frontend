@@ -75,7 +75,6 @@ const PostPage = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </>
     );
 };
