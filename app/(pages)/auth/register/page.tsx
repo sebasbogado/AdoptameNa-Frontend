@@ -16,7 +16,6 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   refinedBaseSchema,
   refinedOrganizacionSchema,
@@ -51,7 +50,6 @@ export default function Page() {
     handleSubmit,
     formState: { errors },
     reset,
-    trigger,
     watch,
   } = useForm<{
     organizationName?: string;
@@ -61,13 +59,18 @@ export default function Page() {
     confirmPassword: string;
   }>({
     resolver: zodResolver(schema),
-    mode: "onBlur",
+    mode: "onChange",
   });
 
-  // Observar el valor de la contraseña para actualizar las validaciones visuales
-  const watchPassword = watch("password", "");
 
-  // Función para validar la contraseña en tiempo real
+  const watchedFields = {
+    organizationName: watch("organizationName", ""),
+    fullName: watch("fullName", ""),
+    email: watch("email", ""),
+    password: watch("password", ""),
+    confirmPassword: watch("confirmPassword", "")
+  };
+
   const validatePassword = (password: string) => {
     setPasswordChecks({
       length: password.length >= 8 && password.length <= 64,
@@ -79,8 +82,8 @@ export default function Page() {
 
   // Actualizar validaciones cuando cambia la contraseña
   useEffect(() => {
-    validatePassword(watchPassword);
-  }, [watchPassword]);
+    validatePassword(watchedFields.password);
+  }, [watchedFields.password]);
 
   // Reiniciar el formulario cuando cambie el tipo de cuenta
   useEffect(() => {
@@ -198,7 +201,7 @@ export default function Page() {
               maxLength={50}
               className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
             />
-            {errors.fullName && (
+            {errors.fullName && watchedFields.fullName && (
               <p className='text-red-500 text-sm'>
                 {errors.fullName.message as string}
               </p>
@@ -213,7 +216,7 @@ export default function Page() {
               maxLength={50}
               className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
             />
-            {errors.email && (
+            {errors.email && watchedFields.email && (
               <p className='text-red-500 text-sm'>
                 {errors.email.message as string}
               </p>
@@ -243,12 +246,6 @@ export default function Page() {
                 )}
               </div>
             </div>
-            {errors.password && (
-              <p className='text-red-500 text-sm'>
-                {errors.password.message as string}
-              </p>
-            )}
-
             {/* Requisitos de contraseña con validación visual */}
             <div className='bg-gray-100 p-3 rounded-md mt-2 mb-2'>
               <p className='text-left font-medium text-sm mb-1'>
@@ -314,7 +311,7 @@ export default function Page() {
                 )}
               </div>
             </div>
-            {errors.confirmPassword && (
+            {errors.confirmPassword && watchedFields.confirmPassword && (
               <p className='text-red-500 text-sm'>
                 {errors.confirmPassword.message as string}
               </p>
