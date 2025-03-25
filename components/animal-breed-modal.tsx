@@ -16,6 +16,7 @@ interface AnimalBreedModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   animalList: { id: number; name: string }[];
+  breeds: Breed[]; // Agregar la lista de razas existentes
   selectedBreed?: Breed | null;
   onBreedSaved: (breed: Breed) => void;
   onBreedDeleted: (id: number) => void;
@@ -25,6 +26,7 @@ export default function AnimalBreedModal({
   open,
   setOpen,
   animalList,
+  breeds,
   selectedBreed,
   onBreedSaved,
   onBreedDeleted,
@@ -69,7 +71,32 @@ export default function AnimalBreedModal({
       return;
     }
 
-    setIsLoading(true); // Bloquear botón antes de la petición
+    if (breedName.length < 3) {
+      alert("El nombre debe tener al menos 3 caracteres.");
+      return;
+    }
+
+    if (!animalType) {
+      alert("Debe seleccionar un tipo de animal.");
+      return;
+    }
+
+    // Normalizar el nombre para evitar problemas de mayúsculas/minúsculas
+    const normalizedBreedName = breedName.trim().toLowerCase();
+
+    // Verificar si la raza ya existe para el tipo de animal seleccionado
+    const breedExists = breeds.some(
+      (breed) =>
+        breed.animalId === Number(animalType) &&
+        breed.name.trim().toLowerCase() === normalizedBreedName
+    );
+
+    if (breedExists) {
+      alert(`Ya existe una raza con el nombre "${breedName}" para este tipo de animal.`);
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       if (selectedBreed) {
@@ -83,7 +110,7 @@ export default function AnimalBreedModal({
     } catch (error) {
       console.error("Error al guardar la raza", error);
     } finally {
-      setIsLoading(false); // Desbloquear botón después de la petición
+      setIsLoading(false);
     }
   };
 

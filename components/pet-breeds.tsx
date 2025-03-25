@@ -151,6 +151,7 @@ export default function PetBreeds() {
         open={isModalOpen}
         setOpen={setIsModalOpen}
         animalList={animals}
+        breeds={breeds}  // ✅ Pasar la lista de razas aquí
         selectedBreed={selectedBreed}
         onBreedSaved={handleBreedSaved}
         onBreedDeleted={handleBreedDeleted}
