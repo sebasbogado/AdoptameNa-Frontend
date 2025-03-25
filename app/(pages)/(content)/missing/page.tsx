@@ -16,9 +16,7 @@ import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
 import { postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
-import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
-import { Maximize, Minimize } from "lucide-react";
 import { getPetStatuses } from "@/utils/pet-statuses.http";
 
 
@@ -256,9 +254,11 @@ const AdoptionForm = () => {
             <Banners images={arrayImages} className={`${isFullscreen ? "w-screen h-screen" : "h-[400px]"}`} />
             <button
               onClick={toggleFullScreen}
-              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+              className="absolute top-2 right-2 flex item-center bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
             >
-              <Maximize size={20} />
+              <span className="material-symbols-outlined">
+              fullscreen
+              </span>
             </button>
           </div>
           <div className="flex gap-2 mt-2 justify-center items-center">
@@ -289,7 +289,9 @@ const AdoptionForm = () => {
               htmlFor="fileInput"
               className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 transition bg-white"
             >
-              <ImagePlus size={20} className="text-blue-500" />
+              <span className="material-symbols-outlined ">
+                add_photo_alternate
+              </span>
             </label>
 
           </div>

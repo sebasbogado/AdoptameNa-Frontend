@@ -1,5 +1,4 @@
 import React from "react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 interface MenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -17,7 +16,9 @@ const MenuButton: React.FC<MenuButtonProps> = ({ size = "md", className, ...prop
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props}>
-      <EllipsisVerticalIcon className="w-5 h-5" />
+     <span className="material-symbols-outlined">
+      more_vert
+      </span>
     </button>
   );
 };

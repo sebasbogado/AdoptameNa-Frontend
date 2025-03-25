@@ -1,7 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Home } from 'lucide-react';
 
 export default function NotFound() {
     return (
@@ -25,7 +24,9 @@ export default function NotFound() {
                 </p>
 
                 <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium shadow-lg hover:bg-primary/90 transition-colors">
-                    <Home size={18} />
+                <span className="material-symbols-outlined">
+                home
+                </span>
                     <span>Volver al inicio</span>
                 </Link>
             </div>

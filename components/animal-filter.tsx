@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 
 interface Animal {
   id: number;
@@ -23,7 +22,9 @@ const AnimalFilter: React.FC<AnimalFilterProps> = ({ selectedFilter, setSelected
         onClick={() => setFilterOpen(!filterOpen)}
       >
         {selectedFilter === "Todos" ? "Filtrar por animal" : selectedFilter}
-        <ChevronDown className="h-4 w-4 ml-2" />
+        <span className="material-symbols-outlined">
+          keyboard_arrow_down
+        </span>
       </button>
 
       {filterOpen && (

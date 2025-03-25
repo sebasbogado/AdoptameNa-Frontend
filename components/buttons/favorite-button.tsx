@@ -22,7 +22,10 @@ const FavoriteButton: React.FC<HeartButtonProps> = ({variant = "desactivated", s
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props}>
-         <Icon className="w-6 h-6" />
+         <span className="material-symbols-outlined">
+         favorite
+         <div className="fill"></div>
+        </span>
     </button>
   );
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ChevronDown, Plus } from "lucide-react";
 import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from "@/contexts/authContext";
@@ -140,10 +139,12 @@ export default function PetBreeds() {
         ) : (
           <p>No se encontraron razas.</p>
         )}
-        <button className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
+        <button className="bg-blue-50 flex item-center hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
           onClick={() => handleCreateBreed()}
         >
-          <Plus className="h-4 w-4" />
+          <span className="material-symbols-outlined">
+          add
+          </span>
         </button>
       </div>
 

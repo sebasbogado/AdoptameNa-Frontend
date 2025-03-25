@@ -17,7 +17,6 @@ import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
-import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -96,7 +95,7 @@ export default function ProfilePage() {
     const [petsError, setPetsError] = useState<string | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isOpen , setIsOpen] = useState(false)   
+    const [isOpen, setIsOpen] = useState(false)
 
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
@@ -281,7 +280,9 @@ export default function ProfilePage() {
                                         <button onClick={handleContactClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                                         ${!userProfile?.email || userProfile?.email === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
                                             disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
-                                            <Mail size={16} className="text-gray-500 items-center" />
+                                            <span className="material-symbols-outlined">
+                                                mail
+                                            </span>
                                             <span className="font-medium text-sm text-gray-800">Correo: </span>
                                             <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
                                         </button>
@@ -291,7 +292,9 @@ export default function ProfilePage() {
                                         <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                                         ${!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
                                             disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
-                                            <Phone size={16} className="text-gray-500 items-center" />
+                                           <span className="material-symbols-outlined">
+call
+</span>
                                             <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
                                             <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>
                                         </button>

@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 
 interface SearchBarProps {
   searchQuery: string;
@@ -7,8 +6,11 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ searchQuery, setSearchQuery }) => {
   return (
-    <div className="relative flex-1">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+    <div className="relative flex-1 ">
+    
+    <span className="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">
+        search
+      </span>
       <input
         type="text"
         placeholder="Buscar raza"
