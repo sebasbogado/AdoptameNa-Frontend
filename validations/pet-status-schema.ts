@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 export const petStatusSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   name: z
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
