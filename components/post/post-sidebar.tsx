@@ -17,7 +17,7 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
                 posts ?
                     posts.length > 0 && (
                         <div className="left-10 pl-12 text-gray-700">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 gap-y-10">
                                 {posts.map((post) => (
                                     <PetCard key={post.id} post={post} isPost={true} />
                                 ))}
@@ -27,7 +27,7 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
                     :
                     pets && pets.length > 0 && (
                         <div className="left-10 pl-12 text-gray-700">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 gap-y-10">
                                 {pets.map((pet) => (
                                     <PetCard key={pet.id} post={pet} isPost={true} />
                                 ))}
