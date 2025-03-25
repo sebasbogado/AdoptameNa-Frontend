@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/authContext";
 import AnimalBreedModal from "@/components/animal-breed-modal";
 import SearchBar from "@/components/search-bar";
 import AnimalFilter from "@/components/animal-filter";
+import ClickableTag from "./admin-card/clickable-tag";
 
 interface Breed {
   id: number;
@@ -129,22 +130,17 @@ export default function PetBreeds() {
           <p>Cargando...</p>
         ) : filteredBreeds.length > 0 ? (
           filteredBreeds.map((breed) => (
-            <button
-              className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
+            <ClickableTag
               key={breed.id}
               onClick={() => handleEditBreed(breed)}
-            >
-              {breed.name}
-            </button>
+              label={breed.name}
+            />
           ))
         ) : (
           <p>No se encontraron razas.</p>
         )}
-        <button className="bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full p-2 border border-blue-200"
-          onClick={() => handleCreateBreed()}
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+
+        <ClickableTag type="add" onClick={handleCreateBreed} />
       </div>
 
       <AnimalBreedModal
