@@ -35,10 +35,12 @@ export default function AnimalBreedModal({
   const [animalType, setAnimalType] = useState("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado para el modal de confirmación
   const [isLoading, setIsLoading] = useState(false); // Estado para bloquear el botón
+  const [error, setError] = useState({ breedName: "", animalType: "" }); // Estado de errores
 
   useEffect(() => {
     setBreedName(selectedBreed?.name || "");
     setAnimalType(selectedBreed?.animalId?.toString() || "");
+    setError({ breedName: "", animalType: "" }); // Reiniciar errores al abrir el modal
   }, [selectedBreed]);
 
   const handleDelete = () => {
@@ -64,12 +66,27 @@ export default function AnimalBreedModal({
       return;
     }
 
+    let hasError = false;
+    const newErrors = { breedName: "", animalType: "" };
+
     if (!breedName.trim()) {
-      alert("El nombre de la raza no puede estar vacío.");
-      return;
+      newErrors.breedName = "El nombre de la raza no puede estar vacío.";
+      hasError = true;
+    } else if (breedName.length < 3) {
+      newErrors.breedName = "El nombre debe tener al menos 3 caracteres.";
+      hasError = true;
     }
 
-    setIsLoading(true); // Bloquear botón antes de la petición
+    if (!animalType) {
+      newErrors.animalType = "Debe seleccionar un tipo de animal.";
+      hasError = true;
+    }
+
+    setError(newErrors);
+
+    if (hasError) return; // No proceder si hay errores
+
+    setIsLoading(true); // Bloquear mientras se guarda
 
     try {
       if (selectedBreed) {
@@ -83,7 +100,15 @@ export default function AnimalBreedModal({
     } catch (error) {
       console.error("Error al guardar la raza", error);
     } finally {
-      setIsLoading(false); // Desbloquear botón después de la petición
+      setIsLoading(false); // Desbloquear después de la petición
+    }
+  };
+
+  // Manejador para limpiar el error cuando el usuario selecciona un tipo de animal
+  const handleAnimalTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setAnimalType(e.target.value);
+    if (e.target.value) {
+      setError((prev) => ({ ...prev, animalType: "" })); // Borra el mensaje de error
     }
   };
 
@@ -93,7 +118,7 @@ export default function AnimalBreedModal({
         <div className="bg-white rounded-lg shadow-lg w-96 p-6">
           <div className="flex justify-between items-center border-b pb-2">
             <h2 className="text-xl font-medium">{selectedBreed ? "Editar Raza" : "Nueva Raza"}</h2>
-            <button className="p-2 rounded-full hover:bg-gray-200" onClick={() => setOpen(false)}>
+            <button className="p-2 rounded-full hover:bg-gray-200" onClick={() => setOpen(false)} disabled={isLoading}>
               ✖
             </button>
           </div>
@@ -103,8 +128,9 @@ export default function AnimalBreedModal({
               <label className="text-sm font-medium block">Tipo de animal</label>
               <select
                 value={animalType}
-                onChange={(e) => setAnimalType(e.target.value)}
-                className="w-full border rounded-lg p-2"
+                onChange={handleAnimalTypeChange}
+                className={`w-full border rounded-lg p-2 ${error.animalType ? "border-red-500" : ""}`}
+                disabled={isLoading}
               >
                 <option value="">Selecciona un tipo</option>
                 {animalList.map((animal) => (
@@ -113,6 +139,7 @@ export default function AnimalBreedModal({
                   </option>
                 ))}
               </select>
+              {error.animalType && <p className="text-red-500 text-sm">{error.animalType}</p>}
             </div>
 
             <div>
@@ -121,22 +148,21 @@ export default function AnimalBreedModal({
                 value={breedName}
                 onChange={(e) => setBreedName(e.target.value)}
                 placeholder="Ingrese el nombre de la raza"
-                className="w-full border rounded-lg p-2"
-                maxLength={30} // Limita la cantidad de caracteres
+                className={`w-full border rounded-lg p-2 ${error.breedName ? "border-red-500" : ""}`}
+                maxLength={30}
+                disabled={isLoading}
               />
-              {breedName.length > 0 && breedName.length < 3 && (
-                <p className="text-red-500 text-sm">El nombre debe tener al menos 3 caracteres.</p>
-              )}
+              {error.breedName && <p className="text-red-500 text-sm">{error.breedName}</p>}
             </div>
           </div>
 
           <div className="flex gap-4 mt-4">
             {selectedBreed ? (
-              <Button variant="danger" size="md" onClick={handleDelete} className="flex-1">
+              <Button variant="danger" size="md" onClick={handleDelete} className="flex-1" disabled={isLoading}>
                 Borrar
               </Button>
             ) : (
-              <Button variant="secondary" size="md" onClick={() => setOpen(false)} className="flex-1">
+              <Button variant="secondary" size="md" onClick={() => setOpen(false)} className="flex-1" disabled={isLoading}>
                 Cancelar
               </Button>
             )}
@@ -145,10 +171,9 @@ export default function AnimalBreedModal({
               size="md"
               onClick={handleSave}
               className="flex-1"
-              disabled={isLoading || breedName.length < 3 || animalType === ""}
-            // Bloquear si está cargando, si el nombre es menor a 3 caracteres o si no hay tipo de animal seleccionado
+              disabled={isLoading}
             >
-              {selectedBreed ? "Guardar Cambios" : "Guardar"}
+              {isLoading ? "Guardando..." : selectedBreed ? "Guardar Cambios" : "Guardar"}
             </Button>
           </div>
         </div>
@@ -161,7 +186,7 @@ export default function AnimalBreedModal({
           title="Eliminar Raza"
           message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`}
         />
-      </div >
+      </div>
     )
   );
 }
