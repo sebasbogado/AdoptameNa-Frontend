@@ -518,7 +518,6 @@ const AdoptionForm = () => {
         </div>
 
       </div>
-      <Footer />
     </div>
   );
 };

@@ -122,7 +122,6 @@ export default function MyPostsPage() {
 
                 </div>
             </section>
-            <Footer></Footer>
         </div>
     )
 }
