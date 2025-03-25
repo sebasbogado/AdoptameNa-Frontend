@@ -12,6 +12,7 @@ import FormAnimals from "@/components/form-animal";
 import FormPetStatus from "@/components/form-pet-status";
 import ConfirmationModal from "@/components/confirm-modal";
 import PetBreeds from "@/components/pet-breeds";
+import { Alert } from "@material-tailwind/react";
 
 export default function page() {
   const [modalAnimal, setModalAnimal] = useState(false);
@@ -22,7 +23,7 @@ export default function page() {
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
   const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | null>(null);
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { authToken, user } = useAuth();
 
   useEffect(() => {
@@ -34,8 +35,9 @@ export default function page() {
 
         setAnimals(animals);
         setPetStatuses(petStatuses);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error al obtener animales:', error);
+        setErrorMessage(error.message);
       }
     }
     fetchAnimals();
@@ -44,23 +46,21 @@ export default function page() {
   const handleSubmitAnimal = async (newAnimal: Animal) => {
     try {
       if (!authToken) return;
-      if (newAnimal.id !== 0) {
+      if (newAnimal.id) {
         //actualizar animal
         await updateAnimal(authToken, newAnimal);
-        //actualizar lista de animales
         setAnimals(animals.map((animal) => animal.id === newAnimal.id ? newAnimal : animal));
         setModalAnimal(false);
         return;
       } else {
-        const animal = await createAnimal(authToken, newAnimal);
-        //actualizar lista de animales
+        const { id, ...animalData } = newAnimal;
+        const animal = await createAnimal(authToken, animalData);
         setAnimals([...animals, animal]);
         setModalAnimal(false);
-
       }
-      //crear animal
-    } catch (error) {
-      console.error('Error al crear animal:', error);
+    } catch (error: any) {
+      console.error('Error al guardar animal:', error);
+      setErrorMessage(error.message);
     }
   }
 
@@ -102,8 +102,9 @@ export default function page() {
         setModalPetStatus(false);
       }
       //crear estado
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al crear estado:', error);
+      setErrorMessage(error.message);
     }
   }
 
@@ -124,8 +125,9 @@ export default function page() {
       //actualizar lista de animales
       setAnimals(animals.filter((animal) => animal.id !== animalSelected.id));
       setModalAnimal(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al eliminar animal:', error);
+      setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
     }
@@ -139,8 +141,9 @@ export default function page() {
       //actualizar lista de estados
       setPetStatuses(petStatuses.filter((petStatus) => petStatus.id !== petStatusSelected.id));
       setModalPetStatus(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al eliminar estado:', error);
+      setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
       setModalAnimal(false)
@@ -157,6 +160,15 @@ export default function page() {
   }
   return (
     <>
+      {errorMessage && (
+        <Alert
+          color="red"
+          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          onClose={() => setErrorMessage(null)}
+        >
+          {errorMessage}
+        </Alert>
+      )}
       <div className="rounded-lg  p-6">
 
         <div className="flex justify-center gap-3">
