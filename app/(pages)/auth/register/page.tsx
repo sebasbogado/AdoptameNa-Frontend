@@ -1,227 +1,361 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
-import { Input, Button, Typography, Card, Radio, Alert } from "@material-tailwind/react";
+import {
+  Input,
+  Button,
+  Typography,
+  Card,
+  Radio,
+  Alert,
+} from "@material-tailwind/react";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-
-interface form {
-    organizationName?: string;
-    fullName?: string;
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-}
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  refinedBaseSchema,
+  refinedOrganizacionSchema,
+} from "@/validations/register-schema";
 
 export default function Page() {
-    const [accountType, setAccountType] = useState("persona");
-    const [formData, setFormData] = useState<form>({
-        organizationName: "",
-        fullName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+  const [accountType, setAccountType] = useState("persona");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+
+  // Estados para controlar la visibilidad de las contraseñas
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Estado para validación visual de contraseña en tiempo real
+  const [passwordChecks, setPasswordChecks] = useState({
+    length: false,
+    lowercase: false,
+    uppercase: false,
+    number: false,
+  });
+
+  // Crear un schema dinámico basado en el tipo de cuenta
+  const schema =
+    accountType === "persona" ? refinedBaseSchema : refinedOrganizacionSchema;
+
+  // Configurar React Hook Form con Zod
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm<{
+    organizationName?: string;
+    fullName: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }>({
+    resolver: zodResolver(schema),
+    mode: "onChange",
+  });
+
+
+  const watchedFields = {
+    organizationName: watch("organizationName", ""),
+    fullName: watch("fullName", ""),
+    email: watch("email", ""),
+    password: watch("password", ""),
+    confirmPassword: watch("confirmPassword", "")
+  };
+
+  const validatePassword = (password: string) => {
+    setPasswordChecks({
+      length: password.length >= 8 && password.length <= 64,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
     });
-    const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errors, setErrors] = useState<form>({});
+  };
 
-    const handleAccountTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAccountType(e.target.value);
-    };
+  // Actualizar validaciones cuando cambia la contraseña
+  useEffect(() => {
+    validatePassword(watchedFields.password);
+  }, [watchedFields.password]);
 
-    const router = useRouter();
+  // Reiniciar el formulario cuando cambie el tipo de cuenta
+  useEffect(() => {
+    reset();
+  }, [accountType, reset]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+  const handleAccountTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAccountType(e.target.value);
+  };
 
-    const validate = () => {
-        let newErrors: form = {};
+  const onSubmit = async (data: any) => {
+    setErrorMessage("");
+    setIsSubmitting(true);
 
-        if (!formData.fullName || formData.fullName.length < 5 || formData.fullName.length > 50) {
-            newErrors.fullName = "Nombre inválido (Máx. 50 caracteres, min. 5)";
+    const payload =
+      accountType === "persona"
+        ? {
+          organizationName: null,
+          fullName: data.fullName,
+          email: data.email,
+          password: data.password,
+          role: "USER",
         }
-        if (accountType === "organizacion" && (!formData.organizationName || formData.organizationName.length < 5 || formData.organizationName.length > 50)) {
-            newErrors.organizationName = "Nombre de la organización inválido (Máx. 50 caracteres, min. 5)";
-        }
-        if (!formData.email || !formData.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-            newErrors.email = "Correo inválido";
-        }
-        if (!formData.password || formData.password.length < 8) {
-            newErrors.password = "La contraseña debe tener al menos 8 caracteres";
-        }
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = "Las contraseñas no coinciden";
-        }
+        : {
+          organizationName: data.organizationName,
+          fullName: data.fullName,
+          email: data.email,
+          password: data.password,
+          role: "ORGANIZATION",
+        };
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
+        payload
+      );
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setErrorMessage("");
-        if (!validate()) return;
+      setIsSubmitting(false);
 
-        const payload = accountType === "persona"
-            ? {
-                organizationName: null,
-                fullName: formData.fullName,
-                email: formData.email,
-                password: formData.password,
-                role: "USER"
-            }
-            : {
-                organizationName: formData.organizationName,
-                fullName: formData.fullName,
-                email: formData.email,
-                password: formData.password,
-                role: "ORGANIZATION"
-            };
+      if (response.status === 201 || response.status === 200) {
+        setSuccessMessage(
+          "✅ Registro exitoso. Revisa tu correo para verificar tu cuenta."
+        );
+        setTimeout(() => {
+          router.push("/auth/login");
+        }, 3000);
+      }
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
+      } else {
+        setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-        try {
-            const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth/register`,
-                payload
-            );
-
-            if (response.status === 201 || response.status === 200) {
-                setSuccessMessage("✅ Registro exitoso. Revisa tu correo para verificar tu cuenta.");
-                setTimeout(() => {
-                    router.push("/auth/login");
-                }, 3000); // Redirige después de 3 segundos
-            }
-
-        } catch (error: any) {
-            if (error.response?.status === 409) {
-                setErrorMessage("❌ El correo ya está registrado. Intenta con otro.");
-            } else {
-                setErrorMessage("❌ Error en el registro. Inténtalo de nuevo.");
-            }
-        }
-
-    };
-
-    return (
-        <div>
-            <Card className="w-full max-w-sm min-h-[500px] p-8 shadow-lg rounded-xxl bg-white text-center">
-                <div className="flex justify-center mb-4">
-                    <Image src={logo} alt="Logo" width={150} height={50} />
-                </div>
-                <Typography className="text-center text-gray-800 mb-4">
-                    Estás a un paso de formar parte de esta gran comunidad
-                </Typography>
-
-                {/* Selección de tipo de cuenta */}
-                <div className="flex justify-center gap-4 mb-4">
-                    <Radio
-                        name="accountType"
-                        label="Persona"
-                        value="persona"
-                        checked={accountType === "persona"}
-                        onChange={handleAccountTypeChange}
-                    />
-                    <Radio
-                        name="accountType"
-                        label="Organización"
-                        value="organizacion"
-                        checked={accountType === "organizacion"}
-                        onChange={handleAccountTypeChange}
-                    />
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {accountType === "organizacion" && (
-                        <div className="text-left">
-                            <label className="text-gray-700 font-medium text-sm">Nombre de la Organización</label>
-                            <Input
-                                type="text"
-                                name="organizationName"
-                                maxLength={50}
-                                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                                onChange={handleChange}
-                            />
-                            {errors.organizationName && <p className="text-red-500 text-sm">{errors.organizationName}</p>}
-                        </div>
-                    )}
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">
-                            {accountType === "organizacion" ? "Nombre del Responsable" : "Nombre"}
-                        </label>
-                        <Input
-                            type="text"
-                            name="fullName"
-                            maxLength={50}
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                            onChange={handleChange}
-                        />
-                        {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
-                    </div>
-
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Correo</label>
-                        <Input
-                            type="email"
-                            name="email"
-                            maxLength={50}
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                            onChange={handleChange}
-                        />
-                        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                    </div>
-
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Contraseña</label>
-                        <Input
-                            type="password"
-                            name="password"
-                            maxLength={20}
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                            onChange={handleChange}
-                        />
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-                    </div>
-
-                    <div className="text-left">
-                        <label className="text-gray-700 font-medium text-sm">Confirmar Contraseña</label>
-                        <Input
-                            type="password"
-                            name="confirmPassword"
-                            maxLength={20}
-                            className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                            onChange={handleChange}
-                        />
-                        {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-                        <Button type="submit" className="bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48" >
-                            Crear Cuenta
-                        </Button>
-                        <Link href="/auth/login" className="border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48">
-                            Iniciar sesión
-                        </Link>
-                    </div>
-                </form>
-            </Card>
-            {errorMessage && (
-                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-                    <Alert className="text-sm px-4 py-2 w-fit flex items-center">
-                        {errorMessage}
-                    </Alert>
-                </div>
-            )}
-            {successMessage && (
-                <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-                    <Alert className="text-sm px-4 py-2 w-fit flex items-center">
-                        {successMessage}
-                    </Alert>
-                </div>
-            )}
+  return (
+    <div>
+      <Card className='w-full max-w-sm min-h-[500px] p-8 shadow-lg rounded-xxl bg-white text-center'>
+        <div className='flex justify-center mb-4'>
+          <Image src={logo} alt='Logo' width={150} height={50} />
         </div>
-    );
+        <Typography className='text-center text-gray-800 mb-4'>
+          Estás a un paso de formar parte de esta gran comunidad
+        </Typography>
+
+        {/* Selección de tipo de cuenta */}
+        <div className='flex justify-center gap-4 mb-4'>
+          <Radio
+            name='accountType'
+            label='Persona'
+            value='persona'
+            checked={accountType === "persona"}
+            onChange={handleAccountTypeChange}
+          />
+          <Radio
+            name='accountType'
+            label='Organización'
+            value='organizacion'
+            checked={accountType === "organizacion"}
+            onChange={handleAccountTypeChange}
+          />
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+          {accountType === "organizacion" && (
+            <div className='text-left'>
+              <label className='text-gray-700 font-medium text-sm'>
+                Nombre de la Organización
+              </label>
+              <Input
+                type='text'
+                {...register("organizationName")}
+                maxLength={50}
+                className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
+              />
+              {errors.organizationName && (
+                <p className='text-red-500 text-sm'>
+                  {errors.organizationName.message as string}
+                </p>
+              )}
+            </div>
+          )}
+          <div className='text-left'>
+            <label className='text-gray-700 font-medium text-sm'>
+              {accountType === "organizacion"
+                ? "Nombre del Responsable"
+                : "Nombre"}
+            </label>
+            <Input
+              type='text'
+              {...register("fullName")}
+              maxLength={50}
+              className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
+            />
+            {errors.fullName && watchedFields.fullName && (
+              <p className='text-red-500 text-sm'>
+                {errors.fullName.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className='text-left'>
+            <label className='text-gray-700 font-medium text-sm'>Correo</label>
+            <Input
+              type='email'
+              {...register("email")}
+              maxLength={50}
+              className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
+            />
+            {errors.email && watchedFields.email && (
+              <p className='text-red-500 text-sm'>
+                {errors.email.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className='text-left'>
+            <label className='text-gray-700 font-medium text-sm'>
+              Contraseña
+            </label>
+            <div className='relative'>
+              <Input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                maxLength={64}
+                className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
+              />
+              <div
+                className='absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer'
+                onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? (
+                  <span className='material-symbols-outlined'>
+                    visibility_off
+                  </span>
+                ) : (
+                  <span className='material-symbols-outlined'>visibility</span>
+                )}
+              </div>
+            </div>
+            {/* Requisitos de contraseña con validación visual */}
+            <div className='bg-gray-100 p-3 rounded-md mt-2 mb-2'>
+              <p className='text-left font-medium text-sm mb-1'>
+                La contraseña debe contener lo siguiente:
+              </p>
+              <ul className='space-y-1'>
+                <li
+                  className={`flex items-center text-sm ${passwordChecks.length ? "text-green-500" : "text-red-500"
+                    }`}>
+                  <span className='mr-2'>
+                    {passwordChecks.length ? "✓" : "×"}
+                  </span>
+                  Entre 8 y 64 caracteres
+                </li>
+                <li
+                  className={`flex items-center text-sm ${passwordChecks.lowercase ? "text-green-500" : "text-red-500"
+                    }`}>
+                  <span className='mr-2'>
+                    {passwordChecks.lowercase ? "✓" : "×"}
+                  </span>
+                  Al menos 1 letra minúscula
+                </li>
+                <li
+                  className={`flex items-center text-sm ${passwordChecks.uppercase ? "text-green-500" : "text-red-500"
+                    }`}>
+                  <span className='mr-2'>
+                    {passwordChecks.uppercase ? "✓" : "×"}
+                  </span>
+                  Al menos 1 letra mayúscula
+                </li>
+                <li
+                  className={`flex items-center text-sm ${passwordChecks.number ? "text-green-500" : "text-red-500"
+                    }`}>
+                  <span className='mr-2'>
+                    {passwordChecks.number ? "✓" : "×"}
+                  </span>
+                  Al menos 1 número
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className='text-left'>
+            <label className='text-gray-700 font-medium text-sm'>
+              Confirmar Contraseña
+            </label>
+            <div className='relative'>
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                {...register("confirmPassword")}
+                maxLength={64}
+                className='w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]'
+              />
+              <div
+                className='absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                {showConfirmPassword ? (
+                  <span className='material-symbols-outlined'>
+                    visibility_off
+                  </span>
+                ) : (
+                  <span className='material-symbols-outlined'>visibility</span>
+                )}
+              </div>
+            </div>
+            {errors.confirmPassword && watchedFields.confirmPassword && (
+              <p className='text-red-500 text-sm'>
+                {errors.confirmPassword.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className='flex flex-col items-center justify-center space-y-6 mt-6'>
+            <Button
+              type='submit'
+              className='bg-[#9747FF] text-white py-3 rounded-xl px-6 w-48'
+              disabled={isSubmitting}>
+              {isSubmitting ? (
+                <div className='flex items-center justify-center'>
+                  <span className='material-symbols-outlined animate-spin mr-2'>
+                    progress_activity
+                  </span>
+                  Procesando...
+                </div>
+              ) : (
+                "Crear cuenta"
+              )}
+            </Button>
+            <Link
+              href='/auth/login'
+              className='border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent w-48'>
+              Iniciar sesión
+            </Link>
+          </div>
+        </form>
+      </Card>
+      {errorMessage && (
+        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto'>
+          <Alert className='text-sm px-4 py-2 w-fit flex items-center'>
+            {errorMessage}
+          </Alert>
+        </div>
+      )}
+      {successMessage && (
+        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto'>
+          <Alert className='text-sm px-4 py-2 w-fit flex items-center'>
+            {successMessage}
+          </Alert>
+        </div>
+      )}
+    </div>
+  );
 }
