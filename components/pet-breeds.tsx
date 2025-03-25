@@ -109,8 +109,7 @@ export default function PetBreeds() {
 
   return (
     <div className="w-full max-w-2xl mx-auto rounded-xl border border-gray-200 p-6 bg-white">
-      <h2 className="text-2xl font-medium text-gray-800 mb-4">Razas</h2>
-
+      <h4 className="mb-4">Razas</h4>
       <div className="flex gap-4 mb-6">
         {/* 🔎 Barra de búsqueda */}
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
