@@ -97,7 +97,6 @@ export default function Page() {
         </div>
       </section>
       <div className="h-12 md:h-10" />
-      <Footer />
     </div>
   );
 }

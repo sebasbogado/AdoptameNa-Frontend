@@ -123,7 +123,6 @@ export default function Page() {
                     </button>
                 </div>
             </Link>
-            <Footer />
         </div>
     )
 }

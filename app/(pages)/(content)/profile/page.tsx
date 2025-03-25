@@ -327,8 +327,6 @@ export default function ProfilePage() {
                 error={postsError}
                 filterByType={false}
             />
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }
