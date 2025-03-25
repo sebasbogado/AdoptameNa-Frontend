@@ -4,7 +4,7 @@ import Button from '@/components/buttons/button';
 import { getReportReasons } from '@/utils/report-reasons.http';
 import { useAuth } from '@/contexts/authContext';
 import { ReportReason } from '@/types/report-reason';
-import { Report } from '@/types/report';
+import { ReportPost } from '@/types/report';
 import { createReport } from '@/utils/reports.http';
 import { useParams } from 'next/navigation';
 interface ReportFormProps {
@@ -12,7 +12,7 @@ interface ReportFormProps {
 }
 const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   const [reportReasons, setReportReasons] = useState([]);
-  const [report, setReport] = useState<Report>({
+  const [report, setReport] = useState<ReportPost>({
     id: 0,
     idUser: 0,
     idPost: 0,
