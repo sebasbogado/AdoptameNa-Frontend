@@ -83,6 +83,8 @@ export default function AnimalBreedModal({
     } catch (error) {
       console.error("Error al guardar la raza", error);
     } finally {
+      setBreedName("");
+      setAnimalType("");
       setIsLoading(false); // Desbloquear botón después de la petición
     }
   };
