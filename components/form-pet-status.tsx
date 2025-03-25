@@ -3,7 +3,9 @@ import { Input } from '@/components/ui/input';
 import Button from '@/components/buttons/button';
 import { PetStatus } from '@/types/pet-status';
 import { Alert } from '@material-tailwind/react';
-
+import { petStatusSchema } from '@/validations/pet-status-schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 interface FormPetStatusProps {
   onCreate: (newStatus: PetStatus) => void;
   onDelete: (event: React.FormEvent) => void;
@@ -11,45 +13,32 @@ interface FormPetStatusProps {
 }
 
 const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petStatusData }) => {
-  const [formData, setFormData] = useState<PetStatus>(petStatusData);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<string | null>(null);
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    resolver: zodResolver(petStatusSchema),
+  });
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    //validaciones
-    if (!formData.name.trim()) {
-      setErrors("El nombre del estado no puede estar vacío.");
-      return;
-    }
-    if (formData.description.length < 3) {
-      setErrors("La descripción del estado debe tener al menos 3 caracteres.");
-      return;
-    }
-
-    setLoading(true);
-    onCreate(formData);
-    setLoading(false);
+  const onSubmit = async (data: PetStatus) => {
+    onCreate(data);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
-  };
-
+  console.log(errors)
   return (
-    <form className="mt-5">
-      {errors && (
+    <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
+      {/**TODO: mejorar mensaje de validacion con <p> */}
+      {Object.values(errors).length > 0 && (
         <Alert color="red" className="py-2">
-          {errors}
+          <ul>
+            {Object.values(errors).map((error, index) => (
+              <li key={index}>{error?.message}</li>
+            ))}
+          </ul>
         </Alert>
       )}
       <div className="mb-2">
         <label className="block mb-1">Nombre </label>
         <Input
           placeholder="Ejemplo: Adoptado"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
+          {...register("name")}
           maxLength={100}
         />
       </div>
@@ -58,21 +47,19 @@ const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petSt
         <label className="block mb-1">Descripción </label>
         <Input
           placeholder="Ejemplo: Mascota adoptada por una familia"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
+          {...register("description")}
           maxLength={255}
         />
       </div>
 
       <div className="flex justify-end items-center mt-6 w-full">
         <div className="flex gap-4">
-          <Button variant={formData.id === 0 ? "secondary" : "danger"} onClick={onDelete}>
-            {formData.id === 0 ? "Cancelar" : "Eliminar"}
+          <Button variant={petStatusData.id === 0 ? "secondary" : "danger"} onClick={onDelete}>
+            {petStatusData.id === 0 ? "Cancelar" : "Eliminar"}
           </Button>
 
-          <Button variant='primary' disabled={loading} onClick={handleSubmit}>
-            {loading ? "Guardando..." : "Guardar"}
+          <Button variant='primary' disabled={isSubmitting}>
+            {isSubmitting ? "Guardando..." : "Guardar"}
           </Button>
         </div>
       </div>
