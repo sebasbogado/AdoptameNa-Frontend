@@ -5,9 +5,9 @@ import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/authContext";
 import { useRouter } from "next/navigation";
-import { postPosts } from "@/utils/posts.http";
+import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
-import { Post } from "@/types/post";
+import { CreatePost } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import { postMedia } from "@/utils/media.http";
@@ -33,11 +33,12 @@ export default function Page() {
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
-            postType: { id: 0 },
+            idPostType: 0,
             title: "",
             content: "",
             locationCoordinates: [0, 0],
-            contactNumber: ""
+            contactNumber: "",
+            urlPhoto: ""
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
@@ -47,15 +48,13 @@ export default function Page() {
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [formData, setFormData] = useState<PostFormValues>({
-        postType: { id: 0 },
+        idPostType: 0,
         title: "",
         content: "",
         locationCoordinates: [0, 0], // Array de coordenadas
         contactNumber: "",
-        sharedCounter: 0, // Valor estático
         status: "activo", // Valor estático
         urlPhoto: "",
-        publicationDate: new Date().toISOString(), // Valor estático con la fecha actual
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<any[]>([]);
@@ -95,26 +94,17 @@ export default function Page() {
         setIsModalOpen(true);
     };
 
-    const confirmSubmit = async (data: PostFormValues) => {
+    const confirmSubmit = async () => {
         setIsModalOpen(false);
         setLoading(true);
 
         const updatedFormData = {
             ...formData, // ✅ Asegura que urlPhoto está presente
-            //...data,
-            postType: {
-                id: Number(formData.postType.id),
-                name: "",
-                description: "",
-            },
-            id: 0,
             idUser: user ? Number(user.id) : 0,
-            userFullName: user?.fullName || "",
-            locationCoordinates: formData.locationCoordinates.join(","), // Convertir a string
-            status: "activo", // Valores estáticos
-            sharedCounter: 0,
-            publicationDate: new Date().toISOString(),
+            locationCoordinates: formData.locationCoordinates?.join(",") || "", // Convertir a string
         };
+
+        console.log(updatedFormData);
 
         if (!authToken) {
             setError("Usuario no autenticado");
@@ -123,19 +113,17 @@ export default function Page() {
         }
 
         try {
-            const response = await postPosts(updatedFormData as Post, authToken);
+            const response = await createPost(updatedFormData as CreatePost, authToken);
             if (response) {
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setFormData({
-                    postType: { id: 0 },
+                    idPostType: 0,
                     title: "",
                     content: "",
                     locationCoordinates: [0, 0], // Array de coordenadas
                     contactNumber: "",
-                    sharedCounter: 0, // Valor estático
                     status: "activo", // Valor estático
-                    urlPhoto: "",
-                    publicationDate: new Date().toISOString(), // Valor estático con la fecha actual
+                    urlPhoto: ""
                 });
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("Se ha creado correctamente la publicación.");
@@ -144,7 +132,7 @@ export default function Page() {
                 setError("Error al guardar publicación");
             }
         } catch (error: any) {
-            setError(error.message || "Error al crear la publicación");
+            setError("Error al crear la publicación");
         } finally {
             setLoading(false);
         }
@@ -227,15 +215,15 @@ export default function Page() {
             <form onSubmit={zodHandleSubmit(openConfirmationModal)}>
                 {/* Tipo de publicación */}
                 <select
-                    {...register("postType.id", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.postType?.id ? 'border-red-500' : ''}`}
+                    {...register("idPostType", { valueAsNumber: true })}
+                    className={`w-full p-2 border rounded mb-4 ${errors.idPostType ? 'border-red-500' : ''}`}
                 >
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {errors.postType?.id && <p className="text-red-500 text-sm">{errors.postType.id.message}</p>}
+                {errors.idPostType && <p className="text-red-500 text-sm">{errors.idPostType.message}</p>}
 
                 {/* Título */}
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
