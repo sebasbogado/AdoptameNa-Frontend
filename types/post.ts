@@ -15,6 +15,18 @@ export interface Post {
   postType: PostType;
 }
 
+export interface CreatePost {
+  idUser: number;
+  title: string;
+  content: string;
+  idPostType: number;
+  locationCoordinates: string;
+  contactNumber: string;
+  status: string;
+  sharedCounter: number;
+  urlPhoto: string;
+}
+
 export interface UpdatePost {
     idUser: number
     title: string
