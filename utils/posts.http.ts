@@ -99,7 +99,7 @@ export const createPost = async (data: CreatePost, token: string) => {
   }
 };
 
-export async function updatePost(id: string, postData: Post, token: string) {
+export async function updatePost(id: string, postData: UpdatePost, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, postData, {
       headers: {
