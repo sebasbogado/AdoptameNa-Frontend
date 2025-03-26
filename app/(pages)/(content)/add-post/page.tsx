@@ -104,8 +104,6 @@ export default function Page() {
             locationCoordinates: formData.locationCoordinates?.join(",") || "", // Convertir a string
         };
 
-        console.log(updatedFormData);
-
         if (!authToken) {
             setError("Usuario no autenticado");
             setLoading(false);
