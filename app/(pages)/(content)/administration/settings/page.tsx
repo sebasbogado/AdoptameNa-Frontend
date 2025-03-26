@@ -170,7 +170,7 @@ export default function page() {
       {successMessage && (
         <Alert
           color="green"
-          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
           onClose={() => setSuccessMessage(null)}
         >
           {successMessage}
@@ -180,7 +180,7 @@ export default function page() {
       {errorMessage && (
         <Alert
           color="red"
-          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
           onClose={() => setErrorMessage(null)}
         >
           {errorMessage}
