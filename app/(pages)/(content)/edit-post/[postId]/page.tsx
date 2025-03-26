@@ -296,16 +296,6 @@ export default function Page() {
                     <p className="text-red-500 text-sm mb-4">{formErrors.content}</p>
                 )}
 
-                {/* Mapa */}
-                <div
-                    className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                >
-                    <MapWithNoSSR position={position} setPosition={setPosition} />
-                </div>
-                {formErrors.locationCoordinates && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.locationCoordinates}</p>
-                )}
-
                 {/* Contacto */}
                 <label className="block text-sm font-medium">
                     Número de contacto <span className="text-red-500">*</span>
@@ -319,6 +309,16 @@ export default function Page() {
                 />
                 {formErrors.contactNumber && (
                     <p className="text-red-500 text-sm mb-4">{formErrors.contactNumber}</p>
+                )}
+
+                {/* Mapa */}
+                <div
+                    className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                >
+                    <MapWithNoSSR position={position} setPosition={setPosition} />
+                </div>
+                {formErrors.locationCoordinates && (
+                    <p className="text-red-500 text-sm mb-4">{formErrors.locationCoordinates}</p>
                 )}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
