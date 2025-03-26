@@ -26,7 +26,7 @@ const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -37,8 +37,7 @@ const getUserProfileData = async (
 
     } catch (err) {
         console.error("Error al cargar el perfil:", err);
-        setError("No se pudo cargar la información del perfil");
-    } finally {
+        setErrors(prev => ({ ...prev, userProfile: true }));     } finally {
         setLoading(false);
     }
 };
@@ -46,7 +45,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -58,15 +57,14 @@ const getPostsData = async (
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPostsError("No se pudieron cargar las publicaciones.");
-    } finally {
+        setErrors(prev => ({ ...prev, posts: true }));     } finally {
         setLoading(false);
     }
 };
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -76,8 +74,8 @@ const getPetsData = async (
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPetsError("No se pudieron cargar las publicaciones.");
-    } finally {
+        setErrors(prev => ({ ...prev, pets: true })); 
+        } finally {
         setLoading(false);
     }
 };
@@ -88,16 +86,17 @@ export default function ProfilePage() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [profileLoading, setProfileLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false)
-    const [postsError, setPostsError] = useState<string | null>(null);
-    const [petsError, setPetsError] = useState<string | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen , setIsOpen] = useState(false)   
-
+    const [errors, setErrors] = useState({
+        pets: false,
+        posts: false,
+        userProfile: false
+    });
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
         if (!validateProfile(profileToUpdate)) {
@@ -108,14 +107,15 @@ export default function ProfilePage() {
 
 
         setProfileLoading(true);
-        setError(null);
+        setErrors(prev => ({ ...prev, userProfile: false })); 
 
         try {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
         } catch (err) {
             console.error("Error al actualizar el perfil:", err);
-            setError("No se pudo actualizar la información del perfil");
+            setErrors(prev => ({ ...prev, userProfile: true })); 
+
         } finally {
             setProfileLoading(false);
         }
@@ -158,11 +158,11 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        setError(null);
+        
         getUserProfileData(
             setUserProfile,
             setProfileLoading,
-            setError,
+            setErrors,
             user.id
         );
     }, [authToken, authLoading, user?.id]);
@@ -170,15 +170,15 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        setError(null);
-        getPetsData(setPets, setLoading, setPetsError, user.id);
+        setErrors(prev => ({ ...prev, pets: false })); 
+        getPetsData(setPets, setLoading, setErrors, user.id);
 
     }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         console.log("authLoading", authLoading);
-        getPostsData(setPosts, setLoading, setPostsError, user.id);
+        getPostsData(setPosts, setLoading, setErrors, user.id);
     }, [authToken, authLoading, user?.id]);
 
     const handleContactClick = () => {
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                 path={`/profile/my-pets/${user.id}`}
                 items={pets}
                 loading={loading}
-                error={petsError}
+                error={errors.pets}
                 filterByType={false}
             />
 
@@ -324,7 +324,7 @@ export default function ProfilePage() {
                 path={`/profile/my-posts/${user.id}`}
                 items={posts}
                 loading={loading}
-                error={postsError}
+                error={errors.posts}
                 filterByType={false}
             />
         </div>
