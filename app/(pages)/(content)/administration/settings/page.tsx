@@ -10,9 +10,9 @@ import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus } fro
 import { PetStatus } from "@/types/pet-status";
 import FormAnimals from "@/components/form-animal";
 import FormPetStatus from "@/components/form-pet-status";
-import ConfirmationModal from "@/components/confirm-modal";
 import PetBreeds from "@/components/pet-breeds";
 import { Alert } from "@material-tailwind/react";
+import { ConfirmationModal } from "@/components/form/modal";
 
 export default function page() {
   const [modalAnimal, setModalAnimal] = useState(false);
@@ -24,6 +24,7 @@ export default function page() {
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
   const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { authToken, user } = useAuth();
 
   useEffect(() => {
@@ -51,12 +52,14 @@ export default function page() {
         await updateAnimal(authToken, newAnimal);
         setAnimals(animals.map((animal) => animal.id === newAnimal.id ? newAnimal : animal));
         setModalAnimal(false);
+        setSuccessMessage("Animal actualizado correctamente");
         return;
       } else {
         const { id, ...animalData } = newAnimal;
         const animal = await createAnimal(authToken, animalData);
         setAnimals([...animals, animal]);
         setModalAnimal(false);
+        setSuccessMessage("Animal creado correctamente");
       }
     } catch (error: any) {
       console.error('Error al guardar animal:', error);
@@ -88,18 +91,20 @@ export default function page() {
   const handleSubmitPetStatus = async (newPetStatus: PetStatus) => {
     try {
       if (!authToken) return;
-      if (newPetStatus.id !== 0) {
+      if (newPetStatus.id) {
         //actualizar estado
         await updatePetStatus(authToken, newPetStatus);
         //actualizar lista de estados
         setPetStatuses(petStatuses.map((petStatus) => petStatus.id === newPetStatus.id ? newPetStatus : petStatus));
         setModalPetStatus(false);
+        setSuccessMessage("Estado actualizado correctamente");
         return;
       } else {
         const petStatus = await createPetStatus(authToken, newPetStatus);
         //actualizar lista de estados
         setPetStatuses([...petStatuses, petStatus]);
         setModalPetStatus(false);
+        setSuccessMessage("Estado creado correctamente");
       }
       //crear estado
     } catch (error: any) {
@@ -125,6 +130,7 @@ export default function page() {
       //actualizar lista de animales
       setAnimals(animals.filter((animal) => animal.id !== animalSelected.id));
       setModalAnimal(false);
+      setSuccessMessage("Animal eliminado correctamente");
     } catch (error: any) {
       console.error('Error al eliminar animal:', error);
       setErrorMessage(error.message);
@@ -141,6 +147,7 @@ export default function page() {
       //actualizar lista de estados
       setPetStatuses(petStatuses.filter((petStatus) => petStatus.id !== petStatusSelected.id));
       setModalPetStatus(false);
+      setSuccessMessage("Estado eliminado correctamente");
     } catch (error: any) {
       console.error('Error al eliminar estado:', error);
       setErrorMessage(error.message);
@@ -160,6 +167,16 @@ export default function page() {
   }
   return (
     <>
+      {successMessage && (
+        <Alert
+          color="green"
+          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          onClose={() => setSuccessMessage(null)}
+        >
+          {successMessage}
+        </Alert>
+      )}
+
       {errorMessage && (
         <Alert
           color="red"
@@ -170,7 +187,6 @@ export default function page() {
         </Alert>
       )}
       <div className="rounded-lg  p-6">
-
         <div className="flex justify-center gap-3">
           {/*Modal Section */}
           <Modal isOpen={modalAnimal} onClose={() => setModalAnimal(false)} title={animalSelected.id === 0 ? "Crear animal" : "Editar animal"}>
@@ -180,16 +196,36 @@ export default function page() {
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
 
-          <ConfirmationModal isOpen={isOpenModal} onClose={() => { setIsOpenModal(false); setDeleteType(null) }} onConfirm={deleteType === "animal" ? confirmDeleteAnimal : confirmDeletePetStatus} />
+          <ConfirmationModal
+            isOpen={isOpenModal}
+            title="Eliminar"
+            message={`¿Estás seguro de que deseas eliminar este ${deleteType === "animal" ? "animal" : "estado"}?`}
+            textConfirm="Eliminar"
+            confirmVariant="danger"
+            onClose={() => {setIsOpenModal(false); setDeleteType(null);}}
+            onConfirm={deleteType === "animal" ? confirmDeleteAnimal : confirmDeletePetStatus}
+          />
 
           {/**Cards*/}
-          <Card title="Animales" content={animals} isBreed={false} onClickLabelDefault={openEditAnimal} onClickLabelAdd={onClickLabelAddAnimal} />
-          <Card title="Estados de mascotas" content={petStatuses} isBreed={false} onClickLabelDefault={openEditPetStatus} onClickLabelAdd={onClickLabelAddPetStatus} />
+          <Card
+            title="Animales"
+            content={animals}
+            isBreed={false}
+            onClickLabelDefault={openEditAnimal}
+            onClickLabelAdd={onClickLabelAddAnimal}
+          />
+          <Card
+            title="Estados de mascotas"
+            content={petStatuses}
+            isBreed={false}
+            onClickLabelDefault={openEditPetStatus}
+            onClickLabelAdd={onClickLabelAddPetStatus}
+          />
         </div>
         <div className="flex justify-center mt-10">
           <PetBreeds />
         </div>
       </div>
     </>
-  )
+  );
 }
