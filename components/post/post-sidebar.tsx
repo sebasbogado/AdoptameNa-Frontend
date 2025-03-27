@@ -19,7 +19,7 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
                         <div className="left-10 pl-12 text-gray-700">
                             <div className="grid grid-cols-2 gap-4 gap-y-10">
                                 {posts.map((post) => (
-                                    <PetCard key={post.id} post={post} isPost={true} />
+                                    <PetCard key={post.id} post={post} isPost />
                                 ))}
                             </div>
                         </div>
@@ -29,7 +29,7 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
                         <div className="left-10 pl-12 text-gray-700">
                             <div className="grid grid-cols-2 gap-4 gap-y-10">
                                 {pets.map((pet) => (
-                                    <PetCard key={pet.id} post={pet} isPost={true} />
+                                    <PetCard key={pet.id} post={pet} />
                                 ))}
                             </div>
                         </div>
