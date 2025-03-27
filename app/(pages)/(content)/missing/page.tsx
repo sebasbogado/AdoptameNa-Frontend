@@ -25,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
 import { ConfirmationModal } from "@/components/form/modal";
 import { useRouter } from "next/navigation";
+import { Alert } from "@material-tailwind/react";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -40,6 +41,8 @@ const AdoptionForm = () => {
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<any>(null);
   const router = useRouter();
   const {
     register,
@@ -203,7 +206,7 @@ const AdoptionForm = () => {
   const handlePositionChange = (newPosition: [number, number]) => {
     setPosition(newPosition); // Actualiza el estado local
     //setValue("addressCoordinates", newPosition); // Actualiza el formulario
-};
+  };
 
   const toggleFullScreen = () => {
     if (!bannerRef.current) return;
@@ -261,9 +264,11 @@ const AdoptionForm = () => {
       const response = await postPets(params, authToken);
       if (response) {
         console.log("Guardado ", response);
+        setSuccessMessage("Se creó exitosamente")
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
+      setErrorMessage("Error en la creación de pets")
     }
 
   };
@@ -419,9 +424,9 @@ const AdoptionForm = () => {
 
                 {/* Mapa */}
                 <div
-                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                  className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                 >
-                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                  <MapWithNoSSR position={position} setPosition={handlePositionChange} />
 
                 </div>
 
@@ -451,7 +456,24 @@ const AdoptionForm = () => {
               </form>
             </CardContent>
           </Card>
-
+          {successMessage && (
+            <Alert
+              color="green"
+              className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+              onClose={() => setSuccessMessage(null)}
+            >
+              {successMessage}
+            </Alert>
+          )}
+          {errorMessage && (
+            <Alert
+              color="red"
+              className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+              onClose={() => setErrorMessage(null)}
+            >
+              {errorMessage}
+            </Alert>
+          )}
         </div>
         <ConfirmationModal
           isOpen={isModalOpen}
