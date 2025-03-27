@@ -9,7 +9,7 @@ interface ModalProps {
     message?: string;
     confirmVariant?: "cta" | "danger";
     onClose: () => void;
-    onConfirm: () => void;
+    onConfirm: (data?: any) => void; // Permitir un argumento opcional
   }
   
   export function ConfirmationModal({ isOpen, title, textConfirm, message, confirmVariant, onClose, onConfirm }: ModalProps) {
