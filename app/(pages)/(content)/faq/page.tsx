@@ -10,10 +10,10 @@ export default function Page() {
                 alt=""
                 width={1341}  
                 height={435}
-                className='relative rounded-[32px] top-[100px] left-[50px]'  
+                className='relative rounded-[32px] top-[50px] left-[50px]'  
             />
 
-            <div className="relative top-[80px] left-[340px]">
+            <div className="relative top-[30px] left-[340px]">
                 <div className="relative flex items-center w-[756px]">
                     <input
                         className="w-[756px] h-[56px] bg-white top-[515px] left-[342px] rounded-[6px] px-[24px] py-[8px] gap-[4px] shadow-[4px_4px_4px_4px_rgba(3,3,3,0.1)]"
@@ -29,9 +29,10 @@ export default function Page() {
         
                 </div>
             </div>
-            <div className='relative mt-[150px] mx-[100px]'>
-                <details open className=' w-[1161px]'>
-                    <summary className='text-2xl font-bold'>Acerca de Adoptamena</summary><br/>
+            <div className='relative mt-[100px] mx-[100px]'>
+                <details open className=' w-[1161px] group'>
+                    <summary className='text-2xl font-bold flex justify-between items-center cursor-pointer'><span>Acerca de Adoptamena</span>
+                    <span className="ml-2 text-xl material-symbols-outlined transition-transform transform group-open:rotate-180" style={{ fontSize: '50px' }}>keyboard_arrow_down</span></summary><br/>
                     <p><b className='text-lg'>¿Qué es Adoptamena?</b><br/>
                         Adoptamena es una plataforma que conecta a animales en situación vulnerable con personas dispuestas a ayudar. A través de la plataforma, puedes participar en rescates, hacer donaciones, ofrecer traslados, unirte como voluntario y contribuir de diversas maneras para mejorar la vida de estos animales.
                     </p><br/>  
@@ -49,8 +50,9 @@ export default function Page() {
                     </p><br/>
                 </details><br/>
 
-                <details className=' w-[1161px]'>
-                    <summary className='text-2xl font-bold'>Uso de la plataforma</summary><br/>
+                <details className=' w-[1161px] group'>
+                <summary className='text-2xl font-bold flex justify-between items-center cursor-pointer'><span>Uso de la plataforma</span>
+                <span className="ml-2 text-xl material-symbols-outlined transition-transform transform group-open:rotate-180" style={{ fontSize: '50px' }}>keyboard_arrow_down</span></summary><br/>
 
                     <p><b className='text-lg'>¿Cuál es la diferencia entre una cuenta       Personal y de Organización?</b><br/>
                         Las cuentas personales son creadas por individuos que no pertenecen a ninguna organización de bienestar animal. Por otro lado, las cuentas de organización son gestionadas por representantes de entidades sin fines de lucro dedicadas al bienestar animal. Ambas pueden realizar publicaciones y navegar por el sitio de manera similar, con la única diferencia de que las organizaciones pueden crear campañas de recaudación de fondos.
@@ -136,8 +138,9 @@ export default function Page() {
 
                 </details><br/>
 
-                <details className=' w-[1161px]'>
-                    <summary className='text-2xl font-bold'>Cómo colaborar</summary><br/>
+                <details className=' w-[1161px] group'>
+                <summary className='text-2xl font-bold flex justify-between items-center cursor-pointer'><span>Cómo colaborar</span>
+                <span className="ml-2 text-xl material-symbols-outlined transition-transform transform group-open:rotate-180" style={{ fontSize: '50px' }}>keyboard_arrow_down</span></summary><br/>
                     <p><b className='text-lg'>¿Cómo puedo ser voluntario?</b><br/>
                     Para ser voluntario en Adoptamena, simplemente buscá publicaciones en la sección de <b>Voluntariado</b> que se ajusten a tus posibilidades de ayuda. Algunas formas en las que podés colaborar incluyen: <br/><br/>
                     <ul className="list-disc pl-6">
@@ -163,8 +166,9 @@ export default function Page() {
 
                 </details><br/>
 
-                <details className=' w-[1161px]'>
-                    <summary className='text-2xl font-bold'>Seguridad y privacidad</summary><br/>
+                <details className=' w-[1161px] group'>
+                <summary className='text-2xl font-bold flex justify-between items-center cursor-pointer'><span>Seguridad y privacidad</span>
+                <span className="ml-2 text-xl material-symbols-outlined transition-transform transform group-open:rotate-180" style={{ fontSize: '50px' }}>keyboard_arrow_down</span></summary><br/>
 
                     <p><b className='text-lg'>¿Es segura mi información personal en Adoptamena?</b><br/>
                     Todos los datos personales registrados en Adoptamena están protegidos y no se divulgan públicamente en el sitio. Sin embargo, los datos de contacto, como tu correo electrónico y número de teléfono, estarán disponibles para que otros usuarios puedan comunicarse contigo. Estos no serán visibles en la página de forma directa, pero podrán verse una vez que un usuario haga clic en el botón de contacto para enviarte un mensaje.
@@ -184,8 +188,9 @@ export default function Page() {
                     </p><br/>
                 </details><br/>
 
-                <details className=' w-[1161px]'>
-                    <summary className='text-2xl font-bold'>Descargo de responsabilidad</summary><br/>
+                <details className=' w-[1161px] group'>
+                <summary className='text-2xl font-bold flex justify-between items-center cursor-pointer'><span>Descargo de responsabilidad</span>
+                <span className="ml-2 material-symbols-outlined transition-transform transform group-open:rotate-180" style={{ fontSize: '50px' }}>keyboard_arrow_down</span></summary><br/>
 
                     <p>
                     Las leyes en Paraguay regulan la tenencia de animales exóticos y castigan el maltrato animal, esta página rechaza el maltrato animal en todas sus formas y exhorta a sus usuarios al cuidado responsable tanto de mascotas como de la fauna local. 
