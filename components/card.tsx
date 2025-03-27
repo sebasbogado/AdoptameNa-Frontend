@@ -3,10 +3,11 @@ import { Card as BaseCard } from "@/components/ui/card";
 import ClickableTag from "@/components/admin-card/clickable-tag";
 import { PetStatus } from "@/types/pet-status";
 import { Animal } from "@/types/animal";
+import { ReportReason } from "@/types/report-reason";
 
 interface CardProps {
   title: string,
-  content: PetStatus[] | Animal[],
+  content: PetStatus[] | Animal[] | ReportReason[],
   isBreed: boolean,
   onClickLabelDefault: (element: any) => void
   onClickLabelAdd: () => void
@@ -21,7 +22,7 @@ const Card: React.FC<CardProps> = ({ title, content, isBreed = false, onClickLab
         <div className="flex flex-wrap max-h-full max-w-72 overflow-hidden gap-1 mt-2">
           {/**Logica si es raza */}
           {content.map((element) => (
-            <ClickableTag key={element.id} label={element.name} onClick={() => onClickLabelDefault(element)}></ClickableTag>
+            <ClickableTag key={element.id} label={"name" in element ? element.name : element.description} onClick={() => onClickLabelDefault(element)}></ClickableTag>
           ))}
           <ClickableTag type="add" onClick={onClickLabelAdd }></ClickableTag>
         </div>
