@@ -69,7 +69,7 @@ const PostPage = () => {
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-10 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader pet={pet as Pet} />
-                        <PostButtons isPet />
+                        <PostButtons isPet postId={String(pet?.id)}/>
 
                         <PostContent pet={pet} />
                         <PostSidebar pets={pets} />

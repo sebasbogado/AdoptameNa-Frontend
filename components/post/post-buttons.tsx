@@ -4,19 +4,33 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
+import { useAuth } from "@/contexts/authContext";
+import { sharePost } from "@/utils/posts.http";
 
 interface PostButtonsProps {
+    postId: string | undefined;
     isPet?: boolean;
 }
-const PostButtons = ({ isPet = false }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
+    const { authToken } = useAuth();
     const [copied, setCopied] = useState(false);
 
-    const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        setCopied(true);
-        setTimeout(() => {
-            setCopied(false);
-        }, 3000);
+    const handleShare = async () => {
+        if(!postId) return;
+
+        if(authToken && isPet===false) {
+            await sharePost(postId, authToken);
+        }
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setCopied(true);
+            
+            setTimeout(() => {
+                setCopied(false);
+            }, 3000);
+        } catch (error) {
+            console.error("Error al copiar al portapapeles:", error);
+        }
     }
 
     return (
@@ -38,8 +52,8 @@ const PostButtons = ({ isPet = false }: PostButtonsProps) => {
             </div>
 
             <ReportButton size="lg" />
-            
-            <FavoriteButton size="lg" className="relative top-[-60px] shadow-md left-[40px]"/>
+
+            <FavoriteButton size="lg" className="relative top-[-60px] shadow-md left-[40px]" />
         </div>
     );
 };
