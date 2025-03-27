@@ -147,7 +147,7 @@ export default function Page() {
         try {
             await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/posts/${post.id}`), 5500);
+            setTimeout(() => router.push(`/posts/${post.id}`), 3500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setError('Hubo un problema al actualizar la publicación.');
@@ -171,7 +171,7 @@ export default function Page() {
         try {
             await deletePost(String(post.id), authToken);
             setSuccessMessage('Publicación eliminada con éxito');
-            setTimeout(() => router.push('/dashboard'), 2500);
+            setTimeout(() => router.push('/dashboard'), 3500);
 
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);

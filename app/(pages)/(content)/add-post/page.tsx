@@ -125,7 +125,7 @@ export default function Page() {
                 });
                 //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
-                setTimeout(() => router.push(`/posts/${response.id}`), 2500);
+                setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
                 setError("Error al guardar publicación");
             }
