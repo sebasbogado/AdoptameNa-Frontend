@@ -19,7 +19,7 @@ export default function PostMap({ location }: PostMapProps) {
     });
 
     return (
-        <div className="flex-grow h-[40vh] rounded-3xl overflow-hidden border">
+        <div className="relative h-[40vh] rounded-3xl overflow-hidden border z-10">
             <MapContainer
                 center={location}
                 zoom={13}
