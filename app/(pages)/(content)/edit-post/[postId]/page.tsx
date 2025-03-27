@@ -171,7 +171,7 @@ export default function Page() {
         try {
             await deletePost(String(post.id), authToken);
             setSuccessMessage('Publicación eliminada con éxito');
-            setTimeout(() => router.push('/dashboard'), 1500);
+            setTimeout(() => router.push('/dashboard'), 2500);
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
             setError('Hubo un problema al eliminar la publicación.');

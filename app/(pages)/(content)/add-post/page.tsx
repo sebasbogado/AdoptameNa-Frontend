@@ -123,9 +123,9 @@ export default function Page() {
                     status: "activo", // Valor estático
                     urlPhoto: ""
                 });
-                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+                //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
-                router.push(`/posts/${response.id}`);
+                setTimeout(() => router.push(`/posts/${response.id}`), 2500);
             } else {
                 setError("Error al guardar publicación");
             }
