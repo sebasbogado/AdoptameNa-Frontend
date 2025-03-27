@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert } from "@material-tailwind/react";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -146,7 +147,7 @@ export default function Page() {
         try {
             await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/posts/${post.id}`), 1500);
+            setTimeout(() => router.push(`/posts/${post.id}`), 2500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setError('Hubo un problema al actualizar la publicación.');
@@ -189,7 +190,7 @@ export default function Page() {
         router.push(`/posts/${post.id}`);
     };
 
-    const arrayImages = formData?.urlPhoto ? [formData.urlPhoto] : ['../logo.png'];
+    const arrayImages = post?.urlPhoto ? [post.urlPhoto] : ['../logo.png'];
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
@@ -239,11 +240,15 @@ export default function Page() {
                 {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                 {/* Mapa */}
-                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                <div
+                    className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                >
+                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                </div>
                 {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
-                <Button
+                    <Button
                         type="button"
                         variant="danger"
                         size="md"
