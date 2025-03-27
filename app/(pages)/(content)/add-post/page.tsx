@@ -207,7 +207,14 @@ export default function Page() {
 
             {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
             {successMessage && (
-                <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
+                <div>
+                    <Alert
+                        color="green"
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        {successMessage}
+                    </Alert>
+                </div>
             )}
 
             <form onSubmit={zodHandleSubmit(openConfirmationModal)}>

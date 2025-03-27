@@ -147,7 +147,7 @@ export default function Page() {
         try {
             await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/posts/${post.id}`), 2500);
+            setTimeout(() => router.push(`/posts/${post.id}`), 5500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setError('Hubo un problema al actualizar la publicación.');
@@ -169,9 +169,21 @@ export default function Page() {
 
         setLoading(true);
         try {
-            await deletePost(String(post.id), authToken);
-            setSuccessMessage('Publicación eliminada con éxito');
-            setTimeout(() => router.push('/dashboard'), 2500);
+            const response = await deletePost(String(post.id), authToken);
+            if (response) {
+                setFormData({
+                    idPostType: 0,
+                    title: "",
+                    content: "",
+                    locationCoordinates: [0, 0], // Array de coordenadas
+                    contactNumber: "",
+                    status: "activo", // Valor estático
+                    urlPhoto: ""
+                });
+                setSuccessMessage('Publicación eliminada con éxito');
+                setTimeout(() => router.push('/dashboard'), 2500);
+            }
+
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
             setError('Hubo un problema al eliminar la publicación.');
@@ -197,7 +209,14 @@ export default function Page() {
 
             {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
             {successMessage && (
-                <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
+                <div>
+                    <Alert
+                        color="green"
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        {successMessage}
+                    </Alert>
+                </div>
             )}
 
             <form onSubmit={zodHandleSubmit(openConfirmationModalEdit)}>
