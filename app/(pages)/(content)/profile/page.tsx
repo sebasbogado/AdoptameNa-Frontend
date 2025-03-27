@@ -37,7 +37,8 @@ const getUserProfileData = async (
 
     } catch (err) {
         console.error("Error al cargar el perfil:", err);
-        setErrors(prev => ({ ...prev, userProfile: true }));     } finally {
+        setErrors(prev => ({ ...prev, userProfile: true }));
+    } finally {
         setLoading(false);
     }
 };
@@ -57,7 +58,8 @@ const getPostsData = async (
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setErrors(prev => ({ ...prev, posts: true }));     } finally {
+        setErrors(prev => ({ ...prev, posts: true }));
+    } finally {
         setLoading(false);
     }
 };
@@ -74,8 +76,8 @@ const getPetsData = async (
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setErrors(prev => ({ ...prev, pets: true })); 
-        } finally {
+        setErrors(prev => ({ ...prev, pets: true }));
+    } finally {
         setLoading(false);
     }
 };
@@ -91,7 +93,7 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false)
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isOpen , setIsOpen] = useState(false)   
+    const [isOpen, setIsOpen] = useState(false)
     const [errors, setErrors] = useState({
         pets: false,
         posts: false,
@@ -107,14 +109,14 @@ export default function ProfilePage() {
 
 
         setProfileLoading(true);
-        setErrors(prev => ({ ...prev, userProfile: false })); 
+        setErrors(prev => ({ ...prev, userProfile: false }));
 
         try {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
         } catch (err) {
             console.error("Error al actualizar el perfil:", err);
-            setErrors(prev => ({ ...prev, userProfile: true })); 
+            setErrors(prev => ({ ...prev, userProfile: true }));
 
         } finally {
             setProfileLoading(false);
@@ -158,7 +160,7 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        
+
         getUserProfileData(
             setUserProfile,
             setProfileLoading,
@@ -170,7 +172,7 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        setErrors(prev => ({ ...prev, pets: false })); 
+        setErrors(prev => ({ ...prev, pets: false }));
         getPetsData(setPets, setLoading, setErrors, user.id);
 
     }, [authToken, authLoading, user?.id]);
@@ -233,100 +235,105 @@ export default function ProfilePage() {
                     onClose={() => setIsOpen(false)}
                     onConfirm={handleConfirmSave}
                 />}
-            {/* User Info */}
-            <Detail
-                posts={posts} user={user}
-                userProfile={isEditing ? tempUserProfile : userProfile}
-                setUserProfile={setTempUserProfile}
-                isDisable={!isEditing}
-                validationErrors={validationErrors}
-            />
-            {/* Action Buttons */}
-            <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
-                <EditButton
-                    size="lg"
-                    isEditing={isEditing}
-                    id='edit-button'
-                    onClick={handleEditButtonClick}
-                />
-                {isEditing && (
-                    <>
-                        <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                            Guardar
-                        </Button>
-                    </>
-                )}
-                {!isEditing && (
-                    <>
+            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
+                <div className="grid grid-cols-1 gap-4 p-6">
 
-                        <DropdownMenu.Root>
-                            {/* Botón para desplegar el menú */}
-                            <DropdownMenu.Trigger asChild>
-                                <Button
-                                    variant="cta"
-                                    size="lg"
-                                >
-                                    Contactar
+                    {/* User Info */}
+                    <Detail
+                        posts={posts} user={user}
+                        userProfile={isEditing ? tempUserProfile : userProfile}
+                        setUserProfile={setTempUserProfile}
+                        isDisable={!isEditing}
+                        validationErrors={validationErrors}
+                    />
+                    {/* Action Buttons */}
+                    <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                        <EditButton
+                            size="lg"
+                            isEditing={isEditing}
+                            id='edit-button'
+                            onClick={handleEditButtonClick}
+                        />
+                        {isEditing && (
+                            <>
+                                <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
+                                    Guardar
                                 </Button>
-                            </DropdownMenu.Trigger>
+                            </>
+                        )}
+                        {!isEditing && (
+                            <>
 
-                            {/* Contenido del menú desplegable */}
-                            <DropdownMenu.Portal>
-                                <DropdownMenu.Content
-                                    className="min-w-[125px] bg-white rounded-md p-2 shadow-md space-y-2"
-                                    sideOffset={5}
-                                >
-                                    {/* Agrega las opciones del menú aquí */}
-                                    <DropdownMenu.Item>
-                                        <button onClick={handleContactClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
+                                <DropdownMenu.Root>
+                                    {/* Botón para desplegar el menú */}
+                                    <DropdownMenu.Trigger asChild>
+                                        <Button
+                                            variant="cta"
+                                            size="lg"
+                                        >
+                                            Contactar
+                                        </Button>
+                                    </DropdownMenu.Trigger>
+
+                                    {/* Contenido del menú desplegable */}
+                                    <DropdownMenu.Portal>
+                                        <DropdownMenu.Content
+                                            className="min-w-[125px] bg-white rounded-md p-2 shadow-md space-y-2"
+                                            sideOffset={5}
+                                        >
+                                            {/* Agrega las opciones del menú aquí */}
+                                            <DropdownMenu.Item>
+                                                <button onClick={handleContactClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                                         ${!userProfile?.email || userProfile?.email === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
-                                            disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
-                                            <Mail size={16} className="text-gray-500 items-center" />
-                                            <span className="font-medium text-sm text-gray-800">Correo: </span>
-                                            <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
-                                        </button>
-                                    </DropdownMenu.Item>
+                                                    disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
+                                                    <Mail size={16} className="text-gray-500 items-center" />
+                                                    <span className="font-medium text-sm text-gray-800">Correo: </span>
+                                                    <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
+                                                </button>
+                                            </DropdownMenu.Item>
 
-                                    <DropdownMenu.Item>
-                                        <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
+                                            <DropdownMenu.Item>
+                                                <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                                         ${!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
-                                            disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
-                                            <Phone size={16} className="text-gray-500 items-center" />
-                                            <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
-                                            <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>
-                                        </button>
-                                    </DropdownMenu.Item>
-                                </DropdownMenu.Content>
-                            </DropdownMenu.Portal>
-                        </DropdownMenu.Root>
+                                                    disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
+                                                    <Phone size={16} className="text-gray-500 items-center" />
+                                                    <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
+                                                    <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>
+                                                </button>
+                                            </DropdownMenu.Item>
+                                        </DropdownMenu.Content>
+                                    </DropdownMenu.Portal>
+                                </DropdownMenu.Root>
 
-                        <MenuButton size="lg" />
-                    </>
+                                <MenuButton size="lg" />
+                            </>
 
-                )}
+                        )}
+                    </div>
+                    {/* Pets Section */}
+                    <Section
+                        title="Mis Mascotas"
+                        itemType="pet"
+                        path={`/profile/my-pets/${user.id}`}
+                        items={pets}
+                        loading={loading}
+                        error={errors.pets}
+                        filterByType={false}
+                    />
+
+                    {/* Posts Section (Con filtrado) */}
+                    <Section
+                        title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                        itemType="post"
+                        postTypeName="adoption"
+                        path={`/profile/my-posts/${user.id}`}
+                        items={posts}
+                        loading={loading}
+                        error={errors.posts}
+                        filterByType={false}
+                    />
+                </div>
             </div>
-            {/* Pets Section */}
-            <Section
-                title="Mis Mascotas"
-                itemType="pet"
-                path={`/profile/my-pets/${user.id}`}
-                items={pets}
-                loading={loading}
-                error={errors.pets}
-                filterByType={false}
-            />
-
-            {/* Posts Section (Con filtrado) */}
-            <Section
-                title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
-                itemType="post"
-                postTypeName="adoption"
-                path={`/profile/my-posts/${user.id}`}
-                items={posts}
-                loading={loading}
-                error={errors.posts}
-                filterByType={false}
-            />
         </div>
     );
 }

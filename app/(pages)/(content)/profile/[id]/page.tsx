@@ -24,11 +24,12 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import ReportButton from '@/components/buttons/report-button';
+import NotFound from '@/app/not-found';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<Boolean>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -39,7 +40,7 @@ const getUserProfileData = async (
 
     } catch (err) {
         console.error("Error al cargar el perfil:", err);
-        setErrors(prevErrors => ({ ...prevErrors, userProfile: true}));
+        setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
     } finally {
         setLoading(false);
     }
@@ -48,7 +49,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<Boolean>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -60,7 +61,7 @@ const getPostsData = async (
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setErrors(prevErrors => ({ ...prevErrors, posts: true}));
+        setErrors(prevErrors => ({ ...prevErrors, posts: true }));
     } finally {
         setLoading(false);
     }
@@ -68,7 +69,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<Boolean>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -78,7 +79,7 @@ const getPetsData = async (
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setErrors(prevErrors => ({ ...prevErrors, pets: true}));
+        setErrors(prevErrors => ({ ...prevErrors, pets: true }));
     } finally {
         setLoading(false);
     }
@@ -94,7 +95,7 @@ export default function ProfilePage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isOpen , setIsOpen] = useState(false)   
+    const [isOpen, setIsOpen] = useState(false)
     const param = useParams()
     const [errors, setErrors] = useState({
         pets: false,
@@ -116,28 +117,75 @@ export default function ProfilePage() {
         window.open(url, '_blank');  // Esto abrirá WhatsApp en una nueva pestaña
     };
 
-    if (authLoading || loading) {
+    useEffect(() => {
+        const userId = param.id;
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
+        if( userId == user?.id){
+            router.push('/profile')
+        }
+        getUserProfileData(
+            setUserProfile,
+            setLoading,
+            setErrors,
+            userId.toString()
+        );
+    }, []);
+    useEffect(() => {
+        const userId = param.id;
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
+        getPetsData(
+            setPets,
+            setLoading,
+            setErrors,
+            userId.toString()
+        );
+    }, []);
+    useEffect(() => {
+        const userId = param.id;
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
+        getPostsData(
+            setPosts,
+            setLoading,
+            setErrors,
+            userId.toString()
+        );
+    }, []);
+    if (errors.userProfile) {
+        return NotFound();
+    }
+    if (loading) {
         return <Loading />;
     }
     if (!user) return;
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
+
             <Banners images={userProfile?.bannerImages || ['/logo.png']} />
-          
+            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
+            <div className="grid grid-cols-1 gap-4 p-6">
+
             <Detail
                 posts={posts} user={user}
-                userProfile={ userProfile}
+                userProfile={userProfile}
                 setUserProfile={setTempUserProfile}
-                isDisable={false}
+                isDisable={true}
                 validationErrors={validationErrors}
             />
-            {/* Action Buttons */}
+
             <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
-            <ReportButton size="lg" />
-                   <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
+                <ReportButton size="lg" />
+                <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
             </div>
-            {/* Pets Section */}
             <Section
                 title="Mis Mascotas"
                 itemType="pet"
@@ -148,7 +196,6 @@ export default function ProfilePage() {
                 filterByType={false}
             />
 
-            {/* Posts Section (Con filtrado) */}
             <Section
                 title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                 itemType="post"
@@ -159,6 +206,8 @@ export default function ProfilePage() {
                 error={errors.posts}
                 filterByType={false}
             />
-        </div>
+            </div>            </div>
+
+        </div> 
     );
 }
