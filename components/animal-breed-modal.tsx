@@ -45,7 +45,8 @@ export default function AnimalBreedModal({
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
+    reset,  // Importamos reset
+    formState: { errors }
   } = useForm({
     resolver: zodResolver(breedSchema),
     defaultValues: {
@@ -54,18 +55,12 @@ export default function AnimalBreedModal({
     },
   });
 
-  useEffect(() => {
-    if (selectedBreed) {
-      setValue("breedName", selectedBreed.name);
-      setValue("animalType", selectedBreed.animalId.toString());
-    }
-  }, [selectedBreed, setValue]);
-
   const handleSave = async (data: { breedName: string; animalType: string }) => {
     if (!authToken) {
       console.error("No hay token disponible");
       return;
     }
+
     setIsLoading(true);
     try {
       if (selectedBreed) {
@@ -74,6 +69,7 @@ export default function AnimalBreedModal({
       } else {
         const newBreed = await createBreed(authToken, data.breedName, Number(data.animalType));
         onBreedSaved(newBreed);
+        reset(); // 🔹 Limpia los campos después de crear una nueva raza
       }
       setOpen(false);
     } catch (error) {
