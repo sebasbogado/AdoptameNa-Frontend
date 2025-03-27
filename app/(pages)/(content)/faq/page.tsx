@@ -37,7 +37,7 @@ export default function Page() {
                     </p><br/>  
                     <p><b className='text-lg'>¿Es necesario crear una cuenta para utilizar la plataforma?</b><br/>
                         No es necesario crear una cuenta para ver el contenido de Adoptamena, podés ver las publicaciones y navegar por el sitio libremente pero no podrás comentar, crear publicaciones, recibir notificaciones ni contactar con otros usuarios por lo que te recomendamos crear una cuenta, solo te tomará unos minutos.
-                        Para crear tu cuenta haz click 
+                        Para crear tu cuenta haz clic 
                         <Link href="/auth/register" className='text-blue'> aquí.</Link>
                     </p><br/>
 
@@ -133,9 +133,68 @@ export default function Page() {
                     También podés dejar un comentario en la publicación, estos comentarios son públicos, es decir que cualquiera puede verlos y contestarte.
 
                     </p><br/>
-                    
+
                 </details><br/>
 
+                <details className=' w-[1161px]'>
+                    <summary className='text-2xl font-bold'>Cómo colaborar</summary><br/>
+                    <p><b className='text-lg'>¿Cómo puedo ser voluntario?</b><br/>
+                    Para ser voluntario en Adoptamena, simplemente buscá publicaciones en la sección de <b>Voluntariado</b> que se ajusten a tus posibilidades de ayuda. Algunas formas en las que podés colaborar incluyen: <br/><br/>
+                    <ul className="list-disc pl-6">
+                        <li>Participar en campañas de rescate y colectas si contás con tiempo libre.</li><br/>
+                        <li>Ofrecer traslados de animales a centros veterinarios si tenés un vehículo.</li><br/>
+                        <li>Si no dispones de tiempo, pero podés ayudar económicamente podés donar dinero o medicamentos.</li><br/>
+                    </ul>
+                    Solo debés contactar a la persona que creó la publicación, quien te proporcionará los detalles sobre cómo podés contribuir.
+
+                    </p><br/>
+
+                    <p><b className='text-lg'>¿Puedo donar dinero a través de Adoptamena?</b><br/>
+                    No se pueden hacer donaciones directamente desde la plataforma, pero vas a encontrar campañas de recaudación creadas por organizaciones o publicaciones de voluntariado pidiendo ayuda económica. Para donar, solo contactá a la persona que hizo la publicación y te va a indicar cómo hacerlo.<br/>
+                    <b>Adoptamena no garantiza el uso adecuado de los fondos ni se hace responsable por el destino final de las donaciones. Si querés más info sobre cómo funcionan las donaciones, hacé clic <Link href="/donations" className='text-blue'> aquí.</Link></b>
+
+                    </p><br/>
+
+                    <p><b className='text-lg'>¿Cómo me convierto en auspiciante del sitio?</b><br/>
+                    Siendo auspiciante tu logo aparecerá en las pantallas principales de Adoptamena y pondremos tu publicidad en el banner del sitio, si querés ser patrocinador envia un correo a adoptamena@gmail.com (abrir correo al hacer click)
+                    Para más información sobre este tema, visitá la sección de <Link href="/sponsors" className='text-blue'> Auspiciantes</Link> del sitio.
+
+                    </p><br/>
+
+                </details><br/>
+
+                <details className=' w-[1161px]'>
+                    <summary className='text-2xl font-bold'>Seguridad y privacidad</summary><br/>
+
+                    <p><b className='text-lg'>¿Es segura mi información personal en Adoptamena?</b><br/>
+                    Todos los datos personales registrados en Adoptamena están protegidos y no se divulgan públicamente en el sitio. Sin embargo, los datos de contacto, como tu correo electrónico y número de teléfono, estarán disponibles para que otros usuarios puedan comunicarse contigo. Estos no serán visibles en la página de forma directa, pero podrán verse una vez que un usuario haga clic en el botón de contacto para enviarte un mensaje.
+
+                    </p><br/>
+
+                    <p><b className='text-lg'>¿Cómo puedo asegurarme de que una publicación es legítima?</b><br/>
+                    En Adoptamena nos esforzamos por mantener un contenido adecuado y seguro. Si encuentras una publicación que consideras fraudulenta o inapropiada, puedes reportarla para que la revisemos. Algunos factores que pueden ayudarte a evaluar su legitimidad son:<br/>
+                    <ul className="list-disc pl-6">
+                        <li>La cantidad de publicaciones realizadas por el perfil.</li><br/>
+                        <li>Los comentarios de otros usuarios en sus publicaciones.</li><br/>
+                        <li>La claridad y coherencia de la información proporcionada.</li><br/>
+                    </ul>
+                    Si tienes dudas, te recomendamos contactar al usuario y pedir más detalles antes de realizar cualquier acción.
+
+
+                    </p><br/>
+                </details><br/>
+
+                <details className=' w-[1161px]'>
+                    <summary className='text-2xl font-bold'>Descargo de responsabilidad</summary><br/>
+
+                    <p>
+                    Las leyes en Paraguay regulan la tenencia de animales exóticos y castigan el maltrato animal, esta página rechaza el maltrato animal en todas sus formas y exhorta a sus usuarios al cuidado responsable tanto de mascotas como de la fauna local. 
+                    Las publicaciones que incluyan contenido que violen estas leyes, fomenten el maltrato y/o la tenencia irresponsable de mascotas serán eliminadas y se realizará la correspondiente denuncia  a las autoridades. 
+                    Para más información sobre este tema, visitá la sección de <Link href="/legal" className='text-blue'> Avisos legales</Link> del sitio.
+
+
+                    </p><br/>
+                </details><br/>
 
             </div>
 
