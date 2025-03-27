@@ -20,6 +20,11 @@ import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
 import { Maximize, Minimize } from "lucide-react";
 import { getPetStatuses } from "@/utils/pet-statuses.http";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { PetFormValues, petSchema } from "@/validations/pet-schema";
+import { ConfirmationModal } from "@/components/form/modal";
+import { useRouter } from "next/navigation";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -35,26 +40,59 @@ const AdoptionForm = () => {
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(petSchema),
+    defaultValues: {
+      estado: 0,
+      tipoAnimal: 0,
+      raza: 0,
+      titulo: "",
+      nacimiento: "",
+      descripcion: "",
+      vacunado: false,
+      esterilizado: false,
+      genero: "MALE",
+      edad: 0,
+      peso: 0,
+    },
+  });
 
 
   const [position, setPosition] = useState<[number, number] | null>(null);
-  const [formData, setFormData] = useState({
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<PetFormValues>({
     estado: 0,
     tipoAnimal: 0,
     raza: 0,
     titulo: "",
-    cumpleanhos: "",
+    nacimiento: "",
     descripcion: "",
-    vacunado: "",
-    esterilizado: "",
-    genero: "",
-    edad: "",
-    peso: ""
+    vacunado: false,
+    esterilizado: false,
+    genero: "MALE",
+    edad: 0,
+    peso: 0
   });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  const openConfirmationModal = (data: PetFormValues) => {
+    setFormData(data); // Guardamos los datos validados
+    setIsModalOpen(true);
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    router.push("/profile");
+  };
 
   const getFromData = async () => {
 
@@ -121,7 +159,7 @@ const AdoptionForm = () => {
   };
 
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  /*const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
 
     // Handle checkbox inputs separately
@@ -138,7 +176,7 @@ const AdoptionForm = () => {
         [name]: value
       }));
     }
-  };
+  };*/
 
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -162,6 +200,11 @@ const AdoptionForm = () => {
     });
   };
 
+  const handlePositionChange = (newPosition: [number, number]) => {
+    setPosition(newPosition); // Actualiza el estado local
+    //setValue("addressCoordinates", newPosition); // Actualiza el formulario
+};
+
   const toggleFullScreen = () => {
     if (!bannerRef.current) return;
 
@@ -179,17 +222,6 @@ const AdoptionForm = () => {
     return () => document.removeEventListener("fullscreenchange", adjustImageSize);
   }, []);
 
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!formData.titulo) newErrors.titulo = "Título es requerido";
-    if (!formData.descripcion) newErrors.descripcion = "Descripción es requerida";
-    if (!formData.edad) newErrors.edad = "Edad es requerida";
-    if (!formData.peso) newErrors.peso = "Peso es requerido";
-    if (!formData.vacunado) newErrors.vacunado = "Campo obligatorio";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   useEffect(() => {
     if (authLoading || !authToken || !user?.id) return;
     console.log("authLoading", authLoading);
@@ -198,7 +230,7 @@ const AdoptionForm = () => {
 
   console.log("Selectimages- : ", selectedImages[0]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isSubmitting) return; // 🔒 Evita múltiples clics
@@ -208,42 +240,32 @@ const AdoptionForm = () => {
       return;
     }
 
-    if (validateForm()) {
-      setIsSubmitting(true); // 🚀 Bloquea permanentemente el botón
 
-      try {
-        console.log(formData);
-        const params = {
-          name: formData.titulo,
-          isVaccinated: formData.vacunado === "Si",
-          description: formData.descripcion,
-          birthdate: formData.cumpleanhos,
-          gender: formData.genero,
-          urlPhoto: selectedImages[0]?.url_API,
-          isSterilized: formData.esterilizado === "Si",
-          userId: Number(user?.id),
-          animalId: Number(formData.tipoAnimal),
-          breedId: Number(formData.raza),
-          petStatusId: Number(formData.estado),
-          addressCoordinates: `${position?.[0]}, ${position?.[1]}`
-        };
+    try {
+      console.log(formData);
+      const params = {
+        name: formData.titulo,
+        isVaccinated: formData.vacunado,
+        description: formData.descripcion,
+        birthdate: formData.nacimiento,
+        gender: formData.genero,
+        urlPhoto: selectedImages[0]?.url_API,
+        isSterilized: formData.esterilizado,
+        userId: Number(user?.id),
+        animalId: Number(formData.tipoAnimal),
+        breedId: Number(formData.raza),
+        petStatusId: Number(formData.estado),
+        addressCoordinates: `${position?.[0]}, ${position?.[1]}`
+      };
 
-        const response = await postPets(params, authToken);
-        if (response) {
-          console.log("Guardado ", response);
-        }
-      } catch (error) {
-        console.error("Error al enviar el formulario", error);
+      const response = await postPets(params, authToken);
+      if (response) {
+        console.log("Guardado ", response);
       }
+    } catch (error) {
+      console.error("Error al enviar el formulario", error);
     }
-  };
 
-  const handleNext = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % selectedImages.length);
-  };
-
-  const handlePrev = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
   };
 
   const arrayImages = selectedImages?.map(image => image?.url_API) || [];
@@ -298,191 +320,108 @@ const AdoptionForm = () => {
 
         </div>
         {/* Wrapped Card Component */}
+
         <div className="w-full max-w-2xl">
           <Card>
             <CardContent className="p-4">
-              <form>
+              <form onSubmit={handleSubmit(openConfirmationModal)}>
                 <div className="w-full mb-2">
                   <label className="block mb-1">Estado de la mascota</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    placeholder="Seleccione estado de la mascota"
-                    name="estado"
-                    value={formData.estado}
-                    onChange={handleChange}
-                  >
+                  <select className="w-full p-2 border rounded" {...register("estado", { valueAsNumber: true })}>
                     {petsStatus?.map((a, i) => (
                       <option key={i} value={a.id}>{a.name}</option>
                     ))}
                   </select>
+                  {errors.estado && <p className="text-red-500">{errors.estado.message}</p>}
                 </div>
 
-                {/* Select for Tipo de Animal */}
+                {/* Tipo de Animal */}
                 <div className="w-full mb-2">
                   <label className="block mb-1">Tipo de Animal</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    name="tipoAnimal"
-                    value={formData.tipoAnimal}
-                    onChange={handleChange}
-                  >"
-                    {
-                      animals?.map((a, i) => <option key={i} value={a.id}>{a.name}</option>)
-                    }
+                  <select className="w-full p-2 border rounded" {...register("tipoAnimal", { valueAsNumber: true })}>
+                    {animals?.map((a, i) => (
+                      <option key={i} value={a.id}>{a.name}</option>
+                    ))}
                   </select>
+                  {errors.tipoAnimal && <p className="text-red-500">{errors.tipoAnimal.message}</p>}
                 </div>
 
-                {/* Select for breed */}
+                {/* Raza */}
                 <div className="w-full mb-2">
                   <label className="block mb-1">Raza</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    name="raza"
-                    value={formData.raza}
-                    onChange={handleChange}
-                  >
-                    {
-                      breed
-                        ?.filter((b) => b.animalId === Number(formData.tipoAnimal)) // Filtra por tipo de animal
-                        .map((b, i) => <option key={i} value={b.id}>{b.name}</option>)
-                    }
+                  <select className="w-full p-2 border rounded" {...register("raza", { valueAsNumber: true })}>
+                    {breed?.filter((b) => b.animalId === watch("tipoAnimal")) // Filtra por tipo de animal
+                      .map((b, i) => (
+                        <option key={i} value={b.id}>{b.name}</option>
+                      ))}
                   </select>
+                  {errors.raza && <p className="text-red-500">{errors.raza.message}</p>}
                 </div>
 
-
-                {/* Input for Título */}
+                {/* Título */}
                 <div className="mb-2">
                   <label className="block mb-1">Título</label>
-                  <Input
-                    placeholder="Título"
-                    name="titulo"
-                    value={formData.titulo}
-                    onChange={handleChange}
-                    maxLength={200}
-                  />
-                  {errors.titulo && <p className="text-red-500">{errors.titulo}</p>}
+                  <input className="w-full p-2 border rounded" placeholder="Título" {...register("titulo")} maxLength={200} />
+                  {errors.titulo && <p className="text-red-500">{errors.titulo.message}</p>}
                 </div>
 
-                {/* Textarea for Descripción */}
+                {/* Descripción */}
                 <div className="mb-2">
                   <label className="block mb-1">Descripción</label>
-                  <Textarea
-                    placeholder="Descripción"
-                    name="descripcion"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    maxLength={500}
-                  />
-                  {errors.descripcion && <p className="text-red-500">{errors.descripcion}</p>}
+                  <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("descripcion")} maxLength={500} />
+                  {errors.descripcion && <p className="text-red-500">{errors.descripcion.message}</p>}
                 </div>
 
-                {/* Textarea for birthday */}
+                {/* Fecha de nacimiento */}
                 <div className="mb-2">
-                  <label className="block mb-1">Cumpleaños</label>
-                  <input
-                    type="date"
-                    name="cumpleanhos"
-                    value={formData.cumpleanhos}
-                    onChange={handleChange}
-                  />
-                  {errors.descripcion && <p className="text-red-500">{errors.descripcion}</p>}
+                  <label className="block mb-1">Fecha de nacimiento</label>
+                  <input type="date" className="w-full p-2 border rounded" {...register("nacimiento")} />
+                  {errors.nacimiento && <p className="text-red-500">{errors.nacimiento.message}</p>}
                 </div>
 
-                {/* Checkbox for Gender */}
+                {/* Género */}
                 <div className="flex gap-2 items-center mb-2">
                   <label>Macho</label>
-                  <input
-                    type="checkbox"
-                    name="genero"
-                    value="MALE"
-                    checked={formData.genero === "MALE"}
-                    onChange={handleChange}
-                  />
+                  <input type="radio" value="MALE" {...register("genero")} />
                   <label>Hembra</label>
-                  <input
-                    type="checkbox"
-                    name="genero"
-                    value="FEMALE"
-                    checked={formData.genero === "FEMALE"}
-                    onChange={handleChange}
-                  />
-                  {errors.genero && <p className="text-red-500">{errors.genero}</p>}
+                  <input type="radio" value="FEMALE" {...register("genero")} />
                 </div>
 
-                {/* Checkbox for Vacuna */}
-                <label className="block mb-1">Esta vacunado?</label>
+                {/* Vacunado */}
+                <label className="block mb-1">¿Está vacunado?</label>
                 <div className="flex gap-2 items-center mb-2">
-
-                  <label>Si</label>
-                  <input
-                    type="checkbox"
-                    name="vacunado"
-                    value="Si"
-                    checked={formData.vacunado === "Si"}
-                    onChange={handleChange}
-                  />
-                  <label>No</label>
-                  <input
-                    type="checkbox"
-                    name="vacunado"
-                    value="No"
-                    checked={formData.vacunado === "No"}
-                    onChange={handleChange}
-                  />
-                  {errors.vacunado && <p className="text-red-500">{errors.vacunado}</p>}
+                  <label>Sí</label>
+                  <input type="checkbox" {...register("vacunado")} />
+                  {errors.vacunado && <p className="text-red-500">{errors.vacunado.message}</p>}
                 </div>
 
-                {/* Checkbox for Vacuna */}
-                <label className="block mb-1">Esta esterilizado?</label>
+                {/* Esterilizado */}
+                <label className="block mb-1">¿Está esterilizado?</label>
                 <div className="flex gap-2 items-center mb-2">
-
-                  <label>Si</label>
-                  <input
-                    type="checkbox"
-                    name="esterilizado"
-                    value="Si"
-                    checked={formData.esterilizado === "Si"}
-                    onChange={handleChange}
-                  />
-                  <label>No</label>
-                  <input
-                    type="checkbox"
-                    name="esterilizado"
-                    value="No"
-                    checked={formData.esterilizado === "No"}
-                    onChange={handleChange}
-                  />
-                  {errors.esterilizado && <p className="text-red-500">{errors.esterilizado}</p>}
+                  <label>Sí</label>
+                  <input type="checkbox" {...register("esterilizado")} />
+                  {errors.esterilizado && <p className="text-red-500">{errors.esterilizado.message}</p>}
                 </div>
 
-                {/* Input for Edad */}
+                {/* Edad */}
                 <div className="mb-2">
                   <label className="block mb-1">Edad</label>
-                  <Input
-                    placeholder="Edad"
-                    name="edad"
-                    value={formData.edad}
-                    onChange={handleChange}
-                    maxLength={5}
-                  />
-                  {errors.edad && <p className="text-red-500">{errors.edad}</p>}
+                  <input type="number" className="w-full p-2 border rounded" {...register("edad", { valueAsNumber: true })} />
+                  {errors.edad && <p className="text-red-500">{errors.edad.message}</p>}
                 </div>
 
-                {/* Input for Peso */}
+                {/* Peso */}
                 <div className="mb-2">
                   <label className="block mb-1">Peso</label>
-                  <Input
-                    placeholder="Peso"
-                    name="peso"
-                    value={formData.peso}
-                    onChange={handleChange}
-                    maxLength={5}
-                  />
-                  {errors.peso && <p className="text-red-500">{errors.peso}</p>}
+                  <input type="number" className="w-full p-2 border rounded" {...register("peso", { valueAsNumber: true })} />
+                  {errors.peso && <p className="text-red-500">{errors.peso.message}</p>}
                 </div>
 
-                <div className="h-full">
-                  <MapWithNoSSR position={position} setPosition={setPosition} />
+                {/* Mapa */}
+                <div
+                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                >
+                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
 
                 </div>
 
@@ -493,12 +432,13 @@ const AdoptionForm = () => {
                       variant="tertiary"
                       className="border rounded text-gray-700"
                       type="button"
+                      onClick={handleCancel}
                     >
                       Cancelar
                     </Button>
 
                     <Button
-                      onClick={handleSubmit}
+                      type="submit"
                       variant="cta"
                       disabled={isSubmitting}
                       className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
@@ -508,18 +448,22 @@ const AdoptionForm = () => {
                     </Button>
                   </div>
                 </div>
-
-
-
               </form>
             </CardContent>
           </Card>
 
         </div>
-
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          title="Confirmar creación"
+          message="¿Estás seguro de que deseas crear esta mascota?"
+          textConfirm="Confirmar"
+          confirmVariant="cta"
+          onClose={closeModal}
+          onConfirm={confirmSubmit}
+        />
       </div>
     </div>
   );
 };
-
 export default AdoptionForm;
