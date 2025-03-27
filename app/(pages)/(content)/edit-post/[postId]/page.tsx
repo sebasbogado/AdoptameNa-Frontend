@@ -169,20 +169,9 @@ export default function Page() {
 
         setLoading(true);
         try {
-            const response = await deletePost(String(post.id), authToken);
-            if (response) {
-                setFormData({
-                    idPostType: 0,
-                    title: "",
-                    content: "",
-                    locationCoordinates: [0, 0], // Array de coordenadas
-                    contactNumber: "",
-                    status: "activo", // Valor estático
-                    urlPhoto: ""
-                });
-                setSuccessMessage('Publicación eliminada con éxito');
-                setTimeout(() => router.push('/dashboard'), 2500);
-            }
+            await deletePost(String(post.id), authToken);
+            setSuccessMessage('Publicación eliminada con éxito');
+            setTimeout(() => router.push('/dashboard'), 2500);
 
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
