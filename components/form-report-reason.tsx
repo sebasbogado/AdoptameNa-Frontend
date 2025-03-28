@@ -17,7 +17,7 @@ const FormReportReason: React.FC<FormReportReasonProps> = ({ onCreate, onDelete,
     resolver: zodResolver(reportReasonSchema),
     defaultValues: {
       id: reasonData.id || undefined,
-      reason: reasonData.description || '',
+      description: reasonData.description || '',
     },
   });
 
@@ -32,11 +32,11 @@ const FormReportReason: React.FC<FormReportReasonProps> = ({ onCreate, onDelete,
         <Input
           placeholder="Describe la razón del reporte"
           maxLength={250}
-          className={`w-full border p-2 rounded ${errors.reason ? 'border-red-500 focus:outline-none' : 'border-gray-300'}`}
-          {...register("reason")}
+          className={`w-full border p-2 rounded ${errors.description ? 'border-red-500 focus:outline-none' : 'border-gray-300'}`}
+          {...register("description")}
         />
-        {errors.reason && (
-          <p className="text-red-500 text-xs mt-1">{errors.reason.message}</p>
+        {errors.description && (
+          <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>
         )}
       </div>
 
