@@ -20,7 +20,7 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
   };
 
   return (
-    <div className="relative p-8 left-1/3 transform -translate-x-1/2 bg-white shadow-lg rounded-xl font-roboto z-50 mt-[-50px] w-[55vw]">
+    <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
       <form>
         {/* Nombre Completo */}
         <input
