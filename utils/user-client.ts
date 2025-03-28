@@ -1,11 +1,10 @@
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users`;
 
-export const getUser = async (id: string, token: string) => {
+export const getUser = async (id: string) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });

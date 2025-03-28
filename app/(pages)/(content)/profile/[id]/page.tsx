@@ -1,42 +1,32 @@
 'use client';
 
-import Button from '@/components/buttons/button';
-import EditButton from '@/components/buttons/edit-button';
-import MenuButton from '@/components/buttons/menu-button';
 import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
-import Footer from '@/components/footer';
 import { Section } from '@/components/section';
-import { ConfirmationModal } from "@/components/form/modal";
-
 import { getPosts } from '@/utils/posts.http';
 import { getPetsByUserId } from '@/utils/pets.http';
-import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
-import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
+import { getUserProfile } from '@/utils/user-profile-client';
+import { UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/authContext';
-import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
-const getUserProfileData = async (
 
+const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
     try {
-        // Cargar perfil de usuario
         const profile = await getUserProfile(userId);
         setUserProfile(profile);
 
@@ -51,11 +41,9 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
-
-
     try {
         // Cargar posts del usuario
         const postParams = { user: userId }; // Usamos el ID del usuario actual
@@ -68,14 +56,13 @@ const getPostsData = async (
         setLoading(false);
     }
 };
+
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
-
-
     try {
         const petData = await getPetsByUserId(userId);
         setPets(Array.isArray(petData) ? petData : []);
@@ -86,13 +73,12 @@ const getPetsData = async (
         setLoading(false);
     }
 };
+
 const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
-
-
     try {
         const userData = await getUser(userId);
         setUser(userData);
@@ -110,12 +96,9 @@ export default function ProfilePage() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [profileLoading, setProfileLoading] = useState<boolean>(true);
     const router = useRouter();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isOpen, setIsOpen] = useState(false)
     const param = useParams()
     const [errors, setErrors] = useState({
         user: false,
@@ -144,7 +127,7 @@ export default function ProfilePage() {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
-        if( userId == userAuth?.id){
+        if (userId == userAuth?.id) {
             router.push('/profile')
         }
         getUserProfileData(
@@ -173,7 +156,7 @@ export default function ProfilePage() {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
-       
+
         getPostsData(
             setPosts,
             setLoading,
@@ -194,11 +177,11 @@ export default function ProfilePage() {
             userId.toString()
         );
     }, []);
-   
+
     if (loading) {
         return <Loading />;
     }
-    if ((errors.userProfile || !user ) && !loading) {
+    if ((errors.userProfile || !user) && !loading) {
         console.log(errors.userProfile, user, loading)
         return NotFound();
     }
@@ -208,43 +191,44 @@ export default function ProfilePage() {
 
             <Banners images={userProfile?.bannerImages || ['/logo.png']} />
             <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
-            <div className="grid grid-cols-1 gap-4 p-6">
+                <div className="grid grid-cols-1 gap-4 p-6">
 
-            <Detail
-                posts={posts} 
-                user={user!}
-                userProfile={userProfile}
-                setUserProfile={setTempUserProfile}
-                isDisable={true}
-                validationErrors={validationErrors}
-            />
+                    <Detail
+                        posts={posts}
+                        user={user!}
+                        userProfile={userProfile}
+                        setUserProfile={setUserProfile}
+                        isDisable={true}
+                        validationErrors={validationErrors}
+                    />
 
-            <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
-                <ReportButton size="lg" />
-                <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
+                    <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                        <ReportButton size="lg" />
+                        <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
+                    </div>
+                    <Section
+                        title={`Mascotas de ${userProfile?.fullName.split(' ')[0]}`}
+                        itemType="pet"
+                        path={`/profile/my-pets/${user?.id}`}
+                        items={pets}
+                        loading={loading}
+                        error={errors.pets}
+                        filterByType={false}
+                    />
+
+                    <Section
+                        title={`Publicaciones de ${userProfile?.fullName.split(' ')[0]}`}
+                        itemType="post"
+                        postTypeName="adoption"
+                        path={`/profile/my-posts/${user?.id ?? ''}`}
+                        items={posts}
+                        loading={loading}
+                        error={errors.posts}
+                        filterByType={false}
+                    />
+                </div>
             </div>
-            <Section
-                title="Mis Mascotas"
-                itemType="pet"
-                path={`/profile/my-pets/${user?.id}`}
-                items={pets}
-                loading={loading}
-                error={errors.pets}
-                filterByType={false}
-            />
 
-            <Section
-                title={`Publicaciones de ${userProfile?.fullName.split(' ')[0]}`}
-                itemType="post"
-                postTypeName="adoption"
-                path={`/profile/my-posts/${user?.id ?? ''}`}
-                items={posts}
-                loading={loading}
-                error={errors.posts}
-                filterByType={false}
-            />
-            </div>            </div>
-
-        </div> 
+        </div>
     );
 }
