@@ -25,11 +25,13 @@ import { profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
+import { User } from '@/types/auth';
+import { getUser } from '@/utils/user-client';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -49,7 +51,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -69,7 +71,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -84,9 +86,27 @@ const getPetsData = async (
         setLoading(false);
     }
 };
+const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setErrors: React.Dispatch<React.SetStateAction<{user:boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+    userId: string,
+) => {
+
+
+    try {
+        const userData = await getUser(userId);
+        setUser(userData);
+    } catch (err) {
+        console.error("Error al cargar posts:", err);
+        setErrors(prevErrors => ({ ...prevErrors, user: true }));
+    } finally {
+        setLoading(false);
+    }
+};
 
 export default function ProfilePage() {
-    const { authToken, user, loading: authLoading } = useAuth();
+    const { user: userAuth } = useAuth();
+    const [user, setUser] = useState<User>();
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -98,6 +118,7 @@ export default function ProfilePage() {
     const [isOpen, setIsOpen] = useState(false)
     const param = useParams()
     const [errors, setErrors] = useState({
+        user: false,
         pets: false,
         posts: false,
         userProfile: false
@@ -123,7 +144,7 @@ export default function ProfilePage() {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
-        if( userId == user?.id){
+        if( userId == userAuth?.id){
             router.push('/profile')
         }
         getUserProfileData(
@@ -152,6 +173,7 @@ export default function ProfilePage() {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
+       
         getPostsData(
             setPosts,
             setLoading,
@@ -159,13 +181,27 @@ export default function ProfilePage() {
             userId.toString()
         );
     }, []);
-    if (errors.userProfile) {
-        return NotFound();
-    }
+    useEffect(() => {
+        const userId = param.id;
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
+        getUserData(
+            setUser,
+            setLoading,
+            setErrors,
+            userId.toString()
+        );
+    }, []);
+   
     if (loading) {
         return <Loading />;
     }
-    if (!user) return;
+    if ((errors.userProfile || !user ) && !loading) {
+        console.log(errors.userProfile, user, loading)
+        return NotFound();
+    }
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
@@ -175,7 +211,8 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 gap-4 p-6">
 
             <Detail
-                posts={posts} user={user}
+                posts={posts} 
+                user={user!}
                 userProfile={userProfile}
                 setUserProfile={setTempUserProfile}
                 isDisable={true}
@@ -189,7 +226,7 @@ export default function ProfilePage() {
             <Section
                 title="Mis Mascotas"
                 itemType="pet"
-                path={`/profile/my-pets/${user.id}`}
+                path={`/profile/my-pets/${user?.id}`}
                 items={pets}
                 loading={loading}
                 error={errors.pets}
@@ -197,10 +234,10 @@ export default function ProfilePage() {
             />
 
             <Section
-                title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                title={`Publicaciones de ${userProfile?.fullName.split(' ')[0]}`}
                 itemType="post"
                 postTypeName="adoption"
-                path={`/profile/my-posts/${user.id}`}
+                path={`/profile/my-posts/${user?.id ?? ''}`}
                 items={posts}
                 loading={loading}
                 error={errors.posts}
