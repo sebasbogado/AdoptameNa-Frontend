@@ -282,20 +282,22 @@ export default function page() {
           <Card
             title="Animales"
             content={animals}
-            isBreed={false}
             onClickLabelDefault={openEditAnimal}
             onClickLabelAdd={onClickLabelAddAnimal}
           />
           <Card
             title="Estados de mascotas"
             content={petStatuses}
-            isBreed={false}
             onClickLabelDefault={openEditPetStatus}
             onClickLabelAdd={onClickLabelAddPetStatus}
           />
 
-          <Card title="Motivos de reporte" content={reportReasons} isBreed={false} onClickLabelDefault={openEditReportReason} onClickLabelAdd={onClickLabelAddReportReason}></Card>
-
+          <Card
+            title="Motivos de reporte"
+            content={reportReasons}
+            onClickLabelDefault={openEditReportReason}
+            onClickLabelAdd={onClickLabelAddReportReason}
+          ></Card>
         </div>
         <div className="flex justify-center mt-10">
           <PetBreeds />
