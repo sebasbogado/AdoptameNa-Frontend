@@ -18,6 +18,7 @@ import { ImagePlus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema, PostFormValues } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
+import { Alert } from "@material-tailwind/react";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -113,7 +114,6 @@ export default function Page() {
         try {
             const response = await createPost(updatedFormData as CreatePost, authToken);
             if (response) {
-                setSuccessMessage("¡Publicación creada exitosamente!");
                 setFormData({
                     idPostType: 0,
                     title: "",
@@ -123,9 +123,9 @@ export default function Page() {
                     status: "activo", // Valor estático
                     urlPhoto: ""
                 });
-                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
-                setSuccessMessage("Se ha creado correctamente la publicación.");
-                router.push(`/posts/${response.id}`);
+                //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+                setSuccessMessage("¡Publicación creada exitosamente!");
+                setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
                 setError("Error al guardar publicación");
             }
@@ -207,7 +207,14 @@ export default function Page() {
 
             {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
             {successMessage && (
-                <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
+                <div>
+                    <Alert
+                        color="green"
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        {successMessage}
+                    </Alert>
+                </div>
             )}
 
             <form onSubmit={zodHandleSubmit(openConfirmationModal)}>
@@ -250,7 +257,11 @@ export default function Page() {
                 {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                 {/* Mapa */}
-                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                <div
+                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                >
+                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                </div>
                 {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
