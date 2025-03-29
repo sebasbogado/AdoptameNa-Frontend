@@ -36,35 +36,36 @@ export default function Page() {
   };
 
   return (
-    <div className="overflow-hidden">
+    <div className="w-full px-12">
       <Image
         src="/faq/faq.png"
         alt=""
         width={1341}
         height={435}
-        className="relative rounded-[32px] top-[50px] left-[50px]"
+        layout="intrinsic"
+        className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
       />
 
-      <div className="relative top-[30px] left-[340px]">
-        <div className="relative flex items-center w-[756px]">
-          <TextFade direction="down" staggerChildren={0.1} className="absolute items-center left-10 text-gray-500 text-xl">
+      <div className="relative -mt-5 px-4 md:px-16">
+        <div className="relative flex justify-left pl-60 items-center">
+          <TextFade direction="down" staggerChildren={0.1} className="absolute items-left text-gray-500 pl-5 text-xl ">
             <span>{questions.length > 0 ? questions[currentQuestionIndex] : 'Loading questions...'}</span>
           </TextFade>
 
           <input
-            className="w-[756px] h-[56px] bg-white rounded-[6px] px-[24px] py-[8px] gap-[4px] shadow-[4px_4px_4px_4px_rgba(3,3,3,0.1)]"
+            className="w-full md:w-[756px] md:h-[56px] bg-white rounded-[6px] px-[24px] py-[8px] gap-[4px] shadow-[4px_4px_4px_4px_rgba(3,3,3,0.1)]"
             type="text"
             placeholder=""
             disabled
             value="" 
           />
-          <button className="absolute right-0 top-0 bottom-0 px-[20px] bg-blue-500 text-gray-500 rounded-r-[6px]" disabled>
+          <button className="bg-blue-500 text-gray-500 rounded-r-[6px] flex items-center justify-center -ml-10" disabled>
             <span className="material-symbols-outlined">search</span>
           </button>
         </div>
       </div>
 
-      <div className="relative mt-[100px] mx-[100px]">
+      <div className="mt-10 px-4 md:px-16">
         {faqData.map((category, idx) => (
           <FAQHead
             key={idx}

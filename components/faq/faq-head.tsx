@@ -18,7 +18,7 @@ const FAQHead: React.FC<FAQHeadProps> = ({ title, isOpen, onToggle, children }) 
           onClick={onToggle} // Controla el estado del acordeón con el clic
         >
           <span>{title}</span>
-          <span className="ml-2 text-xl material-symbols-outlined transition-transform transform" style={{ fontSize: '50px' }}>
+          <span className="ml-2 material-symbols-outlined transition-transform transform" style={{fontSize: 48}}>
             {isOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'} {/* Cambiar icono según estado */}
           </span>
         </summary>
