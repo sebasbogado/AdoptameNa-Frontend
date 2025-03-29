@@ -13,10 +13,12 @@ export default function Page() {
   const [openIndex, setOpenIndex] = useState<number>(0); 
 
   useEffect(() => {
-    const filteredData = faqData.filter((section) => section.title.trim() !== "");
-  
-    const allQuestions = filteredData.flatMap((section) =>
-      section.items.map((item) => item.question)
+    const allQuestions = faqData
+    .filter((section) => section.title.trim() !== "") 
+    .flatMap((section) =>
+      section.items
+        .map((item) => item.question)
+        .filter((question) => question.trim() !== "") 
     );
   
     setQuestions(allQuestions);
@@ -34,7 +36,7 @@ export default function Page() {
   };
 
   return (
-    <div className="">
+    <div className="overflow-hidden">
       <Image
         src="/faq/faq.png"
         alt=""
