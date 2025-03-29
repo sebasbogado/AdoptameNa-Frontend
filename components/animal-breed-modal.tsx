@@ -55,6 +55,15 @@ export default function AnimalBreedModal({
     },
   });
 
+  useEffect(() => {
+    if (selectedBreed) {
+      setValue("breedName", selectedBreed.name);
+      setValue("animalType", selectedBreed.animalId.toString());
+    } else {
+      reset(); // Limpiar el formulario si es una nueva raza
+    }
+  }, [selectedBreed, setValue, reset]);
+
   const handleSave = async (data: { breedName: string; animalType: string }) => {
     if (!authToken) {
       console.error("No hay token disponible");
