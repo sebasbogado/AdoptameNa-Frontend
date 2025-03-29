@@ -123,12 +123,12 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const userId = param.id;
-        if (!userId) {
-            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
-            return;
-        }
-        if (userId == userAuth?.id) {
-            router.push('/profile')
+    if (!userId) {
+        setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+        return;
+    }
+        if (userAuth && userId == userAuth.id) {
+            router.push('/profile');
         }
         getUserProfileData(
             setUserProfile,
