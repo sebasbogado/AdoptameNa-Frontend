@@ -15,12 +15,7 @@ const ClickableTag: React.FC<ClickableTagProps> = ({ onClick, type = "default", 
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={clsx(
-        "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset cursor-pointer transition-all duration-200",
-        type === "default"
-          ? "bg-blue-50 text-blue-700 ring-blue-700/10 hover:bg-blue-100"
-          : "bg-blue-50 text-blue-700 ring-blue-600 hover:bg-cyan-100"
-      )}
+      className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset cursor-pointer transition-all duration-200 bg-indigo-50 text-[#4781FF] hover:bg-indigo-100"
     >
       {type != "add" ? label : <span className="material-symbols-outlined">
         add

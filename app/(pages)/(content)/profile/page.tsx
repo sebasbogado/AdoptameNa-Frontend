@@ -22,11 +22,12 @@ import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileSchema } from '@/validations/user-profile';
+import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -37,7 +38,7 @@ const getUserProfileData = async (
 
     } catch (err) {
         console.error("Error al cargar el perfil:", err);
-        setError("No se pudo cargar la información del perfil");
+        setErrors(prev => ({ ...prev, userProfile: true }));
     } finally {
         setLoading(false);
     }
@@ -46,7 +47,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -58,7 +59,7 @@ const getPostsData = async (
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPostsError("No se pudieron cargar las publicaciones.");
+        setErrors(prev => ({ ...prev, posts: true }));
     } finally {
         setLoading(false);
     }
@@ -66,7 +67,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
+    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
 
@@ -76,7 +77,7 @@ const getPetsData = async (
         setPets(Array.isArray(petData) ? petData : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
-        setPetsError("No se pudieron cargar las publicaciones.");
+        setErrors(prev => ({ ...prev, pets: true }));
     } finally {
         setLoading(false);
     }
@@ -88,16 +89,17 @@ export default function ProfilePage() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [profileLoading, setProfileLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false)
-    const [postsError, setPostsError] = useState<string | null>(null);
-    const [petsError, setPetsError] = useState<string | null>(null);
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [isOpen , setIsOpen] = useState(false)   
-
+    const [isOpen, setIsOpen] = useState(false)
+    const [errors, setErrors] = useState({
+        pets: false,
+        posts: false,
+        userProfile: false
+    });
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
         if (!validateProfile(profileToUpdate)) {
@@ -108,14 +110,15 @@ export default function ProfilePage() {
 
 
         setProfileLoading(true);
-        setError(null);
+        setErrors(prev => ({ ...prev, userProfile: false }));
 
         try {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
         } catch (err) {
             console.error("Error al actualizar el perfil:", err);
-            setError("No se pudo actualizar la información del perfil");
+            setErrors(prev => ({ ...prev, userProfile: true }));
+
         } finally {
             setProfileLoading(false);
         }
@@ -158,11 +161,11 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        setError(null);
+
         getUserProfileData(
             setUserProfile,
             setProfileLoading,
-            setError,
+            setErrors,
             user.id
         );
     }, [authToken, authLoading, user?.id]);
@@ -170,15 +173,15 @@ export default function ProfilePage() {
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
-        setError(null);
-        getPetsData(setPets, setLoading, setPetsError, user.id);
+        setErrors(prev => ({ ...prev, pets: false }));
+        getPetsData(setPets, setLoading, setErrors, user.id);
 
     }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         console.log("authLoading", authLoading);
-        getPostsData(setPosts, setLoading, setPostsError, user.id);
+        getPostsData(setPosts, setLoading, setErrors, user.id);
     }, [authToken, authLoading, user?.id]);
 
     const handleContactClick = () => {
@@ -233,100 +236,62 @@ export default function ProfilePage() {
                     onClose={() => setIsOpen(false)}
                     onConfirm={handleConfirmSave}
                 />}
-            {/* User Info */}
-            <Detail
-                posts={posts} user={user}
-                userProfile={isEditing ? tempUserProfile : userProfile}
-                setUserProfile={setTempUserProfile}
-                isDisable={!isEditing}
-                validationErrors={validationErrors}
-            />
-            {/* Action Buttons */}
-            <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
-                <EditButton
-                    size="lg"
-                    isEditing={isEditing}
-                    id='edit-button'
-                    onClick={handleEditButtonClick}
-                />
-                {isEditing && (
-                    <>
-                        <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                            Guardar
-                        </Button>
-                    </>
-                )}
-                {!isEditing && (
-                    <>
+            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
+                <div className="grid grid-cols-1 gap-4 p-6">
 
-                        <DropdownMenu.Root>
-                            {/* Botón para desplegar el menú */}
-                            <DropdownMenu.Trigger asChild>
-                                <Button
-                                    variant="cta"
-                                    size="lg"
-                                >
-                                    Contactar
+                    {/* User Info */}
+                    <Detail
+                        posts={posts} user={user}
+                        userProfile={isEditing ? tempUserProfile : userProfile}
+                        setUserProfile={setTempUserProfile}
+                        isDisable={!isEditing}
+                        validationErrors={validationErrors}
+                    />
+                    {/* Action Buttons */}
+                    <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                        <EditButton
+                            size="lg"
+                            isEditing={isEditing}
+                            id='edit-button'
+                            onClick={handleEditButtonClick}
+                        />
+                        {isEditing && (
+                            <>
+                                <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
+                                    Guardar
                                 </Button>
-                            </DropdownMenu.Trigger>
+                            </>
+                        )}
+                        {!isEditing && (
+                            
+                <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
 
-                            {/* Contenido del menú desplegable */}
-                            <DropdownMenu.Portal>
-                                <DropdownMenu.Content
-                                    className="min-w-[125px] bg-white rounded-md p-2 shadow-md space-y-2"
-                                    sideOffset={5}
-                                >
-                                    {/* Agrega las opciones del menú aquí */}
-                                    <DropdownMenu.Item>
-                                        <button onClick={handleContactClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
-                                        ${!userProfile?.email || userProfile?.email === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
-                                            disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
-                                            <Mail size={16} className="text-gray-500 items-center" />
-                                            <span className="font-medium text-sm text-gray-800">Correo: </span>
-                                            <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
-                                        </button>
-                                    </DropdownMenu.Item>
+                        )}
+                    </div>
+                    {/* Pets Section */}
+                    <Section
+                        title="Mis Mascotas"
+                        itemType="pet"
+                        path={`/profile/my-pets/${user.id}`}
+                        items={pets}
+                        loading={loading}
+                        error={errors.pets}
+                        filterByType={false}
+                    />
 
-                                    <DropdownMenu.Item>
-                                        <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
-                                        ${!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
-                                            disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
-                                            <Phone size={16} className="text-gray-500 items-center" />
-                                            <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
-                                            <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>
-                                        </button>
-                                    </DropdownMenu.Item>
-                                </DropdownMenu.Content>
-                            </DropdownMenu.Portal>
-                        </DropdownMenu.Root>
-
-                        <MenuButton size="lg" />
-                    </>
-
-                )}
+                    {/* Posts Section (Con filtrado) */}
+                    <Section
+                        title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                        itemType="post"
+                        postTypeName="adoption"
+                        path={`/profile/my-posts/${user.id}`}
+                        items={posts}
+                        loading={loading}
+                        error={errors.posts}
+                        filterByType={false}
+                    />
+                </div>
             </div>
-            {/* Pets Section */}
-            <Section
-                title="Mis Mascotas"
-                itemType="pet"
-                path={`/profile/my-pets/${user.id}`}
-                items={pets}
-                loading={loading}
-                error={petsError}
-                filterByType={false}
-            />
-
-            {/* Posts Section (Con filtrado) */}
-            <Section
-                title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
-                itemType="post"
-                postTypeName="adoption"
-                path={`/profile/my-posts/${user.id}`}
-                items={posts}
-                loading={loading}
-                error={postsError}
-                filterByType={false}
-            />
         </div>
     );
 }

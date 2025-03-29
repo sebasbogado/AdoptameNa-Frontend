@@ -15,7 +15,6 @@ const CardText = ({ post, className = "" }: props) => {
   const { authToken } = useAuth();
   const [postTypes, setPostTypes] = useState<PostType | null>(null);
   const [name, setName] = useState<string>("adoption");
-  console.log(post)
 
  
   const hardcodedTags = [
