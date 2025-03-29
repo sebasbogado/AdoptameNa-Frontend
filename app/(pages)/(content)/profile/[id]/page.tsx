@@ -91,7 +91,7 @@ const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | u
 };
 
 export default function ProfilePage() {
-    const { user: userAuth } = useAuth();
+    const { user: userAuth, loading: loadingAuth } = useAuth();
     const [user, setUser] = useState<User>();
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
@@ -136,7 +136,7 @@ export default function ProfilePage() {
             setErrors,
             userId.toString()
         );
-    }, []);
+    }, [userAuth, loadingAuth, param.id]); 
     useEffect(() => {
         const userId = param.id;
         if (!userId) {
