@@ -7,11 +7,13 @@ export function TextFade({
   children,
   className = '',
   staggerChildren = 0.1,
+  onClick,
 }: {
   direction: 'up' | 'down';
   children: React.ReactNode;
   className?: string;
   staggerChildren?: number;
+  onClick?: () => void;
 }) {
   const FADE_DOWN = {
     show: { opacity: 1, y: 0, transition: { type: 'spring' } },
@@ -33,6 +35,7 @@ export function TextFade({
         },
       }}
       className={className}
+      onClick={onClick}
     >
       {React.Children.map(children, (child) =>
         React.isValidElement(child) ? (
