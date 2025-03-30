@@ -53,7 +53,7 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
 
             <ReportButton size="lg" />
 
-            <FavoriteButton size="lg" className="relative top-[-60px] shadow-md left-[40px]" />
+            <FavoriteButton size="xl" className="relative top-[-60px] shadow-md left-[40px]" />
         </div>
     );
 };

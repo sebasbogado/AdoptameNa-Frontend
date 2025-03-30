@@ -18,6 +18,7 @@ import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
+import MenuButton from '@/components/buttons/menu-button';
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -91,7 +92,7 @@ const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | u
 };
 
 export default function ProfilePage() {
-    const { user: userAuth } = useAuth();
+    const { user: userAuth, loading: loadingAuth } = useAuth();
     const [user, setUser] = useState<User>();
     const [posts, setPosts] = useState<Post[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
@@ -123,12 +124,12 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const userId = param.id;
-        if (!userId) {
-            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
-            return;
-        }
-        if (userId == userAuth?.id) {
-            router.push('/profile')
+    if (!userId) {
+        setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+        return;
+    }
+        if (userAuth && userId == userAuth.id) {
+            router.push('/profile');
         }
         getUserProfileData(
             setUserProfile,
@@ -136,7 +137,7 @@ export default function ProfilePage() {
             setErrors,
             userId.toString()
         );
-    }, []);
+    }, [userAuth, loadingAuth, param.id]); 
     useEffect(() => {
         const userId = param.id;
         if (!userId) {
@@ -205,7 +206,7 @@ export default function ProfilePage() {
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <ReportButton size="lg" />
                         <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
-                    </div>
+                        <MenuButton size="lg" />                 </div>
                     <Section
                         title={`Mascotas de ${userProfile?.fullName.split(' ')[0]}`}
                         itemType="pet"
