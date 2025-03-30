@@ -18,6 +18,10 @@ export default function Page() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const removeAccents = (str: string) => {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
+
   useEffect(() => {
     const allQuestions = faqData
     .filter((section) => section.title.trim() !== "") 
@@ -48,15 +52,18 @@ export default function Page() {
   
     
     if (query.trim() !== '') {
+
+      const normalizedQuery = removeAccents(query.toLowerCase());
+      
       const filtered = faqData.map((category) => {
         
         const filteredItems = category.items.filter(
           (item) =>
-            item.question.toLowerCase().includes(query.toLowerCase()) || item.answer.toLowerCase().includes(query.toLowerCase())
+            removeAccents(item.question.toLowerCase()).includes(normalizedQuery) || removeAccents(item.answer.toLowerCase()).includes(normalizedQuery)
         );
     
         
-        if (category.title.toLowerCase().includes(query.toLowerCase())) {
+        if (removeAccents(category.title.toLowerCase()).includes(normalizedQuery)) {
           return { ...category, items: category.items }; 
         } else {
           return { ...category, items: filteredItems }; 
@@ -64,7 +71,7 @@ export default function Page() {
       });
 
       const validCategories = filtered.filter((category) => category.items.length > 0 || 
-                                                            category.title.toLowerCase().includes(query.toLowerCase()));
+                                                            removeAccents(category.title.toLowerCase()).includes(normalizedQuery));
       setFilteredData(validCategories);
 
     } else {
