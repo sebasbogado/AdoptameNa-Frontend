@@ -1,6 +1,6 @@
 import React from "react";
-import { TrashIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { Trash } from "lucide-react";
 
 interface TrashButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
@@ -17,7 +17,7 @@ const TrashButton: React.FC<TrashButtonProps> = ({ size = "md", className, ...pr
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props}>
-      <TrashIcon className="w-5 h-5" />
+      <Trash className="w-6 h-6 " strokeWidth={2} />  
     </button>
   );
 };

@@ -15,6 +15,7 @@ import SectionAdmin from "@/components/administration/section";
 import Button from "@/components/buttons/button";
 import { report } from "process";
 import { Alert } from "@material-tailwind/react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 const getReportsPost = async (
     id: string,
@@ -133,7 +134,7 @@ const ReportsPost = () => {
         try {
             await deleteReportByPost(post.id);
             await updatePost(updatedPost);
-            setSuccessMessage("Post aprovado exitosamente");
+            setSuccessMessage("Post aprobado exitosamente");
         } catch (err) {
             setErrorMessage("Hubo un error al aprobar el post.");
         }
@@ -226,20 +227,16 @@ const ReportsPost = () => {
 
     return (
         <div className="p-6 ">
-            <Button size="sm" onClick={back} className="mb-6 mr-12 bg-white flex items-center justify-center shadow -md">
-
-                <span className="material-symbols-outlined text-gray-800">
-                    arrow_back
-                </span>
+            <Button size="md" onClick={back} className="mb-6 mr-12 bg-white flex justify-between items-center shadow -md text-gray-800">
+            <ArrowLeft className="text-gray-800 pr-1 " size={20} />
+            Volver
             </Button>
             <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 
             <div className="w-full flex justify-end">
                 <Button size="sm" onClick={nextPost} className="bg-white mb-12 mr-12 flex items-center justify-center shadow -md text-gray-800">
 
-                    <span className="material-symbols-outlined text-gray-800">
-                        arrow_forward
-                    </span> Siguiente
+                     Siguiente <ArrowRight  className="text-gray-800 pl-1 "/>
                 </Button>
                 {successMessage && (
                     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">

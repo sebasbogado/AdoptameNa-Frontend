@@ -27,7 +27,7 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
           type="text"
           disabled={isDisable}
           value={userProfile?.fullName ?? ""}
-          className={`text-5xl font-black border-2 ${
+          className={`text-5xl font-black bg-transparent border-2 ${
             !isDisable ? "border-blue" : "border-transparent"
           } focus:outline-none w-full`}
           onChange={(e) => handleInputChange("fullName", e.target.value)}

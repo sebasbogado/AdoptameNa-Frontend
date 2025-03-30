@@ -11,6 +11,7 @@ import Router from "next/router";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/buttons/button";
+import {  CheckIcon, EyeIcon, XIcon } from "lucide-react";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -41,10 +42,12 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
                 <div className=" flex m-4 flex gap-2 justify-center">
 
                     <Button size="sm" onClick={handleAprove} className="flex items-center justify-center">
-                        <span className="material-symbols-outlined mr-2">check</span> Mantener
+                    <CheckIcon className="w-3 h-3 mr-2 text-white" strokeWidth={4} />
+                    Mantener
                     </Button>
                     <Button variant="danger" size="sm" onClick={handleDesaprove} className="flex items-center justify-center">
-                        <span className="material-symbols-outlined">close</span> Bannear
+                    <XIcon className="w-3 h-3  mr-2 text-white" strokeWidth={4} />
+                    Bannear
                     </Button>
                 </div>
                 :
@@ -52,9 +55,7 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
                     <Link href={`/administration/report/${post.id}`} >
 
                         <Button size="sm" className="flex items-center justify-center">
-                            <span className="material-symbols-outlined font-material ">
-                                {"visibility"}
-                            </span>
+                            <EyeIcon className="w-5 h-5 mr-2 text-white" strokeWidth={3} />
                             Ver razones
                         </Button>
                     </Link>
