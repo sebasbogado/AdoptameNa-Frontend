@@ -1,5 +1,4 @@
 import React from "react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { EllipsisVertical } from "lucide-react";
 
