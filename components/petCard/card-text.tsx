@@ -4,7 +4,7 @@ import PostsTags from "./tag";
 import { getPostType } from "@/utils/post-type-client";
 import { PostType } from "@/types/post-type";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 
 interface props {
   post: any,

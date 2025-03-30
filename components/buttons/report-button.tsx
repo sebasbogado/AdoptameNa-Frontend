@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import Modal from "@/components/modal";
 import ReportForm from "@/components/report-form";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
 interface ReportButtonProps

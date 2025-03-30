@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "@/validations/login-schema";

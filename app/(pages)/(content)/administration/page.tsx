@@ -2,7 +2,7 @@
 import Loading from "@/app/loading";
 import Footer from "@/components/footer";
 import NavbarAdmin from "@/components/navbar-admin";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

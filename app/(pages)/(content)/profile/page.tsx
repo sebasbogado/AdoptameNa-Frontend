@@ -16,7 +16,7 @@ import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/authContext';
+import { useAuth } from '@/contexts/auth-context';
 import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';

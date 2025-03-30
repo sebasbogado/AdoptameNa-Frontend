@@ -4,7 +4,7 @@ import Card from "@/components/card"
 import { Animal } from "@/types/animal";
 import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { getAnimals, createAnimal, deleteAnimal, updateAnimal } from "@/utils/animals.http";
 import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";

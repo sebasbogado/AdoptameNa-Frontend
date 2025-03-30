@@ -1,7 +1,7 @@
 "use client"
 
 import Loading from "@/app/loading";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { Post, UpdatePost } from "@/types/post";
 import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
