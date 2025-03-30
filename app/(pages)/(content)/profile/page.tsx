@@ -263,9 +263,8 @@ export default function ProfilePage() {
                             </>
                         )}
                         {!isEditing && (
-                            
-                <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
-
+                            <MenuButton size="lg" />
+               
                         )}
                     </div>
                     {/* Pets Section */}

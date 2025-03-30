@@ -18,6 +18,7 @@ import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
+import MenuButton from '@/components/buttons/menu-button';
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -205,7 +206,7 @@ export default function ProfilePage() {
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <ReportButton size="lg" />
                         <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
-                    </div>
+                        <MenuButton size="lg" />                 </div>
                     <Section
                         title={`Mascotas de ${userProfile?.fullName.split(' ')[0]}`}
                         itemType="pet"

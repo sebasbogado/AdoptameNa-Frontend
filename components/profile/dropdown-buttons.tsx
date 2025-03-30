@@ -57,7 +57,7 @@ export const DropdownMenuButtons = ({ handleContactClick, handleWhatsAppClick, u
                 </DropdownMenu.Portal>
             </DropdownMenu.Root>
 
-            <MenuButton size="lg" />
+           
         </>
     )
 }
