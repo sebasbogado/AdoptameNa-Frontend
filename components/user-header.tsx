@@ -4,15 +4,14 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { User as UserType } from "@/types/auth";
 import { useAuth } from "@/contexts/authContext";
+import { Bell, FileCheck2, Heart, LogOutIcon, ShieldUser, User, User2, UserCircleIcon, UserIcon } from "lucide-react";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
   const { logout } = useAuth();
   return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
-      <span className="material-symbols-outlined text-amber-500">
-        notifications
-      </span>
-
+     <Bell className=" text-amber-500"/>
+      
 
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
@@ -33,7 +32,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             {/* User info section */}
             <div className="px-3 py-2 border-b border-gray-200 mb-1">
               <Link href="/profile" className="flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined font-material">Person</span>
+                <UserIcon className="w-5 h-5" strokeWidth={2}/>
                 <span className="font-medium text-sm text-gray-800">{currentUser.fullName}</span>
               </Link>
               <div className="text-xs text-gray-500 pl-6">{currentUser.email}</div>
@@ -44,9 +43,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
               <div className="py-2 border-b border-gray-200 mb-1">
                 <Link href="/administration" className="flex items-center gap-2 mb-1 ">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <span className="material-symbols-outlined">
-                    shield_person
-                  </span>
+                <ShieldUser className="w-6 h-6" strokeWidth={2}/>
                   <span className="font-medium text-sm text-gray-800">Administración</span>
                 </DropdownMenu.Item>
                 </Link>
@@ -57,9 +54,8 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile/favorites" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <span className="material-symbols-outlined">
-                    favorite
-                  </span>Mis favoritos
+                <Heart className="w-5 h-5" strokeWidth={2}/>
+                Mis favoritos
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -68,9 +64,8 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile/received-request" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <span className="material-symbols-outlined">
-                    article
-                  </span>Mis solicitudes
+                <FileCheck2 className="w-5 h-5" strokeWidth={2}/>
+                 Mis solicitudes
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -79,9 +74,8 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             <div>
               <Link href="/profile" className="flex items-center gap-2">
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
-                  <span className="material-symbols-outlined">
-                    account_circle
-                  </span>Mi perfil
+                <UserCircleIcon className="w-5 h-5" strokeWidth={2}/>
+                Mi perfil
                 </DropdownMenu.Item>
               </Link>
             </div>
@@ -91,9 +85,8 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
               className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 outline-none cursor-pointer hover:bg-red-100 rounded-md"
               onClick={logout}
             >
-              <span className="material-symbols-outlined">
-                logout
-              </span>Cerrar sesión
+              <LogOutIcon className="w-5 h-5" strokeWidth={2}/>
+               Cerrar sesión
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
