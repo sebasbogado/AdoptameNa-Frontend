@@ -4,7 +4,7 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { sharePost } from "@/utils/posts.http";
 
 interface PostButtonsProps {

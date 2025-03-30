@@ -3,7 +3,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { User as UserType } from "@/types/auth";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { Bell, FileCheck2, Heart, LogOutIcon, ShieldUser, User, User2, UserCircleIcon, UserIcon } from "lucide-react";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {

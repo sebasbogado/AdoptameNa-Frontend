@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "@/styles/globals.css";
-import { AuthProvider } from "@/contexts/authContext";
+import { AuthProvider } from "@/contexts/auth-context";
 const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 export const metadata: Metadata = {

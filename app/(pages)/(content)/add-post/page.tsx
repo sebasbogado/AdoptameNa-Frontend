@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";

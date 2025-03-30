@@ -2,7 +2,7 @@
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { SectionCards } from "@/components/section-cards";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { Report } from "@/types/report";
 import { deleteReport, deleteReportsByPost, getReportById, getReports } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
