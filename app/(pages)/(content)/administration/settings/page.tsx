@@ -132,6 +132,7 @@ export default function page() {
       setModalPetStatus(false);
       return;
     }
+    setDeleteType("petStatus");
     setIsOpenModal(true);
     return;
   }
@@ -166,7 +167,7 @@ export default function page() {
       setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
-      setModalAnimal(false)
+      setModalPetStatus(false)
     }
   }
   const onClickLabelAddAnimal = () => {
