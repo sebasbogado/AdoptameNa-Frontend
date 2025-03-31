@@ -3,7 +3,7 @@ import CardReport from "@/components/administration/report/card-button";
 import SectionAdmin from "@/components/administration/section";
 import PetCard from "@/components/petCard/pet-card";
 import { SectionCards } from "@/components/section-cards"
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { Post } from "@/types/post";
 import { getPostReports, getPosts } from '@/utils/posts.http';
 import { deleteReport, getReports} from "@/utils/report-client"

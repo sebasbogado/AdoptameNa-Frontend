@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { Edit2 } from "lucide-react";
 
 interface EditButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
@@ -17,10 +18,8 @@ const EditButton: React.FC<EditButtonProps> = ({ size = "md", className, isEditi
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props}>
-     <span className="material-symbols-outlined">
-     {isEditing ? "close" : "edit"}
-    </span>
-    </button>
+         <Edit2 className="w-6 h-6 "  strokeWidth={2} />
+         </button>
   );
 };
 

@@ -1,7 +1,7 @@
 "use client"
 
 import Loading from "@/app/loading";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { Post, UpdatePost } from "@/types/post";
 import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Alert } from "@material-tailwind/react";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -146,7 +147,7 @@ export default function Page() {
         try {
             await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/posts/${post.id}`), 1500);
+            setTimeout(() => router.push(`/posts/${post.id}`), 3500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setError('Hubo un problema al actualizar la publicación.');
@@ -170,7 +171,8 @@ export default function Page() {
         try {
             await deletePost(String(post.id), authToken);
             setSuccessMessage('Publicación eliminada con éxito');
-            setTimeout(() => router.push('/dashboard'), 1500);
+            setTimeout(() => router.push('/dashboard'), 3500);
+
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
             setError('Hubo un problema al eliminar la publicación.');
@@ -189,14 +191,21 @@ export default function Page() {
         router.push(`/posts/${post.id}`);
     };
 
-    const arrayImages = formData?.urlPhoto ? [formData.urlPhoto] : ['../logo.png'];
+    const arrayImages = post?.urlPhoto ? [post.urlPhoto] : ['../logo.png'];
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
 
             {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
             {successMessage && (
-                <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
+                <div>
+                    <Alert
+                        color="green"
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        {successMessage}
+                    </Alert>
+                </div>
             )}
 
             <form onSubmit={zodHandleSubmit(openConfirmationModalEdit)}>
@@ -239,11 +248,15 @@ export default function Page() {
                 {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                 {/* Mapa */}
-                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                <div
+                    className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                >
+                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                </div>
                 {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
-                <Button
+                    <Button
                         type="button"
                         variant="danger"
                         size="md"

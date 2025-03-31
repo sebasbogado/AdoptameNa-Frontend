@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import AnimalBreedModal from "@/components/animal-breed-modal";
 import SearchBar from "@/components/search-bar";
 import AnimalFilter from "@/components/animal-filter";

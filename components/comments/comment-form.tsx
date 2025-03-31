@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { UserAvatar } from "../ui/user-avatar";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 
 interface CommentFormProps {
     onSubmit: (content: string) => void;

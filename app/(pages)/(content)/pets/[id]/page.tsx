@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { getPosts } from "@/utils/posts-api";
 
 import Banners from "@/components/banners";

@@ -4,7 +4,7 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { sharePost } from "@/utils/posts.http";
 
 interface PostButtonsProps {
@@ -53,7 +53,7 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
 
             <ReportButton size="lg" />
 
-            <FavoriteButton size="lg" className="relative top-[-60px] shadow-md left-[40px]" />
+            <FavoriteButton size="xl" className="relative top-[-60px] shadow-md left-[40px]" />
         </div>
     );
 };

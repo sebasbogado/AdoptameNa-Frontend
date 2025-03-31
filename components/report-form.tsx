@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Textarea } from './ui/textarea';
 import Button from '@/components/buttons/button';
 import { getReportReasons } from '@/utils/report-reasons.http';
-import { useAuth } from '@/contexts/authContext';
+import { useAuth } from '@/contexts/auth-context';
 import { ReportReason } from '@/types/report-reason';
 import { createReport } from '@/utils/reports.http';
 import { useParams } from 'next/navigation';

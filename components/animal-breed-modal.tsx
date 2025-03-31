@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createBreed, updateBreed, deleteBreed } from "@/utils/breeds.http";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import ConfirmationModal from "@/components/confirm-modal";
 

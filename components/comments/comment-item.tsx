@@ -6,6 +6,7 @@ import { User } from "@/types/auth";
 import { UserAvatar } from "../ui/user-avatar";
 import { Comment } from "@/types/comment";
 import { Alert } from "@material-tailwind/react";
+import { useRouter } from "next/navigation";
 
 interface CommentItemProps {
     comment: Comment;
@@ -26,6 +27,7 @@ export function CommentItem({
 }: CommentItemProps) {
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const router = useRouter()
 
     const handleReply = (content: string) => {
         if (onReply) {
@@ -56,7 +58,10 @@ export function CommentItem({
             setTimeout(() => setShowAlert(false), 5000);
         }
     };
-
+    const routeUserProfile = () => {
+        console.log(currentUser)
+        router.push(`/profile/${comment.user.id}`)
+    }
     return (
         <div className={`flex gap-3 ${level > 0 ? 'ml-12' : ''}`}>
             <UserAvatar user={comment.user} />
@@ -64,8 +69,8 @@ export function CommentItem({
             <div className="flex-1">
                 <div className={`${level > 0 ? 'p-3 bg-gray-50 rounded-lg' : ''}`}>
                     <div className="flex flex-col">
-                        <div className="font-medium">{comment.user.fullName}</div>
-                        <p className="text-gray-800 mt-1">{comment.content}</p>
+                    <div  onClick={routeUserProfile} className="font-medium cursor-pointer  hover:underline">{comment.user.fullName}</div>
+                    <p className="text-gray-800 mt-1">{comment.content}</p>
 
                         <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 flex-wrap">
                             <span>{getTimeAgo(comment.createdAt)}</span>
