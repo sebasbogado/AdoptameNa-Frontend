@@ -2,14 +2,9 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import dynamic from 'next/dynamic';
-import Footer from "@/components/footer";
 import Image from "next/image";
 import { MapProps } from "@/types/map-props";
-import { useAppContext } from "@/contexts/appContext";
-//import Axios from "@/utils/axiosInstace";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/authContext';
 import { getBreed } from "@/utils/breed.http";
@@ -124,62 +119,39 @@ const AdoptionForm = () => {
   useEffect(() => {
     getFromData()
   }, [])
-
+  
   useEffect(() => {
-    if (petsStatus && petsStatus.length > 0 &&
-      animals && animals.length > 0 &&
-      breed && breed.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        estado: petsStatus[0].id, // Primer estado disponible
-        tipoAnimal: animals[0].id, // Primer tipo de animal disponible
-        raza: breed.find(b => b.animalId === animals[0].id)?.id || breed[0].id // Primera raza correspondiente al animal
-      }));
+    if (petsStatus?.length && animals?.length && breed?.length) {
+      setValue("estado", petsStatus[0].id);
+      setValue("tipoAnimal", animals[0].id);
+      setValue(
+        "raza",
+        breed.find(b => b.animalId === animals[0].id)?.id || breed[0].id
+      );
     }
-  }, [petsStatus, animals, breed]); // Se ejecuta cuando los datos están disponibles
+  }, [petsStatus, animals, breed, setValue]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
       const formData = new FormData();
       formData.append("file", file);
-      console.log("imagen: ", file);
-
+  
       if (!authToken) {
         throw new Error("El token de autenticación es requerido");
       }
-
+  
       try {
         const response = await postMedia(formData, authToken);
-        console.log("Respuesta de postMedia:", response);
         if (response) {
-          setSelectedImages([...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }]);
+          const newImages = [...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }];
+          setSelectedImages(newImages);
         }
       } catch (error) {
         console.error("Error al subir la imagen", error);
       }
     }
   };
-
-
-  /*const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-
-    // Handle checkbox inputs separately
-    if (type === "checkbox" && "checked" in e.target) {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({
-        ...prev,
-        [name]: checked ? value : ""
-      }));
-    } else {
-      // Handle other inputs (text, textarea, select)
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };*/
 
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -318,14 +290,9 @@ const AdoptionForm = () => {
             >
               <ImagePlus size={20} className="text-blue-500" />
             </label>
-
           </div>
-
-
-
         </div>
         {/* Wrapped Card Component */}
-
         <div className="w-full max-w-2xl">
           <Card>
             <CardContent className="p-4">
