@@ -17,7 +17,7 @@ export default function Page() {
             <div className="max-w-3xl mx-auto py-8 px-4">
 
                 {/* Alerta superior */}
-                <div className="border border-red-500 rounded-lg p-4 mb-12 flex gap-4 items-start">
+                <div className="border border-red-500 rounded-lg p-4 mb-12 flex gap-4 items-center">
                     <AlertTriangle className="text-red-500 h-6 w-6 flex-shrink-0 mt-1" />
                     <p className="text-gray-800">
                         Adoptamena promueve la tenencia responsable de animales y se ajusta a las leyes nacionales de bienestar y
