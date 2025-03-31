@@ -202,7 +202,7 @@ export default function page() {
             message={`¿Estás seguro de que deseas eliminar este ${deleteType === "animal" ? "animal" : "estado"}?`}
             textConfirm="Eliminar"
             confirmVariant="danger"
-            onClose={() => {setIsOpenModal(false); setDeleteType(null);}}
+            onClose={() => { setIsOpenModal(false); setDeleteType(null); }}
             onConfirm={deleteType === "animal" ? confirmDeleteAnimal : confirmDeletePetStatus}
           />
 
@@ -223,7 +223,7 @@ export default function page() {
           />
         </div>
         <div className="flex justify-center mt-10">
-          <PetBreeds />
+          <PetBreeds setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
         </div>
       </div>
     </>

@@ -27,6 +27,8 @@ interface AnimalBreedModalProps {
   selectedBreed?: Breed | null;
   onBreedSaved: (breed: Breed) => void;
   onBreedDeleted: (id: number) => void;
+  setSuccessMessage: (msg: string | null) => void;
+  setErrorMessage: (msg: string | null) => void;
 }
 
 export default function AnimalBreedModal({
@@ -36,6 +38,8 @@ export default function AnimalBreedModal({
   selectedBreed,
   onBreedSaved,
   onBreedDeleted,
+  setSuccessMessage,
+  setErrorMessage,
 }: AnimalBreedModalProps) {
   const { authToken } = useAuth();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -45,8 +49,8 @@ export default function AnimalBreedModal({
     register,
     handleSubmit,
     setValue,
-    reset,  // Importamos reset
-    formState: { errors }
+    reset,
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(breedSchema),
     defaultValues: {
@@ -60,13 +64,13 @@ export default function AnimalBreedModal({
       setValue("breedName", selectedBreed.name);
       setValue("animalType", selectedBreed.animalId.toString());
     } else {
-      reset(); // Limpiar el formulario si es una nueva raza
+      reset();
     }
   }, [selectedBreed, setValue, reset]);
 
   const handleSave = async (data: { breedName: string; animalType: string }) => {
     if (!authToken) {
-      console.error("No hay token disponible");
+      setErrorMessage("No hay token disponible");
       return;
     }
 
@@ -75,27 +79,33 @@ export default function AnimalBreedModal({
       if (selectedBreed) {
         const updatedBreed = await updateBreed(authToken, selectedBreed.id, data.breedName, Number(data.animalType));
         onBreedSaved(updatedBreed);
+        setSuccessMessage("Raza actualizada correctamente");
       } else {
         const newBreed = await createBreed(authToken, data.breedName, Number(data.animalType));
         onBreedSaved(newBreed);
-        reset(); // 🔹 Limpia los campos después de crear una nueva raza
+        setSuccessMessage("Raza creada correctamente");
+        reset();
       }
       setOpen(false);
-    } catch (error) {
-      console.error("Error al guardar la raza", error);
+    } catch (error: any) {
+      console.error(error);
+      setErrorMessage(error.response.data.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = () => setIsConfirmModalOpen(true);
-
   const confirmDelete = async () => {
     if (selectedBreed && authToken) {
-      await deleteBreed(authToken, selectedBreed.id);
-      onBreedDeleted(selectedBreed.id);
-      setOpen(false);
-      setIsConfirmModalOpen(false);
+      try {
+        await deleteBreed(authToken, selectedBreed.id);
+        onBreedDeleted(selectedBreed.id);
+        setSuccessMessage("Raza eliminada correctamente");
+        setOpen(false);
+        setIsConfirmModalOpen(false);
+      } catch (error: any) {
+        setErrorMessage(error.response.data.message);
+      }
     }
   };
 
@@ -132,7 +142,7 @@ export default function AnimalBreedModal({
 
             <div className="flex gap-4 mt-4">
               {selectedBreed ? (
-                <Button variant="danger" size="md" onClick={handleDelete} className="flex-1" disabled={isLoading}>
+                <Button type="button" variant="danger" size="md" onClick={() => setIsConfirmModalOpen(true)} className="flex-1" disabled={isLoading}>
                   Borrar
                 </Button>
               ) : (
@@ -146,8 +156,6 @@ export default function AnimalBreedModal({
             </div>
           </form>
         </div>
-
-        {/* Modal de Confirmación */}
         <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={confirmDelete} title="Eliminar Raza" message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`} />
       </div>
     )
