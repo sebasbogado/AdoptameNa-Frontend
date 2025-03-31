@@ -31,8 +31,7 @@ export function Section({ title, postTypeName, path, items, loading, error, filt
     )
     const limitedItems = itemType === "pet" ? filteredItems.slice(0, 4) : filteredItems.slice(0, 5);
     const insertAddButton = itemType === "pet" && pathName === "/profile";
-    console.log("items", items)
-    console.log("insert", insertAddButton)
+
 
     return (
         <div className="mt-12 ml-6">

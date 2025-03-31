@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useAuth } from '@/contexts/authContext';
+import { useAuth } from '@/contexts/auth-context';
 import { getFavorites } from '@/utils/favorites-posts.http';
 import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';

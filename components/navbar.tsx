@@ -3,7 +3,7 @@
 import UserHeader from "@/components/user-header"
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { usePathname } from "next/navigation";
 
 // Lista de enlaces de navegación

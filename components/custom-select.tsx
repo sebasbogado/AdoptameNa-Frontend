@@ -1,6 +1,6 @@
 import React from "react";
 import { Listbox } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { ChevronDownIcon } from "lucide-react";
 
 interface CustomSelectProps {
     label: string;
@@ -15,7 +15,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ label, options, selected, s
             <div className="relative">
                 <Listbox.Button className="w-full flex items-center justify-between px-4 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none">
                     {selected || label}
-                    <ChevronDownIcon className="w-5 h-5 text-gray-500" />
+                    <ChevronDownIcon className="w-5 h-5 text-gray-500"  />
                 </Listbox.Button>
                 <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
                     {options.map((option, index) => (

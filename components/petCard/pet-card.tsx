@@ -40,13 +40,13 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
     // console.log(post)
 
     return (
-        <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`} >
             <div className={clsx("w-64 h-[19rem] rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
+                <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={() => setIsFavorite(!isFavorite)} className="absolute top-2 right-2 z-10" />
-                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
-                <CardText post={post} />
+                <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
+                    <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
+                    <CardText post={post} />
+                </Link>
             </div>
-        </Link>
     );
 }

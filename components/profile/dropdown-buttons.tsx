@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import Button from '../buttons/button';
 import { UserProfile } from '@/types/user-profile';
-import { Mail } from 'lucide-react';
+import { Mail, MailIcon, PhoneIcon } from 'lucide-react';
 import MenuButton from '../buttons/menu-button';
 interface Props {
     handleContactClick: () => void;
@@ -28,9 +28,8 @@ export const DropdownMenuButtons = ({ handleContactClick, handleWhatsAppClick, u
                         <button onClick={handleContactClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                 ${!userProfile?.email || userProfile?.email === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
                             disabled={!userProfile?.email || userProfile?.email === "No Disponible"} >
-                            <span className="material-symbols-outlined">
-                                mail
-                            </span>                    <span className="font-medium text-sm text-gray-800">Correo: </span>
+                            <MailIcon/>
+                             <span className="font-medium text-sm text-gray-800">Correo: </span>
                             <span className="font-medium text-sm text-gray-500">{userProfile?.email || "No Disponible"}</span>
                         </button>
                     </DropdownMenu.Item>
@@ -39,9 +38,7 @@ export const DropdownMenuButtons = ({ handleContactClick, handleWhatsAppClick, u
                         <button onClick={handleWhatsAppClick} className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
                 ${!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible" ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200 hover:text-gray-800'}`}
                             disabled={!userProfile?.phoneNumber || userProfile?.phoneNumber === "No Disponible"}>
-                            <span className="material-symbols-outlined">
-                                call
-                            </span>
+                            <PhoneIcon/>
 
                             <span className="font-medium text-sm text-gray-800">WhatsApp: </span>
                             <span className="font-medium text-sm text-gray-500">{userProfile?.phoneNumber || "No Disponible"}</span>

@@ -20,6 +20,7 @@ import {
   refinedBaseSchema,
   refinedOrganizacionSchema,
 } from "@/validations/register-schema";
+import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 
 export default function Page() {
   const [accountType, setAccountType] = useState("persona");
@@ -238,11 +239,10 @@ export default function Page() {
                 className='absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer'
                 onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? (
-                  <span className='material-symbols-outlined'>
-                    visibility_off
-                  </span>
+                                  <EyeOffIcon  className="w-5 h-5"/>
+
                 ) : (
-                  <span className='material-symbols-outlined'>visibility</span>
+                  <EyeIcon className="w-5 h-5"/>
                 )}
               </div>
             </div>
@@ -303,11 +303,10 @@ export default function Page() {
                 className='absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer'
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? (
-                  <span className='material-symbols-outlined'>
-                    visibility_off
-                  </span>
+                                                   <EyeOffIcon  className="w-5 h-5"/>
+
                 ) : (
-                  <span className='material-symbols-outlined'>visibility</span>
+                  <EyeIcon className="w-5 h-5"/>
                 )}
               </div>
             </div>
@@ -325,9 +324,9 @@ export default function Page() {
               disabled={isSubmitting}>
               {isSubmitting ? (
                 <div className='flex items-center justify-center'>
-                  <span className='material-symbols-outlined animate-spin mr-2'>
-                    progress_activity
-                  </span>
+                  <Loader2Icon className=" animate-spin mr-2"
+                
+                />
                   Procesando...
                 </div>
               ) : (
