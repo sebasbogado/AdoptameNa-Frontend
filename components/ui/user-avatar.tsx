@@ -12,7 +12,7 @@ interface UserAvatarProps {
 export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
     const getColorFromName = (name: string) => {
         const colors = [
-            "bg-blue-500",
+            "bg-light-blue-500",
             "bg-green-500",
             "bg-purple-500",
             "bg-pink-500",
@@ -34,8 +34,7 @@ export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
     };
 
     return (
-        <div className={`${sizeClasses[size]} rounded-full overflow-hidden flex-shrink-0`}>
-
+        <div className={`${sizeClasses[size]} rounded-full overflow-hidden flex-shrink-0 `}>
             <div
                 className={`w-full h-full flex items-center justify-center ${getColorFromName(user.fullName)} text-white font-medium`}
             >
