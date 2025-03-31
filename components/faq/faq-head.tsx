@@ -1,4 +1,5 @@
 // components/FAQCategory.tsx
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import React from 'react';
 
 
@@ -18,8 +19,8 @@ const FAQHead: React.FC<FAQHeadProps> = ({ title, isOpen, onToggle, children }) 
           onClick={onToggle} // Controla el estado del acordeón con el clic
         >
           <span>{title}</span>
-          <span className="ml-2 material-symbols-outlined transition-transform transform" style={{fontSize: 48}}>
-            {isOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down'} {/* Cambiar icono según estado */}
+          <span className="ml-2" style={{fontSize: 48}}>
+            {isOpen ? <ChevronUp/> : <ChevronDown/>} {/* Cambiar icono según estado */}
           </span>
         </summary>
         {isOpen && (

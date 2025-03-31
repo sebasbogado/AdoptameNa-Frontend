@@ -6,6 +6,7 @@ import { TextFade } from '@/components/faq/TextFade';
 import Image from 'next/image';
 import faqData from '@/lib/faq.json';
 import { useEffect, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
 
 export default function Page() {
   const [questions, setQuestions] = useState<string[]>([]);
@@ -127,7 +128,7 @@ export default function Page() {
             onBlur={handleInputBlur} 
           />
           <button className="bg-blue-500 text-gray-500 rounded-r-[6px] flex items-center justify-center -ml-10" disabled>
-            <span className="material-symbols-outlined">search</span>
+            <Search/>
           </button>
         </div>
       </div>
