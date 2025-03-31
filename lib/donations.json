@@ -1,0 +1,17 @@
+[
+    {
+      "title": "¿Como funcionan las donaciones en Adoptamena?",
+      "items": [
+        {"detail": "Adoptamena no integra medios de pago en su plataforma, por lo que no se pueden hacer transacciones comerciales de manera directa. Si querés hacer una donación, tenés que contactar al creador de la publicación para coordinar la forma de pago."},
+
+        {"detail": "Cuando una organización lanza una campaña de recaudación de fondos, se publica en la sección de Voluntariado para darle mayor visibilidad."},
+
+        {"detail": "Para donar, podés comunicarse con el perfil que creó la publicación y realizar la transacción por los medios que ambas partes acuerden. Una vez recibido el dinero, la organización actualizará el monto recaudado en su perfil de forma manual."},
+
+        {"detail": "Antes de donar, te recomendamos verificar la legitimidad de la publicación teniendo en cuenta:<br/><ul className='list-disc pl-10'><br/><li>La cantidad de publicaciones realizadas por el perfil.</li><br/><li>Los comentarios de otros usuarios en sus publicaciones.</li><br/><li>La claridad y coherencia de la información proporcionada.</li>"}
+
+      ]
+    }
+]
+
+
