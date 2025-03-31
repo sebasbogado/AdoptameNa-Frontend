@@ -10,7 +10,8 @@
 
         {"detail": "Antes de donar, te recomendamos verificar la legitimidad de la publicación teniendo en cuenta:<br/><ul className='list-disc pl-10'><br/><li>La cantidad de publicaciones realizadas por el perfil.</li><br/><li>Los comentarios de otros usuarios en sus publicaciones.</li><br/><li>La claridad y coherencia de la información proporcionada.</li>"}
 
-      ]
+      ],
+      "warning": "Adoptamena es solamente un intermediario y no recibe ningún tipo de comisión del dinero recudado por las organizaciones mediante campañas, tampoco se responzabiliza por el uso final que se le de a las mismas."
     }
 ]
 

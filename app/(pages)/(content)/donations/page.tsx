@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { handleContactClick } from '@/utils/email-handler';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { TriangleAlert } from 'lucide-react';
 
 export default function Page() {
 
@@ -57,9 +58,19 @@ export default function Page() {
                         ))}
                     </div>
                 ))}
-            </div>
+            
 
-            {/*Aqui debe ir el div con borde redondeado y logo con texto */}
+            <div className='border-[3px] rounded-[32px] flex items-center p-10 my-20' style={{ borderColor: "#FFAE34" }}>
+              <TriangleAlert className="w-48 h-48 mr-8" style={{ color: "#FFAE34" }}/>
+              
+              <div className='text-3xl'>
+                {donationsData.length > 0 && donationsData.map((section) => (
+                  section.warning
+                ))}
+              </div>
+              
+            </div>
+          </div>
         </div>
     )
 }
