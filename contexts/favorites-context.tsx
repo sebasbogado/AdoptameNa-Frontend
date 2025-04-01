@@ -11,24 +11,23 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
     const { authToken } = useAuth();
     const [favorites, setFavorites] = useState<Favorites[]>([]);
 
+    const fetchFavorites = async () => {
+        try {
+            if (!authToken) return;
+            const data = await getFavorites(authToken);
+            setFavorites(data);
+            console.log("data", data)
+        } catch (error) {
+            console.error("Error obteniendo favoritos:", error);
+        }
+    };
+
     useEffect(() => {
-        if (!authToken) return;
-
-        const fetchFavorites = async () => {
-            try {
-                const data = await getFavorites(authToken);
-                setFavorites(data);
-                console.log("data", data)
-            } catch (error) {
-                console.error("Error obteniendo favoritos:", error);
-            }
-        };
-
         fetchFavorites();
     }, [authToken]);
 
     return (
-        <FavoritesContext.Provider value={{ favorites, setFavorites }}>
+        <FavoritesContext.Provider value={{ favorites, fetchFavorites }}>
             {children}
         </FavoritesContext.Provider>
     );

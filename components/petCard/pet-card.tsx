@@ -22,7 +22,7 @@ type PetCardProps = {
 };
 
 export default function PetCard({ post, className, isPost }: PetCardProps) {
-    const { favorites, setFavorites } = useFavorites(); // Usamos el contexto
+    const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const { authToken } = useAuth(); // Hook de autenticación
@@ -56,14 +56,14 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
 
         try {
             if (isFavorite) {
-                await deleteFavorite(post.id, authToken);
-                setFavorites((prev: Favorites[]) => prev.filter((fav) => fav.postId !== post.id));
+                const favorite = favorites.find((fav: Favorites) => fav.postId === post.id);
+                await deleteFavorite(favorite.id, authToken);
                 setSuccessMessage("Publicación eliminada de favoritos");
             } else {
                 await addFavorite(post.id, authToken);
-                setFavorites((prev: Favorites[]) => [...prev, { postId: post.id }]);
                 setSuccessMessage("Publicación añadida a favoritos");
             }
+            await fetchFavorites();
         } catch (error) {
             console.error("Error al actualizar favorito", error);
         }
