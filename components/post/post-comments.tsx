@@ -74,18 +74,12 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
         }
     };
 
-    // Set up intersection observer for infinite scrolling con mejora para evitar peticiones duplicadas
     useEffect(() => {
-        // Si ya estamos cargando, no configurar un nuevo observer
         if (loadingMoreComments) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                // Solo cargar más si:
-                // 1. El elemento es visible
-                // 2. Hay más comentarios por cargar
-                // 3. No estamos cargando actualmente
-                // 4. Tenemos un cursor válido
+
                 if (entries[0].isIntersecting &&
                     hasMore &&
                     !loadingMoreComments &&
@@ -130,7 +124,6 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                 authToken
             );
 
-            // Refresh comments to show the new one
             fetchComments();
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -148,17 +141,15 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
             setLoadingLikes(prev => ({ ...prev, [commentId]: true }));
             await likeComment(commentId, authToken);
 
-            // Update UI optimistically - toggle the liked status locally
             setComments(prev => updateCommentLikeStatus(prev, commentId));
         } catch (error) {
             console.error("Error liking comment:", error);
-            fetchComments(); // Revert optimistic update on failure
+            fetchComments();
         } finally {
             setLoadingLikes(prev => ({ ...prev, [commentId]: false }));
         }
     };
 
-    // Helper function to update like status in nested comments
     const updateCommentLikeStatus = (commentsList: Comment[], targetId: number): Comment[] => {
         return commentsList.map(comment => {
             if (comment.id === targetId) {
@@ -180,6 +171,29 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
         });
     };
 
+    const removeCommentById = (commentsList: Comment[], targetId: number): Comment[] => {
+
+        const filteredComments = commentsList.filter(comment => {
+            if (comment.id === targetId) {
+                return false;
+            }
+
+            if (comment.replies && comment.replies.length > 0) {
+                const originalReplyCount = comment.replies.length;
+                comment.replies = removeCommentById(comment.replies, targetId);
+
+                const removedRepliesCount = originalReplyCount - comment.replies.length;
+                if (removedRepliesCount > 0) {
+                    comment.totalReplies = Math.max(0, (comment.totalReplies || 0) - removedRepliesCount);
+                }
+            }
+
+            return true;
+        });
+
+        return filteredComments;
+    };
+
     const handleDelete = async (commentId: number) => {
         if (!user || !authToken) {
             return;
@@ -188,26 +202,16 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
         try {
             await deleteComment(commentId, authToken);
 
-            // Remove deleted comment from state recursively
-            setComments(prev => removeCommentById(prev, commentId));
+            setComments(prevComments => {
+                const updatedComments = removeCommentById([...prevComments], commentId);
+                return updatedComments;
+            });
+
+
         } catch (error) {
             console.error("Error deleting comment:", error);
+            fetchComments();
         }
-    };
-
-    // Helper function to remove comment by ID (handles nested comments)
-    const removeCommentById = (commentsList: Comment[], targetId: number): Comment[] => {
-        return commentsList.filter(comment => {
-            if (comment.id === targetId) {
-                return false;
-            }
-
-            if (comment.replies && comment.replies.length > 0) {
-                comment.replies = removeCommentById(comment.replies, targetId);
-            }
-
-            return true;
-        });
     };
 
     const handleReply = async (commentId: number, content: string) => {
@@ -216,23 +220,20 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
         }
 
         try {
-            // Set loading state for this specific reply
             setLoadingReplies(prev => ({ ...prev, [commentId]: true }));
 
             await createComment(
                 content,
                 referenceId,
                 referenceType,
-                commentId, // parentId = commentId for replies
+                commentId,
                 authToken
             );
 
-            // Refresh comments to show the new reply
             fetchComments();
         } catch (error) {
             console.error("Error adding reply:", error);
         } finally {
-            // Clear loading state for this specific reply
             setLoadingReplies(prev => ({ ...prev, [commentId]: false }));
         }
     };
@@ -243,16 +244,15 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
 
             const response = await getCommentReplies(
                 commentId,
-                cursor ?? undefined, // Convert null to undefined
+                cursor ?? undefined,
                 10,
                 authToken
             );
 
-            // Function to update nested comments
+
             const updateCommentReplies = (comments: Comment[]): Comment[] => {
                 return comments.map(comment => {
                     if (comment.id === commentId) {
-                        // If replies array exists, append new ones, otherwise create new array
                         const existingReplies = comment.replies || [];
                         return {
                             ...comment,
@@ -260,7 +260,6 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                             nextRepliesCursor: response.nextCursor ?? 0
                         };
                     } else if (comment.replies && comment.replies.length > 0) {
-                        // Recursive check for nested replies
                         return {
                             ...comment,
                             replies: updateCommentReplies(comment.replies)

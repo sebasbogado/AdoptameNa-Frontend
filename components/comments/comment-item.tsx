@@ -17,7 +17,7 @@ interface CommentItemProps {
     onLoadMoreReplies?: (commentId: number, cursor: number | null) => void;
     isLoadingReplies?: boolean;
     isLikeLoading?: boolean;
-    isReplyLoading?: boolean; // Add this prop to track reply loading state
+    isReplyLoading?: boolean;
     currentUser?: User | null;
     level?: number;
 }
@@ -31,7 +31,7 @@ export function CommentItem({
     onLoadMoreReplies,
     isLoadingReplies = false,
     isLikeLoading = false,
-    isReplyLoading = false, // Use the reply loading state from props
+    isReplyLoading = false,
     currentUser,
     level = 0
 }: CommentItemProps) {
@@ -76,7 +76,7 @@ export function CommentItem({
     const isCurrentUserComment = currentUser && comment.user.id === currentUser.id;
 
     const shouldShowLoadReplies = comment.totalReplies > 0 &&
-        (comment.replies?.length === 0 || comment.totalReplies > (comment.replies?.length || 0));
+        ((comment.replies?.length || 0) < (comment.totalReplies || 0));
 
     return (
         <div className={`flex gap-3 ${level > 0 ? 'ml-12' : ''}`}>
@@ -166,7 +166,6 @@ export function CommentItem({
                     </div>
                 )}
 
-                {/* Load More Replies Button - Now shows whenever totalReplies > 0 and not all replies are loaded */}
                 {shouldShowLoadReplies && onLoadMoreReplies && (
                     <div className={`mt-3 ${level > 0 ? 'ml-12' : ''}`}>
                         <button
@@ -180,9 +179,9 @@ export function CommentItem({
                                     Cargando respuestas...
                                 </span>
                             ) : (
-                                comment.replies?.length === 0
-                                    ? `Ver respuestas (${comment.totalReplies})`
-                                    : `Ver más respuestas (${comment.totalReplies - (comment.replies?.length || 0)})`
+                                (comment.replies?.length || 0) === 0
+                                    ? `Ver respuestas (${comment.totalReplies || 0})`
+                                    : `Ver más respuestas (${(comment.totalReplies || 0) - (comment.replies?.length || 0)})`
                             )}
                         </button>
                     </div>

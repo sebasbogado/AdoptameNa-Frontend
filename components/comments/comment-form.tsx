@@ -72,7 +72,7 @@ export function CommentForm({
                         placeholder={placeholder}
                         disabled={isSubmitting}
                         onChange={handleTextareaChange}
-                        maxLength={500} // Atributo HTML para limitar entrada
+                        maxLength={500}
                         className={`w-full px-3 py-2 bg-gray-50 border ${errors.content ? "border-red-400 focus:border-red-500 focus:ring-red-500" : "border-gray-200 focus:ring-light-blue-500 focus:border-light-blue-500"} rounded-lg resize-none focus:outline-none focus:ring-1 disabled:opacity-70`}
                     />
                     <div className="absolute right-3 bottom-3 flex items-center gap-2">
