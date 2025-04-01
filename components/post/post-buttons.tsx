@@ -6,6 +6,9 @@ import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
 import { useAuth } from "@/contexts/auth-context";
 import { sharePost } from "@/utils/posts.http";
+import { useFavorites } from "@/contexts/favorites-context";
+import { Favorites } from "@/types/favorites";
+import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -15,16 +18,21 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
     const { authToken } = useAuth();
     const [copied, setCopied] = useState(false);
 
-    const handleShare = async () => {
-        if(!postId) return;
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
+    const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
 
-        if(authToken && isPet===false) {
+    const handleShare = async () => {
+        if (!postId) return;
+
+        if (authToken && isPet === false) {
             await sharePost(postId, authToken);
         }
         try {
             await navigator.clipboard.writeText(window.location.href);
             setCopied(true);
-            
+
             setTimeout(() => {
                 setCopied(false);
             }, 3000);
@@ -32,6 +40,27 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
             console.error("Error al copiar al portapapeles:", error);
         }
     }
+
+    const handleFavoriteClick = async () => {
+        if (!authToken) {
+            setErrorMessage("Necesitas estar autenticado para agregar a favoritos.");
+            return;
+        }
+
+        try {
+            if (isFavorite) {
+                const favorite = favorites.find((fav: Favorites) => String(fav.postId) === String(postId));
+                await deleteFavorite(favorite.id, authToken);
+                setSuccessMessage("Publicación eliminada de favoritos");
+            } else {
+                await addFavorite(Number(postId), authToken);
+                setSuccessMessage("Publicación añadida a favoritos");
+            }
+            await fetchFavorites();
+        } catch (error) {
+            console.error("Error al actualizar favorito", error);
+        }
+    };
 
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
@@ -53,7 +82,7 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
 
             <ReportButton size="lg" />
 
-            <FavoriteButton size="xl" className="relative top-[-60px] shadow-md left-[40px]" />
+            <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
         </div>
     );
 };
