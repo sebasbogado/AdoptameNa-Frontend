@@ -50,7 +50,7 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
 
     const handleFavoriteClick = async () => {
         if (!authToken) {
-            setErrorMessage("Necesitas estar autenticado para agregar a favoritos.");
+            setErrorMessage("Necesitas estar logeado para agregar a favoritos.");
             return;
         }
 
@@ -71,16 +71,26 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
 
     return (
         <div className={clsx("w-64 h-[19rem] rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            {successMessage && (
-                <div>
+            <div className="relative">
+                {successMessage && (
                     <Alert
                         color="green"
                         onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
+                    >
                         {successMessage}
                     </Alert>
-                </div>
-            )}
+                )}
+                {errorMessage && (
+                    <Alert
+                        color="red"
+                        onClose={() => setErrorMessage("")}
+                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
+                    >
+                        {errorMessage}
+                    </Alert>
+                )}
+            </div>
             <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                 onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
