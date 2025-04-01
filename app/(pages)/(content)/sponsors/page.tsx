@@ -2,6 +2,7 @@ import Image from 'next/image';
 import sponsorsData from '@/lib/sponsors.json'
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import Button from '@/components/buttons/button';
 
 export default function Page() {
     return (
@@ -15,26 +16,29 @@ export default function Page() {
             className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
           />
 
-          <div className='text-2xl text-center px-72 my-20'>
+          <div className='text-2xl text-center px-72 my-10'>
             {sponsorsData.map((item, index) => (
               <div key={index}>
                 {item.blocks.map((block, blockIndex) => (
                   <div key={blockIndex}>
 
                     {block.upDetails && (
-                      <div>
+                      <div className='mb-8'>
                         {block.upDetails.map((detail, idx) => (
-                          <div key={idx}>{detail.detail}</div>
+                          <div className='mb-8' key={idx}>{detail.detail}</div>
                         ))}
                       </div>
                     )}
 
-                    {blockIndex === 0 && <div className="">LOGOS</div>}
+                    {blockIndex === 0 && <div className='mb-8'>
+                      <h3 className='text-gray-600'>Auspician este sitio:</h3>
+
+                      </div>}
 
                     {block.downDetails && (
-                      <div>
+                      <div  className='mb-8'>
                         {block.downDetails.map((detail, idx) => (
-                          <div key={idx}>{detail.detail}</div>
+                          <div className='mb-8' key={idx}>{detail.detail}</div>
                         ))}
                       </div>
                     )}
@@ -42,6 +46,8 @@ export default function Page() {
                 ))}
               </div>
             ))}
+
+          <Button variant="cta" size='lg' className='my-10'>Quiero ser auspiciante</Button>
           </div>
 
          
