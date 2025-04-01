@@ -1,0 +1,17 @@
+[
+    {
+        "blocks": [
+            {"upDetails": [ 
+                { "detail" : "Como auspiciante de Adoptamena, podrás promocionar tu empresa o servicio en el banner principal de nuestra página, siempre que esté relacionado con el bienestar animal."},
+
+                { "detail" : "Además, tu logo será destacado en la sección de auspiciantes de las páginas de publicaciones, de la siguiente manera:"}
+            ]},
+
+            { "downDetails": [
+                { "detail": "Para convertirte en auspiciante, solo debes abonar una tarifa accesible de manera mensual o anual."},
+
+                { "detail": "Los fondos recaudados serán destinados al mantenimiento de la plataforma y a donaciones a organizaciones sin fines de lucro dedicadas a la defensa animal."}
+            ]}
+        ]
+    }
+]
