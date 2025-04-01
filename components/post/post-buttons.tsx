@@ -43,7 +43,7 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
 
     const handleFavoriteClick = async () => {
         if (!authToken) {
-            setErrorMessage("Necesitas estar autenticado para agregar a favoritos.");
+            setErrorMessage("¡Necesitas estar logeado para agregar a favoritos!");
             return;
         }
 
@@ -82,7 +82,19 @@ const PostButtons = ({ isPet = false, postId }: PostButtonsProps) => {
 
             <ReportButton size="lg" />
 
-            <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
+            <div className="relative">
+                <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
+                {successMessage && (
+                    <Alert color="green" className=" absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2">
+                        ¡Añadido a favoritos!
+                    </Alert>
+                )}
+                {errorMessage && (
+                    <Alert color="red" className=" absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2">
+                        {errorMessage}
+                    </Alert>
+                )}
+            </div>
         </div>
     );
 };
