@@ -132,6 +132,7 @@ export default function page() {
       setModalPetStatus(false);
       return;
     }
+    setDeleteType("petStatus");
     setIsOpenModal(true);
     return;
   }
@@ -166,7 +167,7 @@ export default function page() {
       setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
-      setModalAnimal(false)
+      setModalPetStatus(false)
     }
   }
   const onClickLabelAddAnimal = () => {
@@ -300,7 +301,7 @@ export default function page() {
           ></Card>
         </div>
         <div className="flex justify-center mt-10">
-          <PetBreeds />
+          <PetBreeds setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
         </div>
       </div>
     </>

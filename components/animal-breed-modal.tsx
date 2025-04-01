@@ -1,10 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { createBreed, updateBreed, deleteBreed } from "@/utils/breeds.http";
 import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
-import ConfirmationModal from "@/components/confirm-modal"; // Importa el modal de confirmación
+import ConfirmationModal from "@/components/confirm-modal";
+
+const breedSchema = z.object({
+  breedName: z.string().min(3, "El nombre debe tener al menos 3 caracteres."),
+  animalType: z.string().min(1, "Debe seleccionar un tipo de animal."),
+});
 
 interface Breed {
   id: number;
@@ -19,6 +27,8 @@ interface AnimalBreedModalProps {
   selectedBreed?: Breed | null;
   onBreedSaved: (breed: Breed) => void;
   onBreedDeleted: (id: number) => void;
+  setSuccessMessage: (msg: string | null) => void;
+  setErrorMessage: (msg: string | null) => void;
 }
 
 export default function AnimalBreedModal({
@@ -28,64 +38,74 @@ export default function AnimalBreedModal({
   selectedBreed,
   onBreedSaved,
   onBreedDeleted,
+  setSuccessMessage,
+  setErrorMessage,
 }: AnimalBreedModalProps) {
   const { authToken } = useAuth();
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [breedName, setBreedName] = useState("");
-  const [animalType, setAnimalType] = useState("");
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado para el modal de confirmación
-  const [isLoading, setIsLoading] = useState(false); // Estado para bloquear el botón
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(breedSchema),
+    defaultValues: {
+      breedName: "",
+      animalType: "",
+    },
+  });
 
   useEffect(() => {
-    setBreedName(selectedBreed?.name || "");
-    setAnimalType(selectedBreed?.animalId?.toString() || "");
-  }, [selectedBreed]);
+    if (selectedBreed) {
+      setValue("breedName", selectedBreed.name);
+      setValue("animalType", selectedBreed.animalId.toString());
+    } else {
+      reset();
+    }
+  }, [selectedBreed, setValue, reset]);
 
-  const handleDelete = () => {
+  const handleSave = async (data: { breedName: string; animalType: string }) => {
     if (!authToken) {
-      console.error("No hay token disponible");
+      setErrorMessage("No hay token disponible");
       return;
     }
-    setIsConfirmModalOpen(true); // Abre el modal de confirmación
+
+    setIsLoading(true);
+    try {
+      if (selectedBreed) {
+        const updatedBreed = await updateBreed(authToken, selectedBreed.id, data.breedName, Number(data.animalType));
+        onBreedSaved(updatedBreed);
+        setSuccessMessage("Raza actualizada correctamente");
+      } else {
+        const newBreed = await createBreed(authToken, data.breedName, Number(data.animalType));
+        onBreedSaved(newBreed);
+        setSuccessMessage("Raza creada correctamente");
+        reset();
+      }
+      setOpen(false);
+    } catch (error: any) {
+      console.error(error);
+      setErrorMessage(error.response.data.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const confirmDelete = async () => {
     if (selectedBreed && authToken) {
-      await deleteBreed(authToken, selectedBreed.id);
-      onBreedDeleted(selectedBreed.id);
-      setOpen(false);
-      setIsConfirmModalOpen(false); // Cierra el modal de confirmación
-    }
-  };
-
-  const handleSave = async () => {
-    if (!authToken) {
-      console.error("No hay token disponible");
-      return;
-    }
-
-    if (!breedName.trim()) {
-      alert("El nombre de la raza no puede estar vacío.");
-      return;
-    }
-
-    setIsLoading(true); // Bloquear botón antes de la petición
-
-    try {
-      if (selectedBreed) {
-        const updatedBreed = await updateBreed(authToken, selectedBreed.id, breedName, Number(animalType));
-        onBreedSaved(updatedBreed);
-      } else {
-        const newBreed = await createBreed(authToken, breedName, Number(animalType));
-        onBreedSaved(newBreed);
+      try {
+        await deleteBreed(authToken, selectedBreed.id);
+        onBreedDeleted(selectedBreed.id);
+        setSuccessMessage("Raza eliminada correctamente");
+        setOpen(false);
+        setIsConfirmModalOpen(false);
+      } catch (error: any) {
+        setErrorMessage(error.response.data.message);
       }
-      setOpen(false);
-    } catch (error) {
-      console.error("Error al guardar la raza", error);
-    } finally {
-      setBreedName("");
-      setAnimalType("");
-      setIsLoading(false); // Desbloquear botón después de la petición
     }
   };
 
@@ -95,75 +115,49 @@ export default function AnimalBreedModal({
         <div className="bg-white rounded-lg shadow-lg w-96 p-6">
           <div className="flex justify-between items-center border-b pb-2">
             <h2 className="text-xl font-medium">{selectedBreed ? "Editar Raza" : "Nueva Raza"}</h2>
-            <button className="p-2 rounded-full hover:bg-gray-200" onClick={() => setOpen(false)}>
+            <button className="p-2 rounded-full hover:bg-gray-200" onClick={() => setOpen(false)} disabled={isLoading}>
               ✖
             </button>
           </div>
 
-          <div className="mt-4 space-y-4">
+          <form onSubmit={handleSubmit(handleSave)} className="mt-4 space-y-4">
             <div>
               <label className="text-sm font-medium block">Tipo de animal</label>
-              <select
-                value={animalType}
-                onChange={(e) => setAnimalType(e.target.value)}
-                className="w-full border rounded-lg p-2"
-              >
+              <select {...register("animalType")} className={`w-full border rounded-lg p-2 ${errors.animalType ? "border-red-500" : ""}`} disabled={isLoading}>
                 <option value="">Selecciona un tipo</option>
                 {animalList.map((animal) => (
-                  <option key={animal.id} value={animal.id}>
+                  <option key={animal.id} value={animal.id.toString()}>
                     {animal.name}
                   </option>
                 ))}
               </select>
+              {errors.animalType && <p className="text-red-500 text-sm">{errors.animalType.message}</p>}
             </div>
 
             <div>
               <label className="text-sm font-medium block">Nombre de la raza</label>
-              <input
-                value={breedName}
-                onChange={(e) => setBreedName(e.target.value)}
-                placeholder="Ingrese el nombre de la raza"
-                className="w-full border rounded-lg p-2"
-                maxLength={30} // Limita la cantidad de caracteres
-              />
-              {breedName.length > 0 && breedName.length < 3 && (
-                <p className="text-red-500 text-sm">El nombre debe tener al menos 3 caracteres.</p>
-              )}
+              <input {...register("breedName")} placeholder="Ingrese el nombre de la raza" className={`w-full border rounded-lg p-2 ${errors.breedName ? "border-red-500" : ""}`} maxLength={30} disabled={isLoading} />
+              {errors.breedName && <p className="text-red-500 text-sm">{errors.breedName.message}</p>}
             </div>
-          </div>
 
-          <div className="flex gap-4 mt-4">
-            {selectedBreed ? (
-              <Button variant="danger" size="md" onClick={handleDelete} className="flex-1">
-                Borrar
+            <div className="flex gap-4 mt-4">
+              {selectedBreed ? (
+                <Button type="button" variant="danger" size="md" onClick={() => setIsConfirmModalOpen(true)} className="flex-1" disabled={isLoading}>
+                  Borrar
+                </Button>
+              ) : (
+                <Button variant="secondary" size="md" onClick={() => setOpen(false)} className="flex-1" disabled={isLoading}>
+                  Cancelar
+                </Button>
+              )}
+              <Button variant="primary" size="md" type="submit" className="flex-1" disabled={isLoading}>
+                {isLoading ? "Guardando..." : selectedBreed ? "Guardar Cambios" : "Guardar"}
               </Button>
-            ) : (
-              <Button variant="secondary" size="md" onClick={() => setOpen(false)} className="flex-1">
-                Cancelar
-              </Button>
-            )}
-            <Button
-              variant="primary"
-              size="md"
-              onClick={handleSave}
-              className="flex-1"
-              disabled={isLoading || breedName.length < 3 || animalType === ""}
-            // Bloquear si está cargando, si el nombre es menor a 3 caracteres o si no hay tipo de animal seleccionado
-            >
-              {selectedBreed ? "Guardar Cambios" : "Guardar"}
-            </Button>
-          </div>
+            </div>
+          </form>
         </div>
-
-        {/* Modal de Confirmación */}
-        <ConfirmationModal
-          isOpen={isConfirmModalOpen}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={confirmDelete}
-          title="Eliminar Raza"
-          message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`}
-        />
-      </div >
+        <ConfirmationModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={confirmDelete} title="Eliminar Raza" message={`¿Seguro que quieres eliminar la raza "${selectedBreed?.name}"?`} />
+      </div>
     )
   );
 }
