@@ -301,7 +301,7 @@ export default function page() {
           ></Card>
         </div>
         <div className="flex justify-center mt-10">
-          <PetBreeds />
+          <PetBreeds setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
         </div>
       </div>
     </>
