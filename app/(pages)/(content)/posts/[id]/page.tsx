@@ -5,7 +5,7 @@ import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
 import { useAuth } from "@/contexts/auth-context";
-import { getPost } from "@/utils/posts.http";
+import { getPost, sharePost } from "@/utils/posts.http";
 import { getPosts } from "@/utils/posts-api";
 
 import Banners from "@/components/banners";
@@ -29,7 +29,7 @@ const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateActio
 };
 
 const PostPage = () => {
-    const { user, loading: userLoading } = useAuth();
+    const { authToken } = useAuth();
     const [post, setPost] = useState<Post | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -53,6 +53,23 @@ const PostPage = () => {
         fetchPosts();
     }, []);
 
+    const handleShare = async () => {
+        if (!post || !authToken) return;
+
+        try {
+            await sharePost(String(post.id), authToken);
+            setPost(prevPost => {
+                if (!prevPost) return null;
+                return {
+                    ...prevPost,
+                    sharedCounter: (prevPost.sharedCounter || 0) + 1
+                };
+            });
+        } catch (error) {
+            console.error("Error sharing post:", error);
+        }
+    };
+
     if (loading) {
         return Loading();
     }
@@ -68,7 +85,7 @@ const PostPage = () => {
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader post={post as Post} />
-                        <PostButtons postId={String(post?.id)}/>
+                        <PostButtons postId={String(post?.id)} onShare={handleShare} />
 
                         <PostContent post={post} />
                         <PostSidebar posts={posts} />
