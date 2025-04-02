@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import Button from '@/components/buttons/button';
 
+import sponsorLogosData from '@/lib/sponsors-logos.json';
+
 export default function Page() {
     return (
         <div className="w-full px-12">
@@ -23,17 +25,27 @@ export default function Page() {
                   <div key={blockIndex}>
 
                     {block.upDetails && (
-                      <div className='mb-8'>
+                      <div className='mb-10'>
                         {block.upDetails.map((detail, idx) => (
-                          <div className='mb-8' key={idx}>{detail.detail}</div>
+                          <div className='mb-10' key={idx}>{detail.detail}</div>
                         ))}
                       </div>
                     )}
 
-                    {blockIndex === 0 && <div className='mb-8'>
-                      <h3 className='text-gray-600'>Auspician este sitio:</h3>
-
-                      </div>}
+                    {blockIndex === 0 && <div className="mb-8 -ml-32">
+                      <h3 className="text-gray-600 mb-8">Auspician este sitio:</h3>
+                      <div className="flex gap-32">
+                        {sponsorLogosData.map((logo, index) => (
+                          <img
+                            key={index}
+                            src={logo.src}
+                            alt={`Logo ${index + 1}`}
+                            className={`${logo.width} ${logo.height}`}
+                          />
+                        ))}
+                      </div>
+                    </div>}
+                    
 
                     {block.downDetails && (
                       <div  className='mb-8'>
