@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
+import { FavoritesProvider } from "@/contexts/favorites-context";
 const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 export const metadata: Metadata = {
@@ -20,8 +21,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
       <body className={roboto.className}>
         <AuthProvider>
-          {children}
-
+          <FavoritesProvider>
+            {children}
+          </FavoritesProvider>
         </AuthProvider>
       </body>
 
