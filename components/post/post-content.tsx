@@ -10,7 +10,8 @@ interface PostContentProps {
 }
 
 const PostContent = ({ post, pet }: PostContentProps) => {
-    const { user, loading: userLoading } = useAuth();
+    const { user, loading: userLoading, authToken } = useAuth();
+    const isPost = !!post;
 
     return (
         <section>
@@ -21,9 +22,10 @@ const PostContent = ({ post, pet }: PostContentProps) => {
             </div>
 
             <PostLocationMap location={post?.locationCoordinates || pet?.addressCoordinates} />
-            <PostComments user={user} userLoading={userLoading} />
+            <PostComments authToken={authToken ?? undefined} user={user} userLoading={userLoading} referenceId={isPost ? post?.id : pet?.id as number} referenceType={isPost ? "POST" : "PET"} />
         </section>
     );
 };
+
 
 export default PostContent;
