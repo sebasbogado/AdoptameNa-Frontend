@@ -21,6 +21,7 @@ import { PetFormValues, petSchema } from "@/validations/pet-schema";
 import { ConfirmationModal } from "@/components/form/modal";
 import { useRouter } from "next/navigation";
 import { Alert } from "@material-tailwind/react";
+import { set } from "zod";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -39,6 +40,9 @@ const AdoptionForm = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<any>(null);
   const router = useRouter();
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const MAX_IMAGES = 2; //Tam max de imagenes
   const {
     register,
     handleSubmit,
@@ -48,17 +52,17 @@ const AdoptionForm = () => {
   } = useForm({
     resolver: zodResolver(petSchema),
     defaultValues: {
-      estado: 0,
-      tipoAnimal: 0,
-      raza: 0,
-      titulo: "",
-      nacimiento: "",
-      descripcion: "",
-      vacunado: false,
-      esterilizado: false,
-      genero: "MALE",
-      edad: 0,
-      peso: 0,
+      petStatusId: 0,
+      animalId: 0,
+      breedId: 0,
+      name: "",
+      birthdate: "",
+      description: "",
+      isVaccinated: false,
+      isSterilized: false,
+      gender: "MALE",
+      //edad: 0,
+      //peso: 0,
     },
   });
 
@@ -66,17 +70,17 @@ const AdoptionForm = () => {
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<PetFormValues>({
-    estado: 0,
-    tipoAnimal: 0,
-    raza: 0,
-    titulo: "",
-    nacimiento: "",
-    descripcion: "",
-    vacunado: false,
-    esterilizado: false,
-    genero: "MALE",
-    edad: 0,
-    peso: 0
+    petStatusId: 0,
+    animalId: 0,
+    breedId: 0,
+    name: "",
+    birthdate: "",
+    description: "",
+    isVaccinated: false,
+    isSterilized: false,
+    gender: "MALE",
+    //edad: 0,
+    //peso: 0,
   });
 
   const openConfirmationModal = (data: PetFormValues) => {
@@ -119,13 +123,13 @@ const AdoptionForm = () => {
   useEffect(() => {
     getFromData()
   }, [])
-  
+
   useEffect(() => {
     if (petsStatus?.length && animals?.length && breed?.length) {
-      setValue("estado", petsStatus[0].id);
-      setValue("tipoAnimal", animals[0].id);
+      setValue("petStatusId", petsStatus[0].id);
+      setValue("animalId", animals[0].id);
       setValue(
-        "raza",
+        "breedId",
         breed.find(b => b.animalId === animals[0].id)?.id || breed[0].id
       );
     }
@@ -134,13 +138,24 @@ const AdoptionForm = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
+      // Verifica la cantidad de imagens que se pueden subir
+      if (selectedImages.length >= 2) {
+        setErrorMessage(`Solo puedes subir hasta 2 imágenes.`);
+        return;
+      }
+      // Verificar el tamaño del archivo (1MB)
+      if (file.size > 1024 * 1024) {
+        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", file);
-  
+
       if (!authToken) {
         throw new Error("El token de autenticación es requerido");
       }
-  
+
       try {
         const response = await postMedia(formData, authToken);
         if (response) {
@@ -153,8 +168,12 @@ const AdoptionForm = () => {
     }
   };
 
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = selectedImages.filter((_, i) => i !== index);
+    setSelectedImages(updatedImages);
+  };
+
+
 
   const adjustImageSize = () => {
     if (!bannerRef.current) return;
@@ -176,7 +195,7 @@ const AdoptionForm = () => {
   };
 
   const handlePositionChange = (newPosition: [number, number]) => {
-    setPosition(newPosition); // Actualiza el estado local
+    setPosition(newPosition); // Actualiza el petStatusId local
     //setValue("addressCoordinates", newPosition); // Actualiza el formulario
   };
 
@@ -208,7 +227,7 @@ const AdoptionForm = () => {
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isSubmitting) return; // 🔒 Evita múltiples clics
+//    if (isSubmitting) return; // 🔒 Evita múltiples clics
 
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
@@ -218,18 +237,11 @@ const AdoptionForm = () => {
 
     try {
       console.log(formData);
+
       const params = {
-        name: formData.titulo,
-        isVaccinated: formData.vacunado,
-        description: formData.descripcion,
-        birthdate: formData.nacimiento,
-        gender: formData.genero,
+        ...formData, // Copia todas las propiedades de formData
         urlPhoto: selectedImages[0]?.url_API,
-        isSterilized: formData.esterilizado,
         userId: Number(user?.id),
-        animalId: Number(formData.tipoAnimal),
-        breedId: Number(formData.raza),
-        petStatusId: Number(formData.estado),
         addressCoordinates: `${position?.[0]}, ${position?.[1]}`
       };
 
@@ -237,12 +249,13 @@ const AdoptionForm = () => {
       if (response) {
         console.log("Guardado ", response);
         setSuccessMessage("Se creó exitosamente")
+        setTimeout(() => router.push(`/pets/${response.id}`), 3500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
       setErrorMessage("Error en la creación de pets")
     }
-
+    
   };
 
   const arrayImages = selectedImages?.map(image => image?.url_API) || [];
@@ -262,33 +275,40 @@ const AdoptionForm = () => {
           </div>
           <div className="flex gap-2 mt-2 justify-center items-center">
 
-            {selectedImages.map((src, index) => (
-              <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                <Image
-                  src={src.url}
-                  alt="pet"
-                  fill
-                  className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''
-                    }`}
-                  onClick={() => setCurrentImageIndex(index)}
+            {selectedImages.map((img, index) => (
+              <div key={index} className="relative w-24 h-24 group">
+                {/* Imagen */}
+                <img
+                  src={img.url}
+                  alt={`Imagen ${index + 1}`}
+                  className="w-full h-full object-cover rounded-lg border"
                 />
-              </div>
 
+                {/* Botón de eliminación */}
+                <button
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  ✕
+                </button>
+              </div>
             ))}
 
             <input
               type="file"
               accept="image/*"
               multiple
-              className="hidden object-cover rounded-md transition-all duration-200 hover:scale-110"
+              className="hidden"
               id="fileInput"
               onChange={handleImageUpload}
+              disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
             />
             <label
               htmlFor="fileInput"
-              className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 transition bg-white"
+              className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                } bg-white`}
             >
-              <ImagePlus size={20} className="text-blue-500" />
+              <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
             </label>
           </div>
         </div>
@@ -299,94 +319,94 @@ const AdoptionForm = () => {
               <form onSubmit={handleSubmit(openConfirmationModal)}>
                 <div className="w-full mb-2">
                   <label className="block mb-1">Estado de la mascota</label>
-                  <select className="w-full p-2 border rounded" {...register("estado", { valueAsNumber: true })}>
+                  <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
                     {petsStatus?.map((a, i) => (
                       <option key={i} value={a.id}>{a.name}</option>
                     ))}
                   </select>
-                  {errors.estado && <p className="text-red-500">{errors.estado.message}</p>}
+                  {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
                 </div>
 
                 {/* Tipo de Animal */}
                 <div className="w-full mb-2">
                   <label className="block mb-1">Tipo de Animal</label>
-                  <select className="w-full p-2 border rounded" {...register("tipoAnimal", { valueAsNumber: true })}>
+                  <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
                     {animals?.map((a, i) => (
                       <option key={i} value={a.id}>{a.name}</option>
                     ))}
                   </select>
-                  {errors.tipoAnimal && <p className="text-red-500">{errors.tipoAnimal.message}</p>}
+                  {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
                 </div>
 
-                {/* Raza */}
+                {/* breedId */}
                 <div className="w-full mb-2">
                   <label className="block mb-1">Raza</label>
-                  <select className="w-full p-2 border rounded" {...register("raza", { valueAsNumber: true })}>
-                    {breed?.filter((b) => b.animalId === watch("tipoAnimal")) // Filtra por tipo de animal
+                  <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
+                    {breed?.filter((b) => b.animalId === watch("animalId")) // Filtra por tipo de animal
                       .map((b, i) => (
                         <option key={i} value={b.id}>{b.name}</option>
                       ))}
                   </select>
-                  {errors.raza && <p className="text-red-500">{errors.raza.message}</p>}
+                  {errors.breedId && <p className="text-red-500">{errors.breedId.message}</p>}
                 </div>
 
                 {/* Título */}
                 <div className="mb-2">
                   <label className="block mb-1">Título</label>
-                  <input className="w-full p-2 border rounded" placeholder="Título" {...register("titulo")} maxLength={200} />
-                  {errors.titulo && <p className="text-red-500">{errors.titulo.message}</p>}
+                  <input className="w-full p-2 border rounded" placeholder="Título" {...register("name")} maxLength={200} />
+                  {errors.name && <p className="text-red-500">{errors.name.message}</p>}
                 </div>
 
                 {/* Descripción */}
                 <div className="mb-2">
                   <label className="block mb-1">Descripción</label>
-                  <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("descripcion")} maxLength={500} />
-                  {errors.descripcion && <p className="text-red-500">{errors.descripcion.message}</p>}
+                  <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("description")} maxLength={500} />
+                  {errors.description && <p className="text-red-500">{errors.description.message}</p>}
                 </div>
 
-                {/* Fecha de nacimiento */}
+                {/* Fecha de birthdate */}
                 <div className="mb-2">
-                  <label className="block mb-1">Fecha de nacimiento</label>
-                  <input type="date" className="w-full p-2 border rounded" {...register("nacimiento")} />
-                  {errors.nacimiento && <p className="text-red-500">{errors.nacimiento.message}</p>}
+                  <label className="block mb-1">Fecha de birthdate</label>
+                  <input type="date" className="w-full p-2 border rounded" {...register("birthdate")} />
+                  {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
                 </div>
 
                 {/* Género */}
                 <div className="flex gap-2 items-center mb-2">
                   <label>Macho</label>
-                  <input type="radio" value="MALE" {...register("genero")} />
+                  <input type="radio" value="MALE" {...register("gender")} />
                   <label>Hembra</label>
-                  <input type="radio" value="FEMALE" {...register("genero")} />
+                  <input type="radio" value="FEMALE" {...register("gender")} />
                 </div>
 
-                {/* Vacunado */}
-                <label className="block mb-1">¿Está vacunado?</label>
+                {/* isVaccinated */}
+                <label className="block mb-1">¿Está isVaccinated?</label>
                 <div className="flex gap-2 items-center mb-2">
                   <label>Sí</label>
-                  <input type="checkbox" {...register("vacunado")} />
-                  {errors.vacunado && <p className="text-red-500">{errors.vacunado.message}</p>}
+                  <input type="checkbox" {...register("isVaccinated")} />
+                  {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
                 </div>
 
-                {/* Esterilizado */}
-                <label className="block mb-1">¿Está esterilizado?</label>
+                {/* isSterilized */}
+                <label className="block mb-1">¿Está isSterilized?</label>
                 <div className="flex gap-2 items-center mb-2">
                   <label>Sí</label>
-                  <input type="checkbox" {...register("esterilizado")} />
-                  {errors.esterilizado && <p className="text-red-500">{errors.esterilizado.message}</p>}
+                  <input type="checkbox" {...register("isSterilized")} />
+                  {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
                 </div>
 
                 {/* Edad */}
                 <div className="mb-2">
                   <label className="block mb-1">Edad</label>
-                  <input type="number" className="w-full p-2 border rounded" {...register("edad", { valueAsNumber: true })} />
-                  {errors.edad && <p className="text-red-500">{errors.edad.message}</p>}
+                   <input type="number" className="w-full p-2 border rounded" /*{...register("edad", { valueAsNumber: true })}*/ />
+                  {/*{errors.edad && <p className="text-red-500">{errors.edad.message}</p>}*/}
                 </div>
 
                 {/* Peso */}
                 <div className="mb-2">
                   <label className="block mb-1">Peso</label>
-                  <input type="number" className="w-full p-2 border rounded" {...register("peso", { valueAsNumber: true })} />
-                  {errors.peso && <p className="text-red-500">{errors.peso.message}</p>}
+                  <input type="number" className="w-full p-2 border rounded" /*{...register("peso", { valueAsNumber: true })}*/ />
+                  {/*{errors.peso && <p className="text-red-500">{errors.peso.message}</p>}*/}
                 </div>
 
                 {/* Mapa */}
