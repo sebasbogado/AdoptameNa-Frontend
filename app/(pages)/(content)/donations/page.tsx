@@ -1,11 +1,9 @@
-import Image from 'next/image';
-import { useState } from 'react';
 import donationsData from '@/lib/donations.json'
 import Link from 'next/link';
-import { handleContactClick } from '@/utils/email-handler';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { TriangleAlert } from 'lucide-react';
+import ImageComponent from '@/components/image-component';
 
 export default function Page() {
 
@@ -29,14 +27,7 @@ export default function Page() {
     
     return (
         <div className="w-full px-12">
-              <Image
-                src="/donations/donations.png"
-                alt=""
-                width={1341}
-                height={435}
-                layout="intrinsic"
-                className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
-              />
+            <ImageComponent src="/donations/donations.png"/>
 
             <div className="mt-36 px-4 md:px-16">
 
