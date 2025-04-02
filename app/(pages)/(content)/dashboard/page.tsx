@@ -16,7 +16,7 @@ import Link from 'next/link'
 type FetchContentDataParams = {
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-    setError: React.Dispatch<React.SetStateAction<string | null>>;
+    setError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 
@@ -31,7 +31,7 @@ const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContent
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar contenido:", err);
-        setError("No se pudo cargar el contenido del perfil");
+        setError(true);
     } finally {
         setLoading(false);
     }
@@ -41,7 +41,7 @@ const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContent
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<boolean>(false);
     useEffect(() => {
         fetchContentData({ setPosts, setLoading, setError });
     }, []);

@@ -4,7 +4,7 @@ import Card from "@/components/card"
 import { Animal } from "@/types/animal";
 import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { getAnimals, createAnimal, deleteAnimal, updateAnimal } from "@/utils/animals.http";
 import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
@@ -13,16 +13,22 @@ import FormPetStatus from "@/components/form-pet-status";
 import PetBreeds from "@/components/pet-breeds";
 import { Alert } from "@material-tailwind/react";
 import { ConfirmationModal } from "@/components/form/modal";
+import { ReportReason } from "@/types/report-reason";
+import { getReportReasons, createReportReason, deleteReportReason, updateReportReason} from "@/utils/report-reasons.http";
+import FormReportReason from "@/components/form-report-reason";
 
 export default function page() {
   const [modalAnimal, setModalAnimal] = useState(false);
   const [modalPetStatus, setModalPetStatus] = useState(false);
+  const [modalReportReason, setModalReportReason] = useState(false)
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]);
+  const [reportReasons, setReportReasons] = useState<ReportReason[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
-  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | null>(null);
+  const [reportReasonSelected, setReportReasonSelected] = useState<ReportReason>({ id: 0, description: "" });
+  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | "reportReason" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { authToken, user } = useAuth();
@@ -33,9 +39,11 @@ export default function page() {
         if (!authToken || !user || user.role !== "admin") return;
         const animals = await getAnimals();
         const petStatuses = await getPetStatuses();
+        const reportReasons = await getReportReasons();
 
         setAnimals(animals);
         setPetStatuses(petStatuses);
+        setReportReasons(reportReasons);
       } catch (error: any) {
         console.error('Error al obtener animales:', error);
         setErrorMessage(error.message);
@@ -113,12 +121,18 @@ export default function page() {
     }
   }
 
+  const openEditReportReason = (reportReason: ReportReason) => {
+    setReportReasonSelected(reportReason);
+    setModalReportReason(true);
+  }
+
   const handleDeletePetStatus = async (event: React.FormEvent) => {
     event.preventDefault();
     if (petStatusSelected.id === 0) {
       setModalPetStatus(false);
       return;
     }
+    setDeleteType("petStatus");
     setIsOpenModal(true);
     return;
   }
@@ -153,7 +167,7 @@ export default function page() {
       setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
-      setModalAnimal(false)
+      setModalPetStatus(false)
     }
   }
   const onClickLabelAddAnimal = () => {
@@ -164,6 +178,62 @@ export default function page() {
   const onClickLabelAddPetStatus = () => {
     setPetStatusSelected({ id: 0, name: "", description: "" });
     setModalPetStatus(true);
+  }
+
+  const addReportReason = async (newReportReason: ReportReason) => {
+    if (!authToken) return;
+    try {
+      if (reportReasonSelected.id) {
+        //actualizar motivo
+        await updateReportReason(authToken, newReportReason);
+        //actualizar lista de motivos
+        setReportReasons(reportReasons.map((reportReason) => reportReason.id === reportReasonSelected.id ? newReportReason : reportReason));
+        setModalReportReason(false);
+        setSuccessMessage("Motivo actualizado correctamente");
+        return;
+      } else {
+        const reportReason = await createReportReason(authToken, newReportReason);
+        setReportReasons([...reportReasons, reportReason]);
+        setModalReportReason(false);
+        setSuccessMessage("Motivo creado correctamente");
+      }
+    } catch (error: any) {
+      console.error('Error al guardar motivo:', error);
+      setErrorMessage(error.message);
+    }
+  }
+
+  const handleDeleteReportReason = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (reportReasonSelected.id === 0) {
+      setModalReportReason(false);
+      return;
+    }
+    setDeleteType("reportReason");
+    setIsOpenModal(true);
+    return;
+  }
+
+  const confirmDeleteReportReason = async () => {
+    try {
+      if (!authToken) return;
+      //eliminar motivo
+      await deleteReportReason(authToken, reportReasonSelected.id);
+      //actualizar lista de motivos
+      setReportReasons(reportReasons.filter((reportReason) => reportReason.id !== reportReasonSelected.id));
+      setModalReportReason(false);
+      setSuccessMessage("Motivo eliminado correctamente");
+    } catch (error: any) {
+      console.error('Error al eliminar motivo:', error);
+      setErrorMessage(error.message);
+    } finally {
+      setIsOpenModal(false);
+      setModalReportReason(false);
+    }
+  }
+  const onClickLabelAddReportReason = () => {
+    setReportReasonSelected({ id: 0, description: "" });
+    setModalReportReason(true);
   }
   return (
     <>
@@ -195,35 +265,43 @@ export default function page() {
           <Modal isOpen={modalPetStatus} onClose={() => setModalPetStatus(false)} title={petStatusSelected.id === 0 ? "Crear estado" : "Editar estado"}>
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
+          <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Report reason">
+            <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected}/>
+          </Modal>
 
           <ConfirmationModal
             isOpen={isOpenModal}
             title="Eliminar"
-            message={`¿Estás seguro de que deseas eliminar este ${deleteType === "animal" ? "animal" : "estado"}?`}
+            message={`¿Estás seguro de que deseas eliminar este ${deleteType === "animal" ? "animal" : deleteType === "petStatus" ? "estado" : "motivo"}?`}
             textConfirm="Eliminar"
             confirmVariant="danger"
-            onClose={() => {setIsOpenModal(false); setDeleteType(null);}}
-            onConfirm={deleteType === "animal" ? confirmDeleteAnimal : confirmDeletePetStatus}
+            onClose={() => { setIsOpenModal(false); setDeleteType(null); }}
+            onConfirm={deleteType === "animal" ? confirmDeleteAnimal : deleteType === "petStatus" ? confirmDeletePetStatus : confirmDeleteReportReason}
           />
 
           {/**Cards*/}
           <Card
             title="Animales"
             content={animals}
-            isBreed={false}
             onClickLabelDefault={openEditAnimal}
             onClickLabelAdd={onClickLabelAddAnimal}
           />
           <Card
             title="Estados de mascotas"
             content={petStatuses}
-            isBreed={false}
             onClickLabelDefault={openEditPetStatus}
             onClickLabelAdd={onClickLabelAddPetStatus}
           />
+
+          <Card
+            title="Motivos de reporte"
+            content={reportReasons}
+            onClickLabelDefault={openEditReportReason}
+            onClickLabelAdd={onClickLabelAddReportReason}
+          ></Card>
         </div>
         <div className="flex justify-center mt-10">
-          <PetBreeds />
+          <PetBreeds setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
         </div>
       </div>
     </>

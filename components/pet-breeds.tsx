@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, ChevronDown, Plus } from "lucide-react";
 import { getBreeds } from "@/utils/breeds.http";
 import { getAnimals } from "@/utils/animals.http";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import AnimalBreedModal from "@/components/animal-breed-modal";
 import SearchBar from "@/components/search-bar";
 import AnimalFilter from "@/components/animal-filter";
@@ -21,7 +21,13 @@ interface Animal {
   name: string;
 }
 
-export default function PetBreeds() {
+export default function PetBreeds({
+  setSuccessMessage,
+  setErrorMessage
+}: {
+  setSuccessMessage: (msg: string | null) => void,
+  setErrorMessage: (msg: string | null) => void
+}) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Todos");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -149,6 +155,8 @@ export default function PetBreeds() {
         selectedBreed={selectedBreed}
         onBreedSaved={handleBreedSaved}
         onBreedDeleted={handleBreedDeleted}
+        setSuccessMessage={setSuccessMessage}  // 👈 Pasar los métodos
+        setErrorMessage={setErrorMessage}      // 👈 Pasar los métodos
       />
     </div>
   );

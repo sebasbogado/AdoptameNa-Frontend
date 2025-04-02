@@ -4,12 +4,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "@/validations/login-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleLoginButton from "@/components/buttons/google-login-button";
+import {  EyeIcon,  EyeOffIcon, Loader2Icon } from "lucide-react";
 
 export default function Login() {
   const { login, user, loading } = useAuth();
@@ -102,13 +103,9 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <span className="material-symbols-outlined">
-                    visibility_off
-                  </span>
+                 <EyeOffIcon  className="w-5 h-5"/>
                 ) : (
-                  <span className="material-symbols-outlined">
-                    visibility
-                  </span>
+                  <EyeIcon className="w-5 h-5"/>
                 )}
               </div>
             </div>
@@ -132,9 +129,9 @@ export default function Login() {
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center">
-                  <span className="material-symbols-outlined animate-spin mr-2">
-                    progress_activity
-                  </span>
+                  <Loader2Icon className=" animate-spin mr-2"
+                
+                  />
                   Procesando...
                 </div>
               ) : (

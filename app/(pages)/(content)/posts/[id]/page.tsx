@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { getPost } from "@/utils/posts.http";
 import { getPosts } from "@/utils/posts-api";
 
@@ -68,7 +68,7 @@ const PostPage = () => {
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader post={post as Post} />
-                        <PostButtons />
+                        <PostButtons postId={String(post?.id)}/>
 
                         <PostContent post={post} />
                         <PostSidebar posts={posts} />

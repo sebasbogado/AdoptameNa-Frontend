@@ -6,12 +6,18 @@ import { User } from "@/types/auth";
 import { UserAvatar } from "../ui/user-avatar";
 import { Comment } from "@/types/comment";
 import { Alert } from "@material-tailwind/react";
+import { useRouter } from "next/navigation";
 
 interface CommentItemProps {
     comment: Comment;
-    onLike?: (commentId: string) => void;
-    onReport?: (commentId: string) => void;
-    onReply?: (commentId: string, content: string) => void;
+    onLike?: (commentId: number) => void;
+    onDelete?: (commentId: number) => void;
+    onReport?: (commentId: number) => void;
+    onReply?: (commentId: number, content: string) => void;
+    onLoadMoreReplies?: (commentId: number, cursor: number | null) => void;
+    isLoadingReplies?: boolean;
+    isLikeLoading?: boolean;
+    isReplyLoading?: boolean;
     currentUser?: User | null;
     level?: number;
 }
@@ -19,17 +25,23 @@ interface CommentItemProps {
 export function CommentItem({
     comment,
     onLike,
+    onDelete,
     onReport,
     onReply,
+    onLoadMoreReplies,
+    isLoadingReplies = false,
+    isLikeLoading = false,
+    isReplyLoading = false,
     currentUser,
     level = 0
 }: CommentItemProps) {
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const router = useRouter();
 
-    const handleReply = (content: string) => {
+    const handleReply = async (content: string) => {
         if (onReply) {
-            onReply(comment.id, content);
+            await onReply(comment.id, content);
             setShowReplyForm(false);
         }
     };
@@ -57,6 +69,15 @@ export function CommentItem({
         }
     };
 
+    const routeUserProfile = () => {
+        router.push(`/profile/${comment.user.id}`);
+    };
+
+    const isCurrentUserComment = currentUser && comment.user.id === currentUser.id;
+
+    const shouldShowLoadReplies = comment.totalReplies > 0 &&
+        ((comment.replies?.length || 0) < (comment.totalReplies || 0));
+
     return (
         <div className={`flex gap-3 ${level > 0 ? 'ml-12' : ''}`}>
             <UserAvatar user={comment.user} />
@@ -64,7 +85,9 @@ export function CommentItem({
             <div className="flex-1">
                 <div className={`${level > 0 ? 'p-3 bg-gray-50 rounded-lg' : ''}`}>
                     <div className="flex flex-col">
-                        <div className="font-medium">{comment.user.fullName}</div>
+                        <div onClick={routeUserProfile} className="font-medium cursor-pointer hover:underline">
+                            {comment.user.fullName}
+                        </div>
                         <p className="text-gray-800 mt-1">{comment.content}</p>
 
                         <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 flex-wrap">
@@ -73,18 +96,31 @@ export function CommentItem({
                             {onLike && (
                                 <button
                                     onClick={() => handleAction(() => onLike(comment.id))}
-                                    className={`hover:text-light-blue-600 ${comment.liked ? 'text-light-blue-600 font-medium' : ''}`}
+                                    disabled={isLikeLoading}
+                                    className={`flex items-center hover:text-light-blue-600 ${comment.liked ? 'text-light-blue-600 font-medium' : ''} ${isLikeLoading ? 'opacity-60' : ''}`}
                                 >
-                                    Me gusta{comment.likes ? ` (${comment.likes})` : ''}
+                                    {isLikeLoading && comment.id ? (
+                                        <div className="w-3 h-3 mr-1 border-2 border-light-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                    ) : null}
+                                    Me gusta{comment.likesCount > 0 ? ` (${comment.likesCount})` : ''}
                                 </button>
                             )}
 
-                            {onReport && (
+                            {onReport && !isCurrentUserComment && (
                                 <button
                                     onClick={() => handleAction(() => onReport(comment.id))}
                                     className={`hover:text-red-600 ${comment.reported ? 'text-red-600' : ''}`}
                                 >
                                     Reportar
+                                </button>
+                            )}
+
+                            {onDelete && isCurrentUserComment && (
+                                <button
+                                    onClick={() => handleAction(() => onDelete(comment.id))}
+                                    className="hover:text-red-600"
+                                >
+                                    Eliminar
                                 </button>
                             )}
 
@@ -105,6 +141,7 @@ export function CommentItem({
                         <CommentForm
                             onSubmit={handleReply}
                             placeholder="Escribe una respuesta..."
+                            isSubmitting={isReplyLoading}
                         />
                     </div>
                 )}
@@ -116,16 +153,40 @@ export function CommentItem({
                                 key={reply.id}
                                 comment={reply}
                                 onLike={onLike}
+                                onDelete={onDelete}
                                 onReport={onReport}
                                 onReply={level < 1 ? onReply : undefined}
+                                onLoadMoreReplies={onLoadMoreReplies}
+                                isLoadingReplies={isLoadingReplies}
+                                isLikeLoading={isLikeLoading}
                                 currentUser={currentUser}
                                 level={level + 1}
                             />
                         ))}
                     </div>
                 )}
-            </div>
 
+                {shouldShowLoadReplies && onLoadMoreReplies && (
+                    <div className={`mt-3 ${level > 0 ? 'ml-12' : ''}`}>
+                        <button
+                            onClick={() => onLoadMoreReplies(comment.id, comment.nextRepliesCursor)}
+                            disabled={isLoadingReplies}
+                            className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+                        >
+                            {isLoadingReplies ? (
+                                <span className="flex items-center">
+                                    <div className="w-4 h-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                    Cargando respuestas...
+                                </span>
+                            ) : (
+                                (comment.replies?.length || 0) === 0
+                                    ? `Ver respuestas (${comment.totalReplies || 0})`
+                                    : `Ver más respuestas (${(comment.totalReplies || 0) - (comment.replies?.length || 0)})`
+                            )}
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {showAlert && (
                 <Alert
