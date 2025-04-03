@@ -9,7 +9,7 @@ import { getPosts } from "@/utils/posts.http";
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isNextPost, setIsNextPost] = useState(false);
     const pageSize = 20;
 
