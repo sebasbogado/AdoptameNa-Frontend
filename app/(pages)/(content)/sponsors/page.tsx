@@ -40,8 +40,8 @@ export default function Page() {
                             key={index}
                             src={logo.src}
                             alt={`Logo ${index + 1}`}
-                            width={310}
-                            height={140}
+                            width={parseInt(logo.width)}
+                            height={parseInt(logo.height)}
                           />
                         ))}
                       </div>
