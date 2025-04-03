@@ -43,7 +43,7 @@ export default function Page() {
                     size: 1, // Solo verificamos si hay al menos 1 post en la siguiente página
                     postType: "volunteering",
                 });
-
+                console.log(post)
                 setIsNextPost(post.length > 0);
             } catch (err: any) {
                 console.log(err.message);
@@ -51,8 +51,11 @@ export default function Page() {
             }
         };
 
-        fetchNextPost();
-    }, [currentPage]); // Se ejecuta cada vez que cambia la página actual
+        //evitamos hacer llamadas extras si no son necesarias
+        if(posts.length === pageSize){ 
+            fetchNextPost();
+        }
+    }, [currentPage, posts]); // Se ejecuta cada vez que cambia la página actual
 
     const handleNextPage = () => {
         if (isNextPost) {
