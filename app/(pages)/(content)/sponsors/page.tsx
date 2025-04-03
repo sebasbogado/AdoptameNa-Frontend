@@ -32,15 +32,16 @@ export default function Page() {
                       </div>
                     )}
 
-                    {blockIndex === 0 && <div className="mb-8 -ml-32">
+                    {blockIndex === 0 && <div className="mb-8 -ml-40">
                       <h3 className="text-gray-600 mb-8">Auspician este sitio:</h3>
                       <div className="flex gap-32">
                         {sponsorLogosData.map((logo, index) => (
-                          <img
+                          <Image 
                             key={index}
                             src={logo.src}
                             alt={`Logo ${index + 1}`}
-                            className={`${logo.width} ${logo.height}`}
+                            width={parseInt(logo.width)}
+                            height={parseInt(logo.height)}
                           />
                         ))}
                       </div>
