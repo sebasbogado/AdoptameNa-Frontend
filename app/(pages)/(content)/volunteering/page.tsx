@@ -9,12 +9,13 @@ import { getPosts } from "@/utils/posts.http";
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [isLoading, setIsLoading] = useState(false); // Nuevo estado para la carga
-    const pageSize = 25;
+    const [isLoading, setIsLoading] = useState(false);
+    const [isNextPost, setIsNextPost] = useState(false);
+    const pageSize = 20;
 
     useEffect(() => {
         const fetchData = async () => {
-            setIsLoading(true); // Empieza la carga
+            setIsLoading(true);
             try {
                 const post = await getPosts({
                     page: currentPage,
@@ -22,21 +23,41 @@ export default function Page() {
                     postType: "volunteering",
                 });
 
-                console.log("post", post);
                 const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() === "volunteering");
                 setPosts(filteredPosts);
             } catch (err: any) {
                 console.log(err.message);
             } finally {
-                setIsLoading(false); // Termina la carga
+                setIsLoading(false);
             }
         };
 
         fetchData();
     }, [currentPage]);
 
+    useEffect(() => {
+        const fetchNextPost = async () => {
+            try {
+                const post = await getPosts({
+                    page: pageSize * (currentPage + 1), // Aquí corregimos la paginación
+                    size: 1, // Solo verificamos si hay al menos 1 post en la siguiente página
+                    postType: "volunteering",
+                });
+
+                setIsNextPost(post.length > 0);
+            } catch (err: any) {
+                console.log(err.message);
+                setIsNextPost(false);
+            }
+        };
+
+        fetchNextPost();
+    }, [currentPage]); // Se ejecuta cada vez que cambia la página actual
+
     const handleNextPage = () => {
-        setCurrentPage((prevPage) => prevPage + 1);
+        if (isNextPost) {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
     };
 
     const handlePreviousPage = () => {
@@ -70,7 +91,7 @@ export default function Page() {
                 <button
                     onClick={handlePreviousPage}
                     disabled={currentPage === 0}
-                    className={`px-4 py-2 rounded-md ${currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-500 text-white hover:bg-indigo-600'}`}
+                    className={`px-4 py-2 rounded-md ${currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
                 >
                     Anterior
                 </button>
@@ -79,8 +100,8 @@ export default function Page() {
 
                 <button
                     onClick={handleNextPage}
-                    disabled={posts.length < pageSize}
-                    className={`px-4 py-2 rounded-md ${posts.length < pageSize ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
+                    disabled={!isNextPost}
+                    className={`px-4 py-2 rounded-md ${!isNextPost ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
                 >
                     Siguiente
                 </button>
