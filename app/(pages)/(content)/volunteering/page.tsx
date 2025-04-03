@@ -67,19 +67,20 @@ export default function Page() {
 
             {/* Controles de paginación */}
             <div className="flex justify-center gap-4 py-4">
-                <button 
-                    onClick={handlePreviousPage} 
+                <button
+                    onClick={handlePreviousPage}
                     disabled={currentPage === 0}
                     className={`px-4 py-2 rounded-md ${currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-500 text-white hover:bg-indigo-600'}`}
                 >
                     Anterior
                 </button>
-                
+
                 <span className="px-4 py-2 bg-gray-200 rounded-md">Página {currentPage + 1}</span>
 
-                <button 
-                    onClick={handleNextPage} 
-                    className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-blue-600"
+                <button
+                    onClick={handleNextPage}
+                    disabled={posts.length < pageSize}
+                    className={`px-4 py-2 rounded-md ${posts.length < pageSize ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
                 >
                     Siguiente
                 </button>
