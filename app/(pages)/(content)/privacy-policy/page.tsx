@@ -71,7 +71,7 @@ export default function Page() {
                             <li>Solicitar la modificación o eliminación de tus datos.</li>
                             <li>Revocar el consentimiento para el uso de tus datos.</li>
                         </ul>
-                        <p>6.2. Para ejercer estos derechos, podés contactarnos a través de [correo electrónico o formulario de contacto].</p>
+                        <p>6.2. Para ejercer estos derechos, podés contactarnos a través de adoptamena@gmail.com.</p>
                     </div>
 
                     <div className="space-y-2">
