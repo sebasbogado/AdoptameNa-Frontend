@@ -12,8 +12,8 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ src }) => {
         alt="Imagen FAQ"
         width={1341}
         height={435}
-        layout="intrinsic"
-        className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
+        layout="responsive"
+        className="rounded-[32px] mx-auto w-full max-w-full mt-8"
       />
     );
   };
