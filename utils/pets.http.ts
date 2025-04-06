@@ -71,3 +71,19 @@ export const getPets = async (): Promise<Pet[]> => {
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
+
+export const deletePet = async (petId: string, token: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/${petId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("Mascota no encontrada");
+    }
+    throw new Error(error.message || "Error al eliminar la mascota");
+  }
+};

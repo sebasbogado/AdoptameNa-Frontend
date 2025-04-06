@@ -12,6 +12,8 @@ import { addFavorite, deleteFavorite, getFavorites } from "@/utils/favorites-pos
 import { Alert } from "@material-tailwind/react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
+import { Trash2 } from "lucide-react";
+import { deletePet } from "@/utils/pets.http";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -19,35 +21,18 @@ type PetCardProps = {
     post: any;
     className?: string
     isPost?: boolean;
+    isMyPet?: boolean;
+    onDelete?: (id: string) => void;
 };
 
-export default function PetCard({ post, className, isPost }: PetCardProps) {
-    const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
+export default function PetCard({ post, className, isPost, isMyPet, onDelete }: PetCardProps) {
+    const { favorites, fetchFavorites } = useFavorites();
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const { authToken } = useAuth(); // Hook de autenticación
+    const { authToken } = useAuth();
 
-    // Determinar si el post está en favoritos con una sola evaluación
     const isFavorite = favorites.some((fav: Favorites) => fav.postId === (post as Post).id);
-
-    // Leer el estado del 'localStorage' (si existe) al cargar el componente
-    // const [isFavorite, setIsFavorite] = useState<boolean>(() => {
-    //     // Intentamos leer el valor del 'localStorage' usando el id del post
-    //     const storedValue = localStorage.getItem(post.id);
-    //     return storedValue ? JSON.parse(storedValue) : false;
-    // });
-
-    // // Función que cambia el estado de favorito y lo guarda en el localStorage
-    // const toggleFavorite = () => {
-    //     const newFavoriteState = !isFavorite;
-    //     setIsFavorite(newFavoriteState);
-
-    //     // Guardamos el nuevo estado en 'localStorage'
-    //     localStorage.setItem(post.id, JSON.stringify(newFavoriteState));
-    // };
-    // console.log(post)
-    // Cargar favoritos al montar el componente
-
+    console.log("isMyPet:", isMyPet)
     const handleFavoriteClick = async () => {
         if (!authToken) {
             setErrorMessage("Necesitas estar logeado para agregar a favoritos.");
@@ -68,6 +53,29 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
             console.error("Error al actualizar favorito", error);
         }
     };
+    
+    const handleDeletePet = async () => {
+        if (!authToken) {
+          setErrorMessage("Debes estar logeado para eliminar una mascota.");
+          return;
+        }
+      
+        const confirmDelete = confirm("¿Estás seguro de que quieres eliminar esta mascota?");
+        if (!confirmDelete) return;
+      
+        try {
+          await deletePet(post.id, authToken);
+          setSuccessMessage("Mascota eliminada correctamente.");
+      
+          // Llamamos a la función que se pasa desde el componente padre
+          if (onDelete) {
+            onDelete(post.id);
+          }
+        } catch (error) {
+          console.error("Error al eliminar mascota:", error);
+          setErrorMessage("Ocurrió un error al eliminar la mascota.");
+        }
+      };
 
     return (
         <div className={clsx("w-64 h-[19rem] rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
@@ -91,8 +99,25 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                     </Alert>
                 )}
             </div>
-            <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
-                onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
+
+            {/* Botón de favoritos */}
+            <FavoriteButton
+                variant={isFavorite ? "active" : "desactivated"}
+                onClick={handleFavoriteClick}
+                className="absolute top-2 right-2 z-10"
+            />
+
+            {/* Botón de eliminar mascota */}
+            {isMyPet && (
+                <button
+                    onClick={handleDeletePet}
+                    className="absolute top-2 left-2 z-10 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
+                    title="Eliminar mascota"
+                >
+                    <Trash2 size={18} />
+                </button>
+            )}
+
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
                 <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
                 <CardText post={post} />
