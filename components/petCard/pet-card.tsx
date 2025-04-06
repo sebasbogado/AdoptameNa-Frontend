@@ -91,8 +91,10 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                     </Alert>
                 )}
             </div>
-            <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
-                onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
+            {isPost &&
+                <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
+                    onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
+            }
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
                 <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
                 <CardText post={post} />
