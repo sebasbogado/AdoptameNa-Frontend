@@ -1,17 +1,11 @@
+import ImageComponent from '@/components/image-component';
 import Image from 'next/image';
 
 export default function Page() {
     return (
         <div className="w-full px-12">
 
-            <Image
-                src="/politicasdeprivacidad.png"
-                alt=""
-                width={1341}
-                height={435}
-                layout="intrinsic"
-                className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
-            />
+            <ImageComponent src="/politicasdeprivacidad.png"/>
 
             <div className="max-w-3xl mx-auto py-8 px-4">
 
