@@ -82,13 +82,15 @@ export function CommentItem({
         <div className={`flex gap-3 ${level > 0 ? 'ml-12' : ''}`}>
             <UserAvatar user={comment.user} />
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
                 <div className={`${level > 0 ? 'p-3 bg-gray-50 rounded-lg' : ''}`}>
                     <div className="flex flex-col">
                         <div onClick={routeUserProfile} className="font-medium cursor-pointer hover:underline">
                             {comment.user.fullName}
                         </div>
-                        <p className="text-gray-800 mt-1">{comment.content}</p>
+                        <p className="break-words whitespace-pre-wrap w-full max-w-full">
+                            {comment.content}
+                        </p>
 
                         <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 flex-wrap">
                             <span>{getTimeAgo(comment.createdAt)}</span>

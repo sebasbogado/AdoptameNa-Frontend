@@ -9,8 +9,6 @@ interface PostHeaderProps {
 }
 
 export const PostHeader = ({ post, pet }: PostHeaderProps) => {
-
-
     return (
         <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
             <h1
@@ -20,7 +18,8 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             </h1>
             <p className="text-2xl text-gray-700 mt-8">
                 {post ? <span>
-                    Publicado por {post?.userFullName} {/* Reemplazar por el nombre de usuario */} el {new Date(post?.publicationDate).toLocaleDateString()}
+                    Publicado por {post?.userFullName} el {new Date(post?.publicationDate).toLocaleDateString()}
+                    <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                 </span> :
                     <span>
                         {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},
