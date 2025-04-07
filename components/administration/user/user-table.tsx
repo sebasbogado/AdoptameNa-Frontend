@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Trash2 } from "lucide-react";
 
 interface UserList {
@@ -17,8 +17,8 @@ interface Props {
 
 export default function UserTable({ title, data, onDelete }: Props) {
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isNextPage, setIsNextPage] = useState(false);
   const pageSize = 20;
 
   const filteredData = useMemo(() => {
@@ -32,7 +32,7 @@ export default function UserTable({ title, data, onDelete }: Props) {
   const totalPages = Math.ceil(filteredData.length / pageSize);
 
   const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
+    const start = currentPage * pageSize;
     return filteredData.slice(start, start + pageSize);
   }, [filteredData, currentPage]);
 
@@ -44,6 +44,18 @@ export default function UserTable({ title, data, onDelete }: Props) {
     }
   };
 
+  useEffect(() => {
+    const start = (currentPage + 1) * pageSize;
+    setIsNextPage(start < filteredData.length);
+  }, [filteredData, currentPage]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNextPage = () => {
+    if (isNextPage) setCurrentPage(currentPage + 1);
+  };
   return (
     <div className="mb-8 px-8" >
 
@@ -55,7 +67,7 @@ export default function UserTable({ title, data, onDelete }: Props) {
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
-            setCurrentPage(1);
+            setCurrentPage(0);
           }}
           className="mb-4 px-3 py-2 border rounded w-full max-w-md"
         />
@@ -97,29 +109,34 @@ export default function UserTable({ title, data, onDelete }: Props) {
           )}
         </tbody>
       </table>
-
-      {totalPages > 1 && (
-        // <div className="mt-4 flex items-center justify-between max-w-md">
-        <div className="mt-4 flex items-center justify-between max-w-md">
+      {data.length > pageSize && (
+        <div className="flex justify-center gap-4 py-4" >
           <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 0}
+            className={`px-4 py-2 rounded-md ${currentPage === 0
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-purple-500 text-white hover:bg-purple-600'
+              }`}
           >
             Anterior
           </button>
 
-          <span>Página {currentPage} de {totalPages}</span>
+          < span className="px-4 py-2 bg-gray-200 rounded-md" >
+            Página {currentPage + 1}
+          </span>
 
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
+          < button
+            onClick={handleNextPage}
+            disabled={!isNextPage}
+            className={`px-4 py-2 rounded-md ${!isNextPage
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-purple-500 text-white hover:bg-purple-600'
+              }`}
           >
             Siguiente
           </button>
-        </div>
-      )}
+        </div>)}
     </div>
   );
 }
