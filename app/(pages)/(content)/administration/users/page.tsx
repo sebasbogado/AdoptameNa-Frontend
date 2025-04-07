@@ -5,11 +5,17 @@ import { getUserProfiles } from "@/utils/user-profile-client"
 import UserTable from "@/components/administration/user/user-table"
 import { UserList } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
+import { ConfirmationModal } from "@/components/form/modal"
+import { Alert } from "@material-tailwind/react"
 
 export default function Page() {
   const [users, setUsers] = useState<UserList[]>();
   const [admins, setAdmins] = useState<UserList[]>();
   const [organizations, setOrganizations] = useState<UserList[]>();
+  const [modalConfirmation, setModalConfirmation] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const { authToken } = useAuth()
   const params: any = { "page": 0, "size": 100 }
 
@@ -60,21 +66,59 @@ export default function Page() {
     fetchData()
   }, [authToken])
 
-  const handleDelete = async (id: number) => {
-    if (!authToken) return;
-    await deleteUser(authToken, id)
-    const updatedUsers = users?.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
+  const handleDelete = async () => {
+    if (!authToken || !selectedUser) return;
+    try {
+      await deleteUser(authToken, selectedUser);
+      const updatedUsers = users?.filter((user) => user.id !== selectedUser);
+      setUsers(updatedUsers);
+      setSuccessMessage("Usuario eliminado correctamente");
+    } catch (error: any) {
+      setErrorMessage("Error al eliminar el usuario");
+      console.error("Error deleting user:", error);
+    } finally {
+      setModalConfirmation(false);
+      setSelectedUser(null);
+    }
   }
 
   return (
-    <div>
+    <div className="mt-8">
+      {successMessage && (
+        <div>
+          <Alert
+            color="green"
+            onClose={() => setSuccessMessage("")}
+            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+            {successMessage}
+          </Alert>
+        </div>
+      )}
+      {errorMessage && (
+        <div>
+          <Alert
+            color="red"
+            onClose={() => setErrorMessage("")}
+            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+            {errorMessage}
+          </Alert>
+        </div>
+      )}
+      <ConfirmationModal
+        isOpen={modalConfirmation}
+        onClose={() => { setSelectedUser(null); setModalConfirmation(false) }}
+        onConfirm={handleDelete}
+        message="¿Estás seguro de que deseas eliminar este usuario?"
+        title="Eliminar Usuario"
+        textConfirm="Eliminar"
+      />
+
       <UserTable
         title="Administradores"
         data={admins || []}
         onDelete={(id) => {
-          const updatedUsers = users?.filter((user) => user.id !== id);
-          setUsers(updatedUsers);
+          setSelectedUser(id);
+          setModalConfirmation(true)
         }}
       />
 
@@ -82,8 +126,8 @@ export default function Page() {
         title="Organizaciones"
         data={organizations || []}
         onDelete={(id) => {
-          const updatedUsers = users?.filter((user) => user.id !== id);
-          setUsers(updatedUsers);
+          setSelectedUser(id);
+          setModalConfirmation(true)
         }}
       />
 
@@ -91,8 +135,8 @@ export default function Page() {
         title="Lista de Usuarios"
         data={users || []}
         onDelete={(id) => {
-          const updatedUsers = users?.filter((user) => user.id !== id);
-          setUsers(updatedUsers);
+          setSelectedUser(id);
+          setModalConfirmation(true)
         }}
       />
     </div>)
