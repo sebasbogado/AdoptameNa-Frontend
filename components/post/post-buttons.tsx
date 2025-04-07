@@ -81,7 +81,9 @@ const PostButtons = ({ isPet = false, postId, onShare }: PostButtonsProps) => {
             <ReportButton size="lg" />
 
             <div className="relative">
-                <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
+                {!isPet &&
+                    <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
+                }
                 {successMessage && (
                     <Alert
                         color="green"

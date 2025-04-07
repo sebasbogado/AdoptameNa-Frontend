@@ -3,10 +3,10 @@
 import FAQDetail from '@/components/faq/faq-detail';
 import FAQHead from '@/components/faq/faq-head';
 import { TextFade } from '@/components/faq/TextFade';
-import Image from 'next/image';
 import faqData from '@/lib/faq.json';
 import { useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
+import ImageComponent from '@/components/image-component';
 
 export default function Page() {
   const [questions, setQuestions] = useState<string[]>([]);
@@ -100,14 +100,7 @@ export default function Page() {
 
   return (
     <div className="w-full px-12">
-      <Image
-        src="/faq/faq.png"
-        alt=""
-        width={1341}
-        height={435}
-        layout="intrinsic"
-        className="rounded-[32px] mx-auto w-full max-w-screen-lg mt-8"
-      />
+      <ImageComponent src="/faq/faq.png" />
 
       <div className="relative -mt-5 px-4 md:px-16">
         <div className="relative flex justify-left pl-60 items-center">
