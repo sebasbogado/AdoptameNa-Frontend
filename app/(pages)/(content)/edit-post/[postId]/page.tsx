@@ -304,10 +304,11 @@ export default function Page() {
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
                         <Image
                             src={src.url}
-                            alt="pet"
+                            alt="post-image"
                             fill
                             className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
                             onClick={() => setCurrentImageIndex(index)}
+                            unoptimized
                         />
                         {/* Botón de eliminación */}
                         <button
