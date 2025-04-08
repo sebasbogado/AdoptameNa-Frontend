@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
-import { deleteMedia, postMedia } from "@/utils/media.http";
+import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
 import { ImagePlus } from "lucide-react";
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -118,15 +118,15 @@ export default function Page() {
 
                 if (postData.urlPhoto && postData.urlPhoto.trim() !== "") {
                     setSelectedImages([
-                      {
-                        file: null,
-                        url_API: postData.urlPhoto,
-                        url: postData.urlPhoto
-                      }
+                        {
+                            file: null,
+                            url_API: postData.urlPhoto,
+                            url: postData.urlPhoto
+                        }
                     ]);
-                  } else {
+                } else {
                     setSelectedImages([]);
-                  }
+                }
             }
         } catch (err) {
             console.error("Error al cargar posts:", err);
@@ -187,14 +187,21 @@ export default function Page() {
 
     const handleDelete = async () => {
         setIsDeleteModalOpen(false);
+
         if (!post?.id || !authToken) {
             console.error('Falta el ID de la publicación o el token');
             return;
         }
 
         setLoading(true);
+
         try {
             await deletePost(String(post.id), authToken);
+
+            if (post.urlPhoto) {
+                await deleteMediaByUrl(post.urlPhoto, authToken); // Eliminar la imagen asociada
+            }
+
             setSuccessMessage('Publicación eliminada con éxito');
             setTimeout(() => router.push('/dashboard'), 3500);
 
@@ -273,11 +280,10 @@ export default function Page() {
 
         try {
             setLoading(true);
-            console.log("Eliminando imagen", imageToRemove);
 
             // Llamar a la API para eliminar la imagen
-            if (imageToRemove?.id) {
-                await deleteMedia(Number(imageToRemove.id), authToken);
+            if (imageToRemove.url_API) {
+                await deleteMediaByUrl(imageToRemove.url_API, authToken);
             }
 
             // Eliminar del estado local

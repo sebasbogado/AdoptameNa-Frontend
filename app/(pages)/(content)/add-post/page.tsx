@@ -10,7 +10,7 @@ import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
-import { deleteMedia, postMedia } from "@/utils/media.http";
+import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import Banners from "@/components/banners";
@@ -81,8 +81,8 @@ export default function Page() {
             setLoading(true);
 
             // Llamar a la API para eliminar la imagen
-            if (imageToRemove?.id) {
-                await deleteMedia(Number(imageToRemove.id), authToken);
+            if (imageToRemove.url_API) {
+                await deleteMediaByUrl(imageToRemove.url_API, authToken);
             }
 
             // Eliminar del estado local
