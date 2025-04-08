@@ -75,7 +75,7 @@ export default function Page() {
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const MAX_IMAGES = 2; //Tam max de imagenes
+    const MAX_IMAGES = 1; //Tam max de imagenes
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local

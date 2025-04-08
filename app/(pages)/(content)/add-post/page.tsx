@@ -44,8 +44,9 @@ export default function Page() {
     });
     const { authToken, user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [precautionMessage, setPrecautionMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [formData, setFormData] = useState<PostFormValues>({
@@ -61,7 +62,7 @@ export default function Page() {
     const [selectedImages, setSelectedImages] = useState<any[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const MAX_IMAGES = 2; //Tam max de imagenes
+    const MAX_IMAGES = 1; //Tam max de imagenes
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
@@ -72,13 +73,12 @@ export default function Page() {
         const imageToRemove = selectedImages[index];
 
         if (!authToken) {
-            setError("El token de autenticación es requerido");
+            console.log("El token de autenticación es requerido");
             return;
         }
 
         try {
             setLoading(true);
-            console.log("Eliminando imagen", imageToRemove);
 
             // Llamar a la API para eliminar la imagen
             if (imageToRemove?.id) {
@@ -95,9 +95,12 @@ export default function Page() {
                 setFormData(prev => ({ ...prev, urlPhoto: "" }));
             }
 
+            setSuccessMessage("Imagen eliminada exitosamente.");
+            setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
+
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
-            setError("No se pudo eliminar la imagen. Intenta nuevamente.");
+            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
         } finally {
             setLoading(false);
         }
@@ -115,7 +118,7 @@ export default function Page() {
             const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
-            setError(error.message);
+            console.log(error.message);
         } finally {
             setLoading(false);
         }
@@ -143,7 +146,7 @@ export default function Page() {
         };
 
         if (!authToken) {
-            setError("Usuario no autenticado");
+            console.log("Usuario no autenticado");
             setLoading(false);
             return;
         }
@@ -164,10 +167,10 @@ export default function Page() {
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
-                setError("Error al guardar publicación");
+                setErrorMessage("Error al guardar publicación");
             }
         } catch (error: any) {
-            setError("Error al crear la publicación");
+            setErrorMessage("Error al crear la publicación");
         } finally {
             setLoading(false);
         }
@@ -194,12 +197,12 @@ export default function Page() {
 
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 2) {
-                setError("Solo puedes subir hasta 2 imágenes.");
+                setPrecautionMessage("Solo puedes subir hasta 2 imágenes.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)
             if (file.size > 1024 * 1024) {
-                setError("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
                 return;
             }
 
@@ -222,6 +225,7 @@ export default function Page() {
                     ]);
                 }
             } catch (error) {
+                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
                 console.error("Error al subir la imagen", error);
             } finally {
                 setLoading(false);
@@ -272,7 +276,26 @@ export default function Page() {
                 </label>
             </div>
 
-            {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+            {errorMessage && (
+                <div>
+                    <Alert
+                        color="red"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setErrorMessage("")}>
+                        {errorMessage}
+                    </Alert>
+                </div>
+            )}
+            {precautionMessage && (
+                <div>
+                    <Alert
+                        color="orange"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setPrecautionMessage("")}>
+                        {precautionMessage}
+                    </Alert>
+                </div>
+            )}
             {successMessage && (
                 <div>
                     <Alert
