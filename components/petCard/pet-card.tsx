@@ -100,23 +100,10 @@ export default function PetCard({ post, className, isPost, isMyPet, onDelete }: 
                 )}
             </div>
 
-            {/* Botón de favoritos */}
-            <FavoriteButton
-                variant={isFavorite ? "active" : "desactivated"}
-                onClick={handleFavoriteClick}
-                className="absolute top-2 right-2 z-10"
-            />
-
-            {/* Botón de eliminar mascota */}
-            {isMyPet && (
-                <button
-                    onClick={handleDeletePet}
-                    className="absolute top-2 left-2 z-10 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
-                    title="Eliminar mascota"
-                >
-                    <Trash2 size={18} />
-                </button>
-            )}
+            {isPost &&
+                <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
+                    onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
+            }
 
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
                 <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
