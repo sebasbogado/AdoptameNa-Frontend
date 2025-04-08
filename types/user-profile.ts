@@ -26,4 +26,4 @@ export type UserReport = Omit<UserProfile,   'organizationName' |
 'addressCoordinates' |
 'bannerImages'>;
 
-export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string };
+export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string } & {role?: string};

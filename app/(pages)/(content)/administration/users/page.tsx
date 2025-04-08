@@ -3,10 +3,11 @@ import { useEffect, useState } from "react"
 import { getUsers, deleteUser } from "@/utils/user-client"
 import { getUserProfiles } from "@/utils/user-profile-client"
 import UserTable from "@/components/administration/user/user-table"
-import { UserList } from "@/types/user-profile"
+import { UserList, UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
+
 
 export default function Page() {
   const [users, setUsers] = useState<UserList[]>();
@@ -35,17 +36,17 @@ export default function Page() {
         const users = await getUsers(params)
         const profiles = await getUserProfiles(params)
 
-        const UserListRaw: any[] = users.map((user: any) => ({
+        const UserListRaw: UserList[] = users.map((user: any) => ({
           id: user.id,
-          fullName: profiles.find((profile: any) => profile.id === user.id)?.fullName,
+          fullName: profiles.find((profile: UserProfile) => profile.id === user.id)?.fullName,
           email: user.email,
           role: user.role,
           creationDate: formatDate(user.creationDate),
         }))
 
-        let listUser: any[] = []
-        let listAdmin: any[] = []
-        let listOrganization: any[] = []
+        let listUser: UserList[] = []
+        let listAdmin: UserList[] = []
+        let listOrganization: UserList[] = []
         for (const user of UserListRaw) {
           if (user.role === "admin") {
             listAdmin.push(user)
