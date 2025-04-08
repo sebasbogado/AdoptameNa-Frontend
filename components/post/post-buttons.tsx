@@ -8,6 +8,8 @@ import { useAuth } from "@/contexts/auth-context";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
+import EditButton from "../buttons/edit-button";
+import  Link  from "next/link";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -24,6 +26,7 @@ const PostButtons = ({ isPet = false, postId, onShare }: PostButtonsProps) => {
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleShare = async () => {
         if (!postId) return;
@@ -68,6 +71,10 @@ const PostButtons = ({ isPet = false, postId, onShare }: PostButtonsProps) => {
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
+
+                <Link href={`\/edit-pets/${postId}`}>
+                    <EditButton size="lg" isEditing={false} />
+                </Link>
 
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
