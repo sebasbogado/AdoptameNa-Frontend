@@ -74,14 +74,14 @@ export default function UserTable({ title, data, onDelete }: Props) {
 
       </div>
 
-      <table className="w-full border-collapse border text-sm table-auto">
+      <table className="w-full border-collapse border text-sm table-fixed">
         <thead>
           <tr>
-            <th className="border px-3 py-2 text-left">ID</th>
+            <th className="border px-3 py-2 text-left w-10">ID</th>
             <th className="border px-3 py-2 text-left">Nombre</th>
             <th className="border px-3 py-2 text-left">Email</th>
             <th className="border px-3 py-2 text-left">Fecha de creación</th>
-            <th className="border px-3 py-2 text-left">Acciones</th>
+            <th className="border px-3 py-2 w-20">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -96,7 +96,7 @@ export default function UserTable({ title, data, onDelete }: Props) {
                 <td className="border px-3 py-2">{user.fullName}</td>
                 <td className="border px-3 py-2">{user.email}</td>
                 <td className="border px-3 py-2">{user.creationDate}</td>
-                <td className="border px-3 py-2">
+                <td className="border px-3 py-2 flex items-center justify-center">
                   <button
                     onClick={() => handleDelete(user.id)}
                     className="hover:text-red-600 text-red-500 "
