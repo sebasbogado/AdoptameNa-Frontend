@@ -32,7 +32,7 @@ type SelectedImage = {
     file: File | null;
     url_API: string;
     url: string;
-  };
+};
 
 export default function Page() {
     const { postId } = useParams();
@@ -116,14 +116,17 @@ export default function Page() {
                 setValue("locationCoordinates", [lat, lng]);
                 setValue("urlPhoto", postData.urlPhoto || "");
 
-                setSelectedImages([
-                    {
-                    //  id: postData.mediaId || null, // si tenés el ID de media
-                        file: null,                   // no hay archivo local
-                        url_API: postData.urlPhoto,  // URL completa de la API
-                        url: postData.urlPhoto       // mostrás directamente desde la URL
-                    }
-                ]);
+                if (postData.urlPhoto && postData.urlPhoto.trim() !== "") {
+                    setSelectedImages([
+                      {
+                        file: null,
+                        url_API: postData.urlPhoto,
+                        url: postData.urlPhoto
+                      }
+                    ]);
+                  } else {
+                    setSelectedImages([]);
+                  }
             }
         } catch (err) {
             console.error("Error al cargar posts:", err);
@@ -296,28 +299,36 @@ export default function Page() {
     };
 
     const arrayImages = selectedImages.length > 0 ? selectedImages.map(image => image.url_API) : ['../logo.png'];
+
+    console.log("arrayImages", arrayImages);
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
             <div className="flex gap-2 mt-2 justify-center items-center">
                 {selectedImages.map((src, index) => (
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        <Image
-                            src={src.url}
-                            alt="post-image"
-                            fill
-                            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                            onClick={() => setCurrentImageIndex(index)}
-                            unoptimized
-                        />
-                        {/* Botón de eliminación */}
-                        <button
-                            onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
-                            title="Eliminar imagen"
-                        >
-                            ✕
-                        </button>
+                        {src.url_API && (
+                            <>
+                                <Image
+                                    src={src.url_API}
+                                    alt="post-image"
+                                    fill
+                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    unoptimized
+                                />
+                                {/* Botón de eliminación */}
+                                <button
+                                    onClick={() => handleRemoveImage(index)}
+                                    className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+                                    title="Eliminar imagen"
+                                >
+                                    ✕
+                                </button>
+                            </>
+                        )}
+
+
                     </div>
                 ))}
                 <input
