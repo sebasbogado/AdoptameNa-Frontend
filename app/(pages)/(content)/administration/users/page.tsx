@@ -112,6 +112,7 @@ export default function Page() {
         message="¿Estás seguro de que deseas eliminar este usuario?"
         title="Eliminar Usuario"
         textConfirm="Eliminar"
+        confirmVariant="danger"
       />
 
       <UserTable
