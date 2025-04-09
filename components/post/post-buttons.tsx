@@ -15,7 +15,7 @@ interface PostButtonsProps {
     postId: string | undefined;
     isPet?: boolean;
     onShare?: () => void;
-    postIdUser?: number;
+    postIdUser?: number; //id user owner
 }
 
 const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
@@ -70,11 +70,11 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
-            <Link href={`\/edit-pets/${postId}`}>
+            {/* <Link href={`\/edit-pets/${postId}`}>
                 <EditButton size="lg" isEditing={false} />
-            </Link>
+            </Link> */}
             {isEditing && (
-                <Link href={`\/edit-post/${postId}`}>
+                <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
             )}
