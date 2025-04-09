@@ -44,7 +44,7 @@ const AdoptionForm = () => {
   const router = useRouter();
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const MAX_IMAGES = 2; //Tam max de imagenes
+  const MAX_IMAGES = 1; //Tam max de imagenes
   const {
     register,
     handleSubmit,
@@ -141,13 +141,18 @@ const AdoptionForm = () => {
     if (e.target.files) {
       const file = e.target.files[0];
       // Verifica la cantidad de imagens que se pueden subir
-      if (selectedImages.length >= 2) {
-        setErrorMessage(`Solo puedes subir hasta 2 imágenes.`);
+      if (selectedImages.length >= 1) {
+        setErrorMessage(`Solo puedes subir hasta 1 imágenes.`);
         return;
       }
-      // Verificar el tamaño del archivo (1MB)
-      if (file.size > 1024 * 1024) {
-        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        setErrorMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        return;
+      }
+      // Verificar el tamaño del archivo
+      if (file.size > 5 * 1024 * 1024) {
+        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
         return;
       }
 
@@ -230,12 +235,10 @@ const AdoptionForm = () => {
     e.preventDefault();
 
 //    if (isSubmitting) return; // 🔒 Evita múltiples clics
-
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
-
 
     try {
       console.log(formData);
@@ -298,7 +301,7 @@ const AdoptionForm = () => {
 
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/webp"
               multiple
               className="hidden"
               id="fileInput"
