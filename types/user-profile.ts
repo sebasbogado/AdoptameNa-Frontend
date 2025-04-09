@@ -12,6 +12,7 @@ export interface UserProfile {
   addressCoordinates: string | null;
   bannerImages: string[];
   email: string;
+  isProfileCompleted: boolean;
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 

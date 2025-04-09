@@ -1,4 +1,13 @@
+"use client";
+import { usePathname } from "next/navigation";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  // Si es la ruta específica, no renderices el layout
+  if (pathname === "/auth/create-profile") {
+    return <>{children}</>;
+  }
   return (
     <div
       className="w-screen h-screen flex justify-center items-center relative bg-cover bg-center"
