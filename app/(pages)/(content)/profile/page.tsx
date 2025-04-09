@@ -278,7 +278,6 @@ export default function ProfilePage() {
                         loading={loading}
                         error={errors.pets}
                         filterByType={false}
-                        onDeletePet={(id) => setPets(prev => prev.filter(pet => pet.id !== Number(id)))}
                     />
 
                     {/* Posts Section (Con filtrado) */}

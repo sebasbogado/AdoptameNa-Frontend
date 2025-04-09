@@ -17,10 +17,10 @@ interface SectionProps {
     error: Boolean;
     filterByType?: boolean;
     itemType: "post" | "pet"; // Nuevo prop para diferenciar el tipo de item
-    onDeletePet?: (id: string) => void; 
+
 }
 
-export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType, onDeletePet }: SectionProps) {
+export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType, petStatusId }: SectionProps) {
     const pathName = usePathname()
     const filteredItems = (filterByType
         ? items.filter((item) => {
@@ -59,7 +59,7 @@ export function Section({ title, postTypeName, path, items, loading, error, filt
                             );
                         } else if (itemType === "pet") {
                             return (
-                                <PetCard post={item} key={item.id} isMyPet={true} onDelete={onDeletePet}/>
+                                <PetCard post={item} key={item.id} />
                             );
                         }
                         return null;
