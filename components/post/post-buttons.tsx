@@ -8,25 +8,34 @@ import { useAuth } from "@/contexts/auth-context";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
+import TrashButton from "../buttons/trash-button";
 import EditButton from "../buttons/edit-button";
+import { deletePost } from "@/utils/posts.http";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { deletePet } from "@/utils/pets.http";
+
 
 interface PostButtonsProps {
     postId: string | undefined;
     isPet?: boolean;
     onShare?: () => void;
-    postIdUser?: number; //id user owner
+    postIdUser?: number;
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
-    const { authToken, user } = useAuth();
-    const [copied, setCopied] = useState(false);
 
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
+    const pathname = usePathname();
+    const { authToken, user } = useAuth();
+    const isOwner = postIdUser === user?.id;
+    const [copied, setCopied] = useState(false);
+    const router = useRouter();
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
-    const [isEditing, setIsEditing] = useState(false);
+    const isInPetsSection = pathname.includes('/pets');
+    const isInPostsSection = pathname.includes('/posts');
 
     const handleShare = async () => {
         if (!postId) return;
@@ -47,6 +56,46 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         }
     };
 
+    const handleDeletePet = async () => {
+        if (!authToken) {
+            setErrorMessage("Debes estar logeado para eliminar una mascota.");
+            return;
+        }
+
+        const confirmDelete = confirm("¿Estás seguro de que quieres eliminar esta mascota?");
+        if (!confirmDelete) return;
+
+        try {
+            await deletePet(String(postId), authToken);
+            setSuccessMessage("Mascota eliminada correctamente.");
+            router.push("/profile");
+
+
+        } catch (error) {
+            console.error("Error al eliminar mascota:", error);
+            setErrorMessage("Ocurrió un error al eliminar la mascota.");
+        }
+    };
+    const handleDeletePost = async () => {
+        if (!authToken) {
+            setErrorMessage("Debes estar logeado para eliminar una publicación.");
+            return;
+        }
+
+        const confirmDelete = confirm("¿Estás seguro de que quieres eliminar esta publicación?");
+        if (!confirmDelete) return;
+
+        try {
+            await deletePost(String(postId), authToken);
+            setSuccessMessage("Publicación eliminada correctamente.");
+            router.push("/profile");
+
+
+        } catch (error) {
+            console.error("Error al eliminar Publicación:", error);
+            setErrorMessage("Ocurrió un error al eliminar la publicación.");
+        }
+    };
     const handleFavoriteClick = async () => {
         if (!authToken) {
             setErrorMessage("¡Necesitas estar logeado para agregar a favoritos!");
@@ -70,10 +119,17 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
-            {/* <Link href={`\/edit-pets/${postId}`}>
-                <EditButton size="lg" isEditing={false} />
-            </Link> */}
-            {isEditing && (
+            
+            {isOwner && isInPetsSection && (
+                <TrashButton size="lg" onClick={handleDeletePet} />
+            )}
+
+            {isOwner && isInPostsSection && (
+                <TrashButton size="lg" onClick={handleDeletePost} />
+            )}
+
+
+            {isOwner && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
