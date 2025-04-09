@@ -62,7 +62,6 @@ export default function CreateProfilePage() {
   
     console.log("Datos del formulario:", data); // Verificar aquí
     console.log("Coordenadas formateadas:", data.addressCoordinates?.join(","));
-  
     updateProfile({
       ...data,
       addressCoordinates: data.addressCoordinates?.join(",") ?? "",
@@ -73,6 +72,7 @@ export default function CreateProfilePage() {
       earnedPoints: 0,
       bannerImages: [],
       email: user?.email || "",
+      isProfileCompleted: true,
     });
   };
   const updateProfile = async (profileToUpdate: UpdateUserProfile) => {

@@ -36,9 +36,11 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         try {
           const parsedUser = JSON.parse(userData);
   
-          // Solo asignar false si isProfileCompleted es undefined, no si es null
           if (parsedUser.isProfileCompleted === undefined) {
             parsedUser.isProfileCompleted = false;
+          }
+          if(parsedUser.isProfileCompleted === false) {
+            router.push('/auth/create-profile');
           }
   
           setUser(parsedUser);
@@ -67,7 +69,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       setUser(user);
       setAuthToken(token);
-
+ 
       return true;
     } catch (error) {
       console.error('Error de login:', error);

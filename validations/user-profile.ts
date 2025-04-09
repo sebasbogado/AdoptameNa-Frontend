@@ -27,16 +27,16 @@ export const profileSchema = z.object({
   fullName: fullNameSchema,
 
   birthdate: z
-    .string()
-    .nullable()
-    .refine(
-      (val) => val === null || !isNaN(Date.parse(val)),
-      { message: "La fecha debe ser válida o estar vacía" }
-    )
-    .transform((val) => (val ? new Date(val) : null))
-    .refine((date) => date === null || date < new Date(), {
-      message: "La fecha de nacimiento no puede ser una después de hoy",
-    }),
+  .string()
+  .nullable()
+  .refine(
+    (val) => val === null || val.trim() === "" || !isNaN(Date.parse(val)),
+    { message: "La fecha debe ser válida o estar vacía" }
+  )
+  .transform((val) => (val && val.trim() !== "" ? new Date(val) : null))
+  .refine((date) => date === null || date < new Date(), {
+    message: "La fecha de nacimiento no puede ser una después de hoy",
+  }),
 
   phoneNumber: z
     .string()
