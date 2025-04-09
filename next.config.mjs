@@ -4,9 +4,18 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-
-    domains: ["adoptamena-api.rodrigomaidana.com/**", "https://adoptamena-api.rodrigomaidana.com/api/**"],
-
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'adoptamena-api.rodrigomaidana.com',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'adoptamena-api.rodrigomaidana.com',
+        pathname: '/api/**',
+      },
+    ],
   },
 };
 

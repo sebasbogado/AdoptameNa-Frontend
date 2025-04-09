@@ -15,16 +15,35 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
-
+  const updateUserProfileCompletion = (isCompleted: boolean): void => {
+    if (user) {
+      const updatedUser = { ...user, isProfileCompleted: isCompleted };
+      setUser(updatedUser);
+  
+      // Guardar el usuario actualizado en localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userData', JSON.stringify(updatedUser));  // Esto debe guardar correctamente el nuevo estado
+      }
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('authToken');
       const userData = localStorage.getItem('userData');
-
+  
       if (token && userData) {
         try {
-          setUser(JSON.parse(userData));
+          const parsedUser = JSON.parse(userData);
+  
+          if (parsedUser.isProfileCompleted === undefined) {
+            parsedUser.isProfileCompleted = false;
+          }
+          if(parsedUser.isProfileCompleted === false) {
+            router.push('/auth/create-profile');
+          }
+  
+          setUser(parsedUser);
           setAuthToken(token);
         } catch (e) {
           localStorage.removeItem('authToken');
@@ -50,7 +69,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       setUser(user);
       setAuthToken(token);
-
+ 
       return true;
     } catch (error) {
       console.error('Error de login:', error);
@@ -89,7 +108,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion,  isProfileCompleted: user?.isProfileCompleted ?? false  }}>
       {children}
     </AuthContext.Provider>
   );

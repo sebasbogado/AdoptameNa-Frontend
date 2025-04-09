@@ -3,26 +3,22 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { postPosts } from "@/utils/posts.http";
+import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
-import { Post } from "@/types/post";
+import { CreatePost } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
-import { postMedia } from "@/utils/media.http";
+import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import Banners from "@/components/banners";
 import { ImagePlus } from "lucide-react";
-
-interface FormErrors {
-    postType?: string;  // Cambiado de idPostType a postType
-    title?: string;
-    content?: string;
-    locationCoordinates?: string;
-    contactNumber?: string;
-}
+import { zodResolver } from "@hookform/resolvers/zod";
+import { postSchema, PostFormValues } from "@/validations/post-schema";
+import { useForm } from "react-hook-form";
+import { Alert } from "@material-tailwind/react";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -30,33 +26,86 @@ const MapWithNoSSR = dynamic<MapProps>(
 );
 
 export default function Page() {
+    const {
+        register,
+        handleSubmit: zodHandleSubmit,  // Renombramos el handleSubmit de useForm
+        setValue,
+        formState: { errors, isSubmitting }
+    } = useForm<PostFormValues>({
+        resolver: zodResolver(postSchema),
+        defaultValues: {
+            idPostType: 0,
+            title: "",
+            content: "",
+            locationCoordinates: [0, 0],
+            contactNumber: "",
+            urlPhoto: ""
+        }
+    });
     const { authToken, user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [formErrors, setFormErrors] = useState<FormErrors>({});
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [precautionMessage, setPrecautionMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
-    const [formData, setFormData] = useState<Partial<Post>>({
-        idUser: user ? Number(user.id) : 0,
+    const [formData, setFormData] = useState<PostFormValues>({
+        idPostType: 0,
         title: "",
         content: "",
-        postType: {
-            id: 0,
-            name: "",
-            description: "",
-        },
-        locationCoordinates: "",
+        locationCoordinates: [0, 0], // Array de coordenadas
         contactNumber: "",
-        status: "activo",
-        sharedCounter: 0,
+        status: "activo", // Valor estático
         urlPhoto: "",
-        publicationDate: new Date().toISOString()
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<any[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
+    const MAX_IMAGES = 1; //Tam max de imagenes
+
+    const handlePositionChange = (newPosition: [number, number]) => {
+        setPosition(newPosition); // Actualiza el estado local
+        setValue("locationCoordinates", newPosition); // Actualiza el formulario
+    };
+
+    const handleRemoveImage = async (index: number) => {
+        const imageToRemove = selectedImages[index];
+
+        if (!authToken) {
+            console.log("El token de autenticación es requerido");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // Llamar a la API para eliminar la imagen
+            if (imageToRemove.url_API) {
+                await deleteMediaByUrl(imageToRemove.url_API, authToken);
+            }
+
+            // Eliminar del estado local
+            const updatedImages = selectedImages.filter((_, i) => i !== index);
+            setSelectedImages(updatedImages);
+
+            // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
+            if (updatedImages.length === 0) {
+                setValue("urlPhoto", "");
+                setFormData(prev => ({ ...prev, urlPhoto: "" }));
+            }
+
+            setSuccessMessage("Imagen eliminada exitosamente.");
+            setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
+
+        } catch (error) {
+            console.error("Error al eliminar la imagen", error);
+            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -69,7 +118,7 @@ export default function Page() {
             const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
-            setError(error.message);
+            console.log(error.message);
         } finally {
             setLoading(false);
         }
@@ -80,57 +129,9 @@ export default function Page() {
         fetchPostTypes();
     }, [authToken, authLoading]);
 
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => {
-        const { name, value } = e.target;
-        if (name === "postType") {
-            const selectedPostType = postTypes.find(type => type.id === Number(value));
-            setFormData((prev) => ({
-                ...prev,
-                postType: selectedPostType || { id: 0, name: "", description: "" }
-            }));
-        } else {
-            setFormData((prev) => ({ ...prev, [name]: value }));
-        }
-        if (formErrors[name as keyof FormErrors]) {
-            setFormErrors((prev) => ({
-                ...prev,
-                [name]: undefined,
-            }));
-        }
-    };
-
-    const validateForm = (updatedFormData: any): FormErrors => {
-        const errors: FormErrors = {};
-
-        if (!updatedFormData.postType?.id || updatedFormData.postType.id === 0) {
-            errors.postType = "Seleccione un tipo de publicación";
-        }
-        if (!updatedFormData.title?.trim()) {
-            errors.title = "El título es requerido";
-        } else if (updatedFormData.title.length < 3) {
-            errors.title = "El título debe tener al menos 3 caracteres";
-        }
-        if (!updatedFormData.content?.trim()) {
-            errors.content = "La descripción es requerida";
-        } else if (updatedFormData.content.length < 10) {
-            errors.content = "La descripción debe tener al menos 10 caracteres";
-        }
-        if (!updatedFormData.locationCoordinates?.trim()) {
-            errors.locationCoordinates = "La ubicación es requerida";
-        }
-        if (!updatedFormData.contactNumber?.trim()) {
-            errors.contactNumber = "El número de contacto es requerido";
-        } else if (!/^\+?\d{9,15}$/.test(updatedFormData.contactNumber)) {
-            errors.contactNumber = "Número inválido (9-15 dígitos)";
-        }
-
-        return errors;
-    };
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    // Abre el modal cuando el formulario es válido
+    const openConfirmationModal = (data: PostFormValues) => {
+        setFormData(data); // Guardamos los datos validados
         setIsModalOpen(true);
     };
 
@@ -139,53 +140,37 @@ export default function Page() {
         setLoading(true);
 
         const updatedFormData = {
-            ...formData,
-            idPostType: Number(formData.postType?.id),  // Para compatibilidad con el backend
+            ...formData, // ✅ Asegura que urlPhoto está presente
             idUser: user ? Number(user.id) : 0,
-            locationCoordinates: position ? `${position[0]}, ${position[1]}` : ""
+            locationCoordinates: formData.locationCoordinates?.join(",") || "", // Convertir a string
         };
 
-        const validationErrors = validateForm(updatedFormData);
-        if (Object.keys(validationErrors).length > 0) {
-            setFormErrors(validationErrors);
-            setLoading(false);
-            return;
-        }
-
         if (!authToken) {
-            setError("Usuario no autenticado");
+            console.log("Usuario no autenticado");
             setLoading(false);
             return;
         }
 
         try {
-            const response = await postPosts(updatedFormData as Post, authToken);
+            const response = await createPost(updatedFormData as CreatePost, authToken);
             if (response) {
-                setSuccessMessage("¡Publicación creada exitosamente!");
                 setFormData({
-                    idUser: user ? Number(user.id) : 0,
+                    idPostType: 0,
                     title: "",
                     content: "",
-                    postType: {
-                        id: 0,
-                        name: "",
-                        description: "",
-                    },
-                    locationCoordinates: "",
+                    locationCoordinates: [0, 0], // Array de coordenadas
                     contactNumber: "",
-                    status: "activo",
-                    sharedCounter: 0,
-                    urlPhoto: "",
-                    publicationDate: new Date().toISOString()
+                    status: "activo", // Valor estático
+                    urlPhoto: ""
                 });
-                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
-                setSuccessMessage("Se ha creado correctamente la publicación.");
-                router.push(`/posts/${response.id}`);
+                //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+                setSuccessMessage("¡Publicación creada exitosamente!");
+                setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
-                setError("Error al guardar publicación");
+                setErrorMessage("Error al guardar publicación");
             }
         } catch (error: any) {
-            setError(error.message || "Error al crear la publicación");
+            setErrorMessage("Error al crear la publicación");
         } finally {
             setLoading(false);
         }
@@ -203,24 +188,47 @@ export default function Page() {
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const file = e.target.files[0];
-            const formData = new FormData();
-            formData.append("file", file);
+            const fileData = new FormData();
+            fileData.append("file", file);
 
             if (!authToken) {
                 throw new Error("El token de autenticación es requerido");
             }
 
+            // Verifica la cantidad de imagens que se pueden subir
+            if (selectedImages.length >= 2) {
+                setPrecautionMessage("Solo puedes subir hasta 2 imágenes.");
+                return;
+            }
+            // Verificar el tamaño del archivo (1MB)
+            if (file.size > 1024 * 1024) {
+                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+                return;
+            }
+
             try {
-                const response = await postMedia(formData, authToken);
-                setFormData((prevFormData) => ({
-                    ...prevFormData,
-                    urlPhoto: response.url
-                }));
+                setLoading(true);
+                const response = await postMedia(fileData, authToken);
+
                 if (response) {
-                    setSelectedImages([...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }]);
+                    const { id, url } = response;
+                    setValue("urlPhoto", url); // Actualiza react-hook-form
+                    setFormData(prev => ({ ...prev, urlPhoto: url })); // Sincroniza con formData
+                    setSelectedImages(prevImages => [
+                        ...prevImages,
+                        {
+                            id,
+                            file,
+                            url_API: url,
+                            url: URL.createObjectURL(file)
+                        }
+                    ]);
                 }
             } catch (error) {
+                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
                 console.error("Error al subir la imagen", error);
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -237,105 +245,114 @@ export default function Page() {
                             src={src.url}
                             alt="pet"
                             fill
-                            className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
                             onClick={() => setCurrentImageIndex(index)}
                         />
+                        {/* Botón de eliminación */}
+                        <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+                            title="Eliminar imagen"
+                        >
+                            ✕
+                        </button>
                     </div>
                 ))}
                 <input
                     type="file"
                     accept="image/*"
                     multiple
-                    className="hidden object-cover rounded-md transition-all duration-200 hover:scale-110"
+                    className="hidden"
                     id="fileInput"
                     onChange={handleImageUpload}
+                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
                 />
                 <label
                     htmlFor="fileInput"
-                    className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 transition bg-white"
+                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                        } bg-white`}
                 >
-                    <ImagePlus size={20} className="text-blue-500" />
+                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
                 </label>
             </div>
 
-            {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+            {errorMessage && (
+                <div>
+                    <Alert
+                        color="red"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setErrorMessage("")}>
+                        {errorMessage}
+                    </Alert>
+                </div>
+            )}
+            {precautionMessage && (
+                <div>
+                    <Alert
+                        color="orange"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setPrecautionMessage("")}>
+                        {precautionMessage}
+                    </Alert>
+                </div>
+            )}
             {successMessage && (
-                <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">{successMessage}</div>
+                <div>
+                    <Alert
+                        color="green"
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                        {successMessage}
+                    </Alert>
+                </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={zodHandleSubmit(openConfirmationModal)}>
                 {/* Tipo de publicación */}
-                <label className="block text-sm font-medium">
-                    Tipo de publicación <span className="text-red-500">*</span>
-                </label>
                 <select
-                    name="postType"
-                    value={formData.postType?.id || 0}
-                    onChange={handleChange}
-                    className={`w-full p-2 border rounded mb-4 ${formErrors.postType ? 'border-red-500' : ''}`}
+                    {...register("idPostType", { valueAsNumber: true })}
+                    className={`w-full p-2 border rounded mb-4 ${errors.idPostType ? 'border-red-500' : ''}`}
                 >
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {formErrors.postType && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.postType}</p>
-                )}
+                {errors.idPostType && <p className="text-red-500 text-sm">{errors.idPostType.message}</p>}
 
                 {/* Título */}
-                <label className="block text-sm font-medium">
-                    Título <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
                 <input
                     type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    className={`w-full p-2 border rounded mb-4 ${formErrors.title ? 'border-red-500' : ''}`}
+                    {...register("title")}
+                    className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
                 />
-                {formErrors.title && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.title}</p>
-                )}
+                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
                 {/* Descripción */}
-                <label className="block text-sm font-medium">
-                    Descripción <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
                 <textarea
-                    name="content"
-                    value={formData.content}
-                    onChange={handleChange}
-                    className={`w-full p-2 border rounded mb-4 ${formErrors.content ? 'border-red-500' : ''}`}
+                    {...register("content")}
+                    className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
                 />
-                {formErrors.content && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.content}</p>
-                )}
+                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
 
                 {/* Contacto */}
-                <label className="block text-sm font-medium">
-                    Número de contacto <span className="text-red-500">*</span>
-                </label>
+                <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
                 <input
                     type="text"
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleChange}
-                    className={`w-full p-2 border rounded mb-4 ${formErrors.contactNumber ? 'border-red-500' : ''}`}
+                    {...register("contactNumber")}
+                    className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
                 />
-                {formErrors.contactNumber && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.contactNumber}</p>
-                )}
+                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                 {/* Mapa */}
                 <div
                     className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                 >
-                    <MapWithNoSSR position={position} setPosition={setPosition} />
+                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
                 </div>
-                {formErrors.locationCoordinates && (
-                    <p className="text-red-500 text-sm mb-4">{formErrors.locationCoordinates}</p>
-                )}
+                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                 <div className="flex justify-between items-center mt-6 gap-10">
                     <Button

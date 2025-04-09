@@ -28,7 +28,7 @@ const PostLocationMap = ({ location }: PostLocationMapProps) => {
             {validCoordinates ?
                 <MapWithNoSSR location={[coordinates[0], coordinates[1]] as [number, number]} /> :
                 <p className="text-2xl text-gray-700 mt-8">
-                    No se ha proporcionado una ubicación para este post.
+                    No se ha proporcionado una ubicación.
                 </p>}
         </div>
     );

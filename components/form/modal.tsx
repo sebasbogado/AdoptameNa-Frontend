@@ -9,7 +9,7 @@ interface ModalProps {
     message?: string;
     confirmVariant?: "cta" | "danger";
     onClose: () => void;
-    onConfirm: () => void;
+    onConfirm: (data?: any) => void; // Permitir un argumento opcional
   }
   
   export function ConfirmationModal({ isOpen, title, textConfirm, message, confirmVariant, onClose, onConfirm }: ModalProps) {
@@ -26,7 +26,7 @@ useEffect(() => {
   if (!isOpen) return null;
   
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[51]">
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
           <h2 className="text-lg font-semibold mb-4">{title}</h2>
           <p className="mb-6">{message}</p>
@@ -44,7 +44,7 @@ useEffect(() => {
               type="button"
               variant={confirmVariant}
               size="md"
-              className="rounded hover:bg-purple-700"
+              className="rounded hover:bg-red-900"
               onClick={onConfirm}
             >
               {textConfirm}

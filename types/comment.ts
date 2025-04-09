@@ -1,12 +1,22 @@
 import { User } from "./auth";
 
 export interface Comment {
-  id: string;
+  id: number;
   user: User;
   content: string;
   createdAt: string;
-  likes?: number;
-  liked?: boolean;
+  likesCount: number;
+  liked: boolean;
   reported?: boolean;
   replies?: Comment[];
+  referenceType?: string;
+  referenceId?: number;
+  totalReplies: number;
+  nextRepliesCursor: number;
+}
+
+export interface CommentResponse {
+  comments: Comment[];
+  nextCursor: number | null;
+  hasMore: boolean;
 }

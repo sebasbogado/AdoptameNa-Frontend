@@ -1,4 +1,4 @@
-import { Post, UpdatePost } from "@/types/post";
+import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
@@ -81,7 +81,7 @@ export const updatePostById = async (
   }
 };
 
-export const postPosts = async (data: Post, token: string) => {
+export const createPost = async (data: CreatePost, token: string) => {
   try {
     const response = await axios.post(API_URL, data, {
       headers: {
@@ -99,7 +99,7 @@ export const postPosts = async (data: Post, token: string) => {
   }
 };
 
-export async function updatePost(id: string, postData: Post, token: string) {
+export async function updatePost(id: string, postData: UpdatePost, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, postData, {
       headers: {
@@ -113,7 +113,7 @@ export async function updatePost(id: string, postData: Post, token: string) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
-    throw new Error(error.message || "Error al crear Post");
+    throw new Error(error.message || "Error al editar Post");
   }
 }
 
@@ -131,6 +131,24 @@ export async function deletePost(id: string, token: string) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
-    throw new Error(error.message || "Error al crear Post");
+    throw new Error(error.message || "Error al eliminar Post");
+  }
+}
+
+export async function sharePost(id: string, token: string) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}/share`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al compartir Post");
   }
 }

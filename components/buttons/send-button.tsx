@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { Send } from "lucide-react";
 
 interface SendButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,7 +20,7 @@ const SendButton: React.FC<SendButtonProps> = ({ size = "md", className, ...prop
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props} onClick={props.onClick}>
-      <span className="material-symbols-outlined">send</span>
+      <Send className="w-6 h-6 " strokeWidth={2} />
     </button>
   );
 };

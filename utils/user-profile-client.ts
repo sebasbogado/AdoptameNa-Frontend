@@ -52,3 +52,17 @@ export const updateUserProfile = async (
     }
   }
 };
+
+export const getUserProfiles = async (queryParams?: any) => {
+  try {
+    const response = await axios.get(`${API_URL}/profiles`, {
+      params: queryParams,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener los perfiles");
+  }
+}

@@ -3,12 +3,14 @@ export interface User {
   fullName: string;
   email: string;
   role: string;
+  isProfileCompleted: boolean;
 }
 
 export interface AuthState {
   user: User | null;
   loading: boolean;
   authToken: string | null;
+  isProfileCompleted: boolean;
 }
 
 export interface LoginCredentials {
@@ -17,6 +19,7 @@ export interface LoginCredentials {
 }
 
 export interface AuthContextType extends AuthState {
+  updateUserProfileCompletion: (isCompleted: boolean) => void;
   login: (credentials: LoginCredentials) => Promise<boolean>;
   logout: () => void;
   loginWithGoogle: (code: string) => Promise<void>;

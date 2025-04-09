@@ -1,6 +1,6 @@
 import React from "react";
-import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { EllipsisVertical } from "lucide-react";
 
 interface MenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
@@ -17,7 +17,8 @@ const MenuButton: React.FC<MenuButtonProps> = ({ size = "md", className, ...prop
 
   return (
     <button className={clsx(baseStyles, sizes[size], className)} {...props}>
-      <EllipsisVerticalIcon className="w-5 h-5" />
+      <EllipsisVertical className="w-6 h-6 "  strokeWidth={2} />
+
     </button>
   );
 };

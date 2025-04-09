@@ -3,7 +3,7 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import axios from "axios";
 import rps from "@/services/request-password-service";

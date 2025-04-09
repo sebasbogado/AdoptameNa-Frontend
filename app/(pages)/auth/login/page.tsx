@@ -4,17 +4,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "@/validations/login-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleLoginButton from "@/components/buttons/google-login-button";
+import {  EyeIcon,  EyeOffIcon, Loader2Icon } from "lucide-react";
 
 export default function Login() {
   const { login, user, loading } = useAuth();
   const router = useRouter();
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -29,7 +31,7 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && user.isProfileCompleted) {
       router.push("/dashboard");
     }
   }, [user, loading, router]);
@@ -39,7 +41,7 @@ export default function Login() {
 
     try {
       await login(data);
-      router.push("/dashboard");
+      router.push("/auth/create-profile");
     } catch (error: any) {
       console.error("Error en login:", error);
 
@@ -89,12 +91,24 @@ export default function Login() {
 
           <div className="text-left">
             <label className="text-gray-700 font-medium text-sm block mb-1">Contraseña</label>
-            <input
-              type="password"
-              {...register("password")}
-              className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
+                disabled={isSubmitting}
+              />
+              <div
+                className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                 <EyeOffIcon  className="w-5 h-5"/>
+                ) : (
+                  <EyeIcon className="w-5 h-5"/>
+                )}
+              </div>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
             )}
@@ -115,10 +129,9 @@ export default function Login() {
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <Loader2Icon className=" animate-spin mr-2"
+                
+                  />
                   Procesando...
                 </div>
               ) : (

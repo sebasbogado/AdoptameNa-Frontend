@@ -2,6 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
 import { titleColor, titleText } from "../types/title"
+import { ChevronRight } from "lucide-react";
 
 interface TitleProps {
     title?: string;
@@ -18,9 +19,8 @@ const Title: React.FC<TitleProps> = ({ title, postType, path }) => {
         <Link href={path}>
             <div className="flex items-center px-10">
                 <h1 className={clsx(colorClass, "font-bold text-lg")}>{text}</h1>
-                <span className={clsx(colorClass, "material-symbols-outlined font-material")}>
-                    chevron_right
-                </span>
+                <ChevronRight className={clsx(colorClass, "w-5 h-5")} strokeWidth={2} />
+               
             </div>
         </Link>
     );

@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
-import { getPets } from "@/utils/pets.http";
+import { getPetsByStatusId } from "@/utils/pets.http";
 import { getAnimals } from "@/utils/animals.http";
 import LabeledSelect from "@/components/labeled-selected";
 import { Pet } from "@/types/pet";
-import { Post } from "@/types/post";
-import { getPosts } from "@/utils/posts.http";
+
 
 export default function Page() {
     const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
@@ -17,28 +16,18 @@ export default function Page() {
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [pets, setPets] = useState<Pet[]>([]);
-    const [posts, setPosts] = useState<Post[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const pets = await getPets();
-                const post = await getPosts({
-                    size: 500,
-                    postType: "adoption",
-
-                });
-                console.log("post", post);
+                const petData = await getPetsByStatusId(4);
+                console.log("pets", petData);
                 const animals = await getAnimals();
-
-                const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() == "adoption");
-                const filteredPets = pets.filter((pet: Pet) => pet.petStatusId === 12);
 
                 setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
                 setAnimals(animals);
-                setPets(filteredPets);
-                setPosts(filteredPosts);
+                setPets(petData);
             } catch (err: any) {
                 console.log(err.message);
             }
@@ -48,11 +37,11 @@ export default function Page() {
     }, []);
 
     // Combinar mascotas y posts
-    const combinedData = [...pets, ...posts];
+    const combinedData = [...pets];
     console.log("combinedData", combinedData);
 
     // Filtrar los datos combinados
-    const filteredData = combinedData.filter((item) => {
+    const filteredData = pets.filter((item) => {
         // Filtrar mascotas
         if ("isVaccinated" in item) {
             if (selectedVacunado && selectedVacunado !== "Todos") {
@@ -138,11 +127,7 @@ export default function Page() {
                         <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
                         filteredData.map((item) =>
-                            "isVaccinated" in item ? (
                                 <PetCard key={item.id} post={item} />
-                            ) : (
-                                <PetCard key={item.id} post={item} isPost />
-                            )
                         )
                     )}
                 </div>

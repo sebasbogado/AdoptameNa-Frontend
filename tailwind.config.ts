@@ -1,4 +1,5 @@
 import withMT from "@material-tailwind/react/utils/withMT";
+import { circle } from "leaflet";
 
 module.exports = withMT({
   content: [
@@ -6,7 +7,7 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  safelist: ["text-blog", "text-marketplace"],
+  safelist: ["text-blog", "text-marketplace", "text-found"],
   theme: {
     extend: {
       colors: {
@@ -40,6 +41,7 @@ module.exports = withMT({
         volunteering: "var(--color-volunteering)",
         blog: "var(--color-blog)",
         marketplace: "var(--color-marketplace)",
+        found: "var(--color-found)",
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
       },
@@ -52,9 +54,14 @@ module.exports = withMT({
         "0%, 100%": { opacity: "1" },
         "50%": { opacity: "0.3" },
       },
+      spin: {
+        from: { transform: "rotate(0deg)" },
+        to: { transform: "rotate(360deg)" },
+      },
     },
     animation: {
       pulse: "pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      spin: "spin 1s linear infinite",
     },
   },
   plugins: [require("tailwindcss-animate")],

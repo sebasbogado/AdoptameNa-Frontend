@@ -1,6 +1,7 @@
 "use client"
 
 import { User } from "@/types/auth"
+import { useRouter } from "next/navigation";
 
 
 interface UserAvatarProps {
@@ -10,9 +11,11 @@ interface UserAvatarProps {
 
 
 export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
+    const router = useRouter();
+
     const getColorFromName = (name: string) => {
         const colors = [
-            "bg-blue-500",
+            "bg-light-blue-500",
             "bg-green-500",
             "bg-purple-500",
             "bg-pink-500",
@@ -32,10 +35,12 @@ export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
         md: "w-10 h-10 text-sm",
         lg: "w-12 h-12 text-base"
     };
+    const handleProfileClick = () => {
+        router.push(`/profile/${user.id}`);
+    }
 
     return (
-        <div className={`${sizeClasses[size]} rounded-full overflow-hidden flex-shrink-0`}>
-
+        <div className={`${sizeClasses[size]} rounded-full overflow-hidden flex-shrink-0 hover:cursor-pointer `} onClick={handleProfileClick}>
             <div
                 className={`w-full h-full flex items-center justify-center ${getColorFromName(user.fullName)} text-white font-medium`}
             >

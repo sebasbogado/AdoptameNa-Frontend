@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useAuth } from '@/contexts/authContext';
+import { useAuth } from '@/contexts/auth-context';
 import { getFavorites } from '@/utils/favorites-posts.http';
 import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
@@ -87,7 +87,7 @@ export default function Page() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
           {favorites.length > 0 ? (
             favorites.map((fav) => (
-              <PetCard key={fav.post.id} post={fav.post} />
+              <PetCard key={fav.post.id} post={fav.post} isPost/>
             ))
           ) : (
             <p className="text-center col-span-full">

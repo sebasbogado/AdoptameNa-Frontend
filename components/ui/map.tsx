@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { Icon, LeafletMouseEvent } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useAppContext } from '@/contexts/appContext';
+import { useAppContext } from '@/contexts/app-context';
 
 import { MapProps } from '@/types/map-props';
 function MapMarker({ position, setPosition }: MapProps) {

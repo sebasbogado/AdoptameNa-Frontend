@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import clsx from "clsx";
 import Modal from "@/components/modal";
 import ReportForm from "@/components/report-form";
-import { useAuth } from "@/contexts/authContext";
+import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
+import { Ban } from "lucide-react";
 interface ReportButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
@@ -42,7 +43,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, ...
   return (
     <>
       <button className={clsx(baseStyles, sizes[size], className)} {...props} onClick={handleClick}>
-        <span className="material-symbols-outlined">block</span>
+        <Ban className="w-6 h-6 " strokeWidth={2} />
       </button>
       <Modal isOpen={modal} onClose={() => setModal(false)} title="Reportar contenido">
         <ReportForm handleClose={() => setModal(false)} />

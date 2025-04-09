@@ -1,17 +1,19 @@
 export enum titleColor {
-    adoption= "text-adoption",
-    missing= "text-missing",
-    volunteering= "text-volunteering",
-    blog= "text-blog",
-    marketplace= "text-marketplace",
+    Adopcion= "text-adoption",
+    Extraviados= "text-missing",
+    Voluntariado= "text-volunteering",
+    Blog= "text-blog",
+    Marketplace= "text-marketplace",
+    Encontrado= "text-found",
     default= "text-blue-gray-800"
 };
 
 export enum titleText {
-    adoption= "En adopción",
-    missing= "Extraviados",
-    volunteering= "Voluntariado",
-    blog= "Blog",
-    marketplace= "Tienda",
+    Adopcion= "En adopción",
+    Extraviados= "Extraviados",
+    Voluntariado= "Voluntariado",
+    Blog= "Blog",
+    Marketplace= "Tienda",
+    Encontrado= "Encontrados",
     default = "Título de sección"
 };
