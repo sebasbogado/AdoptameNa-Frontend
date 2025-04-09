@@ -18,7 +18,7 @@ interface PostButtonsProps {
     postId: string | undefined;
     isPet?: boolean;
     onShare?: () => void;
-    postIdUser?: number;
+    postIdUser?: number; //id user owner
 }
 
 
@@ -32,6 +32,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleShare = async () => {
         if (!postId) return;
@@ -99,13 +100,12 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 <TrashButton size="lg" onClick={handleDeletePost}/>
             )}
 
-
             {isOwner && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
             )}
-        
+
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (

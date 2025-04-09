@@ -5,25 +5,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import dynamic from 'next/dynamic';
 import Image from "next/image";
 import { MapProps } from "@/types/map-props";
-import { useAppContext } from "@/contexts/app-context";
 //import Axios from "@/utils/axiosInstace";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
 import { getBreed } from "@/utils/breed.http";
-import { postPets } from "@/utils/pets.http";
+import { getPet, postPets, updatePet } from "@/utils/pets.http";
 import { postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
 import { Maximize, Minimize } from "lucide-react";
 import { getPetStatuses } from "@/utils/pet-statuses.http";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
 import { ConfirmationModal } from "@/components/form/modal";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@material-tailwind/react";
-import { set } from "zod";
+import { Pet, UpdatePet } from "@/types/pet";
+import { useForm } from "react-hook-form";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -32,24 +31,24 @@ const MapWithNoSSR = dynamic<MapProps>(
 );
 
 const AdoptionForm = () => {
-
   const { authToken, user, loading: authLoading } = useAuth();
   const [animals, setAnimals] = useState<any[] | null>(null)
   const [breed, setBreed] = useState<any[] | null>(null)
   const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<any>(null);
+  const { petId } = useParams();
   const router = useRouter();
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const MAX_IMAGES = 1; //Tam max de imagenes
+  const MAX_IMAGES = 2; //Tam max de imagenes
   const {
     register,
     handleSubmit,
     watch,
-    setValue,
+    reset,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(petSchema),
@@ -71,24 +70,8 @@ const AdoptionForm = () => {
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState<PetFormValues>({
-    petStatusId: 0,
-    animalId: 0,
-    breedId: 0,
-    name: "",
-    birthdate: "",
-    description: "",
-    isVaccinated: false,
-    isSterilized: false,
-    gender: "MALE",
-    //edad: 0,
-    //peso: 0,
-  });
 
-  const openConfirmationModal = (data: PetFormValues) => {
-    setFormData(data); // Guardamos los datos validados
-    setIsModalOpen(true);
-  };
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -98,61 +81,80 @@ const AdoptionForm = () => {
     router.push("/profile");
   };
 
-  const getFromData = async () => {
+  useEffect(() => {
+    if (!authToken) return;
 
-    const respAnimals = await getAnimals({ size: 100, page: 0 })
-    if (respAnimals) {
-      console.log("Resultado Animals", respAnimals)
-      setAnimals(respAnimals)
-    }
-    const respBreed = await getBreed({ size: 100, page: 0 })
-    if (respBreed) {
-      console.log("Resultado Breed", respBreed)
-      setBreed(respBreed)
-    }
-    const respPetStatus = await getPetStatuses({ size: 100, page: 0 })
-    if (respPetStatus) {
-      console.log("Resultado PetStatus", respPetStatus)
-      setPetsStatus(respPetStatus)
-    }
-    const respImageSelected = await getPetStatuses({ size: 100, page: 0 })
-    if (respImageSelected) {
-      console.log("Resultado PetStatus", respImageSelected)
-      setPetsStatus(respImageSelected)
-    }
-  }
+    const fetchInitialData = async () => {
+      const [animalsRes, breedsRes, statusesRes] = await Promise.all([
+        getAnimals(),
+        getBreed(),
+        getPetStatuses()
+      ]);
+      setAnimals(animalsRes);
+      setBreed(breedsRes);
+      setPetsStatus(statusesRes);
+    };
+
+    fetchInitialData();
+  }, [authToken]);
 
   useEffect(() => {
-    getFromData()
-  }, [])
-
-  useEffect(() => {
-    if (petsStatus?.length && animals?.length && breed?.length) {
-      setValue("petStatusId", petsStatus[0].id);
-      setValue("animalId", animals[0].id);
-      setValue(
-        "breedId",
-        breed.find(b => b.animalId === animals[0].id)?.id || breed[0].id
-      );
-    }
-  }, [petsStatus, animals, breed, setValue]);
+    const fetchPet = async () => {
+      if (authLoading || !authToken || !user?.id || !petId) return;
+      if (!animals || !breed || !petsStatus) return;
+  
+      try {
+        const petData = await getPet(String(petId));
+        if (petData) {
+          reset({
+            petStatusId: petData.petStatusId || 0,
+            animalId: petData.animalId || 0,
+            breedId: petData.breedId || 0,
+            name: petData.name || "",
+            birthdate: petData.birthdate || "",
+            description: petData.description || "",
+            isVaccinated: petData.isVaccinated || false,
+            isSterilized: petData.isSterilized || false,
+            gender: petData.gender || "MALE",
+          });
+  
+          if (petData.addressCoordinates) {
+            const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
+            setPosition([lat, lng]);
+          }
+  
+          if (petData.urlPhoto) {
+            setSelectedImages([{
+              file: null,
+              url_API: petData.urlPhoto,
+              url: petData.urlPhoto
+            }]);
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar mascota:", error);
+        setErrorMessage("No se pudo cargar la información de la mascota.");
+      }
+    };
+  
+    fetchPet();
+  }, [authToken, authLoading, user?.id, petId, animals, breed, petsStatus, reset]);
+  
+  const openConfirmationModal = () => {
+    setIsModalOpen(true);
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
       // Verifica la cantidad de imagens que se pueden subir
-      if (selectedImages.length >= 1) {
-        setErrorMessage(`Solo puedes subir hasta 1 imágenes.`);
+      if (selectedImages.length >= 2) {
+        setErrorMessage(`Solo puedes subir hasta 2 imágenes.`);
         return;
       }
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
-      if (!allowedTypes.includes(file.type)) {
-        setErrorMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
-        return;
-      }
-      // Verificar el tamaño del archivo
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+      // Verificar el tamaño del archivo (1MB)
+      if (file.size > 1024 * 1024) {
+        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
         return;
       }
 
@@ -231,36 +233,31 @@ const AdoptionForm = () => {
 
   console.log("Selectimages- : ", selectedImages[0]);
 
-  const confirmSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-//    if (isSubmitting) return; // 🔒 Evita múltiples clics
+  const confirmSubmit = async () => {
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
-
+  
     try {
-      console.log(formData);
-
-      const params = {
-        ...formData, // Copia todas las propiedades de formData
+      const formValues = getValues();
+      
+      const updatedData = {
+        ...formValues,
         urlPhoto: selectedImages[0]?.url_API,
         userId: Number(user?.id),
-        addressCoordinates: `${position?.[0]}, ${position?.[1]}`
+        addressCoordinates: position ? `${position[0]},${position[1]}` : null,
       };
-
-      const response = await postPets(params, authToken);
+  
+      const response = await updatePet(String(petId), updatedData as UpdatePet, authToken);
       if (response) {
-        console.log("Guardado ", response);
-        setSuccessMessage("Se creó exitosamente")
+        setSuccessMessage("Se guardó exitosamente");
         setTimeout(() => router.push(`/pets/${response.id}`), 3500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
-      setErrorMessage("Error en la creación de pets")
+      setErrorMessage("Error en la edición de la mascota");
     }
-    
   };
 
   const arrayImages = selectedImages?.map(image => image?.url_API) || [];
@@ -301,7 +298,7 @@ const AdoptionForm = () => {
 
             <input
               type="file"
-              accept="image/png, image/jpeg, image/webp"
+              accept="image/*"
               multiple
               className="hidden"
               id="fileInput"
@@ -321,7 +318,7 @@ const AdoptionForm = () => {
         <div className="w-full max-w-2xl">
           <Card>
             <CardContent className="p-4">
-              <form onSubmit={handleSubmit(openConfirmationModal)}>
+              <form onSubmit={handleSubmit(() => openConfirmationModal())}>
                 <div className="w-full mb-2">
                   <label className="block mb-1">Estado de la mascota</label>
                   <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
@@ -403,7 +400,7 @@ const AdoptionForm = () => {
                 {/* Edad */}
                 <div className="mb-2">
                   <label className="block mb-1">Edad</label>
-                   <input type="number" className="w-full p-2 border rounded" /*{...register("edad", { valueAsNumber: true })}*/ />
+                  <input type="number" className="w-full p-2 border rounded" /*{...register("edad", { valueAsNumber: true })}*/ />
                   {/*{errors.edad && <p className="text-red-500">{errors.edad.message}</p>}*/}
                 </div>
 
@@ -441,7 +438,7 @@ const AdoptionForm = () => {
                       className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
                         }`}
                     >
-                      {isSubmitting ? "Creando..." : "Crear"}
+                      {isSubmitting ? "Creando..." : "Guardar"}
                     </Button>
                   </div>
                 </div>
@@ -470,7 +467,7 @@ const AdoptionForm = () => {
         <ConfirmationModal
           isOpen={isModalOpen}
           title="Confirmar creación"
-          message="¿Estás seguro de que deseas crear esta mascota?"
+          message="¿Estás seguro de que deseas guardar?"
           textConfirm="Confirmar"
           confirmVariant="cta"
           onClose={closeModal}
