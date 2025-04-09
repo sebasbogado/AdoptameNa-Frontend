@@ -44,16 +44,16 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                 response = await getPostComments(
                     referenceId,
                     cursor,
-                    20,
                     5,
+                    2,
                     authToken
                 );
             } else {
                 response = await getPetComments(
                     referenceId,
                     cursor,
-                    20,
                     5,
+                    2,
                     authToken
                 );
             }
