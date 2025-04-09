@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import dynamic from 'next/dynamic';
 import Image from "next/image";
 import { MapProps } from "@/types/map-props";
-import { useAppContext } from "@/contexts/app-context";
 //import Axios from "@/utils/axiosInstace";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
@@ -17,14 +16,13 @@ import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
 import { Maximize, Minimize } from "lucide-react";
 import { getPetStatuses } from "@/utils/pet-statuses.http";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
 import { ConfirmationModal } from "@/components/form/modal";
 import { useParams, useRouter } from "next/navigation";
 import { Alert } from "@material-tailwind/react";
-import { set } from "zod";
 import { Pet, UpdatePet } from "@/types/pet";
+import { useForm } from "react-hook-form";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -33,7 +31,6 @@ const MapWithNoSSR = dynamic<MapProps>(
 );
 
 const AdoptionForm = () => {
-
   const { authToken, user, loading: authLoading } = useAuth();
   const [animals, setAnimals] = useState<any[] | null>(null)
   const [breed, setBreed] = useState<any[] | null>(null)
@@ -42,7 +39,6 @@ const AdoptionForm = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<any>(null);
   const { petId } = useParams();
-  const [post, setPost] = useState<Pet | null>(null);
   const router = useRouter();
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -51,7 +47,8 @@ const AdoptionForm = () => {
     register,
     handleSubmit,
     watch,
-    setValue,
+    reset,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(petSchema),
@@ -73,24 +70,8 @@ const AdoptionForm = () => {
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState<PetFormValues>({
-    petStatusId: 0,
-    animalId: 0,
-    breedId: 0,
-    name: "",
-    birthdate: "",
-    description: "",
-    isVaccinated: false,
-    isSterilized: false,
-    gender: "MALE",
-    //edad: 0,
-    //peso: 0,
-  });
 
-  const openConfirmationModal = (data: PetFormValues) => {
-    setFormData(data); // Guardamos los datos validados
-    setIsModalOpen(true);
-  };
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -102,84 +83,66 @@ const AdoptionForm = () => {
 
   useEffect(() => {
     if (!authToken) return;
-    const fetchAnimals = async () => {
-      const result = await getAnimals();
-      setAnimals(result);
+
+    const fetchInitialData = async () => {
+      const [animalsRes, breedsRes, statusesRes] = await Promise.all([
+        getAnimals(),
+        getBreed(),
+        getPetStatuses()
+      ]);
+      setAnimals(animalsRes);
+      setBreed(breedsRes);
+      setPetsStatus(statusesRes);
     };
-    fetchAnimals();
+
+    fetchInitialData();
   }, [authToken]);
 
   useEffect(() => {
-    if (!authToken) return;
-    const fetchBreeds = async () => {
-      const result = await getBreed();
-      setBreed(result);
-    };
-    fetchBreeds();
-  }, [authToken]);
-
-  useEffect(() => {
-    if (!authToken) return;
-    const fetchStatuses = async () => {
-      const result = await getPetStatuses();
-      setPetsStatus(result);
-    };
-    fetchStatuses();
-  }, [authToken]);
-
-useEffect(() => {
-  const fetchPet = async () => {
-    if (authLoading || !authToken || !user?.id || !petId) return;
-    if (!animals || !breed || !petsStatus) return; // Espera que todo esté cargado
-
-    try {
-      const petData = await getPet(String(petId));
-      if (petData) {
-        setFormData({
-          petStatusId: petData.petStatusId || 0,
-          animalId: petData.animalId || 0,
-          breedId: petData.breedId || 0,
-          name: petData.name || "",
-          birthdate: petData.birthdate || "",
-          description: petData.description || "",
-          isVaccinated: petData.isVaccinated || false,
-          isSterilized: petData.isSterilized || false,
-          gender: petData.gender || "MALE",
-        });
-
-        // Setea los campos del form
-        setValue("petStatusId", petData.petStatusId || 0);
-        setValue("animalId", petData.animalId || 0);
-        setValue("breedId", petData.breedId || 0);
-        setValue("name", petData.name || "");
-        setValue("birthdate", petData.birthdate || "");
-        setValue("description", petData.description || "");
-        setValue("isVaccinated", petData.isVaccinated || false);
-        setValue("isSterilized", petData.isSterilized || false);
-        setValue("gender", petData.gender || "MALE");
-
-        if (petData.addressCoordinates) {
-          const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
-          setPosition([lat, lng]);
+    const fetchPet = async () => {
+      if (authLoading || !authToken || !user?.id || !petId) return;
+      if (!animals || !breed || !petsStatus) return;
+  
+      try {
+        const petData = await getPet(String(petId));
+        if (petData) {
+          reset({
+            petStatusId: petData.petStatusId || 0,
+            animalId: petData.animalId || 0,
+            breedId: petData.breedId || 0,
+            name: petData.name || "",
+            birthdate: petData.birthdate || "",
+            description: petData.description || "",
+            isVaccinated: petData.isVaccinated || false,
+            isSterilized: petData.isSterilized || false,
+            gender: petData.gender || "MALE",
+          });
+  
+          if (petData.addressCoordinates) {
+            const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
+            setPosition([lat, lng]);
+          }
+  
+          if (petData.urlPhoto) {
+            setSelectedImages([{
+              file: null,
+              url_API: petData.urlPhoto,
+              url: petData.urlPhoto
+            }]);
+          }
         }
-
-        if (petData.urlPhoto) {
-          setSelectedImages([{
-            file: null,
-            url_API: petData.urlPhoto,
-            url: petData.urlPhoto
-          }]);
-        }
+      } catch (error) {
+        console.error("Error al cargar mascota:", error);
+        setErrorMessage("No se pudo cargar la información de la mascota.");
       }
-    } catch (error) {
-      console.error("Error al cargar mascota:", error);
-      setErrorMessage("No se pudo cargar la información de la mascota.");
-    }
+    };
+  
+    fetchPet();
+  }, [authToken, authLoading, user?.id, petId, animals, breed, petsStatus, reset]);
+  
+  const openConfirmationModal = () => {
+    setIsModalOpen(true);
   };
-
-  fetchPet();
-}, [authToken, authLoading, user?.id, petId, animals, breed, petsStatus, setValue]);
-
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -270,38 +233,31 @@ useEffect(() => {
 
   console.log("Selectimages- : ", selectedImages[0]);
 
-  const confirmSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    //    if (isSubmitting) return; // Evita múltiples clics
-
+  const confirmSubmit = async () => {
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
-
-
+  
     try {
-      console.log(formData);
-
-      const updatedFormData = {
-        ...formData, // Copia todas las propiedades de formData
+      const formValues = getValues();
+      
+      const updatedData = {
+        ...formValues,
         urlPhoto: selectedImages[0]?.url_API,
         userId: Number(user?.id),
-        addressCoordinates: `${position?.[0]}, ${position?.[1]}`
+        addressCoordinates: position ? `${position[0]},${position[1]}` : null,
       };
-
-      const response = await updatePet(String(petId), updatedFormData as UpdatePet, authToken);
+  
+      const response = await updatePet(String(petId), updatedData as UpdatePet, authToken);
       if (response) {
-        console.log("Guardado ", response);
-        setSuccessMessage("Se guardó exitosamente")
+        setSuccessMessage("Se guardó exitosamente");
         setTimeout(() => router.push(`/pets/${response.id}`), 3500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
-      setErrorMessage("Error en la edición de pets")
+      setErrorMessage("Error en la edición de la mascota");
     }
-
   };
 
   const arrayImages = selectedImages?.map(image => image?.url_API) || [];
@@ -362,7 +318,7 @@ useEffect(() => {
         <div className="w-full max-w-2xl">
           <Card>
             <CardContent className="p-4">
-              <form onSubmit={handleSubmit(openConfirmationModal)}>
+              <form onSubmit={handleSubmit(() => openConfirmationModal())}>
                 <div className="w-full mb-2">
                   <label className="block mb-1">Estado de la mascota</label>
                   <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
