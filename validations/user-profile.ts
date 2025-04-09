@@ -53,7 +53,7 @@ export const profileSchema = z.object({
 
   address: z.string()
     .min(3, 'El address debe tener al menos 3 caracteres')
-    .regex(/^[a-zA-Z0-9\s,.-]+$/, 'El address solo puede contener letras, números y algunos caracteres especiales (espacio, punto, coma y guion)')
+    .regex(/^[a-zA-Z0-9\s,áéíóúÁÉÍÓÚñÑ.-]+$/, 'El address solo puede contener letras, números, acentos y algunos caracteres especiales (espacio, punto, coma y guion)')
     .max(255, 'El address debe tener máximo 255 caracteres')
     .or(z.literal(""))
     .nullable(),
