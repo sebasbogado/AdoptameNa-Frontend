@@ -10,7 +10,7 @@ import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
-import { postMedia } from "@/utils/media.http";
+import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import Banners from "@/components/banners";
@@ -44,8 +44,9 @@ export default function Page() {
     });
     const { authToken, user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [precautionMessage, setPrecautionMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [formData, setFormData] = useState<PostFormValues>({
@@ -61,11 +62,50 @@ export default function Page() {
     const [selectedImages, setSelectedImages] = useState<any[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
+    const MAX_IMAGES = 1; //Tam max de imagenes
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
         setValue("locationCoordinates", newPosition); // Actualiza el formulario
     };
+
+    const handleRemoveImage = async (index: number) => {
+        const imageToRemove = selectedImages[index];
+
+        if (!authToken) {
+            console.log("El token de autenticación es requerido");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            // Llamar a la API para eliminar la imagen
+            if (imageToRemove.url_API) {
+                await deleteMediaByUrl(imageToRemove.url_API, authToken);
+            }
+
+            // Eliminar del estado local
+            const updatedImages = selectedImages.filter((_, i) => i !== index);
+            setSelectedImages(updatedImages);
+
+            // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
+            if (updatedImages.length === 0) {
+                setValue("urlPhoto", "");
+                setFormData(prev => ({ ...prev, urlPhoto: "" }));
+            }
+
+            setSuccessMessage("Imagen eliminada exitosamente.");
+            setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
+
+        } catch (error) {
+            console.error("Error al eliminar la imagen", error);
+            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -78,7 +118,7 @@ export default function Page() {
             const data = await getPostsType();
             setPostTypes(data);
         } catch (error: any) {
-            setError(error.message);
+            console.log(error.message);
         } finally {
             setLoading(false);
         }
@@ -106,7 +146,7 @@ export default function Page() {
         };
 
         if (!authToken) {
-            setError("Usuario no autenticado");
+            console.log("Usuario no autenticado");
             setLoading(false);
             return;
         }
@@ -127,10 +167,10 @@ export default function Page() {
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
-                setError("Error al guardar publicación");
+                setErrorMessage("Error al guardar publicación");
             }
         } catch (error: any) {
-            setError("Error al crear la publicación");
+            setErrorMessage("Error al crear la publicación");
         } finally {
             setLoading(false);
         }
@@ -155,19 +195,40 @@ export default function Page() {
                 throw new Error("El token de autenticación es requerido");
             }
 
+            // Verifica la cantidad de imagens que se pueden subir
+            if (selectedImages.length >= 2) {
+                setPrecautionMessage("Solo puedes subir hasta 2 imágenes.");
+                return;
+            }
+            // Verificar el tamaño del archivo (1MB)
+            if (file.size > 1024 * 1024) {
+                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+                return;
+            }
+
             try {
+                setLoading(true);
                 const response = await postMedia(fileData, authToken);
 
                 if (response) {
-                    setValue("urlPhoto", response.url); // Actualiza react-hook-form
-                    setFormData(prev => ({ ...prev, urlPhoto: response.url })); // Sincroniza con formData
+                    const { id, url } = response;
+                    setValue("urlPhoto", url); // Actualiza react-hook-form
+                    setFormData(prev => ({ ...prev, urlPhoto: url })); // Sincroniza con formData
                     setSelectedImages(prevImages => [
                         ...prevImages,
-                        { file, url_API: response.url, url: URL.createObjectURL(file) }
+                        {
+                            id,
+                            file,
+                            url_API: url,
+                            url: URL.createObjectURL(file)
+                        }
                     ]);
                 }
             } catch (error) {
+                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
                 console.error("Error al subir la imagen", error);
+            } finally {
+                setLoading(false);
             }
         }
     };
@@ -184,28 +245,57 @@ export default function Page() {
                             src={src.url}
                             alt="pet"
                             fill
-                            className={`object-cover rounded-md transition-all duration-200 hover:scale-110 ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
                             onClick={() => setCurrentImageIndex(index)}
                         />
+                        {/* Botón de eliminación */}
+                        <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+                            title="Eliminar imagen"
+                        >
+                            ✕
+                        </button>
                     </div>
                 ))}
                 <input
                     type="file"
                     accept="image/*"
                     multiple
-                    className="hidden object-cover rounded-md transition-all duration-200 hover:scale-110"
+                    className="hidden"
                     id="fileInput"
                     onChange={handleImageUpload}
+                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
                 />
                 <label
                     htmlFor="fileInput"
-                    className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 transition bg-white"
+                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                        } bg-white`}
                 >
-                    <ImagePlus size={20} className="text-blue-500" />
+                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
                 </label>
             </div>
 
-            {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+            {errorMessage && (
+                <div>
+                    <Alert
+                        color="red"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setErrorMessage("")}>
+                        {errorMessage}
+                    </Alert>
+                </div>
+            )}
+            {precautionMessage && (
+                <div>
+                    <Alert
+                        color="orange"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setPrecautionMessage("")}>
+                        {precautionMessage}
+                    </Alert>
+                </div>
+            )}
             {successMessage && (
                 <div>
                     <Alert
