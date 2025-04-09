@@ -12,22 +12,26 @@ import { Post } from '@/types/post'
 
 import { Section } from '@/components/section'
 import Link from 'next/link'
+import { Pet } from '@/types/pet'
+import { getPets } from '@/utils/pets.http'
 
 type FetchContentDataParams = {
+    setPets: React.Dispatch<React.SetStateAction<Pet[]>>;
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     setError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 
-const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContentDataParams) => {
+const fetchContentData = async ({ setPets, setPosts, setLoading, setError }: FetchContentDataParams) => {
 
     try {
         const queryParam = {
             size: 50,
-
         }
         const postData = await getPosts(queryParam);
+        const petData = await getPets();
+        setPets(Array.isArray(petData) ? petData : []);
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
         console.error("Error al cargar contenido:", err);
@@ -37,13 +41,13 @@ const fetchContentData = async ({ setPosts, setLoading, setError }: FetchContent
     }
 };
 
-
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     useEffect(() => {
-        fetchContentData({ setPosts, setLoading, setError });
+        fetchContentData({ setPets, setPosts, setLoading, setError });
     }, []);
 
 
@@ -57,11 +61,12 @@ export default function Page() {
             <Section
                 title='En adopcion'
                 path='adoption'
-                postTypeName="adoption"
-                items={posts}
+                postTypeName="Adopcion"
+                petStatusId={4}
+                items={pets}
                 loading={loading}
                 error={error}
-                itemType='post'>
+                itemType='pet'>
             </Section>
 
 
@@ -69,13 +74,26 @@ export default function Page() {
             <Section
                 title='Extraviados'
                 path='missing'
-                postTypeName="missing"
-                items={posts}
+                postTypeName="Extraviados"
+                petStatusId={1}
+                items={pets}
                 loading={loading}
                 error={error}
                 filterByType={true}
-                itemType='post'>
+                itemType='pet'>
+            </Section>
 
+            {/* Sección de Desaparecidos */}
+            <Section
+                title='Encontrados'
+                path='founds'
+                postTypeName="Encontrado"
+                petStatusId={2}
+                items={pets}
+                loading={loading}
+                error={error}
+                filterByType={true}
+                itemType='pet'>
             </Section>
 
             {/* Sección de Voluntariado */}
@@ -83,7 +101,7 @@ export default function Page() {
                 title='Voluntariado'
                 itemType='post' filterByType={true}
                 path='volunteering'
-                postTypeName="volunteering"
+                postTypeName="Voluntariado"
                 items={posts}
                 loading={loading}
                 error={error}>
@@ -96,7 +114,7 @@ export default function Page() {
                 path='blog'
                 itemType='post'
                 filterByType={true}
-                postTypeName="blog"
+                postTypeName="Blog"
                 items={posts}
                 loading={loading}
                 error={error}>
@@ -109,7 +127,7 @@ export default function Page() {
                 path='marketplace'
                 itemType='post'
                 filterByType={true}
-                postTypeName="marketplace"
+                postTypeName="Marketplace"
                 items={posts}
                 loading={loading}
                 error={error}>

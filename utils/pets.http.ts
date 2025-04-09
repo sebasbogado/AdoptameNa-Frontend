@@ -72,6 +72,22 @@ export const getPets = async (): Promise<Pet[]> => {
   }
 };
 
+export const getPetsByStatusId = async (statusId: number): Promise<Pet[]> => {
+  try {
+    const response = await axios.get(`${API_URL}/byPetStatus/${statusId}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+};
 export async function updatePet(id: string, petData: UpdatePet, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, petData, {
