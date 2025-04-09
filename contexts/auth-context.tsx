@@ -15,7 +15,17 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
+  const updateUserProfileCompletion = (isCompleted: boolean): void => {
+    if (user) {
+      const updatedUser = { ...user, isProfileCompleted: isCompleted };
+      setUser(updatedUser);
 
+      // Guardar el usuario actualizado en localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userData', JSON.stringify(updatedUser));
+      }
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -89,7 +99,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion }}>
       {children}
     </AuthContext.Provider>
   );
