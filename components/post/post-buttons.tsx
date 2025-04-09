@@ -22,15 +22,15 @@ interface PostButtonsProps {
     postIdUser?: number;
 }
 
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
-    const isEditing = postIdUser === user?.id;
+    const isOwner = postIdUser === user?.id;
     const [copied, setCopied] = useState(false);
     const router = useRouter();
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
-    const [isEditing, setIsEditing] = useState(false);
 
     const handleShare = async () => {
         if (!postId) return;
@@ -94,14 +94,15 @@ interface PostButtonsProps {
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
+            {isOwner && (
+                <TrashButton size="lg" onClick={handleDeletePost}/>
+            )}
 
-            <TrashButton size="lg" onClick={handleDeletePost}/>
-
-            {isEditing && (
-                <Link href={`\/edit-post/${postId}`}>
+            {isOwner && (
+                <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
-                )}
+            )}
 
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
