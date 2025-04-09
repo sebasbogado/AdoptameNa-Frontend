@@ -31,8 +31,8 @@ export default function Login() {
   });
 
   useEffect(() => {
-    if (user && !loading) {
-      router.push("/auth/create-profile");
+    if (user && !loading && user.isProfileCompleted) {
+      router.push("/dashboard");
     }
   }, [user, loading, router]);
 

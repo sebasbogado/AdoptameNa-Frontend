@@ -93,11 +93,14 @@ export default function CreateProfilePage() {
     }
   };
   useEffect(() => {
-    console.log(user?.isProfileCompleted)
+    if (!user) {
+      router.push("/auth/login");
+    }
+  
     if (user?.isProfileCompleted) {
-      
-      router.push("/profile");
       setLoading(false);  // Termina el loading si el perfil ya está completo
+
+      router.push("/profile");
     } else {
       setLoading(false);  // Mantiene el loading mientras verificamos
     }
@@ -105,8 +108,8 @@ export default function CreateProfilePage() {
   if (authLoading || loading) {
     return Loading();
   }
-
-
+  
+ 
   return (
     <div className="w-screen  flex justify-center items-center relative">
       <div className="w-full max-w-lg  p-8 bg-white text-center">
