@@ -23,6 +23,7 @@ import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileEditSchema, profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
+import PostLocationMap from '@/components/post/post-location-map';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -197,11 +198,6 @@ export default function ProfilePage() {
         window.location.href = mailtoUrl;
     };
 
-    const handleWhatsAppClick = () => {
-        const phoneNumber = userProfile?.phoneNumber;
-        const url = `https://wa.me/${phoneNumber}`;
-        window.open(url, '_blank');  // Esto abrirá WhatsApp en una nueva pestaña
-    };
 
     const validateProfile = (profileData: UpdateUserProfile) => {
         const result = profileEditSchema.safeParse(profileData);
@@ -247,6 +243,7 @@ export default function ProfilePage() {
                         isDisable={!isEditing}
                         validationErrors={validationErrors}
                     />
+
                     {/* Action Buttons */}
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <EditButton
@@ -267,6 +264,11 @@ export default function ProfilePage() {
                
                         )}
                     </div>
+                    <div className='w-[40vw] mt-[-70px] '>
+                    <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
+
+                    </div>
+
                     {/* Pets Section */}
                     <Section
                         title="Mis Mascotas"
@@ -283,7 +285,7 @@ export default function ProfilePage() {
                     <Section
                         title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
                         itemType="post"
-                        postTypeName="adoption"
+                        postTypeName="Adopcion"
                         path={`/profile/my-posts/${user.id}`}
                         items={posts}
                         loading={loading}

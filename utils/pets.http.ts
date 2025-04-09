@@ -1,4 +1,4 @@
-import { Pet } from "@/types/pet";
+import { Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
@@ -104,4 +104,21 @@ export const getPetsByStatusId = async (statusId: number): Promise<Pet[]> => {
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
-  
+
+export async function updatePet(id: string, petData: UpdatePet, token: string) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, petData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("Mascota no encontrada");
+    }
+    throw new Error(error.message || "Error al actualizar mascota");
+  }
+}

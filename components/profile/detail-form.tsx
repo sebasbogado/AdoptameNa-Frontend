@@ -3,6 +3,7 @@
 import { User } from "@/types/auth";
 import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
+import { MapPin, PhoneIcon } from "lucide-react";
 import React from "react";
 
 interface InputProps {
@@ -27,9 +28,8 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
           type="text"
           disabled={isDisable}
           value={userProfile?.fullName ?? ""}
-          className={`text-5xl font-black bg-transparent border-2 ${
-            !isDisable ? "border-blue" : "border-transparent"
-          } focus:outline-none w-full`}
+          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            } focus:outline-none w-full`}
           onChange={(e) => handleInputChange("fullName", e.target.value)}
         />
         {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
@@ -40,13 +40,51 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
         {/* Descripción */}
         <textarea
           disabled={isDisable}
-          value={userProfile?.description ?? ""}
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${
-            !isDisable ? "border-blue" : "border-transparent"
-          } focus:outline-none w-full resize-none`}
+          value={
+            isDisable && !userProfile?.description
+              ? "Sin descripción"
+              : userProfile?.description ?? ""
+          }
+          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            } focus:outline-none w-full resize-none`}
           onChange={(e) => handleInputChange("description", e.target.value)}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
+        {/* Teléfono */}
+        {!isDisable && (
+          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+        )}
+
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
+          {isDisable && <PhoneIcon className="text-gray-500" />}
+          <input
+            type="text"
+            disabled={isDisable}
+            value={userProfile?.phoneNumber ?? ""}
+            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+              } focus:outline-none w-full`}
+            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+          />
+          {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
+
+        </div>
+         {/* Direccion */}
+         {!isDisable && (
+          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+        )}
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
+          {isDisable && <MapPin className="text-gray-500" />}
+          <input
+            type="text"
+            disabled={isDisable}
+            value={userProfile?.address ?? ""}
+            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+              } focus:outline-none w-full`}
+            onChange={(e) => handleInputChange("address", e.target.value)}
+          />
+          {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
+        </div>
+
       </form>
     </div>
   );

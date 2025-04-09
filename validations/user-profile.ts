@@ -16,6 +16,19 @@ export const descriptionSchema = z
 export const profileEditSchema = z.object({
   description: descriptionSchema,
   fullName: fullNameSchema,
+  
+  phoneNumber: z
+    .string()
+    .regex(/^\d{9,10}$/, "El número debe tener entre 9 y 10 dígitos numéricos")
+    .or(z.literal(""))
+    .nullable()
+  ,
+  address: z.string()
+  .min(3, 'El address debe tener al menos 3 caracteres')
+  .regex(/^[a-zA-Z0-9\s,áéíóúÁÉÍÓÚñÑ.-]+$/, 'El address solo puede contener letras, números, acentos y algunos caracteres especiales (espacio, punto, coma y guion)')
+  .max(255, 'El address debe tener máximo 255 caracteres')
+  .or(z.literal(""))
+  .nullable(),
 })
 export const profileSchema = z.object({
   gender: z.enum(['MALE', 'FEMALE', 'OTHER'], {
