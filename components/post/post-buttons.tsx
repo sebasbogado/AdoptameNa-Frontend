@@ -8,8 +8,11 @@ import { useAuth } from "@/contexts/auth-context";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
+import TrashButton from "../buttons/trash-button";
 import EditButton from "../buttons/edit-button";
-import Link from "next/link";
+import { deletePost } from "@/utils/posts.http";
+import { useRouter } from "next/navigation";
+import  Link  from "next/link";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -18,10 +21,13 @@ interface PostButtonsProps {
     postIdUser?: number; //id user owner
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
-    const { authToken, user } = useAuth();
-    const [copied, setCopied] = useState(false);
 
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
+
+    const { authToken, user } = useAuth();
+    const isOwner = postIdUser === user?.id;
+    const [copied, setCopied] = useState(false);
+    const router = useRouter();
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
@@ -47,6 +53,26 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         }
     };
 
+    const handleDeletePost = async () => {
+        if (!authToken) {
+            setErrorMessage("Debes estar logeado para eliminar una mascota.");
+            return;
+        }
+
+        const confirmDelete = confirm("¿Estás seguro de que quieres eliminar esta mascota?");
+        if (!confirmDelete) return;
+
+        try {
+            await deletePost(String(postId), authToken);
+            setSuccessMessage("Mascota eliminada correctamente.");
+            router.push("/profile");
+
+
+        } catch (error) {
+            console.error("Error al eliminar mascota:", error);
+            setErrorMessage("Ocurrió un error al eliminar la mascota.");
+        }
+    };
     const handleFavoriteClick = async () => {
         if (!authToken) {
             setErrorMessage("¡Necesitas estar logeado para agregar a favoritos!");
@@ -70,10 +96,11 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
-            {/* <Link href={`\/edit-pets/${postId}`}>
-                <EditButton size="lg" isEditing={false} />
-            </Link> */}
-            {isEditing && (
+            {isOwner && (
+                <TrashButton size="lg" onClick={handleDeletePost}/>
+            )}
+
+            {isOwner && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
