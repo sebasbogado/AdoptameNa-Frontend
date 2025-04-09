@@ -10,25 +10,34 @@ import { usePathname } from "next/navigation";
 interface SectionProps {
     title: string;
     postTypeName?: keyof typeof titleText;
+    petStatusId?: number | string;
     path: string;
     items: (Post | Pet)[];
     loading: boolean;
     error: Boolean;
     filterByType?: boolean;
     itemType: "post" | "pet"; // Nuevo prop para diferenciar el tipo de item
+
 }
 
-export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType }: SectionProps) {
+export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType, petStatusId }: SectionProps) {
     const pathName = usePathname()
-    const filteredItems = (filterByType && itemType === "post"
+    const filteredItems = (filterByType
         ? items.filter((item) => {
-            if ("postType" in item && item.postType.name === postTypeName) {
-                return true;
+            if (itemType === "post" && "postType" in item) {
+              return item.postType.name === postTypeName;
             }
-            return false;
-        })
+            
+            if (itemType === "pet" && "petStatusId" in item) {
+              return item.petStatusId === petStatusId;
+            }
+            
+      
+            return true;
+          })
         : items
-    )
+      );
+
     const limitedItems = itemType === "pet" ? filteredItems.slice(0, 4) : filteredItems.slice(0, 5);
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
