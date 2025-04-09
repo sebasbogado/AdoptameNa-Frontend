@@ -20,7 +20,6 @@ interface PostButtonsProps {
 
 const PostButtons = ({ isPet = false, postId, onShare, postIdUser}: PostButtonsProps) => {
     const { authToken, user } = useAuth();
-    const isEditing = postIdUser === user?.id;
     const [copied, setCopied] = useState(false);
 
     const [successMessage, setSuccessMessage] = useState("");
