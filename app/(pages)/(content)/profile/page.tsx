@@ -21,7 +21,7 @@ import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { profileSchema } from '@/validations/user-profile';
+import { profileEditSchema, profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 const getUserProfileData = async (
 
@@ -204,7 +204,7 @@ export default function ProfilePage() {
     };
 
     const validateProfile = (profileData: UpdateUserProfile) => {
-        const result = profileSchema.safeParse(profileData);
+        const result = profileEditSchema.safeParse(profileData);
         if (!result.success) {
             const errors: Record<string, string> = {};
             result.error.errors.forEach(err => {

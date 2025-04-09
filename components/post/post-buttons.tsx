@@ -9,16 +9,16 @@ import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 import EditButton from "../buttons/edit-button";
-import  Link  from "next/link";
+import Link from "next/link";
 
 interface PostButtonsProps {
     postId: string | undefined;
     isPet?: boolean;
     onShare?: () => void;
-    postIdUser?: number;
+    postIdUser?: number; //id user owner
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser}: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const isEditing = postIdUser === user?.id;
     const [copied, setCopied] = useState(false);
@@ -70,11 +70,14 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser}: PostButtonsP
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
+            {/* <Link href={`\/edit-pets/${postId}`}>
+                <EditButton size="lg" isEditing={false} />
+            </Link> */}
             {isEditing && (
-                <Link href={`\/edit-post/${postId}`}>
+                <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
-                )}
+            )}
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (

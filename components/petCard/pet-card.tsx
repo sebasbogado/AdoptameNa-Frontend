@@ -78,7 +78,7 @@ export default function PetCard({ post, className, isPost, isMyPet, onDelete }: 
       };
 
     return (
-        <div className={clsx("w-64 h-[19rem] rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
+        <div className={clsx("w-64 h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
             <div className="relative">
                 {successMessage && (
                     <Alert
