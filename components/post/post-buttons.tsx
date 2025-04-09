@@ -78,6 +78,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                     <EditButton size="lg" isEditing={false} />
                 </Link>
             )}
+
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (
