@@ -45,14 +45,11 @@ export const profileSchema = z.object({
     .nullable()
   ,
 
-  addressCoordinates: z
-    .tuple([
-      z.number().min(-90).max(90, "Latitud inválida"),
-      z.number().min(-180).max(180, "Longitud inválida"),
-    ])
-    .refine(([lat, lng]) => lat !== 0 && lng !== 0, {
-      message: "Debe seleccionar una ubicación en el mapa",
-    }),
+
+  addressCoordinates: 
+  z.array(z.number()).
+  length(2, "Las coordenadas deben tener latitud y longitud")
+  .optional(),
 
   address: z.string()
     .min(3, 'El address debe tener al menos 3 caracteres')

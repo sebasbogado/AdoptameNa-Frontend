@@ -28,12 +28,15 @@ export const CreateProfile = ({
 }: CreateProfileProps) => {
     const [position, setPosition] = useState<[number, number] | null>(null);
 
-    const handlePositionChange = (newPosition: [number, number]) => {
-        
+    const handlePositionChange = (newPosition: [number, number] | null) => {
         setPosition(newPosition); // Actualiza el estado local
-        setValue("addressCoordinates", newPosition); // Actualiza el formulario
-        
+        if (newPosition) {
+            setValue("addressCoordinates", newPosition); // Actualiza el formulario con la nueva posición
+        } else {
+            setValue("addressCoordinates", undefined); // Limpia las coordenadas si no se selecciona una ubicación
+        }
     };
+
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">

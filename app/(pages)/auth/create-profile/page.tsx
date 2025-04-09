@@ -42,6 +42,7 @@ export default function CreateProfilePage() {
   useEffect(() => {
     if (user) {
       reset({
+        
         fullName: user.fullName || "",
         phoneNumber: null,
         address: null,
@@ -64,7 +65,7 @@ export default function CreateProfilePage() {
   
     updateProfile({
       ...data,
-      addressCoordinates: data.addressCoordinates.join(",") || "",
+      addressCoordinates: data.addressCoordinates?.join(",") ?? "",
       birthdate: formattedBirthdate,
       description: data.description || "",
       organizationName: "",
@@ -76,6 +77,7 @@ export default function CreateProfilePage() {
   };
   const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
     if (authLoading || !authToken || !user?.id) return;
+    console.log(user.isProfileCompleted)
     setError("");
     try {
       console.log("Actualizando perfil con:", profileToUpdate); // Verificar aquí
@@ -91,10 +93,13 @@ export default function CreateProfilePage() {
     }
   };
   useEffect(() => {
+    console.log(user?.isProfileCompleted)
     if (user?.isProfileCompleted) {
-      setLoading(false);  
-
+      
       router.push("/profile");
+      setLoading(false);  // Termina el loading si el perfil ya está completo
+    } else {
+      setLoading(false);  // Mantiene el loading mientras verificamos
     }
   }, [user, router]);
   if (authLoading || loading) {

@@ -32,7 +32,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user && !loading) {
-      router.push("/dashboard");
+      router.push("/auth/create-profile");
     }
   }, [user, loading, router]);
 
@@ -41,7 +41,7 @@ export default function Login() {
 
     try {
       await login(data);
-      router.push("/dashboard");
+      router.push("/auth/create-profile");
     } catch (error: any) {
       console.error("Error en login:", error);
 

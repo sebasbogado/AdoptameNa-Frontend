@@ -10,6 +10,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
   authToken: string | null;
+  isProfileCompleted: boolean;
 }
 
 export interface LoginCredentials {

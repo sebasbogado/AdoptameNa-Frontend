@@ -19,10 +19,10 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     if (user) {
       const updatedUser = { ...user, isProfileCompleted: isCompleted };
       setUser(updatedUser);
-
+  
       // Guardar el usuario actualizado en localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('userData', JSON.stringify(updatedUser));
+        localStorage.setItem('userData', JSON.stringify(updatedUser));  // Esto debe guardar correctamente el nuevo estado
       }
     }
   };
@@ -31,10 +31,17 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('authToken');
       const userData = localStorage.getItem('userData');
-
+  
       if (token && userData) {
         try {
-          setUser(JSON.parse(userData));
+          const parsedUser = JSON.parse(userData);
+  
+          // Solo asignar false si isProfileCompleted es undefined, no si es null
+          if (parsedUser.isProfileCompleted === undefined) {
+            parsedUser.isProfileCompleted = false;
+          }
+  
+          setUser(parsedUser);
           setAuthToken(token);
         } catch (e) {
           localStorage.removeItem('authToken');
@@ -99,7 +106,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion,  isProfileCompleted: user?.isProfileCompleted ?? false  }}>
       {children}
     </AuthContext.Provider>
   );
