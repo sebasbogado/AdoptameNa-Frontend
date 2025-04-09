@@ -382,7 +382,7 @@ const AdoptionForm = () => {
                 </div>
 
                 {/* isVaccinated */}
-                <label className="block mb-1">¿Está isVaccinated?</label>
+                <label className="block mb-1">¿Está Vacunado?</label>
                 <div className="flex gap-2 items-center mb-2">
                   <label>Sí</label>
                   <input type="checkbox" {...register("isVaccinated")} />
@@ -390,7 +390,7 @@ const AdoptionForm = () => {
                 </div>
 
                 {/* isSterilized */}
-                <label className="block mb-1">¿Está isSterilized?</label>
+                <label className="block mb-1">¿Está Esterilizado?</label>
                 <div className="flex gap-2 items-center mb-2">
                   <label>Sí</label>
                   <input type="checkbox" {...register("isSterilized")} />
