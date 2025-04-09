@@ -20,13 +20,13 @@ interface PostButtonsProps {
 
 const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
-    const isEditing = postIdUser === user?.id;
     const [copied, setCopied] = useState(false);
 
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleShare = async () => {
         if (!postId) return;
