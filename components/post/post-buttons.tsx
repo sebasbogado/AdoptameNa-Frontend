@@ -14,7 +14,6 @@ import { deletePost } from "@/utils/posts.http";
 import { useRouter } from "next/navigation";
 import  Link  from "next/link";
 
-
 interface PostButtonsProps {
     postId: string | undefined;
     isPet?: boolean;
@@ -22,7 +21,9 @@ interface PostButtonsProps {
     postIdUser?: number;
 }
 
+
 const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
+
     const { authToken, user } = useAuth();
     const isOwner = postIdUser === user?.id;
     const [copied, setCopied] = useState(false);
@@ -98,12 +99,13 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 <TrashButton size="lg" onClick={handleDeletePost}/>
             )}
 
+
             {isOwner && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
             )}
-
+        
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (
