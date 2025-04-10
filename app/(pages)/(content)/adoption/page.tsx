@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
-import { getPetsByStatusId } from "@/utils/pets.http";
+import { getPets } from "@/utils/pets.http";
 import { getAnimals } from "@/utils/animals.http";
 import LabeledSelect from "@/components/labeled-selected";
 import { Pet } from "@/types/pet";
@@ -21,8 +21,11 @@ export default function Page() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const petData = await getPetsByStatusId(4);
-                console.log("pets", petData);
+                const queryParam = {
+                    size: 50,
+                    petStatusId: 4,
+                }
+                const petData = await getPets(queryParam);
                 const animals = await getAnimals();
 
                 setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
