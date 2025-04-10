@@ -17,14 +17,13 @@ export default function Page() {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const post = await getPosts({
+                const postData = await getPosts({
                     page: currentPage,
                     size: pageSize,
-                    postType: "volunteering",
+                    postType: "Voluntariado",
                 });
 
-                const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() === "volunteering");
-                setPosts(filteredPosts);
+                setPosts(postData);
             } catch (err: any) {
                 console.log(err.message);
             } finally {
