@@ -30,7 +30,7 @@ const fetchContentData = async ({ setPets, setPosts, setLoading, setError }: Fet
             size: 50,
         }
         const postData = await getPosts(queryParam);
-        const petData = await getPets();
+        const petData = await getPets(queryParam);
         setPets(Array.isArray(petData) ? petData : []);
         setPosts(Array.isArray(postData) ? postData : []);
     } catch (err) {
