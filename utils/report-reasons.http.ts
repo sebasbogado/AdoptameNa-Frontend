@@ -11,7 +11,7 @@ export const getReportReasons = async (queryParams?:any) => {
       },
     });
 
-    return response.data;
+    return response.data.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
