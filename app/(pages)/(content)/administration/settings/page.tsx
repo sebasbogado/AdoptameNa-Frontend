@@ -265,7 +265,7 @@ export default function page() {
           <Modal isOpen={modalPetStatus} onClose={() => setModalPetStatus(false)} title={petStatusSelected.id === 0 ? "Crear estado" : "Editar estado"}>
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
-          <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Report reason">
+          <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Motivo de Reporte">
             <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected}/>
           </Modal>
 
