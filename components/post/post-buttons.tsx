@@ -26,7 +26,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const [errorMessage, setErrorMessage] = useState("");
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
-    const [isEditing, setIsEditing] = useState(false);
+    const isEditing = user?.id === postIdUser;
 
     const handleShare = async () => {
         if (!postId) return;
@@ -70,9 +70,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
-            {/* <Link href={`\/edit-pets/${postId}`}>
-                <EditButton size="lg" isEditing={false} />
-            </Link> */}
             {isEditing && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />

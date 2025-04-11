@@ -90,9 +90,9 @@ const AdoptionForm = () => {
         getBreed(),
         getPetStatuses()
       ]);
-      setAnimals(animalsRes);
-      setBreed(breedsRes);
-      setPetsStatus(statusesRes);
+      setAnimals(animalsRes.data);
+      setBreed(breedsRes.data);
+      setPetsStatus(statusesRes.data);
     };
 
     fetchInitialData();
