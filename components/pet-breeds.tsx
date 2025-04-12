@@ -75,7 +75,7 @@ export default function PetBreeds({
       try {
         const data = await getAnimals();
         if (data) {
-          setAnimals(data);
+          setAnimals(data.data);
         }
       } catch (error) {
         console.error("Error al cargar los animales.");
@@ -94,7 +94,7 @@ export default function PetBreeds({
       try {
         const data = await getBreeds();
         if (data) {
-          setBreeds(data);
+          setBreeds(data.data);
         }
       } catch (error) {
         console.error("Error al cargar las razas.");
