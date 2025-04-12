@@ -12,7 +12,7 @@ export const getPostsType = async (queryParams?: any) => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
