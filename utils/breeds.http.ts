@@ -9,7 +9,7 @@ export const getBreeds = async (page: number = 0, size: number = 25) => {
         Accept: "application/json",
       },
     });
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error fetching breeds:", error);
     throw error;
