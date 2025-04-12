@@ -91,7 +91,7 @@ export default function Page() {
     const fetchPostTypes = async () => {
         try {
             const data = await getPostsType();
-            setPostTypes(data);
+            setPostTypes(data.data);
         } catch (error: any) {
             setError(error.message);
         } finally {
