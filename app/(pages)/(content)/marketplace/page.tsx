@@ -14,17 +14,17 @@ export default function Page() {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const marketData = await getPosts();
-                const marketDataFiltered = marketData.filter(
-                    (item) => item.postType.name === "Marketplace"
-                );
-                setPostsMarket(marketDataFiltered);
-            } catch (err: any) {
-                console.log(err.message);
-            } finally {
-                setLoading(false); // Marca que ya terminó de cargar
-            }
+          try {
+            const response: any = await getPosts();
+            const marketDataFiltered = response.data.filter(
+              (item: { postType: { name: string; }; }) => item.postType.name === "Marketplace"
+            );
+            setPostsMarket(marketDataFiltered);
+          } catch (err: any) {
+            console.log(err.message);
+          } finally {
+            setLoading(false);
+          }
         };
 
         fetchData();

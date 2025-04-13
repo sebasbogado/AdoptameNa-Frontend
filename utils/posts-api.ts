@@ -30,7 +30,7 @@ api.interceptors.request.use(
 export const getPosts = async (): Promise<Post[]> => {
   try {
     const response = await api.get("/posts");
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Error al obtener los posts:", error);
     return [];
