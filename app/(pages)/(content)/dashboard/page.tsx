@@ -32,8 +32,8 @@ const fetchContentData = async ({ setPets, setPosts, setLoading, setError }: Fet
         }
         const postData = await getPosts(queryParam);
         const petData = await getPets(queryParam);
-        setPets(Array.isArray(petData) ? petData : []);
-        setPosts(Array.isArray(postData) ? postData : []);
+        setPets(Array.isArray(petData) ? petData.reverse() : []);
+        setPosts(Array.isArray(postData) ? postData.reverse() : []);
     } catch (err) {
         console.error("Error al cargar contenido:", err);
         setError(true);
