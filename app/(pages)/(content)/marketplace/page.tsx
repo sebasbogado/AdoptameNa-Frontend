@@ -1,6 +1,7 @@
 'use client'
 
 import Banners from "@/components/banners";
+import Pagination from "@/components/pagination";
 import PetCard from "@/components/petCard/pet-card";
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts-api";
@@ -11,6 +12,9 @@ export default function Page() {
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
     const [postsMarket, setPostsMarket] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true); 
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -30,6 +34,12 @@ export default function Page() {
         fetchData();
     }, []);
 
+    const totalPages = Math.ceil(postsMarket.length / itemsPerPage);
+    const paginatedPosts = postsMarket.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
     return (
         <div className='flex flex-col gap-5'>
             <Banners images={bannerImages} />
@@ -44,16 +54,28 @@ export default function Page() {
                     
                     {loading ? (
                         <p className="text-center col-span-full">Cargando datos...</p>
-                    ) : postsMarket.length === 0 ? (
+                    ) : paginatedPosts.length === 0 ? (
                         <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
-                        postsMarket.map((item) => (
+                        paginatedPosts.map((item) => (
                             <PetCard key={item.id} post={item} />
                         ))
                     )}
 
                 </div>
             </section>
+
+            {totalPages >= 1 && (
+                <Pagination
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    size="md"
+                    showText={true}
+                    prevText="Anterior"
+                    nextText="Siguiente"
+                />
+            )}
         </div>
     )
 }
