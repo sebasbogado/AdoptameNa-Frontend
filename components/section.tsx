@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 interface SectionProps {
     title: string;
     postTypeName?: keyof typeof titleText;
-    petStatusId?: number | string;
+    petStatusId?: number[];
     path: string;
     items: (Post | Pet)[];
     loading: boolean;
@@ -29,16 +29,15 @@ export function Section({ title, postTypeName, path, items, loading, error, filt
             }
             
             if (itemType === "pet" && "petStatusId" in item) {
-              return item.petStatusId === petStatusId;
+                return petStatusId?.includes(item.petStatusId) ?? false;
             }
-            
-      
+
             return true;
           })
         : items
       );
 
-    const limitedItems = itemType === "pet" ? filteredItems.slice(0, 4) : filteredItems.slice(0, 5);
+    const limitedItems = filteredItems.slice(0, 5);
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
 

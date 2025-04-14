@@ -62,7 +62,7 @@ export default function Page() {
                 title='En adopcion'
                 path='adoption'
                 postTypeName="Adopcion"
-                petStatusId={4}
+                petStatusId={[4]}
                 items={pets}
                 loading={loading}
                 error={error}
@@ -75,20 +75,7 @@ export default function Page() {
                 title='Extraviados'
                 path='missing'
                 postTypeName="Extraviados"
-                petStatusId={1}
-                items={pets}
-                loading={loading}
-                error={error}
-                filterByType={true}
-                itemType='pet'>
-            </Section>
-
-            {/* Sección de Desaparecidos */}
-            <Section
-                title='Encontrados'
-                path='founds'
-                postTypeName="Encontrado"
-                petStatusId={2}
+                petStatusId={[1, 2]}
                 items={pets}
                 loading={loading}
                 error={error}
