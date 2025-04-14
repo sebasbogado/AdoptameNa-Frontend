@@ -1,9 +1,12 @@
+import { PaginatedResponse, queryParams } from "@/types/pagination";
 import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
-export const getPosts = async (queryParams?: any): Promise<Post[]> => {
+export const getPosts = async (
+  queryParams?: queryParams
+): Promise<PaginatedResponse<Post>> => {
   try {
     const response = await axios.get(API_URL, {
       params: queryParams,
@@ -99,7 +102,11 @@ export const createPost = async (data: CreatePost, token: string) => {
   }
 };
 
-export async function updatePost(id: string, postData: UpdatePost, token: string) {
+export async function updatePost(
+  id: string,
+  postData: UpdatePost,
+  token: string
+) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, postData, {
       headers: {
@@ -137,12 +144,16 @@ export async function deletePost(id: string, token: string) {
 
 export async function sharePost(id: string, token: string) {
   try {
-    const response = await axios.put(`${API_URL}/${id}/share`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.put(
+      `${API_URL}/${id}/share`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     return response.data;
   } catch (error: any) {
