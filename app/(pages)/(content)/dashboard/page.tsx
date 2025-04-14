@@ -14,6 +14,7 @@ import { Section } from '@/components/section'
 import Link from 'next/link'
 import { Pet } from '@/types/pet'
 import { getPets } from '@/utils/pets.http'
+import { PET_STATUS } from '@/types/constants'
 
 type FetchContentDataParams = {
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>;
@@ -62,7 +63,7 @@ export default function Page() {
                 title='En adopcion'
                 path='adoption'
                 postTypeName="Adopcion"
-                petStatusId={[4]}
+                petStatusId={PET_STATUS.ADOPTION}
                 items={pets}
                 loading={loading}
                 error={error}
@@ -75,7 +76,7 @@ export default function Page() {
                 title='Extraviados'
                 path='missing'
                 postTypeName="Extraviados"
-                petStatusId={[1, 2]}
+                petStatusId={PET_STATUS.MISSING}
                 items={pets}
                 loading={loading}
                 error={error}
