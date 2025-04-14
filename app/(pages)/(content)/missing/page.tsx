@@ -103,22 +103,22 @@ const AdoptionForm = () => {
     const respAnimals = await getAnimals({ size: 100, page: 0 })
     if (respAnimals) {
       console.log("Resultado Animals", respAnimals)
-      setAnimals(respAnimals)
+      setAnimals(respAnimals.data)
     }
     const respBreed = await getBreed({ size: 100, page: 0 })
     if (respBreed) {
       console.log("Resultado Breed", respBreed)
-      setBreed(respBreed)
+      setBreed(respBreed.data)
     }
     const respPetStatus = await getPetStatuses({ size: 100, page: 0 })
     if (respPetStatus) {
       console.log("Resultado PetStatus", respPetStatus)
-      setPetsStatus(respPetStatus)
+      setPetsStatus(respPetStatus.data)
     }
     const respImageSelected = await getPetStatuses({ size: 100, page: 0 })
     if (respImageSelected) {
       console.log("Resultado PetStatus", respImageSelected)
-      setPetsStatus(respImageSelected)
+      setPetsStatus(respImageSelected.data)
     }
   }
 
