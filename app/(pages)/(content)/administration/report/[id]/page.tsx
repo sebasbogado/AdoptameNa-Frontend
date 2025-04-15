@@ -154,7 +154,7 @@ const ReportsPost = () => {
         };
         try {
             await updatePost(updatedPost);
-            setSuccessMessage("El post ha sido baneado con éxito.");
+            setSuccessMessage("El post ha sido bloqueado con éxito.");
         } catch (err) {
             setErrorMessage("Hubo un error al banear el post.");
         }
