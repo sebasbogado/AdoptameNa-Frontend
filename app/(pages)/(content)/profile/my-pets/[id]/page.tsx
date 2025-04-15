@@ -11,6 +11,7 @@ import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import { getPetsByUserId } from '@/utils/pets.http';
 import { error } from 'console';
+import Pagination from '@/components/pagination';
 
 
 
@@ -48,6 +49,15 @@ export default function MyPostsPage() {
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
 
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 10;
+
+    const totalPages = Math.ceil(pets.length / itemsPerPage);
+    const paginatedPets = pets.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
 
 
@@ -101,8 +111,8 @@ export default function MyPostsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                     
                     {petsError? <p className="text-center col-span-full">Hubo un error al cargar las mascotas</p> : 
-                    pets.length > 0 ? (
-                        pets.map((post) => (
+                    paginatedPets.length > 0 ? (
+                        paginatedPets.map((post) => (
                             <PetCard key={post.id} post={post} />
                         ))
                     ) : (
@@ -111,6 +121,17 @@ export default function MyPostsPage() {
 
                 </div>
             </section>
+            {totalPages >= 1 && (
+                <Pagination
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={(page) => setCurrentPage(page)}
+                    size="md"
+                    showText={true}
+                    prevText="Anterior"
+                    nextText="Siguiente"
+                />
+            )}
         </div>
     )
 }
