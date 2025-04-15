@@ -5,9 +5,12 @@ const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
 export const getPetsByUserId = async (id: string) => {
   try {
-    const response = await axios.get(`${API_URL}/${id}/user`, {
+    const response = await axios.get(`${API_URL}`, {
       headers: {
         "Content-Type": "application/json",
+      },
+      params: {
+        id,
       },
     });
 
