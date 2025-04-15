@@ -76,6 +76,47 @@ export const getPets = async (
   }
 };
 
+function buildQueryString(params: Record<string, any>): string {
+  const searchParams = new URLSearchParams();
+
+  for (const key in params) {
+    const value = params[key];
+
+    if (Array.isArray(value)) {
+      value.forEach((val) => {
+        if (val !== undefined && val !== null && val !== "") {
+          searchParams.append(key, String(val));
+        }
+      });
+    } else if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
+    }
+  }
+
+  return searchParams.toString();
+}
+
+export const getPetsDashboard = async (
+  queryParams?: Record<string, any>
+): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const queryString = queryParams ? buildQueryString(queryParams) : "";
+    const url = `${API_URL}${queryString ? `?${queryString}` : ""}`;
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+};
+
 export async function updatePet(id: string, petData: UpdatePet, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, petData, {

@@ -13,7 +13,7 @@ import { Post } from '@/types/post'
 import { Section } from '@/components/section'
 import Link from 'next/link'
 import { Pet } from '@/types/pet'
-import { getPets } from '@/utils/pets.http'
+import { getPets, getPetsDashboard } from '@/utils/pets.http'
 import { PET_STATUS, POST_TYPEID } from '@/types/constants'
 import page from '../administration/settings/page'
 import { set } from 'zod'
@@ -35,18 +35,13 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
     const sort = "id,desc";
     try {
         const petAdoptionData = await getPets({page: pageNumber, size: pageSize, sort: sort, petStatusId: PET_STATUS.ADOPTION});
-        /*
-            Modificar luego para esta url: /api/pets?page=0&size=5&petStatusId=1&petStatusId=2&sort=id,desc
-        */
-        const petMissingData = await getPets({page: pageNumber, size: pageSize, sort: sort, petStatusId: PET_STATUS.MISSING});
-        const petFoundData = await getPets({page: pageNumber, size: pageSize, sort: sort, petStatusId: PET_STATUS.FOUND});
-        const petData = [...petMissingData.data, ...petFoundData.data]
+        const petMissingData = await getPetsDashboard({page: pageNumber, size: pageSize, sort: sort, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND]});
         const postVolunteeringData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.VOLUNTEERING });
         const postBlogData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.BLOG });
         const postMarketplaceData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.MARKETPLACE });
 
         setAdoptionPets(Array.isArray(petAdoptionData.data) ? petAdoptionData.data : []);
-        setMissingPets(Array.isArray(petData) ? petData : []);
+        setMissingPets(Array.isArray(petMissingData.data) ? petMissingData.data : []);
         setVolunteeringPosts(Array.isArray(postVolunteeringData.data) ? postVolunteeringData.data : []);
         setBlogPosts(Array.isArray(postBlogData.data) ? postBlogData.data : []);
         setMarketplacePosts(Array.isArray(postMarketplaceData.data) ? postMarketplaceData.data : []);
