@@ -10,36 +10,17 @@ import { usePathname } from "next/navigation";
 interface SectionProps {
     title: string;
     postTypeName?: keyof typeof titleText;
-    petStatusId?: number[];
     path: string;
     items: (Post | Pet)[];
     loading: boolean;
     error: Boolean;
-    filterByType?: boolean;
     itemType: "post" | "pet"; // Nuevo prop para diferenciar el tipo de item
 
 }
 
-export function Section({ title, postTypeName, path, items, loading, error, filterByType = true, itemType, petStatusId }: SectionProps) {
+export function Section({ title, postTypeName, path, items, loading, error, itemType}: SectionProps) {
     const pathName = usePathname()
-    const filteredItems = (filterByType
-        ? items.filter((item) => {
-            if (itemType === "post" && "postType" in item) {
-              return item.postType.name === postTypeName;
-            }
-            
-            if (itemType === "pet" && "petStatusId" in item) {
-                return petStatusId?.includes(item.petStatusId) ?? false;
-            }
-
-            return true;
-          })
-        : items
-      );
-
-    const limitedItems = filteredItems.slice(0, 5);
     const insertAddButton = itemType === "pet" && pathName === "/profile";
-
 
     return (
         <div className="mt-12 ml-6">
@@ -51,7 +32,7 @@ export function Section({ title, postTypeName, path, items, loading, error, filt
                 <p className="text-red-500">No se pudieron cargar los datos</p>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-                    {limitedItems.map((item) => {
+                    {items.map((item) => {
                         if (itemType === "post") {
                             return (
                                 <PetCard post={item} isPost key={item.id} />
