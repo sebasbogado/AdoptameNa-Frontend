@@ -26,7 +26,7 @@ const fetchContentData = async (
     try {
         // Cargar posts del usuario
         const petData = await getPetsByUserId(userId);
-        setPets(Array.isArray(petData) ? petData : []);
+        setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setPetsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
