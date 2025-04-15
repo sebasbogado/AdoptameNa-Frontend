@@ -17,15 +17,15 @@ interface ReportFormProps {
 const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   const { authToken, user } = useAuth();
   const params = useParams();
-  const idPostParam = parseInt(params.id as string);
+  const pathname = window.location.pathname;
+  const idParam = params.id as string;
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: {
-      idPost: idPostParam,
+      idPost: pathname.startsWith('/posts/') ? idParam : "",
+      idPet: pathname.startsWith('/pets/') ? idParam : "",
       idUser: user?.id ? parseInt(user?.id) : 0,
-      status: "ACTIVO",
-      reportDate: new Date().toISOString(),
     }
   });
   const [reportReasons, setReportReasons] = useState([]);
@@ -34,7 +34,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
     const fetchReportReasons = async () => {
       try {
         const reasons = await getReportReasons();
-        setReportReasons(reasons);
+        setReportReasons(reasons.data);
       } catch (error) {
         console.error('Error al obtener razones de reporte:', error);
       }
