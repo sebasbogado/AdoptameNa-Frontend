@@ -14,4 +14,7 @@ export interface PaginatedResponse<T> {
 export type queryParams = {
   page?: number;
   size?: number;
+  sort?: string;
+  postTypeId?: number;
+  petStatusId?: number;
 };
