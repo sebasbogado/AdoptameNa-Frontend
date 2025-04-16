@@ -11,28 +11,10 @@ import PetCard from '@/components/petCard/pet-card';
 import LabeledSelect from '@/components/labeled-selected';
 import { getPetsByUserId } from '@/utils/pets.http';
 import { error } from 'console';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 
 
-
-const fetchContentData = async (
-    setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPetsError: React.Dispatch<React.SetStateAction<string | null>>,
-    userId: string,
-) => {
-
-
-    try {
-        // Cargar posts del usuario
-        const petData = await getPetsByUserId(userId);
-        setPets(Array.isArray(petData) ? petData : []);
-    } catch (err) {
-        console.error("Error al cargar posts:", err);
-        setPetsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
-    } finally {
-        setLoading(false);
-    }
-};
 export default function MyPostsPage() {
     const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
     const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
@@ -40,21 +22,24 @@ export default function MyPostsPage() {
 
     const {id} = useParams();
 
-    const [pets, setPets] = useState<Pet[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [petsError, setPetsError] = useState<string | null>(null);
-
     const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
     const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
     const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
 
+    const pageSize = 3;
+    const {
+        data: pets,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        handlePageChange,
+    } = usePagination<Pet>({
+        fetchFunction: (page, size) => getPetsByUserId(id as string, page, size),
+        initialPage: 1,
+        initialPageSize: pageSize,
+    });
 
-
-
-    useEffect(() => {
-        if(!id) return
-        fetchContentData(setPets, setLoading, setPetsError, id.toString());
-    }, []);
 
     if (loading) {
         return Loading();
@@ -100,10 +85,10 @@ export default function MyPostsPage() {
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                     
-                    {petsError? <p className="text-center col-span-full">Hubo un error al cargar las mascotas</p> : 
+                    {error? <p className="text-center col-span-full">Hubo un error al cargar las mascotas</p> : 
                     pets.length > 0 ? (
-                        pets.map((post) => (
-                            <PetCard key={post.id} post={post} />
+                        pets.map((item) => (
+                            <PetCard key={item.id} post={item} />
                         ))
                     ) : (
                         <p className="text-center col-span-full">Cargando mascotas...</p>
@@ -111,6 +96,13 @@ export default function MyPostsPage() {
 
                 </div>
             </section>
+
+                <Pagination
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                    size="md"
+                />
         </div>
     )
 }
