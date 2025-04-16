@@ -5,6 +5,7 @@ import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
+import { POST_TYPEID } from "@/types/constants";
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
@@ -17,14 +18,13 @@ export default function Page() {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const post = await getPosts({
+                const postData = await getPosts({
                     page: currentPage,
                     size: pageSize,
-                    postType: "volunteering",
+                    postTypeId: POST_TYPEID.VOLUNTEERING,
                 });
 
-                const filteredPosts = post.filter((post) => post.postType.name.toLowerCase() === "volunteering");
-                setPosts(filteredPosts);
+                setPosts(postData.data);
             } catch (err: any) {
                 console.log(err.message);
             } finally {
@@ -83,7 +83,7 @@ export default function Page() {
                         <p className="text-center col-span-full text-gray-500 font-semibold">No hay resultados.</p>
                     ) : (
                         posts.map((item) => (
-                            <PetCard key={item.id} post={item} />
+                            <PetCard key={item.id} isPost post={item} />
                         ))
                     )}
                 </div>
