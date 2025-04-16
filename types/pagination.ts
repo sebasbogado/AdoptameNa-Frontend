@@ -1,3 +1,5 @@
+import { number } from "zod";
+
 export type Pagination = {
   page: number;
   size: number;
@@ -15,6 +17,12 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
-  postTypeId?: number;
-  petStatusId?: number;
 };
+
+export type postQueryParams = queryParams & {
+  postTypeId?: number
+}
+
+export type petQueryParams = queryParams & {
+  petStatusId?: number
+}

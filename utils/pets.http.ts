@@ -1,4 +1,4 @@
-import { PaginatedResponse, queryParams } from "@/types/pagination";
+import { PaginatedResponse, petQueryParams } from "@/types/pagination";
 import { Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
@@ -57,7 +57,7 @@ export const getPet = async (id: string): Promise<Pet> => {
 };
 
 export const getPets = async (
-  queryParams?: queryParams
+  queryParams?: petQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
     const response = await axios.get(API_URL, {
@@ -101,7 +101,7 @@ export const getPetsDashboard = async (
 ): Promise<PaginatedResponse<Pet>> => {
   try {
     const queryString = queryParams ? buildQueryString(queryParams) : "";
-    const url = `${API_URL}${queryString ? `?${queryString}` : ""}`;
+    const url = `${API_URL}${queryString && `?${queryString}`}`;
     const response = await axios.get(url, {
       headers: {
         "Content-Type": "application/json",
