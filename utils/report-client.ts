@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
 const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
-
+const API_URL_BAN_POST = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/`;
 export const getReportById = async (id: string) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
@@ -72,7 +72,7 @@ export const updateReport = async (
 
 export const deleteReport = async (id: number, token: string) => {
   try {
-    const response = await axios.delete(`${API_URL}/${id}`, {
+    const response = await axios.delete(`${NEW_API_URL}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -118,5 +118,18 @@ export const getPostReportsById = async (id: string) => {
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}
+
+export const banPost = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_POST}${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
   }
 }
