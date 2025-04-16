@@ -26,11 +26,11 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: `
                 default-src 'self';
-                script-src 'self' 'unsafe-inline' https://adoptamena-api.rodrigomaidana.com/media/** https://adoptamena-api.rodrigomaidana.com/api/**;
+                script-src 'self' 'unsafe-inline' https://adoptamena-api.rodrigomaidana.com/media https://adoptamena-api.rodrigomaidana.com/api;
                 style-src 'self' 'unsafe-inline';
-                img-src 'self' data: https://adoptamena-api.rodrigomaidana.com/media/**;
-                connect-src 'self' https://adoptamena-api.rodrigomaidana.com/api/**;
-                font-src 'self' https://fonts.googleapis.com/css2?family=Roboto&display=swap ;
+                img-src 'self' data: https://adoptamena-api.rodrigomaidana.com/media;
+                connect-src 'self' https://adoptamena-api.rodrigomaidana.com/api;
+                font-src 'self' https://fonts.googleapis.com/css2 ;
                 object-src 'none';
                 frame-ancestors 'none';
               `
