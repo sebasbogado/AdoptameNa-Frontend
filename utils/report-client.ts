@@ -2,6 +2,7 @@ import { UpdateUserProfile } from "@/types/user-profile";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
+const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
 
 export const getReportById = async (id: string) => {
   try {
@@ -26,20 +27,21 @@ export const getReportById = async (id: string) => {
     throw new Error(error.message || "Error al obtener el reporte");
   }
 };
-export const getReports = async (queryParams?: any)=>{
-  try{
-    const response = await axios.get(`${API_URL}`, {
+//para traer todos los posts reportados
+export const getReports = async (queryParams?: any) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
-      });
-      return response.data;
-      }catch(error: any){
-        if(error.response && error.response.status === 404){
-          throw new Error("No encontrada");
-        }
-        throw new Error(error.message || "Error al obtener Posts reportados");
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts reportados");
   }
 }
 
@@ -50,7 +52,7 @@ export const updateReport = async (
 ) => {
   try {
     const response = await axios.put(`${API_URL}/${id}`, updatedProfile, {
-        headers: {
+      headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
@@ -69,34 +71,52 @@ export const updateReport = async (
 
 
 export const deleteReport = async (id: number, token: string) => {
-    try {
-      const response = await axios.delete(`${API_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      return response.data;
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.message || "Error al eliminar el reporte"
-      );
-    }
-  };
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
 
 
-  export const deleteReportsByPost = async (id: number, token: string) => {
-    try {
-      const response = await axios.delete(`${API_URL}/byPostId/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      return response.data;
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.message || "Error al eliminar el reporte"
-      );
+export const deleteReportsByPost = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${API_URL}/byPostId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
+//obtener motivos de reporte de un post
+export const getPostReportsById = async (id: string) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}`, {
+      params: { idPost: id },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
     }
-  };
+    throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}

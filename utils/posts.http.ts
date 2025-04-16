@@ -3,7 +3,7 @@ import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
-
+const API_URL_POST_REPORTED = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports/reported-posts`;
 export const getPosts = async (
   queryParams?: queryParams
 ): Promise<PaginatedResponse<Post>> => {
@@ -42,7 +42,7 @@ export const getPost = async (id: string): Promise<Post> => {
 };
 export const getPostReports = async (queryParams?: any) => {
   try {
-    const response = await axios.get(`${API_URL}/reported`, {
+    const response = await axios.get(`${API_URL_POST_REPORTED}`, {
       params: queryParams,
       headers: {
         "Content-Type": "application/json",

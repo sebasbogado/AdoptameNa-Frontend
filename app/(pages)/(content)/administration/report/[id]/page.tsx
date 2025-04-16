@@ -4,7 +4,7 @@ import NotFound from "@/app/not-found";
 import { SectionCards } from "@/components/section-cards";
 import { useAuth } from "@/contexts/auth-context";
 import { Report } from "@/types/report";
-import { deleteReport, deleteReportsByPost, getReportById, getReports } from "@/utils/report-client";
+import { deleteReport, deleteReportsByPost, getPostReportsById, getReports } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CardReport from "@/components/administration/report/card-button";
@@ -16,7 +16,7 @@ import Button from "@/components/buttons/button";
 import { report } from "process";
 import { Alert } from "@material-tailwind/react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-
+//para traer los motivos de reporte del post
 const getReportsPost = async (
     id: string,
     setReport: React.Dispatch<React.SetStateAction<Report[] | []>>,
@@ -24,11 +24,14 @@ const getReportsPost = async (
     setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
-        const queryParam = {
-            post: id
-        }
-        const report = await getReports(queryParam);
-        setReport(report);
+        // const queryParam = {
+        //     post: id
+        // }
+        // const report = await getReports(queryParam);
+        // setReport(report);
+        const report = await getPostReportsById(id);
+        console.log("report que trae la funcion getReportsPost", report)
+        setReport(report.data);
     } catch (error: any) {
         console.log(error);
         setError(true);
@@ -44,6 +47,7 @@ const getPostById = async (
     try {
         setLoading(true);
         const post = await getPost(id);
+        console.log("post que trae la funcion getPostById",post)
         setPost(post);
     } catch (error: any) {
         console.log(error);
@@ -202,7 +206,7 @@ const ReportsPost = () => {
     };
     const back = () => {
         route.push(`/administration/report/`);
-}
+    }
 
     useEffect(() => {
         if (successMessage) {
@@ -220,23 +224,25 @@ const ReportsPost = () => {
     if (loading) {
         return Loading();
     }
+    //TEMP: uno de estos esta fallando
     if (error || !post) {
+        console.log(post)
         return <NotFound />;
     }
-    if (error || posts.length === 0) return <NotFound />;
+    // if (error || posts.length === 0) return <NotFound />;
 
     return (
         <div className="p-6 ">
             <Button size="md" onClick={back} className="mb-6 mr-12 bg-white flex justify-between items-center shadow -md text-gray-800">
-            <ArrowLeft className="text-gray-800 pr-1 " size={20} />
-            Volver
+                <ArrowLeft className="text-gray-800 pr-1 " size={20} />
+                Volver
             </Button>
             <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 
             <div className="w-full flex justify-end">
                 <Button size="sm" onClick={nextPost} className="bg-white mb-12 mr-12 flex items-center justify-center shadow -md text-gray-800">
 
-                     Siguiente <ArrowRight  className="text-gray-800 pl-1 "/>
+                    Siguiente <ArrowRight className="text-gray-800 pl-1 " />
                 </Button>
                 {successMessage && (
                     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
