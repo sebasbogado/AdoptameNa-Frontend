@@ -39,7 +39,7 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
                 </div> :
                     <PetCard post={post}  isPost={true}/>}
             {isReportedPage ?
-                <div className=" flex m-4 flex gap-2 justify-center">
+                <div className="m-4 flex gap-2 justify-center">
 
                     <Button size="sm" onClick={handleAprove} className="flex items-center justify-center">
                     <CheckIcon className="w-3 h-3 mr-2 text-white" strokeWidth={4} />
