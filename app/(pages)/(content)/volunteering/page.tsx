@@ -8,30 +8,39 @@ import { getPosts } from "@/utils/posts.http";
 import { POST_TYPEID } from "@/types/constants";
 import LabeledSelect from "@/components/labeled-selected";
 import { getAnimals } from "@/utils/animals.http";
+import { usePagination } from "@/hooks/use-pagination";
+import Pagination from "@/components/pagination";
+import { Loader2 } from "lucide-react";
 
 export default function Page() {
-    const [posts, setPosts] = useState<Post[]>([]);
+
     const [selectedLocation, setSelectedLocation] = useState("");
     const [selectedHelpType, setSelectedHelpType] = useState("");
     const [selectedAnimal, setSelectedAnimal] = useState("");
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
-    const [currentPage, setCurrentPage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const [isNextPost, setIsNextPost] = useState(false);
-    const pageSize = 20;
+    const pageSize = 10;
+    const sort = "id,desc";
+    const {
+        data: posts,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        handlePageChange,
+    } = usePagination<Post>({
+        fetchFunction: async (page, size) => {
+            return await getPosts({ page, size, sort, postTypeId: POST_TYPEID.VOLUNTEERING });
+        },
+        initialPage: 1,
+        initialPageSize: pageSize,
+    });
 
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const postData = await getPosts({
-                    page: currentPage,
-                    size: pageSize,
-                    postTypeId: POST_TYPEID.VOLUNTEERING,
-                });
                 const animals = await getAnimals();
-
-                setPosts(postData.data);
                 setAnimalTypes(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
             } catch (err: any) {
                 console.log(err.message);
@@ -41,41 +50,7 @@ export default function Page() {
         };
 
         fetchData();
-    }, [currentPage]);
-
-    useEffect(() => {
-        const fetchNextPost = async () => {
-            try {
-                const post = await getPosts({
-                    page: pageSize * (currentPage + 1), // Aquí corregimos la paginación
-                    size: 1, // Solo verificamos si hay al menos 1 post en la siguiente página
-                    postType: "volunteering",
-                });
-                console.log(post)
-                setIsNextPost(post.length > 0);
-            } catch (err: any) {
-                console.log(err.message);
-                setIsNextPost(false);
-            }
-        };
-
-        //evitamos hacer llamadas extras si no son necesarias
-        if (posts.length === pageSize) {
-            fetchNextPost();
-        }
-    }, [currentPage, posts]); // Se ejecuta cada vez que cambia la página actual
-
-    const handleNextPage = () => {
-        if (isNextPost) {
-            setCurrentPage((prevPage) => prevPage + 1);
-        }
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage((prevPage) => prevPage - 1);
-        }
-    };
+    }, []);
 
     // const filteredData = posts.filter((item) => {
     //     // Filtrar por ubicación
@@ -127,39 +102,45 @@ export default function Page() {
             </div>
 
             <section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {isLoading ? (
-                        <p className="text-center col-span-full text-blue-500 font-semibold">Cargando datos...</p>
-                    ) : posts.length === 0 ? (
-                        <p className="text-center col-span-full text-gray-500 font-semibold">No hay resultados.</p>
+            <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
+                {error && (
+                    <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">
+                        {error.message || 'Error al cargar los posts'}
+                    </div>
+                )}
+
+                {loading ? (
+                    <div className="flex justify-center items-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    </div>
+                ) : (
+                    posts.length === 0 ? (
+                        <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
+                            <p className="text-gray-600">No se encontraron posts</p>
+                        </div>
                     ) : (
-                        posts.map((item) => (
-                            <PetCard key={item.id} isPost post={item} />
-                        ))
-                    )}
-                </div>
+                        <div className="flex justify-center w-full">
+                            {posts.map((post) => (
+                                <PetCard
+                                    key={post.id}
+                                    post={post}
+                                    isPost={true}
+                                    className="w-full max-w-md"
+                                />
+                            ))}
+                        </div>
+                    )
+                )}
+            </div>
             </section>
 
             {/* Controles de paginación */}
-            <div className="flex justify-center gap-4 py-4">
-                <button
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 0}
-                    className={`px-4 py-2 rounded-md ${currentPage === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
-                >
-                    Anterior
-                </button>
-
-                <span className="px-4 py-2 bg-gray-200 rounded-md">Página {currentPage + 1}</span>
-
-                <button
-                    onClick={handleNextPage}
-                    disabled={!isNextPost}
-                    className={`px-4 py-2 rounded-md ${!isNextPost ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple-500 text-white hover:bg-purple-600'}`}
-                >
-                    Siguiente
-                </button>
-            </div>
+            <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                size="md"
+            />
         </div>
     );
 }
