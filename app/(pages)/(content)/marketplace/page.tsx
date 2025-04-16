@@ -3,18 +3,15 @@
 import Banners from "@/components/banners";
 import Pagination from "@/components/pagination";
 import PetCard from "@/components/petCard/pet-card";
+import { usePagination } from "@/hooks/use-pagination";
 import { Post } from "@/types/post";
-import { getPosts } from "@/utils/posts-api";
+import { getPosts } from '@/utils/posts.http';
 import { useEffect, useState } from "react";
 
 export default function Page() {
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
     const [postsMarket, setPostsMarket] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true); 
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,11 +31,21 @@ export default function Page() {
         fetchData();
     }, []);
 
-    const totalPages = Math.ceil(postsMarket.length / itemsPerPage);
-    const paginatedPosts = postsMarket.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const pageSize = 3;
+        const {
+            data: posts,
+            loading,
+            error,
+            currentPage,
+            totalPages,
+            handlePageChange,
+        } = usePagination<Post>({
+            fetchFunction: async (page, size) => {
+                        return await getPosts({ page, size });
+                    },
+                    initialPage: 1,
+                    initialPageSize: pageSize
+                });
 
     return (
         <div className='flex flex-col gap-5'>
@@ -54,10 +61,10 @@ export default function Page() {
                     
                     {loading ? (
                         <p className="text-center col-span-full">Cargando datos...</p>
-                    ) : paginatedPosts.length === 0 ? (
+                    ) : posts.length === 0 ? (
                         <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
-                        paginatedPosts.map((item) => (
+                        posts.map((item) => (
                             <PetCard key={item.id} post={item} />
                         ))
                     )}
@@ -65,17 +72,12 @@ export default function Page() {
                 </div>
             </section>
 
-            {totalPages >= 1 && (
                 <Pagination
                     totalPages={totalPages}
                     currentPage={currentPage}
-                    onPageChange={(page) => setCurrentPage(page)}
+                    onPageChange={handlePageChange}
                     size="md"
-                    showText={true}
-                    prevText="Anterior"
-                    nextText="Siguiente"
                 />
-            )}
         </div>
     )
 }
