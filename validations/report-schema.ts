@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const reportSchema = z.object({
   idUser: z.number(),
-  idPost: z.string(),
-  idPet: z.string(),
+  idPost: z.string().optional(),
+  idPet: z.string().optional(),
   idReportReason: z
     .number({ invalid_type_error: "Debes seleccionar un motivo del reporte" })
     .min(1, "Debes seleccionar un motivo del reporte"),
