@@ -6,9 +6,15 @@ import PetCard from '@/components/petCard/pet-card';
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
 import { POST_TYPEID } from "@/types/constants";
+import LabeledSelect from "@/components/labeled-selected";
+import { getAnimals } from "@/utils/animals.http";
 
 export default function Page() {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [selectedLocation, setSelectedLocation] = useState("");
+    const [selectedHelpType, setSelectedHelpType] = useState("");
+    const [selectedAnimal, setSelectedAnimal] = useState("");
+    const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [isNextPost, setIsNextPost] = useState(false);
@@ -23,8 +29,10 @@ export default function Page() {
                     size: pageSize,
                     postTypeId: POST_TYPEID.VOLUNTEERING,
                 });
+                const animals = await getAnimals();
 
                 setPosts(postData.data);
+                setAnimalTypes(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
             } catch (err: any) {
                 console.log(err.message);
             } finally {
@@ -52,7 +60,7 @@ export default function Page() {
         };
 
         //evitamos hacer llamadas extras si no son necesarias
-        if(posts.length === pageSize){ 
+        if (posts.length === pageSize) {
             fetchNextPost();
         }
     }, [currentPage, posts]); // Se ejecuta cada vez que cambia la página actual
@@ -69,11 +77,54 @@ export default function Page() {
         }
     };
 
+    // const filteredData = posts.filter((item) => {
+    //     // Filtrar por ubicación
+    //     if (selectedLocation && selectedLocation !== "Todos") {
+    //         if (item.location !== selectedLocation) return false;
+    //     }
+
+    //     // Filtrar por tipo de ayuda
+    //     if (selectedHelpType && selectedHelpType !== "Todos") {
+    //         if (item.type !== selectedHelpType) return false;
+    //     }
+
+    //     // Filtrar por tipo de mascota
+    //     if (selectedAnimal && selectedAnimal !== "Todos") {
+    //         const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+    //         if (!selectedAnimalObj || item.animalId !== selectedAnimalObj.id) return false;
+    //     }
+
+    //     return true;
+
+    // });
+
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
 
     return (
         <div className='flex flex-col gap-5'>
             <Banners images={bannerImages} />
+            <div className="w-full max-w-4xl mx-auto p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <LabeledSelect
+                        label="Distancia"
+                        options={["Todos", "Cercano", "Lejano"]}
+                        selected={selectedLocation}
+                        setSelected={setSelectedLocation}
+                    />
+                    <LabeledSelect
+                        label="Tipo de ayuda"
+                        options={["Todos", "Dinero", "Medicamentos", "Alimentos"]}
+                        selected={selectedHelpType}
+                        setSelected={setSelectedHelpType}
+                    />
+                    <LabeledSelect
+                        label="Tipo de mascota"
+                        options={animalTypes}
+                        selected={selectedAnimal}
+                        setSelected={setSelectedAnimal}
+                    />
+                </div>
+            </div>
 
             <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
