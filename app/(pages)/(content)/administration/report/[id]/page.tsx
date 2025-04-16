@@ -207,7 +207,7 @@ const ReportsPost = () => {
         <ArrowLeft className="text-gray-800 pr-1 " size={20} />
         Volver
       </Button>
-      <SectionAdmin title={`Publicacion con id ${post.id}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
+      <SectionAdmin title={`Publicacion de: ${post.userFullName}`} >Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 
       <div className="w-full flex justify-end">
         <Button size="sm" onClick={nextPost} className="bg-white mb-12 mr-12 flex items-center justify-center shadow -md text-gray-800">

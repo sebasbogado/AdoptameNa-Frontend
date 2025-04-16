@@ -19,7 +19,6 @@ export default function ReportList({ reports, post, handleDeleteReport }: Report
         <thead>
           <tr className="bg-gray-100 text-left">
             <th className="py-2 ">Usuario</th>
-            <th className="py-2 ">Usuario del post</th>
             <th className="py-2 ">Descripción</th>
             <th className="py-2 ">Razon</th>
             <th className="py-2 ">Fecha</th>
@@ -31,7 +30,6 @@ export default function ReportList({ reports, post, handleDeleteReport }: Report
             <tr key={rep.id} className="border-b border-gray-200">
               <td className="py-2 font-semibold">{rep.reporterFullName}</td>
 
-              <td className="py-2 font-semibold">{post.userFullName}</td>
               <td className="py-2 ">{rep.description}</td>
               <td className="py-2 font-semibold">{rep.reportReason}</td>
               <td className="py-2 ">
