@@ -1,5 +1,3 @@
-import { number } from "zod";
-
 export type Pagination = {
   page: number;
   size: number;
