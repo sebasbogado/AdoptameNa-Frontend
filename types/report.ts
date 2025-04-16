@@ -1,6 +1,6 @@
 export interface Report {
   id: number
-  user: User
+  reporterFullName: string
   idPost: number
   reportReason: string
   description: string
@@ -23,5 +23,4 @@ export interface ReportPost {
   idReportReason: number
   description: string
   reportDate: string
-  status: string
 }
