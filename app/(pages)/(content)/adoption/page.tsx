@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
-import { getPetsByStatusId } from "@/utils/pets.http";
+import { getPets } from "@/utils/pets.http";
 import { getAnimals } from "@/utils/animals.http";
 import LabeledSelect from "@/components/labeled-selected";
 import { Pet } from "@/types/pet";
+import { PET_STATUS } from "@/types/constants";
 
 
 export default function Page() {
@@ -18,27 +19,31 @@ export default function Page() {
     const [pets, setPets] = useState<Pet[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const petData = await getPetsByStatusId(4);
-                console.log("pets", petData);
-                const animals = await getAnimals();
-
-                setAnimalTypes(["Todos", ...animals.map((animal: { name: string }) => animal.name)]);
-                setAnimals(animals);
-                setPets(petData);
-            } catch (err: any) {
-                console.log(err.message);
+    const fetchData = async () => {
+        try {
+            const queryParam = {
+                page: 0,
+                size: 15,
+                sort: "id,desc",
+                petStatusId: PET_STATUS.ADOPTION,
             }
-        };
+            const petData = await getPets(queryParam);
+            const animals = await getAnimals();
 
+            setAnimalTypes(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
+            setAnimals(animals.data);
+            setPets(petData.data);
+        } catch (err: any) {
+            console.log(err.message);
+        }
+    };
+
+    useEffect(() => {
         fetchData();
     }, []);
 
     // Combinar mascotas y posts
     const combinedData = [...pets];
-    console.log("combinedData", combinedData);
 
     // Filtrar los datos combinados
     const filteredData = pets.filter((item) => {
@@ -62,14 +67,6 @@ export default function Page() {
             if (selectedAnimal && selectedAnimal !== "Todos") {
                 const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
                 if (!selectedAnimalObj || item.animalId !== selectedAnimalObj.id) return false;
-            }
-        }
-
-        // Filtrar posts
-        if ("postType" in item) {
-            if (selectedAnimal && selectedAnimal !== "Todos") {
-                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
-                if (!selectedAnimalObj) return false;
             }
         }
 
