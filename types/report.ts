@@ -19,8 +19,8 @@ export interface User {
 export interface ReportPost {
   id: number
   idUser: number
-  idPost: string
-  idPet: string
+  idPost?: string
+  idPet?: string
   idReportReason: number
   description: string
 }
