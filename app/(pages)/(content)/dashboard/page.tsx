@@ -33,12 +33,19 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
     const pageSize = 5;
     const pageNumber = 0;
     const sort = "id,desc";
+
+    const queryParams = {
+        page: pageNumber,
+        size: pageSize,
+        sort: sort,
+    };
+
     try {
-        const petAdoptionData = await getPets({page: pageNumber, size: pageSize, sort: sort, petStatusId: PET_STATUS.ADOPTION});
-        const petMissingData = await getPetsDashboard({page: pageNumber, size: pageSize, sort: sort, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND]});
-        const postVolunteeringData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.VOLUNTEERING });
-        const postBlogData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.BLOG });
-        const postMarketplaceData = await getPosts({ page: pageNumber, size: pageSize, sort: sort, postTypeId: POST_TYPEID.MARKETPLACE });
+        const petAdoptionData = await getPets({...queryParams, petStatusId: PET_STATUS.ADOPTION});
+        const petMissingData = await getPetsDashboard({...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND]});
+        const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING});
+        const postBlogData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.BLOG });
+        const postMarketplaceData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.MARKETPLACE });
 
         setAdoptionPets(Array.isArray(petAdoptionData.data) ? petAdoptionData.data : []);
         setMissingPets(Array.isArray(petMissingData.data) ? petMissingData.data : []);
