@@ -24,6 +24,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileEditSchema, profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
+import ImageHeader from '@/components/image-header';
+import HeaderImage from '@/components/image-header';
 const getUserProfileData = async (
 
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -221,7 +223,12 @@ export default function ProfilePage() {
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.bannerImages || ['/logo.png']} />
+            
+            <HeaderImage 
+                isEditEnabled={true} 
+                image={userProfile?.bannerImages?.[0]} 
+            />
+            
             {isOpen &&
                 <ConfirmationModal
                     isOpen={isOpen}
