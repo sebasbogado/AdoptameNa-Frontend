@@ -29,7 +29,7 @@ const nextConfig = {
                 script-src 'self' 'unsafe-inline' https://adoptamena-api.rodrigomaidana.com/media/** https://adoptamena-api.rodrigomaidana.com/api/**;
                 style-src 'self' 'unsafe-inline';
                 img-src 'self' data: https://adoptamena-api.rodrigomaidana.com/media/**;
-                connect-src 'self' https://adoptamena-api.rodrigomaidana.com/api;
+                connect-src 'self' https://adoptamena-api.rodrigomaidana.com/api/**;
                 font-src 'self' https://fonts.googleapis.com/css2?family=Roboto&display=swap ;
                 object-src 'none';
                 frame-ancestors 'none';
