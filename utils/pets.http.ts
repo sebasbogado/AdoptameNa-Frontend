@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
-export const getPetsByUserId = async (id: string) => {
+export const getPetsByUserId = async (id: string, page?: number, size?: number) => {
   try {
     const response = await axios.get(`${API_URL}`, {
       headers: {
@@ -11,6 +11,8 @@ export const getPetsByUserId = async (id: string) => {
       },
       params: {
         id,
+        page,
+        size,
       },
     });
 
