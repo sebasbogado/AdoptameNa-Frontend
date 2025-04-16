@@ -47,7 +47,7 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
                     </Button>
                     <Button variant="danger" size="sm" onClick={handleDesaprove} className="flex items-center justify-center">
                     <XIcon className="w-3 h-3  mr-2 text-white" strokeWidth={4} />
-                    Bannear
+                    Bloquear
                     </Button>
                 </div>
                 :
