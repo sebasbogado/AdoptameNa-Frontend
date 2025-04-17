@@ -8,6 +8,9 @@ import { getAnimals } from "@/utils/animals.http";
 import LabeledSelect from "@/components/labeled-selected";
 import { Pet } from "@/types/pet";
 import { PET_STATUS } from "@/types/constants";
+import { usePagination } from "@/hooks/use-pagination";
+import { Loader2 } from "lucide-react";
+import Pagination from "@/components/pagination";
 
 
 export default function Page() {
@@ -16,23 +19,31 @@ export default function Page() {
     const [selectedGenero, setSelectedGenero] = useState<string | null>(null);
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
-    const [pets, setPets] = useState<Pet[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
+
+    const pageSize = 10;
+    const sort = "id,desc";
+
+    const {
+        data: pets,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        handlePageChange
+    } = usePagination<Pet>({
+        fetchFunction: async (page, size) => {
+            return await getPets({ page, size, sort, petStatusId: PET_STATUS.ADOPTION });
+        },
+        initialPage: 1,
+        initialPageSize: pageSize
+    });
 
     const fetchData = async () => {
         try {
-            const queryParam = {
-                page: 0,
-                size: 15,
-                sort: "id,desc",
-                petStatusId: PET_STATUS.ADOPTION,
-            }
-            const petData = await getPets(queryParam);
             const animals = await getAnimals();
-
             setAnimalTypes(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
             setAnimals(animals.data);
-            setPets(petData.data);
         } catch (err: any) {
             console.log(err.message);
         }
@@ -42,32 +53,26 @@ export default function Page() {
         fetchData();
     }, []);
 
-    // Combinar mascotas y posts
-    const combinedData = [...pets];
-
-    // Filtrar los datos combinados
     const filteredData = pets.filter((item) => {
         // Filtrar mascotas
-        if ("isVaccinated" in item) {
-            if (selectedVacunado && selectedVacunado !== "Todos") {
-                const isVaccinated = selectedVacunado === "Sí";
-                if (item.isVaccinated !== isVaccinated) return false;
-            }
+        if (selectedVacunado && selectedVacunado !== "Todos") {
+            const isVaccinated = selectedVacunado === "Sí";
+            if (item.isVaccinated !== isVaccinated) return false;
+        }
 
-            if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
-                const isSterilized = selectedEsterilizado === "Sí";
-                if (item.isSterilized !== isSterilized) return false;
-            }
+        if (selectedEsterilizado && selectedEsterilizado !== "Todos") {
+            const isSterilized = selectedEsterilizado === "Sí";
+            if (item.isSterilized !== isSterilized) return false;
+        }
 
-            if (selectedGenero && selectedGenero !== "Todos") {
-                const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
-                if (item.gender !== gender) return false;
-            }
+        if (selectedGenero && selectedGenero !== "Todos") {
+            const gender = selectedGenero === "Femenino" ? "FEMALE" : "MALE";
+            if (item.gender !== gender) return false;
+        }
 
-            if (selectedAnimal && selectedAnimal !== "Todos") {
-                const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
-                if (!selectedAnimalObj || item.animalId !== selectedAnimalObj.id) return false;
-            }
+        if (selectedAnimal && selectedAnimal !== "Todos") {
+            const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
+            if (item.animal.name !== selectedAnimalObj?.name) return false;
         }
 
         return true;
@@ -117,18 +122,45 @@ export default function Page() {
             </div>
 
             <section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {combinedData.length === 0 ? (
-                        <p className="text-center col-span-full">Cargando datos...</p>
-                    ) : filteredData.length === 0 ? (
-                        <p className="text-center col-span-full">No se han encontrado resultados</p>
+                <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
+                    {error && (
+                        <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">
+                            {error.message || 'Error al cargar las mascotas'}
+                        </div>
+                    )}
+
+                    {loading ? (
+                        <div className="flex justify-center items-center">
+                            <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                        </div>
                     ) : (
-                        filteredData.map((item) =>
-                                <PetCard key={item.id} post={item} />
+                        filteredData.length === 0 ? (
+                            <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
+                                <p className="text-gray-600">No se encontraron mascotas en adopción</p>
+                            </div>
+                        ) : (
+                            <div className="flex justify-center w-full">
+                                {filteredData.map((pet) => (
+                                    <PetCard
+                                        key={pet.id}
+                                        post={pet}
+                                        isPost={false}
+                                        className="w-full max-w-md"
+                                    />
+                                ))}
+                            </div>
                         )
                     )}
                 </div>
             </section>
+
+            {/* Pagination */}
+            <Pagination
+                totalPages={totalPages}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+                size='md'
+            />
         </div>
     );
 }
