@@ -29,38 +29,49 @@ const HeaderImage: React.FC<HeaderImageProps> = ({ image, isEditEnabled }) => {
     }, [currentImage]);
 
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const file = e.target.files[0];
-
-            // Validación: tamaño máximo 1MB
-            if (file.size > 5 * 1024 * 1024) {
-                setError("El archivo es demasiado grande. Tamaño máximo: 1MB.");
-                return;
-            }
-
-            const fileData = new FormData();
-            fileData.append("file", file);
-
-            try {
-                if (!authToken) throw new Error("Usuario no autenticado");
-
-                // 1. Subir imagen
-                const response = await postMedia(fileData, authToken);
-                const { url, mimeType } = response;
-
-                // 2. Actualizar imagen en la vista
-                setCurrentImage(url);
-                setError(null);
-
-                // 3. Guardar imagen en perfil
-                await updateProfileMedia( url, mimeType, authToken);
-
-            } catch (err) {
-                console.error("Error al subir o guardar la imagen:", err);
-                setError("Hubo un error al subir o guardar la imagen.");
-            }
+        const file = e.target.files?.[0];
+    
+        if (!file) {
+            setError(null);
+            return;
+        }
+    
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+        const maxSize = 5 * 1024 * 1024;
+    
+        if (!allowedTypes.includes(file.type)) {
+            setError("Formato no permitido. Solo se aceptan imágenes JPG o PNG.");
+            return;
+        }
+    
+        if (file.size > maxSize) {
+            setError("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+            return;
+        }
+    
+        const fileData = new FormData();
+        fileData.append("file", file);
+    
+        try {
+            if (!authToken) throw new Error("Usuario no autenticado");
+    
+            // ✅ 1. Subir imagen al servidor
+            const response = await postMedia(fileData, authToken);
+            const { url, mimeType } = response;
+    
+            // ✅ 2. Guardar imagen en perfil
+            await updateProfileMedia(url, mimeType, authToken);
+    
+            // ✅ 3. Solo si todo fue bien: actualizar imagen visual
+            setCurrentImage(url);
+            setError(null);
+        } catch (err) {
+            console.error("Error al subir o guardar la imagen:", err);
+            setError("Hubo un error al subir o guardar la imagen, intenta de nuevo.");
         }
     };
+    
+    
 
     const isAuthenticated = !!authToken && !authLoading && user?.id;
     const canEdit = isEditEnabled && isAuthenticated;
