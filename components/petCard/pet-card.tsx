@@ -12,6 +12,7 @@ import { addFavorite, deleteFavorite, getFavorites } from "@/utils/favorites-pos
 import { Alert } from "@material-tailwind/react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
+import MissingTags from "./missing-tags";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -96,7 +97,11 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
             }
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
-                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
+                <MissingTags
+                    parentClassName="absolute z-10"
+                    postType={(post as Pet).petStatus?.name}
+                />
+                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).media[0] || ""} />
                 <CardText post={post} />
             </Link>
         </div>
