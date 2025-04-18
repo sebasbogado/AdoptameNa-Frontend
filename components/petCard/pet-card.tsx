@@ -96,7 +96,7 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
             }
             <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
-                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).urlPhoto || ""} />
+                <CardImage media={isPost ? (post as Post).media : (post as Pet).media || ""} />
                 <CardText post={post} />
             </Link>
         </div>

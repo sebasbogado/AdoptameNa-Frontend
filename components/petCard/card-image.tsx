@@ -1,21 +1,24 @@
+import { Media } from "@/types/media";
 import React from "react";
 
 interface CardImageProps {
-    image?: string;
+    media?: Media[];
 }
 
 const notFoundSrc = "/logo.png";
 
-const CardImage: React.FC<CardImageProps> = ({ image }) => {
+const CardImage: React.FC<CardImageProps> = ({ media }) => {
+    const imageUrl = media && media.length > 0 ? media[0].url : notFoundSrc;
     return (
-        <div className="h-36 rounded-lg overflow-hidden">
+        <div className="flex gap-2 overflow-x-auto h-36 rounded-lg">
             <img
                 className="w-full h-auto object-cover"
-                src={image || notFoundSrc}
-                alt="Imagen de mascota"
+                src={imageUrl || notFoundSrc}
+                alt="Imagen de publicación"
             />
         </div>
     );
 };
+
 
 export default CardImage;
