@@ -1,4 +1,7 @@
 import { Animal } from "./animal";
+import { Breed } from "./breed";
+import { Media } from "./media";
+import { PetStatus } from "./pet-status";
 
 export interface Pet {
   id: number;
@@ -12,24 +15,10 @@ export interface Pet {
   userId: number;
   userFullName: string;
   isBanned: boolean;
-  media: any[]; 
-
-  animal: {
-    id: number;
-    name: string;
-  };
-
-  breed: {
-    id: number;
-    name: string;
-    animalId: number;
-  };
-
-  petStatus: {
-    id: number;
-    name: string; // Ej: "Perdido", "Encontrado"
-    description: string;
-  };
+  media: Media[]; 
+  animal: Animal;
+  breed: Breed;
+  petStatus: PetStatus;
 }
 
 

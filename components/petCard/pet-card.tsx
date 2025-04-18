@@ -101,7 +101,7 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                     parentClassName="absolute z-10"
                     postType={(post as Pet).petStatus?.name}
                 />
-                <CardImage image={isPost ? (post as Post).urlPhoto : (post as Pet).media[0] || ""} />
+                <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
                 <CardText post={post} />
             </Link>
         </div>
