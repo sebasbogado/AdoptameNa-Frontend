@@ -4,6 +4,8 @@ import axios from "axios";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
 const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
 const API_URL_BAN_POST = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/`;
+const API_URL_BAN_PET = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
+
 export const getReportById = async (id: string) => {
   try {
     const response = await fetch(`${API_URL}/${id}`, {
@@ -124,6 +126,70 @@ export const getPostReportsById = async (id: string) => {
 export const banPost = async (id: number, token: string) => {
   try {
     await axios.patch(`${API_URL_BAN_POST}${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
+  }
+}
+
+export const getPostsReported = async (queryParams?: any) => {
+  try{
+    const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
+      params: queryParams,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  }catch(error:any){
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}
+
+export const getPetsReported = async (queryParams?: any) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-pets`, {
+      params: queryParams,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener pets reportados");
+  }
+}
+
+export const getReportsByPetId = async (id: string) => {
+  try{
+    const response = await axios.get(`${NEW_API_URL}`, {
+      params: { idPet: id },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  }catch(error:any){
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}
+
+export const banPet = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_PET}/${id}/ban`, null, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
