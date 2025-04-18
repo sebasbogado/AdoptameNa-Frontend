@@ -1,11 +1,11 @@
-import { PaginatedResponse, queryParams } from "@/types/pagination";
+import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
 import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
 
 export const getPosts = async (
-  queryParams?: queryParams
+  queryParams?: postQueryParams
 ): Promise<PaginatedResponse<Post>> => {
   try {
     const response = await axios.get(API_URL, {

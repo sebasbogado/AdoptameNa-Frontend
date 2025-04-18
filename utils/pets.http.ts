@@ -1,3 +1,4 @@
+import { PaginatedResponse, petQueryParams } from "@/types/pagination";
 import { Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
@@ -60,9 +61,12 @@ export const getPet = async (id: string): Promise<Pet> => {
   }
 };
 
-export const getPets = async (): Promise<Pet[]> => {
+export const getPets = async (
+  queryParams?: petQueryParams
+): Promise<PaginatedResponse<Pet>> => {
   try {
     const response = await axios.get(API_URL, {
+      params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
@@ -77,9 +81,33 @@ export const getPets = async (): Promise<Pet[]> => {
   }
 };
 
-export const getPetsByStatusId = async (statusId: number): Promise<Pet[]> => {
+function buildQueryString(params: Record<string, any>): string {
+  const searchParams = new URLSearchParams();
+
+  for (const key in params) {
+    const value = params[key];
+
+    if (Array.isArray(value)) {
+      value.forEach((val) => {
+        if (val !== undefined && val !== null && val !== "") {
+          searchParams.append(key, String(val));
+        }
+      });
+    } else if (value !== undefined && value !== null && value !== "") {
+      searchParams.append(key, String(value));
+    }
+  }
+
+  return searchParams.toString();
+}
+
+export const getPetsDashboard = async (
+  queryParams?: Record<string, any>
+): Promise<PaginatedResponse<Pet>> => {
   try {
-    const response = await axios.get(`${API_URL}/byPetStatus/${statusId}`, {
+    const queryString = queryParams ? buildQueryString(queryParams) : "";
+    const url = `${API_URL}${queryString && `?${queryString}`}`;
+    const response = await axios.get(url, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -93,6 +121,7 @@ export const getPetsByStatusId = async (statusId: number): Promise<Pet[]> => {
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
+
 export async function updatePet(id: string, petData: UpdatePet, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, petData, {
