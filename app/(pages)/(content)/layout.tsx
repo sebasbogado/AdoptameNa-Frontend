@@ -21,26 +21,27 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   useEffect(() => {
-    const fetchSponsors = async () => {
+    const fetchImagesByIds = async () => {
+      const ids = [1, 2, 3, 4, 5, 6,7,8,9,10,11,12]; // los IDs de media para mostrar
       try {
-        const response = await axios.get(
-          `${API_URL}/media?page=0&size=25&sort=id,asc`,
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-              "Content-Type": "application/json",
-            },
-          }
+        const responses = await Promise.all(
+          ids.map(id =>
+            axios.get(`${API_URL}/media/${id}`)
+          )
         );
-        const shuffled = response.data.data.sort(() => 0.5 - Math.random());
-        setSponsors(shuffled);
+        const imageData = responses.map(res => ({
+          id: res.data.id,
+          url: res.data.url,
+        }));
+        setSponsors(imageData);
       } catch (error) {
-        console.error("Error al obtener auspiciantes:", error);
+        console.error("Error al cargar imágenes públicas:", error);
       }
     };
-
-    fetchSponsors();
+  
+    fetchImagesByIds();
   }, []);
+  
 
   const allowedRoutes = [
     "/dashboard",
