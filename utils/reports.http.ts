@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ReportPost } from "@/types/report";
-const API_URL= `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
+const API_URL= `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
 
 export const createReport = async (token: string, reportData: ReportPost) => {
   try {

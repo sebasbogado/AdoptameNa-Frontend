@@ -1,3 +1,5 @@
+import { Animal } from "./animal";
+
 export interface Pet {
   id: number;
   name: string;
@@ -28,6 +30,23 @@ export interface Pet {
     name: string; // Ej: "Perdido", "Encontrado"
     description: string;
   };
+}
+
+
+export interface CreatePet {
+  name: string;
+  description: string;
+  birthdate: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  mediaIds: number[];
+  isSterilized: boolean;
+  isVaccinated: boolean;
+  addressCoordinates: string;
+  userId: number;
+  animalId: number;
+  breedId: number;
+  //healthStateId: number;
+  petStatusId: number;
 }
 
 export interface UpdatePet {
