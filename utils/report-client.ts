@@ -89,9 +89,25 @@ export const deleteReport = async (id: number, token: string) => {
 };
 
 
-export const deleteReportsByPost = async (id: number, token: string) => {
+export const deleteReportsByPostId = async (id: number, token: string) => {
   try {
-    const response = await axios.delete(`${API_URL}/byPostId/${id}`, {
+    const response = await axios.delete(`${NEW_API_URL}/byPostId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
+export const deleteReportsByPetId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byPetId/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -106,11 +122,12 @@ export const deleteReportsByPost = async (id: number, token: string) => {
 };
 
 //obtener reportes de un post/pet por id
-export const getReportsById = async (queryParams?: any) => {
+export const getReportsById = async (token:string, queryParams?: any) => {
   try {
     const response = await axios.get(`${NEW_API_URL}`, {
       params: queryParams,
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -136,11 +153,12 @@ export const banPost = async (id: number, token: string) => {
   }
 }
 
-export const getReportedPosts = async (queryParams?: any) => {
+export const getReportedPosts = async (token:string, queryParams?: any ) => {
   try{
     const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -153,11 +171,12 @@ export const getReportedPosts = async (queryParams?: any) => {
   }
 }
 
-export const getReportedPets = async (queryParams?: any) => {
+export const getReportedPets = async (token: string, queryParams?: any) => {
   try {
     const response = await axios.get(`${NEW_API_URL}/reported-pets`, {
       params: queryParams,
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
