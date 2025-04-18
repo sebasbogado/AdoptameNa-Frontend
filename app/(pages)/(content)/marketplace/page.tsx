@@ -3,7 +3,7 @@
 import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
-import PetCard from "@/components/petCard/pet-card";
+import ProductCard from "@/components/product-Card/product-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { Post } from "@/types/post";
 import { Product } from "@/types/product";
@@ -109,7 +109,7 @@ export default function Page() {
                         <p className="text-center col-span-full">No se han encontrado resultados</p>
                     ) : (
                         products.map((item) => (
-                            <PetCard key={item.id} post={item} />
+                            <ProductCard key={item.id} product={item} />
                         ))
                     )}
 
