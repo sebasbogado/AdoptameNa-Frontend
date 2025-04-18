@@ -13,6 +13,7 @@ export interface Pet {
   urlPhoto: string | null;
   userId: number;
   addressCoordinates: string;
+  userFullName: string;
 }
 export interface UpdatePet {
   animalId: number;
