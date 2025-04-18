@@ -1,6 +1,8 @@
+import { Animal } from "./animal";
+
 export interface Pet {
   id: number;
-  animalId: number;
+  animal: Animal;
   birthdate: string;
   breedId: number;
   description: string;
@@ -15,6 +17,23 @@ export interface Pet {
   addressCoordinates: string;
   userFullName: string;
 }
+
+export interface CreatePet {
+  name: string;
+  description: string;
+  birthdate: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  mediaIds: number[];
+  isSterilized: boolean;
+  isVaccinated: boolean;
+  addressCoordinates: string;
+  userId: number;
+  animalId: number;
+  breedId: number;
+  //healthStateId: number;
+  petStatusId: number;
+}
+
 export interface UpdatePet {
   animalId: number;
   birthdate: string;

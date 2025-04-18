@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ReportReason } from "@/types/report-reason";
 
-const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reportReasons`;
+const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/report-reasons`;
 
 export const getReportReasons = async (queryParams?:any) => {
   try {
