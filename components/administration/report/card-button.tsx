@@ -11,7 +11,7 @@ import Router from "next/router";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/buttons/button";
-import {  CheckIcon, EyeIcon, XIcon } from "lucide-react";
+import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -24,36 +24,35 @@ type PetCardProps = {
     isReportedPage?: boolean
     handleAprove?: () => void;
     handleDesaprove?: () => void;
-
+    isPost?: boolean
 };
 
 
-export default function CardButtons({ post, className, isReportedPage, handleAprove, handleDesaprove }: PetCardProps) {
+
+export default function CardButtons({ post, className, isReportedPage, handleAprove, handleDesaprove, isPost = true }: PetCardProps) {
     const router = useRouter()
     return (
         <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
             {isReportedPage ?
-
                 <div onClick={(e) => e.stopPropagation()}>
-                    <PetCard post={post} isPost={true} />
+                    <PetCard post={post} isPost={isPost} />
                 </div> :
-                    <PetCard post={post}  isPost={true}/>}
+                <PetCard post={post} isPost={isPost} />}
             {isReportedPage ?
                 <div className="m-4 flex gap-2 justify-center">
 
                     <Button size="sm" onClick={handleAprove} className="flex items-center justify-center">
-                    <CheckIcon className="w-3 h-3 mr-2 text-white" strokeWidth={4} />
-                    Mantener
+                        <CheckIcon className="w-3 h-3 mr-2 text-white" strokeWidth={4} />
+                        Mantener
                     </Button>
                     <Button variant="danger" size="sm" onClick={handleDesaprove} className="flex items-center justify-center">
-                    <XIcon className="w-3 h-3  mr-2 text-white" strokeWidth={4} />
-                    Bloquear
+                        <XIcon className="w-3 h-3  mr-2 text-white" strokeWidth={4} />
+                        Bloquear
                     </Button>
                 </div>
                 :
                 <div className="m-4 flex justify-center">
-                    <Link href={`/administration/report/${post.id}`} >
-
+                    <Link href={isPost ? `/administration/report/posts/${post.id}` : `/administration/report/pets/${post.id}`} >
                         <Button size="sm" className="flex items-center justify-center">
                             <EyeIcon className="w-5 h-5 mr-2 text-white" strokeWidth={3} />
                             Ver razones
