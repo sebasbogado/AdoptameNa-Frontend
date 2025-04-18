@@ -1,4 +1,5 @@
 import { Animal } from "./animal";
+import { Media } from "./media";
 
 export interface Pet {
   id: number;
@@ -12,7 +13,7 @@ export interface Pet {
   isVaccinated: boolean;
   name: string;
   petStatusId: number;
-  urlPhoto: string | null;
+  media: Media[];
   userId: number;
   addressCoordinates: string;
 }
@@ -34,17 +35,17 @@ export interface CreatePet {
 }
 
 export interface UpdatePet {
-  animalId: number;
-  birthdate: string;
-  breedId: number;
+  name: string;
   description: string;
-  gender: "MALE" | "FEMALE";
-  healthStateId: number;
+  birthdate: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  mediaIds: number[];
   isSterilized: boolean;
   isVaccinated: boolean;
-  name: string;
-  petStatusId: number;
-  urlPhoto: string | null;
-  userId: number;
   addressCoordinates: string;
+  userId: number;
+  animalId: number;
+  breedId: number;
+  //healthStateId: number;
+  petStatusId: number
 }
