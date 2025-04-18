@@ -64,10 +64,13 @@ export function usePagination<T>({
     fetchData();
   }, [currentPage, pageSize, filters]);
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    scrollToTop && window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      scrollToTop && window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [scrollToTop]
+  );
 
   const handlePageSizeChange = useCallback((newSize: number) => {
     setPageSize(newSize);
