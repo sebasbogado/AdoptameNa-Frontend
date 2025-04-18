@@ -42,7 +42,7 @@ export default function Page() {
 
 	return (
 		<div className="p-6">
-			<SectionAdmin title="Aprobar o rechazar denuncias">Aprobar un reporte indica que es correcto y se eliminará la publicación, rechazar un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
+			<SectionAdmin title="Aprobar o rechazar denuncias">Bloquear un reporte indica que es correcto y se eliminará la publicación, mantener un reporte indica que el reporte no es correcto y la publicación seguirá activa</SectionAdmin>
 			{error && (
 				<div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">
 					{error.message || 'Error al cargar las publicaciones reportadas'}
