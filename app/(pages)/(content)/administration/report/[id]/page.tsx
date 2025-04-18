@@ -231,7 +231,7 @@ const ReportsPost = () => {
       </div>
       <div className=" flex justify-around">
 
-        <ReportList reports={reports} post={post} handleDeleteReport={handleDeleteReport} />
+        <ReportList reports={reports} handleDeleteReport={handleDeleteReport} />
         <CardReport post={post} isReportedPage={true} handleAprove={handleAprove} handleDesaprove={handleDesaprove} />
       </div>
     </div>
