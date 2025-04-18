@@ -1,12 +1,11 @@
 'use client'
 import CardReport from "@/components/administration/report/card-button";
 import SectionAdmin from "@/components/administration/section";
-import { SectionCards } from "@/components/section-cards"
 import { useAuth } from "@/contexts/auth-context";
 import { Post } from "@/types/post";
-import { getPostReports, getPosts } from '@/utils/posts.http';
+import { getPostsReported } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { usePagination } from '@/hooks/use-pagination';
 import Pagination from "@/components/pagination";
 import { Loader2 } from 'lucide-react';
@@ -26,7 +25,7 @@ export default function Page() {
 		handlePageChange
 	} = usePagination<Post>({
 		fetchFunction: async (page, size) => {
-			return await getPostReports({ page, size });
+			return await getPostsReported({ page, size });
 		},
 		initialPage: 1,
 		initialPageSize: pageSize
@@ -56,9 +55,7 @@ export default function Page() {
 				posts.length !== 0 ? (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
 						{posts.map((post, index) => (
-							<SectionCards key={index} item={post} filterByType={false} >
-								<CardReport post={post} />
-							</SectionCards>
+							<CardReport key={index} post={post} />
 						))}
 					</div>
 				) : (
