@@ -15,7 +15,7 @@ export const getPosts = async (
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -32,7 +32,7 @@ export const getPost = async (id: string): Promise<Post> => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -48,7 +48,7 @@ export const getPostReports = async (queryParams?: any) => {
         "Content-Type": "application/json",
       },
     });
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -72,7 +72,7 @@ export const updatePostById = async (
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response) {
       throw new Error(
@@ -93,7 +93,7 @@ export const createPost = async (data: CreatePost, token: string) => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -115,7 +115,7 @@ export async function updatePost(
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -133,7 +133,7 @@ export async function deletePost(id: string, token: string) {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -155,7 +155,7 @@ export async function sharePost(id: string, token: string) {
       }
     );
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");

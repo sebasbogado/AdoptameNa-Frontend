@@ -16,7 +16,7 @@ export const getPetsByUserId = async (id: string, page?: number, size?: number) 
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -34,7 +34,7 @@ export const postPets = async (params: any, token?: string) => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -51,7 +51,7 @@ export const getPet = async (id: string): Promise<Pet> => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -68,7 +68,7 @@ export const getPets = async (): Promise<Pet[]> => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -85,7 +85,7 @@ export const getPetsByStatusId = async (statusId: number): Promise<Pet[]> => {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
@@ -102,7 +102,7 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
       },
     });
 
-    return response.data.data;
+    return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("Mascota no encontrada");
