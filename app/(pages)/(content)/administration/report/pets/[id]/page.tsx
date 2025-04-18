@@ -3,7 +3,7 @@ import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { useAuth } from "@/contexts/auth-context";
 import { Report } from "@/types/report";
-import { deleteReport, deleteReportsByPost, getReportsById, banPet } from "@/utils/report-client";
+import { deleteReport, deleteReportsByPostId, getReportsById, banPet, deleteReportsByPetId } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CardReport from "@/components/administration/report/card-button";
@@ -16,13 +16,14 @@ import { Pet } from "@/types/pet";
 import { getPet } from "@/utils/pets.http";
 
 const getReportsOfPet = async (
+  token: string,
   id: string,
   setReport: React.Dispatch<React.SetStateAction<Report[] | []>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setError: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
     setLoading(true);
-    const report = await getReportsById({idPet: id});
+    const report = await getReportsById(token, {idPet: id});
     setReport(report.data);
   } catch (error: any) {
     console.log(error);
@@ -62,19 +63,19 @@ const ReportsPost = () => {
   //obtiene pet por id
   useEffect(() => {
     const petId = params.id;
-    if (!petId) {
+    if (!petId || !authToken) {
       setError(true);
       return;
     }
     getPetById(petId as string, setPet, setLoading, setError);
-    getReportsOfPet(petId as string, setReports, setLoading, setError);
+    getReportsOfPet(authToken, petId as string, setReports, setLoading, setError);
 
   }, [params.id]);
 
   const handleAprove = async () => {
     if (!pet) return;
     try {
-      await deleteReportByPost(pet.id);
+      await deleteReportByPet(pet.id);
       setSuccessMessage("Mascota aprobado exitosamente");
     } catch (err) {
       setErrorMessage("Hubo un error al aprobar el post.");
@@ -103,13 +104,14 @@ const ReportsPost = () => {
       setErrorMessage("Hubo un error al banear el post.");
     }
   };
-  //eliminar todos los reportes de un post al aprobarlo
-  //falta endpoint
-  const deleteReportByPost = async (reportId: number) => {
+  //eliminar todos los reportes de un pet al aprobarlo
+  const deleteReportByPet = async (reportId: number) => {
     if (authLoading || !authToken || !pet?.id) return;
     try {
-      await deleteReportsByPost(reportId, authToken);
+      await deleteReportsByPetId(reportId, authToken);
       setReports([]); // Actualiza la UI eliminando el reporte
+      setTimeout(() => route.push(`/administration/report/pets`), 5000);
+
 
     } catch (error) {
       console.error("Error al eliminar el reporte:", error);

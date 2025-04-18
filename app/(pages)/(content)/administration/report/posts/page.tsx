@@ -25,7 +25,10 @@ export default function Page() {
 		handlePageChange
 	} = usePagination<Post>({
 		fetchFunction: async (page, size) => {
-			return await getReportedPosts({ page, size });
+			if (!authToken) {
+				throw new Error("No se ha encontrado el token de autenticación");
+			}
+			return await getReportedPosts(authToken, { page, size });
 		},
 		initialPage: 1,
 		initialPageSize: pageSize

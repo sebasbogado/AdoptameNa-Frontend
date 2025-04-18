@@ -12,8 +12,8 @@ const navbarAdminItems = [
         name: "Reportes",
         isDropdown: true,
         items: [
-            { name: "Reportes de Mascotas", path: "/administration/report/pets" },
-            { name: "Reportes de Posts", path: "/administration/report/posts" }
+            { name: "Reportes de mascotas", path: "/administration/report/pets" },
+            { name: "Reportes de publicaciones", path: "/administration/report/posts" }
         ]
     },
     { name: "Configuraciones", path: "/administration/settings" },

@@ -25,7 +25,10 @@ export default function Page() {
     handlePageChange
   } = usePagination<Pet>({
     fetchFunction: async (page, size) => {
-      return await getReportedPets({ page, size });
+      if (!authToken) {
+        throw new Error("No se ha encontrado el token de autenticación");
+      }
+      return await getReportedPets(authToken, { page, size });
     },
     initialPage: 1,
     initialPageSize: pageSize

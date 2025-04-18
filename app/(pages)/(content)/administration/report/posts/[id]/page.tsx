@@ -3,7 +3,7 @@ import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { useAuth } from "@/contexts/auth-context";
 import { Report } from "@/types/report";
-import { deleteReport, deleteReportsByPost, getReportsById, banPost } from "@/utils/report-client";
+import { deleteReport, deleteReportsByPostId, getReportsById, banPost } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CardReport from "@/components/administration/report/card-button";
@@ -16,13 +16,14 @@ import { Alert } from "@material-tailwind/react";
 import { ArrowLeft } from "lucide-react";
 
 const getReportsOfPost = async (
+  token: string,
   id: string,
   setReport: React.Dispatch<React.SetStateAction<Report[] | []>>,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setError: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
     setLoading(true);
-    const report = await getReportsById({idPost: id});
+    const report = await getReportsById(token, {idPost: id});
     setReport(report.data);
   } catch (error: any) {
     console.log(error);
@@ -62,16 +63,15 @@ const ReportsPost = () => {
   //obtiene post por id
   useEffect(() => {
     const postId = params.id;
-    if (!postId) {
+    if (!postId || !authToken) {
       setError(true);
       return;
     }
     getPostById(postId as string, setPost, setLoading, setError);
-    getReportsOfPost(postId as string, setReports, setLoading, setError);
+    getReportsOfPost(authToken, postId as string, setReports, setLoading, setError);
   }, [params.id]);
 
   //accion de mantener
-  //falta endpoint para eliminar todos los reportes relacionados al post
   const handleAprove = async () => {
     if (!post) return;
     try {
@@ -105,12 +105,12 @@ const ReportsPost = () => {
     }
   };
   //falta endpoint
-  //eliminar todos los reportes de un post al aprobarlo
   const deleteReportByPost = async (reportId: number) => {
     if (authLoading || !authToken || !post?.id) return;
     try {
-      await deleteReportsByPost(reportId, authToken);
+      await deleteReportsByPostId(reportId, authToken);
       setReports([]); // Actualiza la UI eliminando el reporte
+      setTimeout(() => route.push(`/administration/report/posts`), 5000);
 
     } catch (error) {
       console.error("Error al eliminar el reporte:", error);
