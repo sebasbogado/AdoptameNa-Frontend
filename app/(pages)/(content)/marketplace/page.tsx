@@ -18,13 +18,34 @@ export default function Page() {
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-    const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
+    const [selectedPrice, setSelectedPrice] = useState<number | string | null>(null);
     const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
 
     const [categories, setCategories] = useState<ProductCategory[]>([]);
+    const [allPrices, setAllPrices] = useState<number[]>([]);
+
+    const cleanFilters = (filters: Record<string, any>) => {
+        return Object.fromEntries(
+          Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
+        );
+      };
 
     useEffect(() => {
-        if (selectedCategory) {
+        const fetchPrices = async () => {
+            try {
+                const response = await getProducts({}); 
+                const prices = [...new Set(response.data.map(p => p.price))].sort((a, b) => a - b);
+                setAllPrices(prices);
+            } catch (error) {
+                console.error("Error al obtener los precios:", error);
+            }
+        };
+    
+        fetchPrices();
+    }, []);
+
+    useEffect(() => {
+        if (selectedCategory && selectedCategory !== "Todos") {
             const found = categories.find(cat => cat.name === selectedCategory);
             setSelectedCategoryId(found ? found.id : null);
         } else {
@@ -68,11 +89,16 @@ export default function Page() {
     });
 
     useEffect(() => {
-        updateFilters({
+        const filteredData = {
             categoryId: selectedCategoryId,
-            condition: selectedCondition,
-            price: selectedPrice,
-        });
+            condition: selectedCondition === "Todos" ? null : selectedCondition,
+            price: selectedPrice === "Todos" ? null : selectedPrice as number | null,
+        };
+
+        const cleanedFilters = cleanFilters(filteredData);
+
+        updateFilters(cleanedFilters);
+
     }, [selectedCategoryId, selectedCondition, selectedPrice, updateFilters]);
 
     return (
@@ -82,25 +108,27 @@ export default function Page() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <LabeledSelect
                         label="Categorias"
-                        options={categories.map((category) => category.name)}
+                        options={["Todos", ...categories.map((category) => category.name)]}
                         selected={selectedCategory}
                         setSelected={setSelectedCategory}
                     />
 
                     <LabeledSelect
                         label="Precio"
-                        options={
-                            products.length === 0
-                                ? ["No hay precios disponibles"]
-                                : [...new Set(products.map(p => p.price))].sort((a, b) => a - b)
-                        }
-                        selected={selectedPrice}
-                        setSelected={setSelectedPrice}
+                        options={[
+                            "Todos",
+                            ...allPrices.map(price => price.toString())
+                        ]}
+                        selected={selectedPrice?.toString() ?? "Todos"}
+                        setSelected={(value) => {
+                            const parsed = value === "Todos" ? null : Number(value);
+                            setSelectedPrice(parsed);
+                        }}
                     />
 
                     <LabeledSelect
                         label="Condicion"
-                        options={["NUEVO", "USADO"]}
+                        options={["Todos", "NUEVO", "USADO"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
                     />
