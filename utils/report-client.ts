@@ -1,5 +1,6 @@
 import { UpdateUserProfile } from "@/types/user-profile";
 import axios from "axios";
+import { queryParams } from "@/types/pagination";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
 const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
@@ -30,7 +31,7 @@ export const getReportById = async (id: string) => {
   }
 };
 //para traer todos los posts reportados
-export const getReports = async (queryParams?: any) => {
+export const getReports = async (queryParams?: queryParams) => {
   try {
     const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
@@ -122,7 +123,7 @@ export const deleteReportsByPetId = async (id: number, token: string) => {
 };
 
 //obtener reportes de un post/pet por id
-export const getReportsById = async (token:string, queryParams?: any) => {
+export const getReportsById = async (token:string, queryParams?: queryParams) => {
   try {
     const response = await axios.get(`${NEW_API_URL}`, {
       params: queryParams,
@@ -153,7 +154,7 @@ export const banPost = async (id: number, token: string) => {
   }
 }
 
-export const getReportedPosts = async (token:string, queryParams?: any ) => {
+export const getReportedPosts = async (token:string, queryParams?: queryParams ) => {
   try{
     const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
@@ -171,7 +172,7 @@ export const getReportedPosts = async (token:string, queryParams?: any ) => {
   }
 }
 
-export const getReportedPets = async (token: string, queryParams?: any) => {
+export const getReportedPets = async (token: string, queryParams?: queryParams) => {
   try {
     const response = await axios.get(`${NEW_API_URL}/reported-pets`, {
       params: queryParams,
