@@ -1,14 +1,12 @@
 import TrashButton from "@/components/buttons/trash-button";
-import { Post } from "@/types/post";
 import { Report } from "@/types/report";
 
 interface ReportListProps {
   reports: Report[];
-  post: Post;
   handleDeleteReport: (reportId: number) => void;
 };
 
-export default function ReportList({ reports, post, handleDeleteReport }: ReportListProps) {
+export default function ReportList({ reports, handleDeleteReport }: ReportListProps) {
   if (!reports.length) {
     return <p className="text-gray-500 text-center mt-4">No hay reportes disponibles.</p>;
   }
