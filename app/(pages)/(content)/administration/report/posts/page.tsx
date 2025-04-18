@@ -3,7 +3,7 @@ import CardReport from "@/components/administration/report/card-button";
 import SectionAdmin from "@/components/administration/section";
 import { useAuth } from "@/contexts/auth-context";
 import { Post } from "@/types/post";
-import { getPostsReported } from "@/utils/report-client";
+import { getReportedPosts } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { usePagination } from '@/hooks/use-pagination';
@@ -25,7 +25,7 @@ export default function Page() {
 		handlePageChange
 	} = usePagination<Post>({
 		fetchFunction: async (page, size) => {
-			return await getPostsReported({ page, size });
+			return await getReportedPosts({ page, size });
 		},
 		initialPage: 1,
 		initialPageSize: pageSize

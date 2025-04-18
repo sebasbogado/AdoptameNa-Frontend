@@ -3,7 +3,7 @@ import CardReport from "@/components/administration/report/card-button";
 import SectionAdmin from "@/components/administration/section";
 import { useAuth } from "@/contexts/auth-context";
 import { Pet } from "@/types/pet";
-import { getPetsReported } from "@/utils/report-client";
+import { getReportedPets } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { usePagination } from '@/hooks/use-pagination';
@@ -25,7 +25,7 @@ export default function Page() {
     handlePageChange
   } = usePagination<Pet>({
     fetchFunction: async (page, size) => {
-      return await getPetsReported({ page, size });
+      return await getReportedPets({ page, size });
     },
     initialPage: 1,
     initialPageSize: pageSize

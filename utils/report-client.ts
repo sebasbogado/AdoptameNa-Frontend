@@ -105,11 +105,11 @@ export const deleteReportsByPost = async (id: number, token: string) => {
   }
 };
 
-//obtener motivos de reporte de un post
-export const getPostReportsById = async (id: string) => {
+//obtener reportes de un post/pet por id
+export const getReportsById = async (queryParams?: any) => {
   try {
     const response = await axios.get(`${NEW_API_URL}`, {
-      params: { idPost: id },
+      params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
@@ -136,7 +136,7 @@ export const banPost = async (id: number, token: string) => {
   }
 }
 
-export const getPostsReported = async (queryParams?: any) => {
+export const getReportedPosts = async (queryParams?: any) => {
   try{
     const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
@@ -153,7 +153,7 @@ export const getPostsReported = async (queryParams?: any) => {
   }
 }
 
-export const getPetsReported = async (queryParams?: any) => {
+export const getReportedPets = async (queryParams?: any) => {
   try {
     const response = await axios.get(`${NEW_API_URL}/reported-pets`, {
       params: queryParams,
@@ -167,23 +167,6 @@ export const getPetsReported = async (queryParams?: any) => {
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener pets reportados");
-  }
-}
-
-export const getReportsByPetId = async (id: string) => {
-  try{
-    const response = await axios.get(`${NEW_API_URL}`, {
-      params: { idPet: id },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  }catch(error:any){
-    if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
-    }
-    throw new Error(error.message || "Error al obtener Posts reportados");
   }
 }
 

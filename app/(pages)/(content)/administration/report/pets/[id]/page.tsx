@@ -3,7 +3,7 @@ import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { useAuth } from "@/contexts/auth-context";
 import { Report } from "@/types/report";
-import { deleteReport, deleteReportsByPost, getReportsByPetId, banPet } from "@/utils/report-client";
+import { deleteReport, deleteReportsByPost, getReportsById, banPet } from "@/utils/report-client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CardReport from "@/components/administration/report/card-button";
@@ -22,7 +22,7 @@ const getReportsOfPet = async (
   setError: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
     setLoading(true);
-    const report = await getReportsByPetId(id);
+    const report = await getReportsById({idPet: id});
     setReport(report.data);
   } catch (error: any) {
     console.log(error);
