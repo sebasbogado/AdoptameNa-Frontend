@@ -2,15 +2,21 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { PaginatedResponse } from "@/types/pagination";
 
 type UsePaginationProps<T> = {
-  fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
+  fetchFunction: (
+    page: number,
+    size: number,
+    filters?: Record<string, any>
+  ) => Promise<PaginatedResponse<T>>;
   initialPage?: number;
   initialPageSize?: number;
+  scrollToTop?: boolean;
 };
 
 export function usePagination<T>({
   fetchFunction,
   initialPage = 1,
   initialPageSize = 10,
+  scrollToTop = true,
 }: UsePaginationProps<T>) {
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [pageSize, setPageSize] = useState<number>(initialPageSize);
@@ -20,6 +26,7 @@ export function usePagination<T>({
   const [totalPages, setTotalPages] = useState<number>(0);
   const [totalElements, setTotalElements] = useState<number>(0);
   const [isLastPage, setIsLastPage] = useState<boolean>(false);
+  const [filters, setFilters] = useState<Record<string, any>>({}); // Filtros dinámicos
 
   const fetchFunctionRef = useRef(fetchFunction);
 
@@ -27,6 +34,7 @@ export function usePagination<T>({
     fetchFunctionRef.current = fetchFunction;
   }, [fetchFunction]);
 
+  // Fetch data whenever page, pageSize, or filters change
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -35,7 +43,8 @@ export function usePagination<T>({
       try {
         const response = await fetchFunctionRef.current(
           currentPage - 1,
-          pageSize
+          pageSize,
+          filters
         );
 
         setData(response.data);
@@ -53,15 +62,23 @@ export function usePagination<T>({
     };
 
     fetchData();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, filters]);
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" }); //se podria quitar o poner como opcional
-  }, []);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      scrollToTop && window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    [scrollToTop]
+  );
 
   const handlePageSizeChange = useCallback((newSize: number) => {
     setPageSize(newSize);
+    setCurrentPage(1);
+  }, []);
+
+  const updateFilters = useCallback((newFilters: Record<string, any>) => {
+    setFilters(newFilters);
     setCurrentPage(1);
   }, []);
 
@@ -76,5 +93,6 @@ export function usePagination<T>({
     isLastPage,
     handlePageChange,
     handlePageSizeChange,
+    updateFilters,
   };
 }
