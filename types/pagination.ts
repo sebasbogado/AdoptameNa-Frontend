@@ -24,3 +24,8 @@ export type postQueryParams = queryParams & {
 export type petQueryParams = queryParams & {
   petStatusId?: number
 }
+
+export type reportQueryParams = queryParams & {
+  idPost?: number;
+  idPet?: number;
+}
