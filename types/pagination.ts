@@ -29,4 +29,6 @@ export type productQueryParams = queryParams & {
   categoryId?: number;
   condition?: string;
   price?: number;
+  minPrice?: number;
+  maxPrice?: number;
 };

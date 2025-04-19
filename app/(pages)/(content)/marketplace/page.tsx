@@ -18,11 +18,22 @@ export default function Page() {
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-    const [selectedPrice, setSelectedPrice] = useState<number | string | null>(null);
     const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
 
     const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [allPrices, setAllPrices] = useState<number[]>([]);
+
+    const [minPrice, setMinPrice] = useState<number | null>(null);
+    const [maxPrice, setMaxPrice] = useState<number | null>(null);
+    const [priceError, setPriceError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+            setPriceError("El precio mínimo no puede ser mayor que el precio máximo.");
+        } else {
+            setPriceError(null);
+        }
+    }, [minPrice, maxPrice]);
 
     const cleanFilters = (filters: Record<string, any>) => {
         return Object.fromEntries(
@@ -83,23 +94,27 @@ export default function Page() {
                 categoryId: filters?.categoryId || undefined,
                 condition: filters?.condition || undefined,
                 price: filters?.price || undefined,
+                minPrice: filters?.minPrice || undefined,
+                maxPrice: filters?.maxPrice|| undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
 
     useEffect(() => {
+        
+        if (priceError) return;
+
         const filteredData = {
             categoryId: selectedCategoryId,
             condition: selectedCondition === "Todos" ? null : selectedCondition,
-            price: selectedPrice === "Todos" ? null : selectedPrice as number | null,
+            minPrice,
+            maxPrice,
         };
-
+    
         const cleanedFilters = cleanFilters(filteredData);
-
         updateFilters(cleanedFilters);
-
-    }, [selectedCategoryId, selectedCondition, selectedPrice, updateFilters]);
+    }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, updateFilters, priceError]);
 
     return (
         <div className="flex flex-col gap-5">
@@ -114,15 +129,28 @@ export default function Page() {
                     />
 
                     <LabeledSelect
-                        label="Precio"
+                        label="Precio Mínimo"
                         options={[
                             "Todos",
                             ...allPrices.map(price => price.toString())
                         ]}
-                        selected={selectedPrice?.toString() ?? "Todos"}
+                        selected={minPrice?.toString() ?? "Todos"}
                         setSelected={(value) => {
                             const parsed = value === "Todos" ? null : Number(value);
-                            setSelectedPrice(parsed);
+                                setMinPrice(parsed);
+                        }}
+                    />
+
+                    <LabeledSelect
+                        label="Precio Máximo"
+                        options={[
+                            "Todos",
+                            ...allPrices.map(price => price.toString())
+                        ]}
+                        selected={maxPrice?.toString() ?? "Todos"}
+                        setSelected={(value) => {
+                            const parsed = value === "Todos" ? null : Number(value);
+                            setMaxPrice(parsed);
                         }}
                     />
 
@@ -132,6 +160,11 @@ export default function Page() {
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
                     />
+                    {priceError && (
+                        <div className="col-span-full text-red-600 text-sm text-center">
+                            {priceError}
+                        </div>
+)}
                 </div>
             </div>
 
