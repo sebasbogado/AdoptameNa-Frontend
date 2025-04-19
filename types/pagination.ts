@@ -30,3 +30,8 @@ export type myPetsQueryParams = queryParams & {
   age?: number;
   userId?: number;
 }
+
+export type reportQueryParams = queryParams & {
+  idPost?: number;
+  idPet?: number;
+}
