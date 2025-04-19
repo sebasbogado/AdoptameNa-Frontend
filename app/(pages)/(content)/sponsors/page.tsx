@@ -1,13 +1,19 @@
+'use client'
 import Image from 'next/image';
 import sponsorsData from '@/lib/sponsors.json'
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import Button from '@/components/buttons/button';
-
+import { useRouter } from "next/navigation";
 import sponsorLogosData from '@/lib/sponsors-logos.json';
 import ImageComponent from '@/components/image-component';
 
 export default function Page() {
+  const router = useRouter();
+  function handleFormSponsors(){
+    router.push('/sponsors/create')
+    
+  }
     return (
         <div className="w-full px-12">
           <ImageComponent src="/sponsor/sponsor.png"/>
@@ -54,7 +60,7 @@ export default function Page() {
               </div>
             ))}
 
-          <Button variant="cta" size='lg' className='my-10'>Quiero ser auspiciante</Button>
+          <Button variant="cta" size='lg' className='my-10' onClick={handleFormSponsors}>Quiero ser auspiciante</Button>
           </div>
 
          
