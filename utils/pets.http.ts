@@ -1,19 +1,23 @@
-import { PaginatedResponse, petQueryParams } from "@/types/pagination";
+import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
 import { Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
-export const getPetsByUserId = async (id: string, page?: number, size?: number) => {
+export const getPetsByUserId = async (queryParams: myPetsQueryParams)
+  : Promise<PaginatedResponse<Pet>> => {
   try {
     const response = await axios.get(`${API_URL}`, {
       headers: {
         "Content-Type": "application/json",
       },
       params: {
-        id,
-        page,
-        size,
+        page: queryParams.page || 0,
+        size: queryParams.size || 10,
+        sort: queryParams.sort || "id,desc",
+        userId: queryParams.userId,
+        animalId: queryParams.animalId,
+        age: queryParams.age,
       },
     });
 
