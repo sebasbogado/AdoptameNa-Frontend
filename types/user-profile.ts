@@ -1,3 +1,12 @@
+export interface MediaDTO {
+  id: number;
+  mimeType: string;
+  url: string;
+  userId: number;
+  uploadDate: string; // ISO 8601 format
+}
+
+
 export interface UserProfile {
   id: number;
   organizationName: string;
@@ -13,6 +22,7 @@ export interface UserProfile {
   bannerImages: string[];
   email: string;
   isProfileCompleted: boolean;
+  media?: MediaDTO;
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 

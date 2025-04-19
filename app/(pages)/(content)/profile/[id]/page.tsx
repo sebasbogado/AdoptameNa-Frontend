@@ -19,6 +19,7 @@ import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
 import MenuButton from '@/components/buttons/menu-button';
+import HeaderImage from '@/components/image-header';
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -190,7 +191,10 @@ export default function ProfilePage() {
         <div className="w-full font-roboto">
             {/* Banner */}
 
-            <Banners images={userProfile?.bannerImages || ['/logo.png']} />
+            <HeaderImage 
+                isEditEnabled={false} 
+                image={userProfile?.bannerImages?.[0]} 
+            />
             <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                 <div className="grid grid-cols-1 gap-4 p-6">
 
@@ -220,7 +224,7 @@ export default function ProfilePage() {
                     <Section
                         title={`Publicaciones de ${userProfile?.fullName.split(' ')[0]}`}
                         itemType="post"
-                        postTypeName="adoption"
+                        postTypeName="Adopcion"
                         path={`/profile/my-posts/${user?.id ?? ''}`}
                         items={posts}
                         loading={loading}
