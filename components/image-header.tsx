@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import EditButton from "./buttons/edit-button";
 import { postMedia } from "@/utils/media.http";
-import { updateProfileMedia } from "@/utils/profile-media.http";
 import { Alert } from "@material-tailwind/react";
 import { updateUserProfile } from "@/utils/user-profile-client";
 import { MediaDTO, UserProfile } from "@/types/user-profile";
