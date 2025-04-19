@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-
+import Image from 'next/image';
 interface Props {
   images: { id: number; url: string }[];
   className?: string;
@@ -35,27 +35,28 @@ export default function SponsorsCarousel({ images, className }: Props) {
 
   return (
     <div
-    ref={carouselRef}
-    className="carousel-container flex overflow-x-auto scroll-snap-x mandatory gap-4 px-4"
-  style={{
-    scrollSnapType: 'x mandatory',
-    scrollbarWidth: 'none', // Firefox
-    msOverflowStyle: 'none', // IE/Edge
-  }}
+      ref={carouselRef}
+      className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-4 no-scrollbar"
+      style={{
+        scrollSnapType: 'x mandatory',
+        scrollbarWidth: 'none', // Firefox
+        msOverflowStyle: 'none', // IE/Edge
+      }}
     >
       {images.map((image) => (
-        <div
-          key={image.id}
-          className="flex-shrink-0 w-1/4 h-[100px]"
-          style={{ scrollSnapAlign: 'start' }}
-        >
-          <img
-            src={image.url}
-            alt={`Sponsor ${image.id}`}
-            className="w-full h-full object-contain bg-white"
-          />
-        </div>
-      ))}
+      <div
+        key={image.id}
+        className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/4 aspect-[2/1] snap-start relative"
+      >
+        <Image
+          src={image.url}
+          alt={`Sponsor ${image.id}`}
+          fill
+          className="object-contain bg-white"
+          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+        />
+      </div>
+    ))}
     </div>
   );
 }
