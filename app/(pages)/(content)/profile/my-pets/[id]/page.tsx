@@ -31,7 +31,7 @@ export default function MyPostsPage() {
 
     const [animals, setAnimals] = useState<Animal[]>([]);
 
-    const pageSize = 3;
+    const pageSize = 5;
     const {
         data: pets,
         loading,
@@ -47,7 +47,7 @@ export default function MyPostsPage() {
                 size,
                 userId: Number(id),
                 animalId: selectedMascotaId || undefined,
-                age: selectedEdad ? parseInt(selectedEdad.split("-")[0]) : undefined,
+                age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -86,7 +86,7 @@ export default function MyPostsPage() {
 
         const filteredData = {
             animalId: selectedMascotaId,
-            age: selectedEdad ? parseInt(selectedEdad.split("-")[0]) : undefined,
+            age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
             city: selectedCiudad,
         };
     
@@ -127,7 +127,7 @@ export default function MyPostsPage() {
                     {/* Select Edad */}
                     <LabeledSelect
                         label="Edad"
-                        options={edades}
+                        options={["Todos", ...edades]}
                         selected={selectedEdad}
                         setSelected={setSelectedEdad}
                     />
