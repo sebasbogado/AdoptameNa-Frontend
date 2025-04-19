@@ -1,4 +1,5 @@
 import { Animal } from "./animal";
+import { PetStatus } from "./pet-status";
 
 export interface Pet {
   id: number;
@@ -11,7 +12,7 @@ export interface Pet {
   isSterilized: boolean;
   isVaccinated: boolean;
   name: string;
-  petStatusId: number;
+  petStatus: PetStatus
   urlPhoto: string | null;
   userId: number;
   addressCoordinates: string;
