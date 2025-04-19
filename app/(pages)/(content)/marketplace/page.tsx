@@ -13,6 +13,7 @@ import { getPosts } from '@/utils/posts.http';
 import { getProductCategories } from "@/utils/product-category.http";
 import { getProducts } from "@/utils/products.http";
 import { useEffect, useState } from "react";
+import { X } from 'lucide-react';
 
 export default function Page() {
 
@@ -124,11 +125,20 @@ export default function Page() {
         updateFilters(cleanedFilters);
     }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, updateFilters, priceError]);
 
+
+    const resetFilters = () => {
+        setSelectedCategory(null);
+        setSelectedCondition(null);
+        setMinPrice(null);
+        setMaxPrice(null);
+        updateFilters({}); // limpia los filtros aplicados
+    };
+
     return (
         <div className="flex flex-col gap-5">
             <Banners images={bannerImages} />
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <LabeledSelect
                         label="Categorias"
                         options={["Todos", ...categories.map((category) => category.name)]}
@@ -168,6 +178,17 @@ export default function Page() {
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
                     />
+
+                    <div className="flex items-end justify-start">
+                        <button
+                            onClick={resetFilters}
+                            title="Limpiar filtros"
+                            className="p-1 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded flex items-center justify-center"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
                     {priceError && (
                         <div className="col-span-full text-red-600 text-sm text-center">
                             {priceError}
