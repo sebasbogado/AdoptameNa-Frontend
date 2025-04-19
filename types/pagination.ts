@@ -24,3 +24,9 @@ export type postQueryParams = queryParams & {
 export type petQueryParams = queryParams & {
   petStatusId?: number
 }
+
+export type myPetsQueryParams = queryParams & {
+  animalId?: number;
+  age?: number;
+  userId?: number;
+}
