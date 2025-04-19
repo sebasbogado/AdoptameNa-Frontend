@@ -8,11 +8,7 @@ import { updateProfileMedia } from "@/utils/profile-media.http";
 import { Alert } from "@material-tailwind/react";
 import { updateUserProfile } from "@/utils/user-profile-client";
 import { MediaDTO, UserProfile } from "@/types/user-profile";
-
-interface HeaderImageProps {
-    image?: string; // Imagen actual (puede venir del perfil)
-    isEditEnabled: boolean;
-}
+import Image from "next/image";
 
 const notFoundSrc = "/logo.png";
 
@@ -26,7 +22,7 @@ const HeaderImage = ({ isEditEnabled, userProfile }: { isEditEnabled: boolean, u
     
 
     useEffect(() => {
-        const img = new Image();
+        const img = new window.Image();
         img.src = currentImage;
         img.onload = () => {
             setIsVertical(img.height > img.width);
@@ -92,13 +88,16 @@ const HeaderImage = ({ isEditEnabled, userProfile }: { isEditEnabled: boolean, u
                 )}
 
                 {isVertical !== null && (
-                    <img
+                    <Image
                         className={`
                             ${isVertical ? "h-full w-auto" : "w-full h-auto"}
                             object-contain transition-all duration-300 relative
                         `}
                         src={currentImage}
                         alt="Imagen de portada"
+                        width={0}
+                        height={0}
+                        unoptimized
                     />
                 )}
             </div>
