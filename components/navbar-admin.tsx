@@ -9,6 +9,8 @@ const navbarAdminItems = [
     { name: "Reportes", path: "/administration/report" },
     { name: "Configuraciones", path: "/administration/settings" },
     { name: "Usuarios", path: "/administration/users" },
+    { name: "Auspiciantes", path: "/administration/sponsors" },
+
 ];
 
 export default function NavbarAdmin() {
