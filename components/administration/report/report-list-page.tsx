@@ -11,11 +11,13 @@ import CardReport from "@/components/administration/report/card-button";
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
   pageSize?: number;
+  isPost?: boolean;
 }
 
 export default function ReportListPage<T>({
   fetchFunction,
   pageSize = 20,
+  isPost = true,
 }: Props<T>) {
   const {
     data,
@@ -47,7 +49,7 @@ export default function ReportListPage<T>({
       ) : data.length !== 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
           {data.map((item, index) => (
-            <CardReport key={index} post={item}/>
+            <CardReport key={index} post={item} isPost={isPost}/>
           ))}
         </div>
       ) : (
