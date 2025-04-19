@@ -12,7 +12,7 @@ import { getPosts } from '@/utils/posts.http';
 import { Post } from '@/types/post';
 
 export default function MyPostsPage() {
-    const { id } = useParams(); 
+    const { id } = useParams();
     const pageSize = 10;
 
 
@@ -43,13 +43,11 @@ export default function MyPostsPage() {
 
             <section>
                 <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
-                    {error && (
-                        <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">
-                            {error.message || 'Error al cargar los posts'}
+                    {error ? (
+                        <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md justify-center">
+                            {'Error al cargar los posts'}
                         </div>
-                    )}
-
-                    {loading ? (
+                    ) : loading ? (
                         <div className="flex justify-center items-center">
                             <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
                         </div>
