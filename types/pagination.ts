@@ -18,11 +18,12 @@ export type queryParams = {
 };
 
 export type postQueryParams = queryParams & {
-  postTypeId?: number
+  postTypeId?: number;
+  userId?: number;
 }
 
 export type petQueryParams = queryParams & {
-  petStatusId?: number
+  petStatusId?: number;
 }
 
 export type myPetsQueryParams = queryParams & {
@@ -35,3 +36,11 @@ export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
 }
+
+export type productQueryParams = queryParams & {
+  categoryId?: number;
+  condition?: string;
+  price?: number;
+  minPrice?: number;
+  maxPrice?: number;
+};
