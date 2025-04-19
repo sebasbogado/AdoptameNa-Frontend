@@ -226,7 +226,7 @@ export default function ProfilePage() {
             
             <HeaderImage 
                 isEditEnabled={true} 
-                image={userProfile?.bannerImages?.[0]} 
+                userProfile={userProfile}
             />
             
             {isOpen &&
