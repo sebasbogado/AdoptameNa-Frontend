@@ -1,5 +1,6 @@
 'use client'
 
+import Loading from "@/app/loading";
 import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
@@ -16,6 +17,9 @@ import { useEffect, useState } from "react";
 export default function Page() {
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
+
+    const [pageSize, setPageSize] = useState<number>();
+
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
     const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
@@ -47,6 +51,7 @@ export default function Page() {
                 const response = await getProducts({}); 
                 const prices = [...new Set(response.data.map(p => p.price))].sort((a, b) => a - b);
                 setAllPrices(prices);
+                setPageSize(response.pagination.size)
             } catch (error) {
                 console.error("Error al obtener los precios:", error);
             }
@@ -76,8 +81,11 @@ export default function Page() {
 
         fetchCategories();
     }, []);
+    
+    if (!pageSize) {
+        <Loading />
+    }
 
-    const pageSize = 3;
     const {
         data: products,
         loading,
@@ -164,7 +172,7 @@ export default function Page() {
                         <div className="col-span-full text-red-600 text-sm text-center">
                             {priceError}
                         </div>
-)}
+                    )}
                 </div>
             </div>
 
