@@ -39,11 +39,11 @@ const HeaderImage = ({ isEditEnabled, userProfile }: { isEditEnabled: boolean, u
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
         const maxSize = 5 * 1024 * 1024;
 
         if (!allowedTypes.includes(file.type)) {
-            setError("Formato no permitido. Solo se aceptan imágenes JPG o PNG.");
+            setError("Formato no permitido. Solo se aceptan imágenes JPG, PNG o WEBP.");
             return;
         }
 
