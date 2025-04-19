@@ -33,7 +33,7 @@ const nextConfig = {
                   isDev ? "'unsafe-eval'" : ""
                 } https://adoptamena-api.rodrigomaidana.com;
                 style-src 'self' 'unsafe-inline';
-                img-src 'self' data: https://adoptamena-api.rodrigomaidana.com;
+                img-src 'self' data: https://adoptamena-api.rodrigomaidana.com https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/;
                 connect-src 'self' https://adoptamena-api.rodrigomaidana.com;
                 font-src 'self' https://fonts.googleapis.com/css2 ;
                 object-src 'none';

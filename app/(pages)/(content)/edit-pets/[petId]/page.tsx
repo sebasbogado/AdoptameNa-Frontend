@@ -102,14 +102,14 @@ const AdoptionForm = () => {
     const fetchPet = async () => {
       if (authLoading || !authToken || !user?.id || !petId) return;
       if (!animals || !breed || !petsStatus) return;
-  
+
       try {
         const petData = await getPet(String(petId));
         if (petData) {
           reset({
-            petStatusId: petData.petStatusId || 0,
-            animalId: petData.animalId || 0,
-            breedId: petData.breedId || 0,
+            petStatusId: petData.petStatus.id || 0,
+            animalId: petData.animal.id || 0,
+            breedId: petData.breed.id || 0,
             name: petData.name || "",
             birthdate: petData.birthdate || "",
             description: petData.description || "",
@@ -117,12 +117,12 @@ const AdoptionForm = () => {
             isSterilized: petData.isSterilized || false,
             gender: petData.gender || "MALE",
           });
-  
+
           if (petData.addressCoordinates) {
             const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
             setPosition([lat, lng]);
           }
-  
+
           if (petData.urlPhoto) {
             setSelectedImages([{
               file: null,
@@ -136,10 +136,10 @@ const AdoptionForm = () => {
         setErrorMessage("No se pudo cargar la información de la mascota.");
       }
     };
-  
+
     fetchPet();
   }, [authToken, authLoading, user?.id, petId, animals, breed, petsStatus, reset]);
-  
+
   const openConfirmationModal = () => {
     setIsModalOpen(true);
   };
@@ -238,17 +238,17 @@ const AdoptionForm = () => {
       console.error("No hay token de autenticación disponible.");
       return;
     }
-  
+
     try {
       const formValues = getValues();
-      
+
       const updatedData = {
         ...formValues,
         urlPhoto: selectedImages[0]?.url_API,
         userId: Number(user?.id),
         addressCoordinates: position ? `${position[0]},${position[1]}` : null,
       };
-  
+
       const response = await updatePet(String(petId), updatedData as UpdatePet, authToken);
       if (response) {
         setSuccessMessage("Se guardó exitosamente");

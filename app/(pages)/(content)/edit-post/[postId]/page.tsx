@@ -144,7 +144,7 @@ export default function Page() {
 
     useEffect(() => {
         if (!post || !user?.id) return;
-        if ((postError !== null) || (String(post.idUser) !== String(user.id))) {
+        if ((postError !== null) || (String(post.userId) !== String(user.id))) {
             router.push("/");
         }
     }, [post, user?.id]);
@@ -164,7 +164,6 @@ export default function Page() {
 
         const updatedFormData = {
             ...formData,
-            idUser: user ? Number(user.id) : 0,
             locationCoordinates: position ? `${position[0]}, ${position[1]}` : ""
         };
 
