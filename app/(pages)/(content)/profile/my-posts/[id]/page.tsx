@@ -1,110 +1,91 @@
 'use client';
 
-
+import { useParams } from 'next/navigation';
+import { Home, Loader2 } from 'lucide-react';
 import Banners from '@/components/banners';
-import { useEffect, useState } from 'react';
-
-import { getPosts } from '@/utils/posts.http';
-import { useParams, useRouter } from 'next/navigation';
 import PetCard from '@/components/petCard/pet-card';
-import LabeledSelect from '@/components/labeled-selected';
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
+import { getPosts } from '@/utils/posts.http';
 import { Post } from '@/types/post';
-import Loading from '@/app/loading';
+import Link from 'next/link';
+import { useAuth } from '@/contexts/auth-context';
 
-
-
-const fetchContentData = async (
-    setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
-    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setPostsError: React.Dispatch<React.SetStateAction<string | null>>,
-    userId: string,
-) => {
-
-
-    try {
-        // Cargar posts del usuario
-        const postParams = { user: userId }; // Usamos el ID del usuario actual
-        const postData = await getPosts(postParams);
-        setPosts(Array.isArray(postData) ? postData : []);
-    } catch (err) {
-        console.error("Error al cargar posts:", err);
-        setPostsError("No se pudieron cargar las publicaciones."); // 👈 Manejo de error separado
-    } finally {
-        setLoading(false);
-    }
-};
 export default function MyPostsPage() {
-    const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
-    const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
-    const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
-    const {id} = useParams();
+    const { id: profileId } = useParams();
+    const { user, loading: authLoading } = useAuth();
+    const myUserId = user?.id;
+    const isVisitor = profileId !== myUserId;
+    const pageSize = 10;
 
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [postsError, setPostsError] = useState<string | null>(null);
+    const {
+        data: posts,
+        loading: postsLoading,
+        error,
+        currentPage,
+        totalPages,
+        handlePageChange,
+    } = usePagination<Post>({
+        fetchFunction: (page, size) =>
+            getPosts({ page, size, userId: profileId ?? '' }),
+        initialPage: 1,
+        initialPageSize: pageSize,
+    });
 
-    const [selectedCiudad, setSelectedCiudad] = useState<string | null>(null);
-    const [selectedMascota, setSelectedMascota] = useState<string | null>(null);
-    const [selectedEdad, setSelectedEdad] = useState<string | null>(null);
-
-
-
-
-    useEffect(() => {
-        if(!id) return
-        fetchContentData(setPosts, setLoading, setPostsError, id.toString());
-    }, []);
-    if(loading) return <Loading />
-    const bannerImages = ["/banner1.png", "/banner2.png", "/banner3.png", "/banner4.png"]
+    // Mientras se resuelve el contexto de auth…
+    if (authLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+            </div>
+        );
+    }
 
     return (
-        <div className='flex flex-col gap-5'>
-            <Banners images={bannerImages} />
-
-            <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                    {/* Select Ciudad */}
-                    <LabeledSelect
-                        label="Ciudad"
-                        options={ciudades}
-                        selected={selectedCiudad}
-                        setSelected={setSelectedCiudad}
-                    />
-
-
-                    {/* Select Mascota */}
-                    <LabeledSelect
-                        label="Mascota"
-                        options={mascotas}
-                        selected={selectedMascota}
-                        setSelected={setSelectedMascota}
-                    />
-
-                    {/* Select Edad */}
-                    <LabeledSelect
-                        label="Edad"
-                        options={edades}
-                        selected={selectedEdad}
-                        setSelected={setSelectedEdad}
-                    />
-                </div>
-            </div>
-
+        <div className="flex flex-col gap-5">
+            <Banners images={['/banner1.png', '/banner2.png', '/banner3.png', '/banner4.png']} />
 
             <section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                {postsError? <p className="text-center col-span-full">Hubo un error al cargar las publicaciones</p> : 
-                    posts.length > 0 ? (
-                        posts.map((post) => (
-                            <PetCard key={post.id} post={post} />
-                        ))
+                <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
+                    {error ? (
+                        <div className="bg-red-100 text-red-700 p-4 rounded-md max-w-md">
+                            Error al cargar los posts
+                        </div>
+                    ) : postsLoading ? (
+                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    ) : posts.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center gap-4">
+                            {isVisitor ? (
+                                <p className="text-gray-600">Este usuario no ha hecho publicaciones aún</p>
+                            ) : (
+                                <p className="text-gray-600">Aún no tenés posts creados</p>
+                            )}
+                            <Link
+                                href="/"
+                                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow hover:bg-primary/90 transition-colors"
+                            >
+                                <Home size={18} />
+                                <span>Volver al inicio</span>
+                            </Link>
+                        </div>
                     ) : (
-                        <p className="text-center col-span-full">Cargando las publicaciones...</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
+                            {posts.map((post) => (
+                                <PetCard key={post.id} post={post} isPost className="w-full max-w-md" />
+                            ))}
+                        </div>
                     )}
-
                 </div>
             </section>
+
+            <div className="flex justify-center my-6">
+                <Pagination
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    onPageChange={handlePageChange}
+                    size="md"
+                />
+            </div>
         </div>
-    )
+    );
 }
