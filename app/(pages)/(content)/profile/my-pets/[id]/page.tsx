@@ -46,10 +46,11 @@ export default function MyPostsPage() {
                 page,
                 size,
                 userId: Number(id),
-                animalId: selectedMascotaId || undefined,
-                age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
+                animalId: filters?.animalId || undefined,
+                age: filters?.age || undefined,
             }),
         initialPage: 1,
+        scrollToTop: false,
         initialPageSize: pageSize,
     });
 
@@ -82,14 +83,12 @@ export default function MyPostsPage() {
     }, [selectedMascota, animals]);
 
     useEffect(() => {
-    
-
         const filteredData = {
             animalId: selectedMascotaId,
             age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
             city: selectedCiudad,
         };
-    
+
         const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
     }, [selectedMascotaId, selectedEdad, selectedCiudad, updateFilters]);
