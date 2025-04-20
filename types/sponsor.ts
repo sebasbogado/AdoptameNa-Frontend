@@ -3,6 +3,6 @@ export type Sponsor = {
   organizationName: string;
   logoUrl: string;
   bannerUrl: string;
-  logodId: number;
+  logoId: number;
   bannerId: number;
 };

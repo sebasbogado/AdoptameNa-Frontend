@@ -33,7 +33,7 @@ export default function EditBannerPage() {
             } catch (error) {
                 console.error('Error al cargar el banner:', error);
                 alert('Error al cargar el banner. Por favor, inténtalo de nuevo.');
-                router.push('/admin/banners');
+                router.push('/administration/settings/banner');
             } finally {
                 setLoading(false);
             }
