@@ -19,6 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema, PostFormValues } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
+import { Media } from "@/types/media";
+import { Tag } from "@/types/tag";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -39,7 +41,8 @@ export default function Page() {
             content: "",
             locationCoordinates: [0, 0],
             contactNumber: "",
-            urlPhoto: ""
+            mediaIds: [],
+            tags: [],
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
@@ -56,13 +59,16 @@ export default function Page() {
         locationCoordinates: [0, 0], // Array de coordenadas
         contactNumber: "",
         status: "activo", // Valor estático
-        urlPhoto: "",
+        mediaIds: [],
+        tags: [],
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedImages, setSelectedImages] = useState<any[]>([]);
+    const [selectedImages, setSelectedImages] = useState<Media[]>([]);
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const MAX_IMAGES = 1; //Tam max de imagenes
+    const [arrayImages, setArrayImages] = useState<string[]>([]);
+    const MAX_IMAGES = 5; //Tam max de imagenes
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
@@ -81,8 +87,8 @@ export default function Page() {
             setLoading(true);
 
             // Llamar a la API para eliminar la imagen
-            if (imageToRemove.url_API) {
-                await deleteMediaByUrl(imageToRemove.url_API, authToken);
+            if (imageToRemove.url) {
+                await deleteMedia(imageToRemove.id, authToken);
             }
 
             // Eliminar del estado local
@@ -91,8 +97,8 @@ export default function Page() {
 
             // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
             if (updatedImages.length === 0) {
-                setValue("urlPhoto", "");
-                setFormData(prev => ({ ...prev, urlPhoto: "" }));
+                setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
+                setFormData(prev => ({ ...prev, mediaIds: [] }));
             }
 
             setSuccessMessage("Imagen eliminada exitosamente.");
@@ -140,14 +146,15 @@ export default function Page() {
         setLoading(true);
 
         const updatedFormData: CreatePost = {
+            userId: Number(user?.id),
             title: formData.title,
             content: formData.content,
+            //tagsIds: selectedTags.length > 0 ? selectedTags.map(tag => tag.id) : [],
+            tagsIds: [1], // Cambiado a un array vacío para evitar errores
             postTypeId: formData.idPostType,
             contactNumber: formData.contactNumber,
-            status: formData.status || "activo",
             locationCoordinates: formData.locationCoordinates?.join(",") || "",
-            sharedCounter: 0,
-            mediaIds: selectedImages.length > 0 ? [selectedImages[0].id] : []
+            mediaIds: selectedImages.length > 0 ? selectedImages.map(media => media.id) : []
         };
 
         if (!authToken) {
@@ -166,7 +173,8 @@ export default function Page() {
                     locationCoordinates: [0, 0], // Array de coordenadas
                     contactNumber: "",
                     status: "activo", // Valor estático
-                    urlPhoto: ""
+                    mediaIds: [],
+                    tags: [],
                 });
                 //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
@@ -201,33 +209,29 @@ export default function Page() {
             }
 
             // Verifica la cantidad de imagens que se pueden subir
-            if (selectedImages.length >= 2) {
-                setPrecautionMessage("Solo puedes subir hasta 2 imágenes.");
+            if (selectedImages.length >= 5) {
+                setPrecautionMessage("Solo puedes subir hasta 5 imagen.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)
-            if (file.size > 1024 * 1024) {
-                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+            if (file.size > 5 * (1024 * 1024)) {
+                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
                 return;
             }
 
             try {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
-
+                
                 if (response) {
-                    const { id, url } = response;
-                    setValue("urlPhoto", url); // Actualiza react-hook-form
-                    setFormData(prev => ({ ...prev, urlPhoto: url })); // Sincroniza con formData
-                    setSelectedImages(prevImages => [
-                        ...prevImages,
-                        {
-                            id,
-                            file,
-                            url_API: url,
-                            url: URL.createObjectURL(file)
-                        }
-                    ]);
+                    console.log("Imagen subida exitosamente", response);
+                    const { id } = response;
+                    setSelectedImages(prev => [...prev, response]);
+                    setValue("mediaIds", [id]);
+                    setFormData(prev => ({
+                        ...prev,
+                        mediaIds: [...(prev.mediaIds || []), id]
+                    }));
                 }
             } catch (error) {
                 setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
@@ -238,7 +242,10 @@ export default function Page() {
         }
     };
 
-    const arrayImages = selectedImages.map(image => image.url_API);
+    useEffect(() => {
+        const urls = selectedImages.map(image => image.url);
+        setArrayImages(urls);
+      }, [selectedImages]);
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -248,7 +255,7 @@ export default function Page() {
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
                         <Image
                             src={src.url}
-                            alt="pet"
+                            alt="post"
                             fill
                             className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
                             onClick={() => setCurrentImageIndex(index)}
