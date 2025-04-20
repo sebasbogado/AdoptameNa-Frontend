@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
+import { createSponsor } from "@/utils/sponsorsCreate.http";
+import { postMedia } from "@/utils/media.http"
 export default function SponsorFormPage() {
     const [companyName, setCompanyName] = useState('');
     const [responsibleName, setResponsibleName] = useState('');
@@ -10,21 +13,71 @@ export default function SponsorFormPage() {
     const [wantsBanner, setWantsBanner] = useState(false);
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [reason, setReason] = useState('');
+    const { authToken } = useAuth();
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+    const [logoId, setLogoId] = useState<number | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData();
-        formData.append('companyName', companyName);
-        formData.append('responsibleName', responsibleName);
         formData.append('email', email);
         formData.append('wantsLogo', wantsLogo.toString());
         formData.append('wantsBanner', wantsBanner.toString());
-        if (logoFile) formData.append('logo', logoFile);
-        if (bannerFile) formData.append('banner', bannerFile);
+        formData.append('reason', reason);
 
-        // Aquí podés enviar el formData al endpoint
-        console.log('Formulario enviado:', formData);
+        if (!authToken) {
+            throw new Error("El token de autenticación es requerido");
+        }
+        try {
+            const sponsorData = {
+                reason,
+                contact: email,
+                logoId: logoId ?? undefined, // si no está cargado, se omite
+            };
+
+            await createSponsor(authToken, sponsorData);
+            alert("Solicitud enviada con éxito");
+            // Limpiar todos los campos
+            setCompanyName('');
+            setResponsibleName('');
+            setEmail('');
+            setWantsLogo(false);
+            setWantsBanner(false);
+            setLogoFile(null);
+            setBannerFile(null);
+            setReason('');
+            setLogoPreview(null);
+            setBannerPreview(null);
+            setLogoId(null);
+
+
+        } catch (error) {
+            console.error("Error al enviar solicitud:", error);
+            alert("Error al enviar la solicitud");
+        }
+
     };
+    const handleSubmitMedia = async () => {
+        if (!authToken) {
+            alert("el Token de autenticacion es requerido");
+            return;
+        }
+
+        if (wantsLogo && logoFile) {
+            try {
+                const uploadedId = await postMedia(logoFile, authToken);
+                setLogoId(uploadedId);
+                alert("Logo subido con éxito");
+            } catch (error) {
+                console.error("Error al subir el logo:", error);
+                alert("Error al subir el logo");
+            }
+        }
+    };
+
+
 
     return (
         <div className="max-w-xl mx-auto p-6 mt-8 bg-white rounded-2xl font-roboto border-0 shadow-none">
@@ -41,6 +94,8 @@ export default function SponsorFormPage() {
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
                     className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    maxLength={30}
+                    required
                 />
                 <br />
                 <br />
@@ -50,6 +105,8 @@ export default function SponsorFormPage() {
                     value={responsibleName}
                     onChange={(e) => setResponsibleName(e.target.value)}
                     className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    maxLength={30}
+                    required
                 />
                 <br />
                 <br />
@@ -59,6 +116,19 @@ export default function SponsorFormPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    maxLength={30}
+                    required
+                />
+                <br />
+                <br />
+                <label>Razón por la cual quiere ser Auspiciante</label>
+                <input
+                    type="text"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    maxLength={200}
+                    required
                 />
 
                 <label className="flex items-center space-x-2">
@@ -77,10 +147,10 @@ export default function SponsorFormPage() {
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
                                 className="hidden"
                             />
                         </label>
+                    
                     </div>
                 )}
 
@@ -100,9 +170,16 @@ export default function SponsorFormPage() {
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)}
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0] ?? null;
+                                    setBannerFile(file);
+                                    if (file) {
+                                        setBannerPreview(URL.createObjectURL(file));
+                                    }
+                                }}
                                 className="hidden"
                             />
+
                         </label>
                         <p className="text-sm text-gray-500 mt-2">Tamaño sugerido: 900x300 píxeles</p>
                     </div>
