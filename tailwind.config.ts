@@ -42,6 +42,10 @@ module.exports = withMT({
         blog: "var(--color-blog)",
         marketplace: "var(--color-marketplace)",
         found: "var(--color-found)",
+        //missing and found tags
+        "found-tag": "var(--color-found-tag)",
+        "missing-tag": "var(--color-missing-tag)",
+        //Brand colors
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
       },

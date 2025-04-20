@@ -1,7 +1,11 @@
 import { UpdateUserProfile } from "@/types/user-profile";
 import axios from "axios";
+import { reportQueryParams } from "@/types/pagination";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
+const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
+const API_URL_BAN_POST = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/`;
+const API_URL_BAN_PET = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
 export const getReportById = async (id: string) => {
   try {
@@ -26,20 +30,21 @@ export const getReportById = async (id: string) => {
     throw new Error(error.message || "Error al obtener el reporte");
   }
 };
-export const getReports = async (queryParams?: any)=>{
-  try{
-    const response = await axios.get(`${API_URL}`, {
+//para traer todos los posts reportados
+export const getReports = async (queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
       params: queryParams,
       headers: {
         "Content-Type": "application/json",
       },
-      });
-      return response.data;
-      }catch(error: any){
-        if(error.response && error.response.status === 404){
-          throw new Error("No encontrada");
-        }
-        throw new Error(error.message || "Error al obtener Posts reportados");
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts reportados");
   }
 }
 
@@ -50,7 +55,7 @@ export const updateReport = async (
 ) => {
   try {
     const response = await axios.put(`${API_URL}/${id}`, updatedProfile, {
-        headers: {
+      headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
@@ -69,34 +74,131 @@ export const updateReport = async (
 
 
 export const deleteReport = async (id: number, token: string) => {
-    try {
-      const response = await axios.delete(`${API_URL}/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      return response.data;
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.message || "Error al eliminar el reporte"
-      );
-    }
-  };
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
 
 
-  export const deleteReportsByPost = async (id: number, token: string) => {
-    try {
-      const response = await axios.delete(`${API_URL}/byPostId/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      return response.data;
-    } catch (error: any) {
-      throw new Error(
-        error.response?.data?.message || "Error al eliminar el reporte"
-      );
+export const deleteReportsByPostId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byPostId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
+export const deleteReportsByPetId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byPetId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
+//obtener reportes de un post/pet por id
+export const getReportsById = async (token: string, queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
     }
-  };
+    throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}
+
+export const banPost = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_POST}${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
+  }
+}
+
+export const getReportedPosts = async (token: string, queryParams?: reportQueryParams ) => {
+  try{
+    const response = await axios.get(`${NEW_API_URL}/reported-posts`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  }catch(error:any){
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts reportados");
+  }
+}
+
+export const getReportedPets = async (token: string, queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-pets`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener pets reportados");
+  }
+}
+
+export const banPet = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_PET}/${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
+  }
+}
