@@ -22,14 +22,38 @@ export type postQueryParams = queryParams & {
   userId?: number;
 };
 
-export type petQueryParams = queryParams & {
-  petStatusId?: number | number[];
-}
 
+export type petQueryParams = queryParams & {
+  petStatusId?: number;
+};
+
+export type productQueryParams = queryParams & {
+  categoryId?: number;
+  condition?: string;
+  price?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  animalIds?: number;
+};
+
+export type myPetsQueryParams = queryParams & {
+  animalId?: number;
+  minAge?: number;
+  maxAge?: number;
+  userId?: number;
+}
 
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+};
+
+export type productQueryParams = queryParams & {
+  categoryId?: number;
+  condition?: string;
+  price?: number;
+  minPrice?: number;
+  maxPrice?: number;
 };
 
 export type bannerQueryParams = queryParams & {

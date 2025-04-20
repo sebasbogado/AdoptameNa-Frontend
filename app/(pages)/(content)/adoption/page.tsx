@@ -21,7 +21,7 @@ export default function Page() {
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-    const pageSize = 10;
+    const pageSize = 5;
     const sort = "id,desc";
 
     const {
@@ -139,7 +139,7 @@ export default function Page() {
                                 <p className="text-gray-600">No se encontraron mascotas en adopción</p>
                             </div>
                         ) : (
-                            <div className="flex justify-center w-full">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
                                 {filteredData.map((pet) => (
                                     <PetCard
                                         key={pet.id}
