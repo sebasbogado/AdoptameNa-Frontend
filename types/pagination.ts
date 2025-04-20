@@ -18,14 +18,24 @@ export type queryParams = {
 };
 
 export type postQueryParams = queryParams & {
-  postTypeId?: number
-}
+  postTypeId?: number;
+};
 
 export type petQueryParams = queryParams & {
-  petStatusId?: number
-}
+  petStatusId?: number;
+};
 
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
-}
+};
+
+export type bannerQueryParams = queryParams & {
+  minStartDate?: string;
+  maxStartDate?: string;
+  minEndDate?: string;
+  maxEndDate?: string;
+  isActive?: boolean;
+  minPriority?: number;
+  maxPriority?: number;
+};
