@@ -34,7 +34,18 @@ export type productQueryParams = queryParams & {
   animalIds?: number;
 };
 
+
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
-}
+};
+
+export type bannerQueryParams = queryParams & {
+  minStartDate?: string;
+  maxStartDate?: string;
+  minEndDate?: string;
+  maxEndDate?: string;
+  isActive?: boolean;
+  minPriority?: number;
+  maxPriority?: number;
+};
