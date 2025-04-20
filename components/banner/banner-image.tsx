@@ -163,6 +163,8 @@ export default function BannerImage({ onImageUploaded, initialImage, token }: Im
                     onDragLeave={handleDrag}
                     onDragOver={handleDrag}
                     onDrop={handleDrop}
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    style={{ cursor: 'pointer' }}
                 >
                     {uploading ? (
                         <>
@@ -172,6 +174,14 @@ export default function BannerImage({ onImageUploaded, initialImage, token }: Im
                         <>
                             <Upload size={40} className="mb-4 text-gray-500" />
                             <p className="text-gray-500">Arrastra y suelta una imagen aquí o haz clic para seleccionar una</p>
+                            <input
+                                id="file-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileChange}
+                                disabled={uploading}
+                            />
                         </>
                     )}
                 </div>
