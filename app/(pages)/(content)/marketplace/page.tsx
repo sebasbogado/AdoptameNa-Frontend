@@ -14,6 +14,7 @@ import { getProductCategories } from "@/utils/product-category.http";
 import { getProducts } from "@/utils/products.http";
 import { useEffect, useState } from "react";
 import { X } from 'lucide-react';
+import PriceRangeSlider from "@/components/price-range-slider/priceRangeSlider";
 
 export default function Page() {
 
@@ -28,17 +29,12 @@ export default function Page() {
     const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [allPrices, setAllPrices] = useState<number[]>([]);
 
+    const [minVal, setMinVal] = useState<number | null>(null);
+    const [maxVal, setMaxVal] = useState<number| null>(null);
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [priceError, setPriceError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
-            setPriceError("El precio mínimo no puede ser mayor que el precio máximo.");
-        } else {
-            setPriceError(null);
-        }
-    }, [minPrice, maxPrice]);
 
     const cleanFilters = (filters: Record<string, any>) => {
         return Object.fromEntries(
@@ -61,14 +57,6 @@ export default function Page() {
         fetchPrices();
     }, []);
 
-    useEffect(() => {
-        if (selectedCategory && selectedCategory !== "Todos") {
-            const found = categories.find(cat => cat.name === selectedCategory);
-            setSelectedCategoryId(found ? found.id : null);
-        } else {
-            setSelectedCategoryId(null);
-        }
-    }, [selectedCategory, categories]);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -82,10 +70,36 @@ export default function Page() {
 
         fetchCategories();
     }, []);
+
+    useEffect(() => {
+        // Actualizar el valor mínimo y máximo cuando el slider cambie
+        setMinPrice(minVal);
+        setMaxPrice(maxVal);
+    }, [minVal, maxVal]);
     
-    if (!pageSize) {
-        <Loading />
-    }
+    useEffect(() => {
+        if (allPrices.length > 0) {
+            setMinVal(allPrices[0]); // Establece el valor mínimo
+            setMaxVal(allPrices[allPrices.length - 1]); // Establece el valor máximo
+        }
+    }, [allPrices]);
+
+    useEffect(() => {
+        if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+            setPriceError("El precio mínimo no puede ser mayor que el precio máximo.");
+        } else {
+            setPriceError(null);
+        }
+    }, [minPrice, maxPrice]);
+
+    useEffect(() => {
+        if (selectedCategory && selectedCategory !== "Todos") {
+            const found = categories.find(cat => cat.name === selectedCategory);
+            setSelectedCategoryId(found ? found.id : null);
+        } else {
+            setSelectedCategoryId(null);
+        }
+    }, [selectedCategory, categories]);
 
     const {
         data: products,
@@ -125,14 +139,17 @@ export default function Page() {
         updateFilters(cleanedFilters);
     }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, updateFilters, priceError]);
 
-
     const resetFilters = () => {
         setSelectedCategory(null);
         setSelectedCondition(null);
         setMinPrice(null);
         setMaxPrice(null);
+        setMinVal(allPrices[0]); 
+        setMaxVal(allPrices[allPrices.length - 1]);
         updateFilters({}); // limpia los filtros aplicados
     };
+
+    if (!pageSize) return <Loading />;
 
     return (
         <div className="flex flex-col gap-5">
@@ -147,36 +164,21 @@ export default function Page() {
                     />
 
                     <LabeledSelect
-                        label="Precio Mínimo"
-                        options={[
-                            "Todos",
-                            ...allPrices.map(price => price.toString())
-                        ]}
-                        selected={minPrice?.toString() ?? "Todos"}
-                        setSelected={(value) => {
-                            const parsed = value === "Todos" ? null : Number(value);
-                                setMinPrice(parsed);
-                        }}
-                    />
-
-                    <LabeledSelect
-                        label="Precio Máximo"
-                        options={[
-                            "Todos",
-                            ...allPrices.map(price => price.toString())
-                        ]}
-                        selected={maxPrice?.toString() ?? "Todos"}
-                        setSelected={(value) => {
-                            const parsed = value === "Todos" ? null : Number(value);
-                            setMaxPrice(parsed);
-                        }}
-                    />
-
-                    <LabeledSelect
                         label="Condicion"
                         options={["Todos", "NUEVO", "USADO"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
+                    />
+
+                    <PriceRangeSlider
+                        min={allPrices[0] ?? 0}
+                        max={allPrices[allPrices.length - 1]}
+                        step={1000}
+                        onChange={([min, max]) => {
+                            setMinVal(min);
+                            setMaxVal(max);
+                        }}
+                        renderValue={(value) => `₲${value.toLocaleString('es-PY')}`}
                     />
 
                     <div className="flex items-end justify-start">
