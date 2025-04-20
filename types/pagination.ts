@@ -23,8 +23,17 @@ export type postQueryParams = queryParams & {
 }
 
 export type petQueryParams = queryParams & {
-  petStatusId?: number | number[];
-}
+  petStatusId?: number;
+};
+
+export type productQueryParams = queryParams & {
+  categoryId?: number;
+  condition?: string;
+  price?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  animalIds?: number;
+};
 
 export type myPetsQueryParams = queryParams & {
   animalId?: number;
