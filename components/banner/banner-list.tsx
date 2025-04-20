@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllBanners, activateBanner, deactivateBanner, deleteBanner } from '@/utils/banner.http';
-import { Pencil, X } from 'lucide-react';
+import { Loader2, Pencil, X } from 'lucide-react';
 import { usePagination } from '@/hooks/use-pagination';
 import { bannerQueryParams, PaginatedResponse } from '@/types/pagination';
 import { Banner } from '@/types/banner';
@@ -178,9 +178,9 @@ export default function BannerList() {
             />
 
             {loading && (
-                <div className="flex justify-center items-center my-8">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                    <span className="ml-3">Cargando banners...</span>
+                <div className="flex flex-col items-center justify-center h-[50vh]">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
+                    <p className="text-gray-500">Cargando banners</p>
                 </div>
             )}
 

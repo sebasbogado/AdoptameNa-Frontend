@@ -54,7 +54,7 @@ export default function EditBannerPage() {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <Link href="/admin/banners">
+                <Link href="/administration/settings/banner">
                     <button className="p-2 rounded-md hover:bg-gray-100">
                         <ArrowLeft size={18} />
                     </button>
