@@ -184,7 +184,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
         setValue('imageId', image.id);
     };
 
-    const today = new Date().toISOString().split('T')[0];
 
     const formatDateToInputValue = (date: Date) => {
         return date.toISOString().split('T')[0];
@@ -281,7 +280,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
                         <input
                             type="date"
                             id="startDate"
-                            min={today}
                             {...register('startDate', {
                                 valueAsDate: true,
                                 required: 'La fecha de inicio es obligatoria',
