@@ -19,6 +19,7 @@ export type queryParams = {
 
 export type postQueryParams = queryParams & {
   postTypeId?: number;
+  userId?: number;
 };
 
 export type petQueryParams = queryParams & {
