@@ -139,3 +139,23 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
     throw new Error(error.message || "Error al actualizar mascota");
   }
 }
+
+export const getPetSMissing = async (
+  queryParams?: Record<string, any>): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const queryString = queryParams ? buildQueryString(queryParams) : "";
+    const url = `${API_URL}${queryString && `?${queryString}`}`;
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+}
