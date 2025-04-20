@@ -17,11 +17,13 @@ import { PetStatus } from "@/types/pet-status";
 export default function Page() {
   const pageSize = 20;
   const sort = "id,desc";
-  const [animals, setAnimals] = useState<Animal[]>([]);
-  const [selectedAnimal, setSelectedAnimal] = useState("");
-  const [animalTypes, setAnimalTypes] = useState<string[]>([]);
-  const [petStatuses, setPetStatuses] = useState<string[]>([]);
-  const [selectedPetStatus, setSelectedPetStatus] = useState<string | null>(null);
+  const [animals, setAnimals] = useState<Animal[]>([]); //para obtener de la api
+  const [selectedAnimal, setSelectedAnimal] = useState(""); //para selected y setSelected del filtro
+  const [animalList, setAnimalList] = useState<string[]>([]); //para options del filtro
+  const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]); //para obtener de la api
+  const [petStatusesList, setPetStatusesList] = useState<string[]>([]); //para options del filtro
+  const [selectedPetStatus, setSelectedPetStatus] = useState(""); //para selected y setSelected del filtro
+  const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
 
 
   const {
@@ -30,14 +32,16 @@ export default function Page() {
     error,
     currentPage,
     totalPages,
+    updateFilters,
     handlePageChange
   } = usePagination({
-    fetchFunction: async (page, size) => {
+    fetchFunction: async (page, size, filters) => {
       return await getPetSMissing({
         page,
         size,
         sort,
-        petStatusId: [PET_STATUS.MISSING, PET_STATUS.ADOPTION]
+        petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND],
+        ...filters
       });
     },
     initialPage: 1,
@@ -47,39 +51,41 @@ export default function Page() {
   const fetchData = async () => {
     try {
       const animals = await getAnimals();
-      setAnimalTypes(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
+      setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
       setAnimals(animals.data);
 
       const petStatus = await getPetStatuses();
-      setPetStatuses([
+      setPetStatuses(petStatus.data);
+      setPetStatusesList([
         "Todos",
         ...petStatus.data
           .filter((e: PetStatus) => e.id === PET_STATUS.MISSING || e.id === PET_STATUS.FOUND)
           .map((e: PetStatus) => e.name)
       ]);
     } catch (err: any) {
-      console.log(err.message);
+      console.error(err.message);
     }
   }
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
 
-  const filteredData = pets.filter((item) => {
-    // Filtrar mascotas
-    if (selectedAnimal && selectedAnimal !== "Todos") {
-      const selectedAnimalObj = animals.find((animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase());
-      if (item.animal.name !== selectedAnimalObj?.name) return false;
-    }
-    // Filtrar por estado
-    if (selectedPetStatus && selectedPetStatus !== "Todos") {
-      const selectedStatus = petStatuses.find((status) => status.toLowerCase() === selectedPetStatus.toLowerCase());
-      if (item.petStatus.name !== selectedStatus) return false;
-    }
-    return true;
-  })
+  useEffect(() => {
+    if(!selectedAnimal && !selectedPetStatus) return;
+    const selectedAnimalObj = animals.find(
+      (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
+    );
+    const selectedStatusObj = petStatuses.find(
+      (status) => status.name.toLowerCase() === selectedPetStatus.toLowerCase()
+    );
+
+    updateFilters({
+      animalId: selectedAnimalObj?.id,
+      petStatusId: selectedStatusObj ? selectedStatusObj.id : [PET_STATUS.MISSING, PET_STATUS.FOUND],
+    });
+  }, [selectedAnimal, selectedPetStatus]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -89,14 +95,14 @@ export default function Page() {
           {/*Falta por ubicacion*/}
           <LabeledSelect
             label="Estado"
-            options={petStatuses}
+            options={petStatusesList}
             selected={selectedPetStatus}
             setSelected={setSelectedPetStatus}
           />
 
           <LabeledSelect
             label="Animal"
-            options={animalTypes}
+            options={animalList}
             selected={selectedAnimal}
             setSelected={setSelectedAnimal}
           />
@@ -114,7 +120,7 @@ export default function Page() {
           <div className="flex justify-center items-center">
             <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
           </div>
-        ) : filteredData.length === 0 ? (
+        ) : pets.length === 0 ? (
           <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
             <p className="text-gray-600">No se encontraron mascotas</p>
           </div>
