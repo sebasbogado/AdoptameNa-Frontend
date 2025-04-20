@@ -1,121 +1,131 @@
 'use client';
 
 import { useState } from 'react';
-
+import Link from "next/link";
 export default function SponsorFormPage() {
-  const [companyName, setCompanyName] = useState('');
-  const [responsibleName, setResponsibleName] = useState('');
-  const [email, setEmail] = useState('');
-  const [wantsLogo, setWantsLogo] = useState(false);
-  const [wantsBanner, setWantsBanner] = useState(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [companyName, setCompanyName] = useState('');
+    const [responsibleName, setResponsibleName] = useState('');
+    const [email, setEmail] = useState('');
+    const [wantsLogo, setWantsLogo] = useState(false);
+    const [wantsBanner, setWantsBanner] = useState(false);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [bannerFile, setBannerFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('companyName', companyName);
-    formData.append('responsibleName', responsibleName);
-    formData.append('email', email);
-    formData.append('wantsLogo', wantsLogo.toString());
-    formData.append('wantsBanner', wantsBanner.toString());
-    if (logoFile) formData.append('logo', logoFile);
-    if (bannerFile) formData.append('banner', bannerFile);
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('companyName', companyName);
+        formData.append('responsibleName', responsibleName);
+        formData.append('email', email);
+        formData.append('wantsLogo', wantsLogo.toString());
+        formData.append('wantsBanner', wantsBanner.toString());
+        if (logoFile) formData.append('logo', logoFile);
+        if (bannerFile) formData.append('banner', bannerFile);
 
-    // Aquí podés enviar el formData al endpoint
-    console.log('Formulario enviado:', formData);
-  };
+        // Aquí podés enviar el formData al endpoint
+        console.log('Formulario enviado:', formData);
+    };
 
-  return (
-    <div className="max-w-xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-md font-roboto">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <img src="/logo.png" alt="Adoptamena" className="mx-auto w-40 mb-4" />
-        <p className="text-center text-sm text-gray-700">
-          Estás a un paso de convertirte en un auspiciantes y ayudar a nuestra causa
-        </p>
+    return (
+        <div className="max-w-xl mx-auto p-6 mt-8 bg-white rounded-2xl font-roboto border-0 shadow-none">
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <img src="/logo.png" alt="Adoptamena" className="mx-auto w-40 mb-4" />
+                <p className="text-center text-sm text-gray-700">
+                    Estás a un paso de convertirte en un <br />
+                    auspiciante y ayudar a nuestra causa
+                </p>
+                <br />
+                <label>Nombre de la empresa</label>
+                <input
+                    type="text"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <br />
+                <br />
+                <label>Nombre del responsable</label>
+                <input
+                    type="text"
+                    value={responsibleName}
+                    onChange={(e) => setResponsibleName(e.target.value)}
+                    className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <br />
+                <br />
+                <label>Correo</label>
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-2 rounded-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
 
-        <input
-          type="text"
-          placeholder="Nombre de la empresa"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          className="w-full p-2 border rounded-lg"
-        />
-        <input
-          type="text"
-          placeholder="Nombre del responsable"
-          value={responsibleName}
-          onChange={(e) => setResponsibleName(e.target.value)}
-          className="w-full p-2 border rounded-lg"
-        />
-        <input
-          type="email"
-          placeholder="Correo"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded-lg"
-        />
+                <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={wantsLogo}
+                        onChange={() => setWantsLogo(!wantsLogo)}
+                    />
+                    <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
+                </label>
 
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={wantsLogo}
-            onChange={() => setWantsLogo(!wantsLogo)}
-          />
-          <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
-        </label>
+                {wantsLogo && (
+                    <div className="w-64 h-[16rem] text-blue text-2xl rounded-xl overflow-hidden  border-2 border-[rgb(158,189,255)] hover:shadow-md hover:shadow-[rgb(185,207,255)]  flex flex-col relative items-center justify-center mx-auto">
+                        <label className="cursor-pointer block">
+                            + Añadir logo
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
+                )}
 
-        {wantsLogo && (
-          <div className="border border-blue-400 rounded-xl p-4 text-center">
-            <label className="cursor-pointer block">
-              + Añadir logo
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-                className="hidden"
-              />
-            </label>
-          </div>
-        )}
+                <label className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        checked={wantsBanner}
+                        onChange={() => setWantsBanner(!wantsBanner)}
+                    />
+                    <span>Quiero publicar un banner publicitario</span>
+                </label>
 
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={wantsBanner}
-            onChange={() => setWantsBanner(!wantsBanner)}
-          />
-          <span>Quiero publicar un banner publicitario</span>
-        </label>
+                {wantsBanner && (
+                    <div className="h-[16rem] text-blue text-2xl rounded-xl overflow-hidden  border-2 border-[rgb(158,189,255)] hover:shadow-md hover:shadow-[rgb(185,207,255)]  flex flex-col relative items-center justify-center">
+                        <label className="cursor-pointer block">
+                            + Añadir banner
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)}
+                                className="hidden"
+                            />
+                        </label>
+                        <p className="text-sm text-gray-500 mt-2">Tamaño sugerido: 900x300 píxeles</p>
+                    </div>
+                )}
 
-        {wantsBanner && (
-          <div className="border border-blue-400 rounded-xl p-6 text-center">
-            <label className="cursor-pointer block">
-              + Añadir banner
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)}
-                className="hidden"
-              />
-            </label>
-            <p className="text-sm text-gray-500 mt-2">Tamaño sugerido: 900x300 píxeles</p>
-          </div>
-        )}
+                <div className="flex flex-col justify-center gap-4 mt-6">
+                    {/* Botón primario */}
+                    <button
+                        type="submit"
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-lg font-semibold py-3 px-8 rounded-xl shadow-sm hover:from-purple-600 hover:to-purple-700 transition-colors w-fit mx-auto"
+                    >
+                        Enviar solicitud
+                    </button>
 
-        <button
-          type="submit"
-          className="w-full py-2 px-4 rounded-full bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
-        >
-          Enviar solicitud
-        </button>
-        <button
-          type="button"
-          className="w-full py-2 px-4 rounded-full border border-purple-600 text-purple-600 font-semibold hover:bg-purple-100 transition"
-        >
-          Ir a Inicio
-        </button>
-      </form>
-    </div>
-  );
+                    <Link
+                        href="/dashboard"
+                        className="w-fit px-6 border border-blue-600 text-blue-600 py-3 rounded-xl bg-transparent flex items-center justify-center mx-auto"
+                    >
+                        Ir a Inicio
+                    </Link>
+                </div>
+
+            </form>
+        </div>
+    );
 }
