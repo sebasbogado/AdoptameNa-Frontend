@@ -15,6 +15,7 @@ import { getProducts } from "@/utils/products.http";
 import { useEffect, useMemo, useState } from "react";
 import { X } from 'lucide-react';
 import PriceRangeSlider from "@/components/price-range-slider/priceRangeSlider";
+import { getAnimals } from "@/utils/animals.http";
 
 export default function Page() {
 
@@ -37,6 +38,14 @@ export default function Page() {
 
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
     const [isPriceRangeInitialized, setIsPriceRangeInitialized] = useState(false);
+
+    const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
+    const [availableAnimals, setAvailableAnimals] = useState<{ id: number; name: string }[]>([]);
+
+    const selectedAnimalId = useMemo(() => {
+        const found = availableAnimals.find(a => a.name === selectedAnimal);
+        return found ? found.id : null;
+      }, [selectedAnimal, availableAnimals]);
 
 
     const cleanFilters = (filters: Record<string, any>) => {
@@ -72,6 +81,19 @@ export default function Page() {
         };
 
         fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const fetchAnimals = async () => {
+            try {
+                const response = await getAnimals(); 
+                setAvailableAnimals(response.data);
+            } catch (error) {
+                console.error("Error al obtener animales:", error);
+            }
+        };
+    
+        fetchAnimals();
     }, []);
     
     useEffect(() => {
@@ -120,6 +142,7 @@ export default function Page() {
                 price: filters?.price || undefined,
                 minPrice: filters?.minPrice || undefined,
                 maxPrice: filters?.maxPrice|| undefined,
+                animalIds: selectedAnimalId ? selectedAnimalId : undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -132,8 +155,9 @@ export default function Page() {
           condition: selectedCondition === "Todos" ? null : selectedCondition,
           minPrice,
           maxPrice,
+          animalIds: selectedAnimalId ? [selectedAnimalId] : null,
         });
-      }, [selectedCategoryId, selectedCondition, minPrice, maxPrice]);
+      }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
 
     useEffect(() => {
         
@@ -171,6 +195,13 @@ export default function Page() {
                         options={["Todos", "NUEVO", "USADO"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
+                    />
+
+                    <LabeledSelect
+                        label="Animales"
+                        options={["Todos", ...availableAnimals.map((a) => a.name)]}
+                        selected={selectedAnimal}
+                        setSelected={setSelectedAnimal}
                     />
 
                     <PriceRangeSlider

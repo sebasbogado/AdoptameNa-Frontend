@@ -9,6 +9,9 @@ export const getProducts = async (
   queryParams: productQueryParams
 ): Promise<PaginatedResponse<Product>> => {
   try {
+    console.log("Params enviados:", {
+      ...queryParams
+    });
     const response = await axios.get(API_URL, {
       params: {
         page: queryParams.page || 0,
@@ -18,7 +21,8 @@ export const getProducts = async (
         condition: queryParams.condition,
         price: queryParams.price,
         minPrice: queryParams.minPrice,
-        maxPrice: queryParams.maxPrice
+        maxPrice: queryParams.maxPrice,
+        animalIds: queryParams.animalIds,
       },
       headers: {
         "Content-Type": "application/json",

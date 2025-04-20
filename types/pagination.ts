@@ -31,6 +31,7 @@ export type productQueryParams = queryParams & {
   price?: number;
   minPrice?: number;
   maxPrice?: number;
+  animalIds?: number;
 };
 
 export type reportQueryParams = queryParams & {
