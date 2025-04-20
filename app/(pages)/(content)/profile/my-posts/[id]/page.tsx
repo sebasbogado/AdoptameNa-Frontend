@@ -9,55 +9,60 @@ import { usePagination } from '@/hooks/use-pagination';
 import { getPosts } from '@/utils/posts.http';
 import { Post } from '@/types/post';
 import Link from 'next/link';
-
+import { useAuth } from '@/contexts/auth-context';
 
 export default function MyPostsPage() {
-    const { id } = useParams();
+    const { id: profileId } = useParams();
+    const { user, loading: authLoading } = useAuth();
+    const myUserId = user?.id;
+    const isVisitor = profileId !== myUserId;
     const pageSize = 10;
-
 
     const {
         data: posts,
-        loading,
+        loading: postsLoading,
         error,
         currentPage,
         totalPages,
         handlePageChange,
     } = usePagination<Post>({
         fetchFunction: (page, size) =>
-            getPosts({ page, size, userId: id ?? '' }),
+            getPosts({ page, size, userId: profileId ?? '' }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
 
-    const bannerImages = [
-        '/banner1.png',
-        '/banner2.png',
-        '/banner3.png',
-        '/banner4.png',
-    ];
+    // Mientras se resuelve el contexto de auth…
+    if (authLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-5">
-            <Banners images={bannerImages} />
+            <Banners images={['/banner1.png', '/banner2.png', '/banner3.png', '/banner4.png']} />
 
             <section>
                 <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
                     {error ? (
-                        <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md justify-center">
-                            {'Error al cargar los posts'}
+                        <div className="bg-red-100 text-red-700 p-4 rounded-md max-w-md">
+                            Error al cargar los posts
                         </div>
-                    ) : loading ? (
-                        <div className="flex justify-center items-center">
-                            <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
-                        </div>
+                    ) : postsLoading ? (
+                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
                     ) : posts.length === 0 ? (
                         <div className="flex flex-col items-center justify-center gap-4">
-                            <p className="text-gray-600">Aún no tenés posts creados</p>
-
+                            {isVisitor ? (
+                                <p className="text-gray-600">Este usuario no ha hecho publicaciones aún</p>
+                            ) : (
+                                <p className="text-gray-600">Aún no tenés posts creados</p>
+                            )}
                             <Link
                                 href="/"
-                                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium shadow-lg hover:bg-primary/90 transition-colors"
+                                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow hover:bg-primary/90 transition-colors"
                             >
                                 <Home size={18} />
                                 <span>Volver al inicio</span>
@@ -66,19 +71,13 @@ export default function MyPostsPage() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
                             {posts.map((post) => (
-                                <PetCard
-                                    key={post.id}
-                                    post={post}
-                                    isPost={true}
-                                    className="w-full max-w-md"
-                                />
+                                <PetCard key={post.id} post={post} isPost className="w-full max-w-md" />
                             ))}
                         </div>
                     )}
                 </div>
             </section>
 
-            {/* 2. Renderizar paginación */}
             <div className="flex justify-center my-6">
                 <Pagination
                     totalPages={totalPages}
