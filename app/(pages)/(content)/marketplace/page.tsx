@@ -14,7 +14,7 @@ import { getProductCategories } from "@/utils/product-category.http";
 import { getProducts } from "@/utils/products.http";
 import { useEffect, useMemo, useState } from "react";
 import { X } from 'lucide-react';
-import PriceRangeSlider from "@/components/price-range-slider/priceRangeSlider";
+import RangeSlider from "@/components/range-slider/range-slider";
 import { getAnimals } from "@/utils/animals.http";
 
 export default function Page() {
@@ -204,7 +204,7 @@ export default function Page() {
                         setSelected={setSelectedAnimal}
                     />
 
-                    <PriceRangeSlider
+                    <RangeSlider
                         min={allPrices[0] ?? 0}
                         max={allPrices[allPrices.length - 1]}
                         step={1000}

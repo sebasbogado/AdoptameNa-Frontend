@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-type PriceRangeSliderProps = {
+type RangeSliderProps = {
   min: number;
   max: number;
   step?: number;
@@ -10,14 +10,14 @@ type PriceRangeSliderProps = {
   renderValue: (value: number) => string;
 };
 
-export default function PriceRangeSlider({
+export default function RangeSlider({
   min,
   max,
   step = 1000,
   value,
   onChange,
   renderValue,
-}: PriceRangeSliderProps) {
+}: RangeSliderProps) {
   const getPercent = (val: number) => ((val - min) / (max - min)) * 100;
 
   return (
