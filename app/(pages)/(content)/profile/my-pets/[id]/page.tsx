@@ -15,11 +15,11 @@ import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
 import { Animal } from '@/types/animal';
 import { getAnimals } from '@/utils/animals.http';
+import { Loader2 } from 'lucide-react';
 
 
 export default function MyPostsPage() {
     const ciudades = ["Encarnación", "Asunción", "Luque", "Fernando Zona Sur"];
-    const mascotas = ["Todos", "Conejo", "Perro", "Gato"];
     const edades = ["0-1 años", "1-3 años", "3-6 años", "6+ años"];
 
     const { id } = useParams();
@@ -46,10 +46,11 @@ export default function MyPostsPage() {
                 page,
                 size,
                 userId: Number(id),
-                animalId: selectedMascotaId || undefined,
-                age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
+                animalId: filters?.animalId || undefined,
+                age: filters?.age || undefined,
             }),
         initialPage: 1,
+        scrollToTop: false,
         initialPageSize: pageSize,
     });
 
@@ -82,23 +83,17 @@ export default function MyPostsPage() {
     }, [selectedMascota, animals]);
 
     useEffect(() => {
-    
-
         const filteredData = {
             animalId: selectedMascotaId,
             age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
             city: selectedCiudad,
         };
-    
+
         const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
     }, [selectedMascotaId, selectedEdad, selectedCiudad, updateFilters]);
 
-    if (loading) {
-        return Loading();
-    }
     const bannerImages = ["/banner1.png", "/banner2.png", "/banner3.png", "/banner4.png"]
-    if (loading) return <Loading />
 
     return (
         <div className='flex flex-col gap-5'>
@@ -134,21 +129,28 @@ export default function MyPostsPage() {
                 </div>
             </div>
 
-
-            <section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-
-                    {error ? <p className="text-center col-span-full">Hubo un error al cargar las mascotas</p> :
-                        pets.length > 0 ? (
-                            pets.map((item) => (
-                                <PetCard key={item.id} post={item} />
-                            ))
-                        ) : (
-                            <p className="text-center col-span-full">Cargando mascotas...</p>
-                        )}
-
-                </div>
-            </section>
+            {loading ? (
+                    <div className="flex justify-center items-center">
+                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    </div>
+                ) : (
+                    pets.length === 0 ? (
+                        <div className="flex justify-center p-10 rounded-lg w-full">
+                            <p className="text-gray-600">No se encontraron mascotas.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
+                            {pets.map((pet) => (
+                                <PetCard
+                                    key={pet.id}
+                                    post={pet}
+                                    isPost={false}
+                                    className="w-full max-w-md"
+                                />
+                            ))}
+                        </div>
+                    )
+                )}
 
             <Pagination
                 totalPages={totalPages}
