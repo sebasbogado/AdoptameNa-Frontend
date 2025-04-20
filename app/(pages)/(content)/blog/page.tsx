@@ -1,18 +1,28 @@
 "use client";
 
 import Banners from "@/components/banners";
+import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
 import PetCard from "@/components/petCard/pet-card";
+import ResetFiltersButton from "@/components/reset-filters-button";
 import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
 import { Loader2 } from "lucide-react";
+import { unique } from "next/dist/build/utils";
+import { useEffect, useState } from "react";
 
 export default function Page() {
 
     const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
 
+    const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
+    const [authorOptions, setAuthorOptions] = useState<string[]>([]);
+    const [allAuthorsMap, setAllAuthorsMap] = useState<Record<string, number>>({});
+
+
+    
     const pageSize = 10;
     const sort = "id,desc";
 
@@ -22,22 +32,78 @@ export default function Page() {
             error,
             currentPage,
             totalPages,
-            handlePageChange
+            handlePageChange,
+            updateFilters
         } = usePagination<Post>({
-            fetchFunction: async (page, size) => {
-                return await getPosts({ page, size, sort, postTypeId: POST_TYPEID.BLOG});
+            fetchFunction: async (page, size, filters) => {
+                return await getPosts({ 
+                    page, 
+                    size, 
+                    sort, 
+                    postTypeId: POST_TYPEID.BLOG, 
+                    userId: filters?.userId ?? undefined,
+                });
             },
             initialPage: 1,
             initialPageSize: pageSize
         });
+
+        useEffect(() => {
+            if (selectedAutor && selectedAutor !== "Todos") {
+                const userId = allAuthorsMap[selectedAutor];
+                updateFilters({ userId });
+            } else {
+                updateFilters({ userId: undefined });
+            }
     
+            handlePageChange(1); 
+        }, [selectedAutor]);
+    
+          useEffect(() => {
+            const fetchAllAuthors = async () => {
+                try {
+                    const response = await getPosts({
+                        postTypeId: POST_TYPEID.BLOG
+                    });
+    
+                    const authorMap: Record<string, number> = {};
+                    response.data.forEach(p => {
+                        if (p.userFullName) {
+                            authorMap[p.userFullName] = p.userId;
+                        }
+                    });
+    
+                    const uniqueAuthors = Object.keys(authorMap).sort();
+    
+                    setAuthorOptions(uniqueAuthors);
+                    setAllAuthorsMap(authorMap);
+                } catch (err) {
+                    console.error("Error al obtener autores:", err);
+                }
+            };
+    
+            fetchAllAuthors();
+        }, []);
+
+        const resetFilters = () => {
+            setSelectedAutor(null); 
+            updateFilters({}); 
+          };
+
     return (
         <div className="flex flex-col gap-5">
             <Banners images={bannerImages} />
 
             <div className="w-full max-w-4xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/** Aqui van a ir los filtros. */}
+                    <LabeledSelect
+                        label="Autor"
+                        options={["Todos", ...authorOptions]}
+                        selected={selectedAutor}
+                        setSelected={setSelectedAutor}
+                    />
+
+                    <ResetFiltersButton onClick={resetFilters} />
                 </div>
             </div>
             
