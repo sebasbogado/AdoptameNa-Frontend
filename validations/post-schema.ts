@@ -20,7 +20,8 @@ export const postSchema = z.object({
     .min(9, "Número inválido (9-15 dígitos)")
     .max(15, "Número inválido (9-15 dígitos)")
     .regex(/^\+?\d{9,15}$/, "Número inválido (9-15 dígitos)"),
-  urlPhoto: z.string().optional(),
+  mediaIds: z.array(z.number()).optional(),
+  tags: z.array(z.number()).optional(),
   status: z.enum(["activo"]).default("activo"), // Campo estático con valor "activo"
 });
 
