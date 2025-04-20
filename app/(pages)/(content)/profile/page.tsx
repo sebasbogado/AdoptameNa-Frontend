@@ -10,7 +10,7 @@ import { Section } from '@/components/section';
 import { ConfirmationModal } from "@/components/form/modal";
 
 import { getPosts } from '@/utils/posts.http';
-import { getPetsByUserId } from '@/utils/pets.http';
+import { getPets } from '@/utils/pets.http';
 import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
 import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
@@ -55,9 +55,15 @@ const getPostsData = async (
 
     try {
         // Cargar posts del usuario
-        const postParams = { user: userId }; // Usamos el ID del usuario actual
+        const postParams = { 
+            page: 0,
+            size: 5,
+            sort: "id,desc",
+            userId: Number(userId)
+        }; // Usamos el ID del usuario actual
+
         const postData = await getPosts(postParams);
-        setPosts(Array.isArray(postData) ? postData : []);
+        setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, posts: true }));
@@ -74,8 +80,15 @@ const getPetsData = async (
 
 
     try {
-        const petData = await getPetsByUserId(userId);
-        setPets(Array.isArray(petData) ? petData : []);
+        const postParams = { 
+            page: 0,
+            size: 5,
+            sort: "id,desc",
+            userId: Number(userId)
+        }; // Usamos el ID del usuario actual
+
+        const petData = await getPets(postParams);
+        setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, pets: true }));
@@ -277,7 +290,6 @@ export default function ProfilePage() {
                         items={pets}
                         loading={loading}
                         error={errors.pets}
-                        filterByType={false}
                     />
 
                     {/* Posts Section (Con filtrado) */}
@@ -289,7 +301,6 @@ export default function ProfilePage() {
                         items={posts}
                         loading={loading}
                         error={errors.posts}
-                        filterByType={false}
                     />
                 </div>
             </div>

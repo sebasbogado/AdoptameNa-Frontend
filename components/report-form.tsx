@@ -21,6 +21,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   const idParam = params.id as string;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: {
@@ -51,8 +52,12 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
     try {
       await createReport(authToken, data);
       setSuccessMessage("Reporte enviado con éxito.");
-      setTimeout(() => { setSuccessMessage(null); }, 3000);
-      handleClose();
+      setLoading(true);
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setLoading(false);
+        handleClose();
+      }, 3000);
     } catch (error: any) {
       console.error("Error al enviar el reporte:", error);
       setErrorMessage(error.message);
@@ -119,7 +124,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
           <Button variant="secondary" size="md" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant="danger" size="md" type='submit'>
+          <Button variant="danger" size="md" type='submit' disabled={loading}>
             Confirmar Reporte
           </Button>
         </div>
