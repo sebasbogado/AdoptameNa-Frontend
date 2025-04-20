@@ -143,7 +143,7 @@ export default function MyPostsPage() {
                                 <PetCard key={item.id} post={item} />
                             ))
                         ) : (
-                            <p className="text-center col-span-full">Cargando mascotas...</p>
+                            <p className="text-center col-span-full">Mascotas no encontradas.</p>
                         )}
 
                 </div>
