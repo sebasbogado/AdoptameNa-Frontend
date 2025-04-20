@@ -12,7 +12,7 @@ import { ProductCategory } from "@/types/product-category";
 import { getPosts } from '@/utils/posts.http';
 import { getProductCategories } from "@/utils/product-category.http";
 import { getProducts } from "@/utils/products.http";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X } from 'lucide-react';
 import PriceRangeSlider from "@/components/price-range-slider/priceRangeSlider";
 
@@ -34,6 +34,9 @@ export default function Page() {
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [priceError, setPriceError] = useState<string | null>(null);
+
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+    const [isPriceRangeInitialized, setIsPriceRangeInitialized] = useState(false);
 
 
     const cleanFilters = (filters: Record<string, any>) => {
@@ -70,19 +73,17 @@ export default function Page() {
 
         fetchCategories();
     }, []);
-
-    useEffect(() => {
-        // Actualizar el valor mínimo y máximo cuando el slider cambie
-        setMinPrice(minVal);
-        setMaxPrice(maxVal);
-    }, [minVal, maxVal]);
     
     useEffect(() => {
-        if (allPrices.length > 0) {
-            setMinVal(allPrices[0]); // Establece el valor mínimo
-            setMaxVal(allPrices[allPrices.length - 1]); // Establece el valor máximo
+        if (allPrices.length > 0 && priceRange[0] === 0 && priceRange[1] === 0) {
+          const min = allPrices[0];
+          const max = allPrices[allPrices.length - 1];
+          setMinVal(min);
+          setMaxVal(max);
+          setPriceRange([min, max]);
+          setIsPriceRangeInitialized(true);
         }
-    }, [allPrices]);
+      }, [allPrices, priceRange]);
 
     useEffect(() => {
         if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
@@ -124,20 +125,22 @@ export default function Page() {
         initialPageSize: pageSize,
     });
 
+
+    const cleanedFilters = useMemo(() => {
+        return cleanFilters({
+          categoryId: selectedCategoryId,
+          condition: selectedCondition === "Todos" ? null : selectedCondition,
+          minPrice,
+          maxPrice,
+        });
+      }, [selectedCategoryId, selectedCondition, minPrice, maxPrice]);
+
     useEffect(() => {
         
         if (priceError) return;
 
-        const filteredData = {
-            categoryId: selectedCategoryId,
-            condition: selectedCondition === "Todos" ? null : selectedCondition,
-            minPrice,
-            maxPrice,
-        };
-    
-        const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
-    }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, updateFilters, priceError]);
+    }, [cleanedFilters, updateFilters, priceError]);
 
     const resetFilters = () => {
         setSelectedCategory(null);
@@ -174,9 +177,15 @@ export default function Page() {
                         min={allPrices[0] ?? 0}
                         max={allPrices[allPrices.length - 1]}
                         step={1000}
-                        onChange={([min, max]) => {
-                            setMinVal(min);
-                            setMaxVal(max);
+                        value={priceRange}
+                        onChange={(range) => {
+                            if (range[0] !== priceRange[0] || range[1] !== priceRange[1]) {
+                                setPriceRange(range);  // Actualiza el rango
+                                setMinVal(range[0]);   // Actualiza minVal
+                                setMaxVal(range[1]);   // Actualiza maxVal
+                                setMinPrice(range[0]); // Directamente actualiza minPrice
+                                setMaxPrice(range[1]); // Directamente actualiza maxPrice
+                            }
                         }}
                         renderValue={(value) => `₲${value.toLocaleString('es-PY')}`}
                     />
