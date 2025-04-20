@@ -27,7 +27,8 @@ export type petQueryParams = queryParams & {
 
 export type myPetsQueryParams = queryParams & {
   animalId?: number;
-  age?: number;
+  minAge?: number;
+  maxAge?: number;
   userId?: number;
 }
 

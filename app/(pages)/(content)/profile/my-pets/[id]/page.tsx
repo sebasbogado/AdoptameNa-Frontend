@@ -47,7 +47,8 @@ export default function MyPostsPage() {
                 size,
                 userId: Number(id),
                 animalId: filters?.animalId || undefined,
-                age: filters?.age || undefined,
+                minAge: filters?.minAge || undefined,
+                maxAge: filters?.maxAge || undefined,
             }),
         initialPage: 1,
         scrollToTop: false,
@@ -83,12 +84,25 @@ export default function MyPostsPage() {
     }, [selectedMascota, animals]);
 
     useEffect(() => {
+        const getAgeRange = (edadStr: string) => {
+            if (!edadStr || edadStr === "Todos") return [undefined, undefined];
+            if (edadStr.includes("+")) {
+                const min = parseInt(edadStr);
+                return [min, undefined]; // 👈 solo minAge, sin maxAge
+            }
+            const [min, max] = edadStr.replace(" años", "").split("-").map(Number);
+            return [min, max];
+        };
+    
+        const [minAge, maxAge] = getAgeRange(selectedEdad || "");
+    
         const filteredData = {
             animalId: selectedMascotaId,
-            age: selectedEdad && selectedEdad !== "Todos" ? parseInt(selectedEdad.split("-")[0]) : undefined,
+            minAge,
+            maxAge,
             city: selectedCiudad,
         };
-
+    
         const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
     }, [selectedMascotaId, selectedEdad, selectedCiudad, updateFilters]);
@@ -109,7 +123,6 @@ export default function MyPostsPage() {
                         selected={selectedCiudad}
                         setSelected={setSelectedCiudad}
                     />
-
 
                     {/* Select Mascota */}
                     <LabeledSelect
