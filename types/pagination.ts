@@ -28,14 +28,15 @@ export type petQueryParams = queryParams & {
 
 export type myPetsQueryParams = queryParams & {
   animalId?: number;
-  age?: number;
+  minAge?: number;
+  maxAge?: number;
   userId?: number;
 }
 
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
-}
+};
 
 export type productQueryParams = queryParams & {
   categoryId?: number;
@@ -43,4 +44,14 @@ export type productQueryParams = queryParams & {
   price?: number;
   minPrice?: number;
   maxPrice?: number;
+};
+
+export type bannerQueryParams = queryParams & {
+  minStartDate?: string;
+  maxStartDate?: string;
+  minEndDate?: string;
+  maxEndDate?: string;
+  isActive?: boolean;
+  minPriority?: number;
+  maxPriority?: number;
 };

@@ -17,7 +17,8 @@ export const getPetsByUserId = async (queryParams: myPetsQueryParams)
         sort: queryParams.sort || "id,desc",
         userId: queryParams.userId,
         animalId: queryParams.animalId,
-        age: queryParams.age,
+        minAge: queryParams.minAge,
+        maxAge: queryParams.maxAge,
       },
     });
 
