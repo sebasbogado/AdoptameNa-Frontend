@@ -94,17 +94,14 @@ export default function MyPostsPage() {
     return (
         <div className="flex flex-col gap-5">
             <Banners images={['/banner1.png', '/banner2.png', '/banner3.png', '/banner4.png']} />
-            <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-1 place-items-center">
-
-                    {/* Select Ciudad */}
+            <div className="flex justify-center w-full">
+                <div className="max-w-md w-full">
                     <LabeledSelect
                         label="Tipo de publicación"
                         options={["Todos", ...postTypes.map((type) => type.name)]}
                         selected={selectedPostType}
                         setSelected={setSelectedPostType}
                     />
-
                 </div>
             </div>
 
