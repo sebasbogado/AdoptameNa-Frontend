@@ -21,32 +21,8 @@ export default function Page() {
     const [authorOptions, setAuthorOptions] = useState<string[]>([]);
     const [allAuthorsMap, setAllAuthorsMap] = useState<Record<string, number>>({});
 
+    const [pageSize, setPageSize] = useState<number>();
 
-    
-    const pageSize = 10;
-    const sort = "id,desc";
-
-    const {
-            data: posts,
-            loading,
-            error,
-            currentPage,
-            totalPages,
-            handlePageChange,
-            updateFilters
-        } = usePagination<Post>({
-            fetchFunction: async (page, size, filters) => {
-                return await getPosts({ 
-                    page, 
-                    size, 
-                    sort, 
-                    postTypeId: POST_TYPEID.BLOG, 
-                    userId: filters?.userId ?? undefined,
-                });
-            },
-            initialPage: 1,
-            initialPageSize: pageSize
-        });
 
         useEffect(() => {
             if (selectedAutor && selectedAutor !== "Todos") {
@@ -77,6 +53,7 @@ export default function Page() {
     
                     setAuthorOptions(uniqueAuthors);
                     setAllAuthorsMap(authorMap);
+                    setPageSize(response.pagination.size)
                 } catch (err) {
                     console.error("Error al obtener autores:", err);
                 }
@@ -89,6 +66,27 @@ export default function Page() {
             setSelectedAutor(null); 
             updateFilters({}); 
           };
+
+    const {
+            data: posts,
+            loading,
+            error,
+            currentPage,
+            totalPages,
+            handlePageChange,
+            updateFilters
+        } = usePagination<Post>({
+            fetchFunction: async (page, size, filters) => {
+                return await getPosts({ 
+                    page, 
+                    size,  
+                    postTypeId: POST_TYPEID.BLOG, 
+                    userId: filters?.userId ?? undefined,
+                });
+            },
+            initialPage: 1,
+            initialPageSize: pageSize
+        });
 
     return (
         <div className="flex flex-col gap-5">
