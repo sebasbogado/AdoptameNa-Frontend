@@ -33,7 +33,7 @@ export interface UpdatePost {
   title: string;
   content: string;
   tagsIds: number[];
-  idPostType: number;
+  postTypeId: number;
   locationCoordinates: string;
   contactNumber: string;
   userId: number;

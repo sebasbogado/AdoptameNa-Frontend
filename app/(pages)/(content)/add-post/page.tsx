@@ -36,13 +36,13 @@ export default function Page() {
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
-            idPostType: 0,
+            postTypeId: 0,
             title: "",
             content: "",
             locationCoordinates: [0, 0],
             contactNumber: "",
             mediaIds: [],
-            tags: [],
+            tagsIds: [],
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
@@ -53,14 +53,13 @@ export default function Page() {
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [formData, setFormData] = useState<PostFormValues>({
-        idPostType: 0,
+        postTypeId: 0,
         title: "",
         content: "",
         locationCoordinates: [0, 0], // Array de coordenadas
         contactNumber: "",
-        status: "activo", // Valor estático
         mediaIds: [],
-        tags: [],
+        tagsIds: [],
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<Media[]>([]);
@@ -87,7 +86,7 @@ export default function Page() {
             setLoading(true);
 
             // Llamar a la API para eliminar la imagen
-            if (imageToRemove.url) {
+            if (imageToRemove.id) {
                 await deleteMedia(imageToRemove.id, authToken);
             }
 
@@ -151,7 +150,7 @@ export default function Page() {
             content: formData.content,
             //tagsIds: selectedTags.length > 0 ? selectedTags.map(tag => tag.id) : [],
             tagsIds: [1], // Cambiado a un array vacío para evitar errores
-            postTypeId: formData.idPostType,
+            postTypeId: formData.postTypeId,
             contactNumber: formData.contactNumber,
             locationCoordinates: formData.locationCoordinates?.join(",") || "",
             mediaIds: selectedImages.length > 0 ? selectedImages.map(media => media.id) : []
@@ -167,14 +166,13 @@ export default function Page() {
             const response = await createPost(updatedFormData, authToken);
             if (response) {
                 setFormData({
-                    idPostType: 0,
+                    postTypeId: 0,
                     title: "",
                     content: "",
                     locationCoordinates: [0, 0], // Array de coordenadas
                     contactNumber: "",
-                    status: "activo", // Valor estático
                     mediaIds: [],
-                    tags: [],
+                    tagsIds: [],
                 });
                 //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
@@ -244,7 +242,7 @@ export default function Page() {
 
     useEffect(() => {
         const urls = selectedImages.map(image => image.url);
-        setArrayImages(urls);
+        setArrayImages(urls || ["./logo.png"]);
       }, [selectedImages]);
 
     return (
@@ -298,6 +296,7 @@ export default function Page() {
                     </Alert>
                 </div>
             )}
+
             {precautionMessage && (
                 <div>
                     <Alert
@@ -308,6 +307,7 @@ export default function Page() {
                     </Alert>
                 </div>
             )}
+
             {successMessage && (
                 <div>
                     <Alert
@@ -322,15 +322,15 @@ export default function Page() {
             <form onSubmit={zodHandleSubmit(openConfirmationModal)}>
                 {/* Tipo de publicación */}
                 <select
-                    {...register("idPostType", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.idPostType ? 'border-red-500' : ''}`}
+                    {...register("postTypeId", { valueAsNumber: true })}
+                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
                 >
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {errors.idPostType && <p className="text-red-500 text-sm">{errors.idPostType.message}</p>}
+                {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
 
                 {/* Título */}
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
