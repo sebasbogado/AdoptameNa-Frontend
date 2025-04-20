@@ -24,7 +24,9 @@ export default function Page() {
   const [petStatusesList, setPetStatusesList] = useState<string[]>([]); //para options del filtro
   const [selectedPetStatus, setSelectedPetStatus] = useState(""); //para selected y setSelected del filtro
   const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
-
+  //temp
+  const distancias = ["A menos de 1 Km", "1 a 3 Km", "Mas de 3 Km", "Cualquier distancia"];
+  const [selectedLocation, setSelectedLocation] = useState("");
 
   const {
     data: pets,
@@ -94,14 +96,19 @@ export default function Page() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/*Falta por ubicacion*/}
           <LabeledSelect
+            label="Distancia"
+            options={distancias}
+            selected={selectedLocation}
+            setSelected={setSelectedLocation}
+          />
+          <LabeledSelect
             label="Estado"
             options={petStatusesList}
             selected={selectedPetStatus}
             setSelected={setSelectedPetStatus}
           />
-
           <LabeledSelect
-            label="Animal"
+            label="Tipo de mascota"
             options={animalList}
             selected={selectedAnimal}
             setSelected={setSelectedAnimal}
