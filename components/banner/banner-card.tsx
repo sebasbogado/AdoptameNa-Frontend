@@ -37,9 +37,25 @@ export default function BannerCard({
                     <span className={`text-xs px-2 py-1 rounded-full ${banner.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                         {banner.isActive ? 'Activo' : 'Inactivo'}
                     </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-800">
+                    <span className={`text-xs px-2 py-1 rounded-full ${banner.priority >= 80 ? 'bg-red-100 text-red-800' :
+                        banner.priority >= 60 ? 'bg-orange-100 text-orange-800' :
+                            banner.priority >= 40 ? 'bg-amber-100 text-amber-800' :
+                                banner.priority >= 20 ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-blue-100 text-blue-800'
+                        }`}>
                         Prioridad: {banner.priority}
                     </span>
+                    {(() => {
+                        const daysLeft = Math.ceil((new Date(banner.endDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24));
+                        return (
+                            <span className={`text-xs px-2 py-1 rounded-full ${daysLeft <= 3 ? 'bg-red-100 text-red-800' :
+                                daysLeft <= 7 ? 'bg-amber-100 text-amber-800' :
+                                    'bg-green-100 text-green-800'
+                                }`}>
+                                Dias restantes: {daysLeft}
+                            </span>
+                        );
+                    })()}
                 </div>
             </div>
             <div className="p-4 space-y-4">
