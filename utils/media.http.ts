@@ -86,15 +86,5 @@ export async function deleteMediaByUrl(imageUrl: string, token: string) {
     throw new Error(error.message || "Error al eliminar Post");
   }
 }
-export const getMediaById = async (id: number) => {
-    try {
-      const response = await axios.get(`${API_URL}/${id}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response && error.response.status === 404) {
-        throw new Error("Imagen no encontrada");
-      }
-      throw new Error(error.message || "Error al obtener la imagen");
-    }
-  }
+
 

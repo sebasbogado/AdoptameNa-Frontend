@@ -5,9 +5,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import SponsorsCarousel from "@/components/sponsorsCarousel";
 import { usePathname } from "next/navigation";
-import { getSponsors } from '@/utils/sponsors.http';
-import { getMediaById } from '@/utils/media.http';
-import { Sponsor } from "@/types/sponsor";
+import { getActiveSponsors } from '@/utils/sponsor.http';
 
 interface SponsorImage {
   id: number;
@@ -15,31 +13,19 @@ interface SponsorImage {
 }
 
 export default function ContentLayout({ children }: { children: React.ReactNode }) {
-  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
   const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
   const pathname = usePathname();
-  const pageSize = 5;
-  const pageNumber = 0;
-  const sort = "id,desc";
 
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
-        const sponsorsData = await getSponsors({ sort, size: pageSize, page: pageNumber });
+        const sponsorsData = await getActiveSponsors();
         const sponsorsArray = sponsorsData.data;
-        setSponsors(sponsorsArray);
 
-        const images = await Promise.all(
-          sponsorsArray
-            .filter((s) => s.logoId)
-            .map(async (s) => {
-              const media = await getMediaById(s.logoId);
-              return {
-                id: s.id,
-                url: media.url,
-              };
-            })
-        );
+        const images = sponsorsArray.map((s) => ({
+          id: s.id,
+          url: s.logoUrl, // aunque esté vacío, lo dejamos
+        }));
 
         setSponsorImages(images);
       } catch (error) {
