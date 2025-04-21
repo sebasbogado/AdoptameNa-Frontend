@@ -14,3 +14,23 @@ export const getActiveSponsors = async (): Promise<
     throw new Error(error.message || "Error al obtener patrocinadores activos");
   }
 };
+export const createSponsor = async (
+  token: string,
+  sponsorData: {
+    reason: string;
+    contact: string;
+    logoId: number;
+  }
+) => {
+  try {
+    const response = await axios.post(`${API_URL}`, sponsorData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener patrocinadores activos");
+  }
+};
