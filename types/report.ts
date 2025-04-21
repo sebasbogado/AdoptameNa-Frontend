@@ -1,6 +1,6 @@
 export interface Report {
   id: number
-  user: User
+  reporterFullName: string
   idPost: number
   reportReason: string
   description: string
@@ -19,9 +19,9 @@ export interface User {
 export interface ReportPost {
   id: number
   idUser: number
-  idPost: number
+  idPost?: string
+  idPet?: string
   idReportReason: number
   description: string
   reportDate: string
-  status: string
 }

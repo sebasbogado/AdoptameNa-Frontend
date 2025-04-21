@@ -1,19 +1,24 @@
-import { PaginatedResponse, petQueryParams } from "@/types/pagination";
+import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
 import { Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
-export const getPetsByUserId = async (id: string, page?: number, size?: number) => {
+export const getPetsByUserId = async (queryParams: myPetsQueryParams)
+  : Promise<PaginatedResponse<Pet>> => {
   try {
     const response = await axios.get(`${API_URL}`, {
       headers: {
         "Content-Type": "application/json",
       },
       params: {
-        id,
-        page,
-        size,
+        page: queryParams.page || 0,
+        size: queryParams.size || 10,
+        sort: queryParams.sort || "id,desc",
+        userId: queryParams.userId,
+        animalId: queryParams.animalId,
+        minAge: queryParams.minAge,
+        maxAge: queryParams.maxAge,
       },
     });
 
@@ -137,5 +142,25 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
       throw new Error("Mascota no encontrada");
     }
     throw new Error(error.message || "Error al actualizar mascota");
+  }
+}
+
+export const getPetSMissing = async (
+  queryParams?: Record<string, any>): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const queryString = queryParams ? buildQueryString(queryParams) : "";
+    const url = `${API_URL}${queryString && `?${queryString}`}`;
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
   }
 }
