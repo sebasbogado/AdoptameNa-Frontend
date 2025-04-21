@@ -174,7 +174,8 @@ export default function Page() {
                     mediaIds: [],
                     tagsIds: [],
                 });
-                //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+
+                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
@@ -206,6 +207,12 @@ export default function Page() {
                 throw new Error("El token de autenticación es requerido");
             }
 
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            if (!allowedTypes.includes(file.type)) {
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+                return;
+            }
+
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 5) {
                 setPrecautionMessage("Solo puedes subir hasta 5 imagen.");
@@ -220,7 +227,7 @@ export default function Page() {
             try {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
-                
+
                 if (response) {
                     console.log("Imagen subida exitosamente", response);
                     const { id } = response;
@@ -243,7 +250,7 @@ export default function Page() {
     useEffect(() => {
         const urls = selectedImages.map(image => image.url);
         setArrayImages(urls || ["./logo.png"]);
-      }, [selectedImages]);
+    }, [selectedImages]);
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -261,7 +268,7 @@ export default function Page() {
                         {/* Botón de eliminación */}
                         <button
                             onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+                            className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                             title="Eliminar imagen"
                         >
                             ✕
@@ -270,7 +277,7 @@ export default function Page() {
                 ))}
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/webp"
                     multiple
                     className="hidden"
                     id="fileInput"
