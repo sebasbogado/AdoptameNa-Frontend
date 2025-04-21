@@ -8,7 +8,7 @@ export interface Pet {
   name: string;
   description: string;
   birthdate: string;
-  gender: "MALE" | "FEMALE";
+  gender: "MALE" | "FEMALE" | "OTHER";
   isSterilized: boolean;
   isVaccinated: boolean;
   addressCoordinates: string;

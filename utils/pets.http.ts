@@ -1,5 +1,5 @@
 import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
-import { Pet, UpdatePet } from "@/types/pet";
+import { CreatePet, Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
@@ -31,7 +31,7 @@ export const getPetsByUserId = async (queryParams: myPetsQueryParams)
   }
 };
 
-export const postPets = async (params: any, token?: string) => {
+export const postPets = async (params: CreatePet, token: string) => {
   try {
     const response = await axios.post(`${API_URL}`, params, {
       headers: {

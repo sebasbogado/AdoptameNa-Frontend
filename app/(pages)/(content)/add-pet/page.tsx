@@ -16,7 +16,7 @@ import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
 import { Maximize, Minimize } from "lucide-react";
-import { getPetStatuses } from "@/utils/pet-statuses.http";
+import { getPetStatus } from "@/utils/pet-statuses.http";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
@@ -24,6 +24,10 @@ import { ConfirmationModal } from "@/components/form/modal";
 import { useRouter } from "next/navigation";
 import { Alert } from "@material-tailwind/react";
 import { set } from "zod";
+import { Animal } from "@/types/animal";
+import { Breed } from "@/types/breed";
+import { PetStatus } from "@/types/pet-status";
+import { Media } from "@/types/media";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -31,16 +35,16 @@ const MapWithNoSSR = dynamic<MapProps>(
   { ssr: false }
 );
 
-const AdoptionForm = () => {
+export default function Page() {
 
   const { authToken, user, loading: authLoading } = useAuth();
-  const [animals, setAnimals] = useState<any[] | null>(null)
-  const [breed, setBreed] = useState<any[] | null>(null)
-  const [petsStatus, setPetsStatus] = useState<any[] | null>(null)
-  const [selectedImages, setSelectedImages] = useState<any[]>([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [breed, setBreed] = useState<Breed[]>([]);
+  const [petsStatus, setPetsStatus] = useState<PetStatus[]>([]);
+  const [selectedImages, setSelectedImages] = useState<Media[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
   const router = useRouter();
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -51,7 +55,7 @@ const AdoptionForm = () => {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<PetFormValues>({
     resolver: zodResolver(petSchema),
     defaultValues: {
       petStatusId: 0,
@@ -67,7 +71,6 @@ const AdoptionForm = () => {
       //peso: 0,
     },
   });
-
 
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,23 +105,15 @@ const AdoptionForm = () => {
 
     const respAnimals = await getAnimals({ size: 100, page: 0 })
     if (respAnimals) {
-      console.log("Resultado Animals", respAnimals)
-      setAnimals(respAnimals.data)
+      setAnimals(respAnimals.data);
     }
     const respBreed = await getBreed({ size: 100, page: 0 })
     if (respBreed) {
-      console.log("Resultado Breed", respBreed)
-      setBreed(respBreed.data)
+      setBreed(respBreed.data);
     }
-    const respPetStatus = await getPetStatuses({ size: 100, page: 0 })
+    const respPetStatus = await getPetStatus({ size: 100, page: 0 })
     if (respPetStatus) {
-      console.log("Resultado PetStatus", respPetStatus)
-      setPetsStatus(respPetStatus.data)
-    }
-    const respImageSelected = await getPetStatuses({ size: 100, page: 0 })
-    if (respImageSelected) {
-      console.log("Resultado PetStatus", respImageSelected)
-      setPetsStatus(respImageSelected.data)
+      setPetsStatus(respPetStatus.data);
     }
   }
 
@@ -141,8 +136,8 @@ const AdoptionForm = () => {
     if (e.target.files) {
       const file = e.target.files[0];
       // Verifica la cantidad de imagens que se pueden subir
-      if (selectedImages.length >= 1) {
-        setErrorMessage(`Solo puedes subir hasta 1 imágenes.`);
+      if (selectedImages.length >= 5) {
+        setErrorMessage(`Solo puedes subir hasta 5 imágenes.`);
         return;
       }
       const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
@@ -166,6 +161,8 @@ const AdoptionForm = () => {
       try {
         const response = await postMedia(formData, authToken);
         if (response) {
+          const { id, url } = response;
+          setValue
           const newImages = [...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }];
           setSelectedImages(newImages);
         }
@@ -179,8 +176,6 @@ const AdoptionForm = () => {
     const updatedImages = selectedImages.filter((_, i) => i !== index);
     setSelectedImages(updatedImages);
   };
-
-
 
   const adjustImageSize = () => {
     if (!bannerRef.current) return;
@@ -228,13 +223,10 @@ const AdoptionForm = () => {
     console.log("authLoading", authLoading);
   }, [authToken, authLoading, user?.id]);
 
-
-  console.log("Selectimages- : ", selectedImages[0]);
-
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-//    if (isSubmitting) return; // 🔒 Evita múltiples clics
+    //    if (isSubmitting) return; // 🔒 Evita múltiples clics
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
@@ -260,7 +252,7 @@ const AdoptionForm = () => {
       console.error("Error al enviar el formulario", error);
       setErrorMessage("Error en la creación de pets")
     }
-    
+
   };
 
   const arrayImages = selectedImages?.map(image => image?.url_API) || [];
@@ -469,4 +461,3 @@ const AdoptionForm = () => {
     </div>
   );
 };
-export default AdoptionForm;
