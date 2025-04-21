@@ -1,8 +1,10 @@
 export type Sponsor = {
   id: number;
-  organizationName: string;
-  logoUrl: string;
-  bannerUrl: string;
+  idUser:number;
+  reason: string;
+  contact: string;
   logoId: number;
   bannerId: number;
+  isActive: boolean;
 };
+

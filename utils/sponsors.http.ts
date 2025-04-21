@@ -1,36 +1,25 @@
 // utils/sponsor.http.ts
 
 import axios from 'axios';
-
+import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
+import { Sponsor } from '@/types/sponsor';
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/sponsors`;
 
-/**
- * Obtiene las imágenes de los sponsors por sus IDs.
- * @param ids Array de IDs de las imágenes a obtener.
- * @returns Array de objetos con id y url de cada imagen.
- */
-export const getSponsors = async () => {
-  let page = 0;
-  let allSponsors: any[] = [];
-  let isLastPage = false;
+export const getSponsors = async (queryParams: queryParams)
+  : Promise<PaginatedResponse<Sponsor>> => {
   try {
-    while (!isLastPage) {
-      const response = await axios.get(`${API_URL}`, {
-        params: { page},
-      });
-
-      const { data, pagination } = response.data;
-
-      allSponsors = allSponsors.concat(data);
-      isLastPage = pagination.last;
-      page++;
-    }
-
-    return allSponsors;
+    const response = await axios.get(`${API_URL}`, {
+      params: queryParams,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
   } catch (error: any) {
-    console.error('Error al obtener los sponsors:', error);
-    throw new Error(
-      error.response?.data?.message || 'Error al obtener los sponsors'
-    );
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Sponsors");
   }
 };
+

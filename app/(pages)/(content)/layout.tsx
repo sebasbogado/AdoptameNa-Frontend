@@ -7,45 +7,48 @@ import SponsorsCarousel from "@/components/sponsorsCarousel";
 import { usePathname } from "next/navigation";
 import { getSponsors } from '@/utils/sponsors.http';
 import { getMediaById } from '@/utils/media.http';
+import { Sponsor } from "@/types/sponsor";
 
-interface Sponsor {
+interface SponsorImage {
   id: number;
   url: string;
-  [key: string]: any;
 }
 
 export default function ContentLayout({ children }: { children: React.ReactNode }) {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
+  const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
   const pathname = usePathname();
+  const pageSize = 5;
+  const pageNumber = 0;
+  const sort = "id,desc";
 
-  
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
-        const sponsorsData = await getSponsors();
-        const logos = await Promise.all(
-          sponsorsData
-            .filter((s: any) => s.logoId !== null)
-            .map(async (s: any) => {
-              const logoRes = await getMediaById(s.logoId);
+        const sponsorsData = await getSponsors({ sort, size: pageSize, page: pageNumber });
+        const sponsorsArray = sponsorsData.data;
+        setSponsors(sponsorsArray);
+
+        const images = await Promise.all(
+          sponsorsArray
+            .filter((s) => s.logoId)
+            .map(async (s) => {
+              const media = await getMediaById(s.logoId);
               return {
                 id: s.id,
-                url: logoRes.url,
+                url: media.url,
               };
             })
         );
-  
-        setSponsors(logos);
+
+        setSponsorImages(images);
       } catch (error) {
         console.error('Error al cargar imágenes de sponsors:', error);
       }
     };
-  
+
     fetchSponsors();
   }, []);
-  
-  
 
   const allowedRoutes = [
     "/dashboard",
@@ -64,9 +67,9 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
         {children}
       </div>
 
-      {showCarousel && sponsors.length > 0 && (
+      {showCarousel && sponsorImages.length > 0 && (
         <div className="bg-white py-4">
-          <SponsorsCarousel images={sponsors} scrollStep={1} delay={15} />
+          <SponsorsCarousel images={sponsorImages} scrollStep={1} delay={15} />
         </div>
       )}
 
