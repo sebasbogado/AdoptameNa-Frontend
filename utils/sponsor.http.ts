@@ -20,6 +20,7 @@ export const createSponsor = async (
     reason: string;
     contact: string;
     logoId: number;
+    bannerId?: number; // 👈 opcional
   }
 ) => {
   try {

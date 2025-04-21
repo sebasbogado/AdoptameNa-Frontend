@@ -12,10 +12,12 @@ export default function SponsorFormPage() {
     const [email, setEmail] = useState('');
     const [wantsLogo, setWantsLogo] = useState(false);
     const [wantsBanner, setWantsBanner] = useState(false);
-    const [logoFile, setLogoFile] = useState<File | null>(null);
-    const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [reason, setReason] = useState('');
     const { authToken } = useAuth();
+    const [logoId, setLogoId] = useState<number | null>(null);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,46 +27,62 @@ export default function SponsorFormPage() {
             return;
         }
 
-        try {
-            let logoId: number | undefined;
-            let bannerId: number | undefined;
+        if (wantsLogo && !logoId) {
+            alert("Debes subir un logo antes de enviar la solicitud.");
+            return;
+        }
 
-            if (wantsLogo) {
-                if (!logoFile) {
-                    alert("Debe seleccionar un archivo para el logo.");
-                    return;
-                }
-                logoId = await postMedia(logoFile, authToken);
-            }
+        try {
             const sponsorData = {
-                organizationName: companyName,
-                responsible: responsibleName,
                 contact: email,
                 reason,
-                wantsLogo,
-                wantsBanner,
-                logoId,
-                bannerId,
+                logoId: logoId!,
             };
 
             await createSponsor(authToken, sponsorData);
             alert("Solicitud enviada con éxito");
 
-            // Limpiar formulario
+            // Reset
             setCompanyName('');
             setResponsibleName('');
             setEmail('');
-            setWantsLogo(false);
-            setWantsBanner(false);
-            setLogoFile(null);
-            setBannerFile(null);
             setReason('');
-
+            setWantsLogo(false);
+            setLogoId(null);
         } catch (error) {
             console.error("Error al enviar solicitud:", error);
             alert("Error al enviar la solicitud");
         }
     };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !authToken) return;
+
+        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+            setErrorMessage("Tipo de archivo no permitido. Solo PNG, JPG y WEBP.");
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setErrorMessage("El archivo es demasiado grande. Máximo: 5MB.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await postMedia(formData, authToken);
+            setLogoId(response.id);
+            setErrorMessage('');
+        } catch (error) {
+            console.error("Error al subir logo", error);
+            setErrorMessage("Error al subir el logo.");
+        }
+    };
+
 
     return (
         <div className="max-w-xl mx-auto p-6 mt-8 bg-white rounded-2xl font-roboto border-0 shadow-none">
@@ -127,16 +145,18 @@ export default function SponsorFormPage() {
                 {wantsLogo && (
                     <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto">
                         <label className="cursor-pointer block">
-                            + Añadir logo
+                            {logoId ? "✅ Logo subido" : "+ Añadir logo"}
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+                                onChange={handleLogoUpload}
                                 className="hidden"
                             />
                         </label>
+                        {errorMessage && <p className="text-sm text-red-500 mt-2">{errorMessage}</p>}
                     </div>
                 )}
+
 
                 <label className="flex items-center space-x-2">
                     <input
@@ -154,7 +174,6 @@ export default function SponsorFormPage() {
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setBannerFile(e.target.files?.[0] ?? null)}
                                 className="hidden"
                             />
                         </label>
