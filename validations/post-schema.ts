@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const postSchema = z.object({
-  idPostType: z.number().min(1, "Seleccione un tipo de publicación"),
+  postTypeId: z.number().min(1, "Seleccione un tipo de publicación"),
   title: z.string()
     .min(3, "El título debe tener al menos 3 caracteres")
     .nonempty("El título es requerido"),
@@ -20,8 +20,8 @@ export const postSchema = z.object({
     .min(9, "Número inválido (9-15 dígitos)")
     .max(15, "Número inválido (9-15 dígitos)")
     .regex(/^\+?\d{9,15}$/, "Número inválido (9-15 dígitos)"),
-  urlPhoto: z.string().optional(),
-  status: z.enum(["activo"]).default("activo"), // Campo estático con valor "activo"
+  mediaIds: z.array(z.number()).optional(),
+  tagsIds: z.array(z.number()).optional(),
 });
 
 export type PostFormValues = z.infer<typeof postSchema>;
