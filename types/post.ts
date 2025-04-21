@@ -3,7 +3,7 @@ import { PostType } from "./post-type";
 
 export interface Post {
   id: number;
-  idUser: number;
+  userId: number;
   userFullName: string;
   title: string;
   content: string;
@@ -18,7 +18,6 @@ export interface Post {
 }
 
 export interface CreatePost {
-  idUser: number;
   title: string;
   content: string;
   postTypeId: number;
@@ -30,12 +29,11 @@ export interface CreatePost {
 }
 
 export interface UpdatePost {
-    idUser: number;
-    title: string;
-    content: string;
-    idPostType: number;
-    locationCoordinates: string;
-    contactNumber: string;
-    status: string;
-    mediaIds: number[];
-  }
+  title: string;
+  content: string;
+  idPostType: number;
+  locationCoordinates: string;
+  contactNumber: string;
+  status: string;
+  mediaIds: number[];
+}

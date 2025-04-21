@@ -19,7 +19,9 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
   const params = useParams();
   const pathname = window.location.pathname;
   const idParam = params.id as string;
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: {
@@ -49,14 +51,30 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
     }
     try {
       await createReport(authToken, data);
-      handleClose();
+      setSuccessMessage("Reporte enviado con éxito.");
+      setLoading(true);
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setLoading(false);
+        handleClose();
+      }, 3000);
     } catch (error: any) {
       console.error("Error al enviar el reporte:", error);
       setErrorMessage(error.message);
+      setTimeout(() => { setErrorMessage(null); }, 3000);
     }
   };
   return (
     <>
+      {successMessage && (
+        <Alert
+          color="green"
+          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          onClose={() => setSuccessMessage(null)}
+        >
+          {successMessage}
+        </Alert>
+      )}
       {errorMessage && (
         <Alert
           color="red"
@@ -106,7 +124,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
           <Button variant="secondary" size="md" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant="danger" size="md" type='submit'>
+          <Button variant="danger" size="md" type='submit' disabled={loading}>
             Confirmar Reporte
           </Button>
         </div>

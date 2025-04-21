@@ -139,10 +139,15 @@ export default function Page() {
         setIsModalOpen(false);
         setLoading(true);
 
-        const updatedFormData = {
-            ...formData, // ✅ Asegura que urlPhoto está presente
-            idUser: user ? Number(user.id) : 0,
-            locationCoordinates: formData.locationCoordinates?.join(",") || "", // Convertir a string
+        const updatedFormData: CreatePost = {
+            title: formData.title,
+            content: formData.content,
+            postTypeId: formData.idPostType,
+            contactNumber: formData.contactNumber,
+            status: formData.status || "activo",
+            locationCoordinates: formData.locationCoordinates?.join(",") || "",
+            sharedCounter: 0,
+            mediaIds: selectedImages.length > 0 ? [selectedImages[0].id] : []
         };
 
         if (!authToken) {
@@ -152,7 +157,7 @@ export default function Page() {
         }
 
         try {
-            const response = await createPost(updatedFormData as CreatePost, authToken);
+            const response = await createPost(updatedFormData, authToken);
             if (response) {
                 setFormData({
                     idPostType: 0,

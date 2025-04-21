@@ -17,13 +17,15 @@ import { getPets, getPetsDashboard } from '@/utils/pets.http'
 import { PET_STATUS, POST_TYPEID } from '@/types/constants'
 import page from '../administration/settings/page'
 import { set } from 'zod'
+import { getProducts } from '@/utils/product.http'
+import { Product } from '@/types/product'
 
 type FetchContentDataParams = {
     setAdoptionPets: React.Dispatch<React.SetStateAction<Pet[]>>;
     setMissingPets: React.Dispatch<React.SetStateAction<Pet[]>>;
     setVolunteeringPosts: React.Dispatch<React.SetStateAction<Post[]>>;
     setBlogPosts: React.Dispatch<React.SetStateAction<Post[]>>;
-    setMarketplacePosts: React.Dispatch<React.SetStateAction<Post[]>>;
+    setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>;
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
     setError: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -45,7 +47,7 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
         const petMissingData = await getPetsDashboard({...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND]});
         const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING});
         const postBlogData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.BLOG });
-        const postMarketplaceData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.MARKETPLACE });
+        const postMarketplaceData = await getProducts(queryParams);
 
         setAdoptionPets(Array.isArray(petAdoptionData.data) ? petAdoptionData.data : []);
         setMissingPets(Array.isArray(petMissingData.data) ? petMissingData.data : []);
@@ -65,7 +67,7 @@ export default function Page() {
     const [missingPets, setMissingPets] = useState<Pet[]>([]);
     const [volunteeringPosts, setVolunteeringPosts] = useState<Post[]>([]);
     const [blogPosts, setBlogPosts] = useState<Post[]>([]);
-    const [marketplacePosts, setMarketplacePosts] = useState<Post[]>([]);
+    const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     useEffect(() => {
@@ -126,7 +128,7 @@ export default function Page() {
             <Section
                 title='Tienda'
                 path='marketplace'
-                itemType='post'
+                itemType='product'
                 postTypeName="Marketplace"
                 items={marketplacePosts}
                 loading={loading}

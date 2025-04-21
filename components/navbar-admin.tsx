@@ -18,6 +18,7 @@ const navbarAdminItems = [
     },
     { name: "Configuraciones", path: "/administration/settings" },
     { name: "Usuarios", path: "/administration/users" },
+    { name: "Banners", path: "/administration/settings/banner" },
 ];
 
 export default function NavbarAdmin() {
@@ -66,8 +67,8 @@ export default function NavbarAdmin() {
                                             setDropdownOpen(false);
                                         }}
                                         className={`block w-full text-left px-4 py-2 text-sm ${pathname === subItem.path
-                                                ? "bg-gray-100 text-purple-600"
-                                                : "text-gray-700 hover:bg-gray-50"
+                                            ? "bg-gray-100 text-purple-600"
+                                            : "text-gray-700 hover:bg-gray-50"
                                             }`}
                                     >
                                         {subItem.name}
@@ -80,7 +81,7 @@ export default function NavbarAdmin() {
                     <button
                         key={item.path}
                         onClick={() => handleClick(item.path as string)}
-                        className={`text-lg font-bold hover:text-purple-600 focus:outline-none ${(pathname === item.path )? "text-purple-600" : "text-black"
+                        className={`text-lg font-bold hover:text-purple-600 focus:outline-none ${(pathname === item.path) ? "text-purple-600" : "text-black"
                             }`}
                     >
                         {item.name}
