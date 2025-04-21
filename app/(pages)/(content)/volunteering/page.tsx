@@ -19,7 +19,7 @@ export default function Page() {
     const [selectedAnimal, setSelectedAnimal] = useState("");
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const pageSize = 10;
+    const pageSize = 5;
     const sort = "id,desc";
     const {
         data: posts,
@@ -119,7 +119,7 @@ export default function Page() {
                             <p className="text-gray-600">No se encontraron posts</p>
                         </div>
                     ) : (
-                        <div className="flex justify-center w-full">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
                             {posts.map((post) => (
                                 <PetCard
                                     key={post.id}
