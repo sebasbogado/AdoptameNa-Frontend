@@ -9,6 +9,7 @@ interface PostHeaderProps {
 }
 
 export const PostHeader = ({ post, pet }: PostHeaderProps) => {
+    console.log("PostHeader", post ?? pet);
     return (
         <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
             <h1
@@ -18,7 +19,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             </h1>
             <p className="text-2xl text-gray-700 mt-8">
                 {post ? <span>
-                    Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.idUser}`}>{post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
+                    Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
                     <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                 </span> :
                     <span>

@@ -7,5 +7,4 @@ export const PET_STATUS = {
   export const POST_TYPEID = {
     VOLUNTEERING: 1,
     BLOG: 2,
-    MARKETPLACE: 3,
   };

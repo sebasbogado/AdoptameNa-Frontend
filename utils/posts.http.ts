@@ -1,15 +1,20 @@
+import page from "@/app/(pages)/(content)/administration/settings/page";
 import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
 import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
-
 export const getPosts = async (
   queryParams?: postQueryParams
 ): Promise<PaginatedResponse<Post>> => {
   try {
     const response = await axios.get(API_URL, {
-      params: queryParams,
+      params: {
+        page: queryParams?.page || 0,
+        size: queryParams?.size || 10,
+        userId: queryParams?.userId,
+        postTypeId: queryParams?.postTypeId,
+      },
       headers: {
         "Content-Type": "application/json",
       },
@@ -38,22 +43,6 @@ export const getPost = async (id: string): Promise<Post> => {
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener Post");
-  }
-};
-export const getPostReports = async (queryParams?: any) => {
-  try {
-    const response = await axios.get(`${API_URL}/reported`, {
-      params: queryParams,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
-    }
-    throw new Error(error.message || "Error al obtener Posts reportados");
   }
 };
 
