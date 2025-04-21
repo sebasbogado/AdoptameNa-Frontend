@@ -38,8 +38,8 @@ export function middleware(request: NextRequest) {
       font-src 'self' https://vercel.live/ https://assets.vercel.com https://fonts.gstatic.com;
       style-src 'self' https://vercel.live/fonts 'nonce-${nonce}';
       script-src 'self' https://vercel.live/ 'nonce-${nonce}';
-      connect-src 'self' https://vercel.live/ https://vitals.vercel-insights.com wss://*.pusher.com/ https://*.pusher.com/;
-      img-src 'self' data: https://vercel.com/ https://vercel.live/ https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/;
+      connect-src 'self' https://vercel.live/ https://vitals.vercel-insights.com wss://*.pusher.com/ https://*.pusher.com/ https://adoptamena-api.rodrigomaidana.com;
+      img-src 'self' data: https://vercel.com/ https://vercel.live/ https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
       frame-src 'self' https://vercel.live/;
     `;
   } else {
@@ -49,7 +49,7 @@ export function middleware(request: NextRequest) {
       style-src 'self' 'nonce-${nonce}';
       script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
       connect-src 'self' https://vitals.vercel-insights.com https://adoptamena-api.rodrigomaidana.com;
-      img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/;
+      img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
       frame-src 'none';
     `;
   }
