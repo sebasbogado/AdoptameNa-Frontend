@@ -69,12 +69,12 @@ export default function BannerImage({ onImageUploaded, initialImage, token }: Im
                 color: "green",
                 message: "Imagen subida con éxito"
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error al subir la imagen:', error);
             setAlertInfo({
                 open: true,
                 color: "red",
-                message: "Error al subir la imagen. Por favor, inténtalo de nuevo."
+                message: `Error al subir la imagen. Por favor, inténtalo de nuevo. ${error.message}`
             });
         } finally {
             setUploading(false);
