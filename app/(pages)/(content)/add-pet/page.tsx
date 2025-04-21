@@ -11,7 +11,7 @@ import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
 import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
-import { postMedia } from "@/utils/media.http";
+import { deleteMedia, postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
 import Banners from "@/components/banners";
@@ -28,6 +28,7 @@ import { Animal } from "@/types/animal";
 import { Breed } from "@/types/breed";
 import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
+import { CreatePet } from "@/types/pet";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -46,9 +47,10 @@ export default function Page() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
   const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(true);
   const bannerRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const MAX_IMAGES = 1; //Tam max de imagenes
+  const MAX_IMAGES = 5; //Tam max de imagenes
   const {
     register,
     handleSubmit,
@@ -64,6 +66,7 @@ export default function Page() {
       name: "",
       birthdate: "",
       description: "",
+      addressCoordinates: [0, 0],
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
@@ -81,12 +84,15 @@ export default function Page() {
     name: "",
     birthdate: "",
     description: "",
+    addressCoordinates: [0, 0],
     isVaccinated: false,
     isSterilized: false,
     gender: "MALE",
     //edad: 0,
     //peso: 0,
   });
+  const [arrayImages, setArrayImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const openConfirmationModal = (data: PetFormValues) => {
     setFormData(data); // Guardamos los datos validados
@@ -161,20 +167,58 @@ export default function Page() {
       try {
         const response = await postMedia(formData, authToken);
         if (response) {
-          const { id, url } = response;
-          setValue
-          const newImages = [...selectedImages, { file, url_API: response.url, url: URL.createObjectURL(file) }];
-          setSelectedImages(newImages);
+          const { id } = response;
+          setSelectedImages(prev => [...prev, response]);
+          setValue("mediaIds", [id]); // Actualiza el formulario con el nuevo ID de la imagen
+          setFormData(prev => ({
+            ...prev,
+            mediaIds: [...(prev.mediaIds || []), id]
+          }));
         }
       } catch (error) {
+        setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
         console.error("Error al subir la imagen", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    const updatedImages = selectedImages.filter((_, i) => i !== index);
-    setSelectedImages(updatedImages);
+  const handleRemoveImage = async (index: number) => {
+    const imageToRemove = selectedImages[index];
+
+    if (!authToken) {
+      console.log("El token de autenticación es requerido");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Llamar a la API para eliminar la imagen
+      if (imageToRemove.id) {
+        await deleteMedia(imageToRemove.id, authToken);
+      }
+
+      // Eliminar del estado local
+      const updatedImages = selectedImages.filter((_, i) => i !== index);
+      setSelectedImages(updatedImages);
+
+      // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
+      if (updatedImages.length === 0) {
+        setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
+        setFormData(prev => ({ ...prev, mediaIds: [] }));
+      }
+
+      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+      setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 3000); // Ocultar mensaje después de 3 segundos
+
+    } catch (error) {
+      console.error("Error al eliminar la imagen", error);
+      setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const adjustImageSize = () => {
@@ -198,7 +242,7 @@ export default function Page() {
 
   const handlePositionChange = (newPosition: [number, number]) => {
     setPosition(newPosition); // Actualiza el petStatusId local
-    //setValue("addressCoordinates", newPosition); // Actualiza el formulario
+    setValue("addressCoordinates", newPosition); // Actualiza el formulario
   };
 
   const toggleFullScreen = () => {
@@ -225,37 +269,49 @@ export default function Page() {
 
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsModalOpen(false); // Cierra el modal de confirmación
+    setLoading(true);
 
-    //    if (isSubmitting) return; // 🔒 Evita múltiples clics
+    if (isSubmitting) return; // 🔒 Evita múltiples clics
+
     if (!authToken) {
       console.error("No hay token de autenticación disponible.");
       return;
     }
 
     try {
-      console.log(formData);
+      const params: CreatePet = {
 
-      const params = {
-        ...formData, // Copia todas las propiedades de formData
-        urlPhoto: selectedImages[0]?.url_API,
         userId: Number(user?.id),
-        addressCoordinates: `${position?.[0]}, ${position?.[1]}`
+        name: formData.name,
+        description: formData.description,
+        birthdate: formData.birthdate,
+        gender: formData.gender,
+        isSterilized: formData.isSterilized,
+        isVaccinated: formData.isVaccinated,
+        animalId: formData.animalId,
+        breedId: formData.breedId,
+        petStatusId: formData.petStatusId,
+        addressCoordinates: formData.addressCoordinates?.join(",") || "",
+        mediaIds: selectedImages.length > 0 ? selectedImages.map((img) => img.id) : [],
       };
 
       const response = await postPets(params, authToken);
       if (response) {
-        console.log("Guardado ", response);
         setSuccessMessage("Se creó exitosamente")
         setTimeout(() => router.push(`/pets/${response.id}`), 3500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
-      setErrorMessage("Error en la creación de pets")
+      setErrorMessage("Error en la creación de mascota. Intenta nuevamente.");
     }
 
   };
 
-  const arrayImages = selectedImages?.map(image => image?.url_API) || [];
+  useEffect(() => {
+    const urls = selectedImages.map(image => image.url);
+    setArrayImages(urls || ["./logo.png"]);
+  }, [selectedImages]);
 
   return (
     <div>
@@ -275,10 +331,12 @@ export default function Page() {
             {selectedImages.map((img, index) => (
               <div key={index} className="relative w-24 h-24 group">
                 {/* Imagen */}
-                <img
+                <Image
                   src={img.url}
-                  alt={`Imagen ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg border"
+                  alt="pet"
+                  fill
+                  className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
                 />
 
                 {/* Botón de eliminación */}
@@ -309,6 +367,40 @@ export default function Page() {
             </label>
           </div>
         </div>
+
+        {errorMessage && (
+          <div>
+            <Alert
+              color="red"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setErrorMessage("")}>
+              {errorMessage}
+            </Alert>
+          </div>
+        )}
+
+        {precautionMessage && (
+          <div>
+            <Alert
+              color="orange"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setPrecautionMessage("")}>
+              {precautionMessage}
+            </Alert>
+          </div>
+        )}
+
+        {successMessage && (
+          <div>
+            <Alert
+              color="green"
+              onClose={() => setSuccessMessage("")}
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+              {successMessage}
+            </Alert>
+          </div>
+        )}
+
         {/* Wrapped Card Component */}
         <div className="w-full max-w-2xl">
           <Card>

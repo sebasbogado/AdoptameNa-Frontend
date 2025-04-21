@@ -25,7 +25,7 @@ export interface Pet {
 export interface CreatePet {
   name: string;
   description: string;
-  birthdate: string;
+  birthdate: string | undefined;
   gender: "MALE" | "FEMALE" | "OTHER";
   mediaIds: number[];
   isSterilized: boolean;
