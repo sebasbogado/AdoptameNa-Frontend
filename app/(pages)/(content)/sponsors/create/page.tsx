@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { createSponsor } from "@/utils/sponsorsCreate.http";
@@ -14,10 +14,11 @@ export default function SponsorFormPage() {
     const [logoFile, setLogoFile] = useState<File | null>(null);
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [reason, setReason] = useState('');
-    const { authToken } = useAuth();
+    const { authToken, user } = useAuth();
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
     const [bannerPreview, setBannerPreview] = useState<string | null>(null);
     const [logoId, setLogoId] = useState<number | null>(null);
+    console.log(user?.role);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,7 +27,6 @@ export default function SponsorFormPage() {
         formData.append('wantsLogo', wantsLogo.toString());
         formData.append('wantsBanner', wantsBanner.toString());
         formData.append('reason', reason);
-
         if (!authToken) {
             throw new Error("El token de autenticación es requerido");
         }
@@ -69,7 +69,6 @@ export default function SponsorFormPage() {
             try {
                 const uploadedId = await postMedia(logoFile, authToken);
                 setLogoId(uploadedId);
-                alert("Logo subido con éxito");
             } catch (error) {
                 console.error("Error al subir el logo:", error);
                 alert("Error al subir el logo");
