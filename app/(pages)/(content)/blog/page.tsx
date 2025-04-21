@@ -21,19 +21,20 @@ export default function Page() {
     const [authorOptions, setAuthorOptions] = useState<string[]>([]);
     const [allAuthorsMap, setAllAuthorsMap] = useState<Record<string, number>>({});
 
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [tagOptions, setTagOptions] = useState<string[]>([]);
+    const [allTagsMap, setAllTagsMap] = useState<Record<string, number>>({});
+
     const [pageSize, setPageSize] = useState<number>();
 
 
-        useEffect(() => {
-            if (selectedAutor && selectedAutor !== "Todos") {
-                const userId = allAuthorsMap[selectedAutor];
-                updateFilters({ userId });
-            } else {
-                updateFilters({ userId: undefined });
-            }
+    useEffect(() => {
+        const userId = selectedAutor && selectedAutor !== "Todos" ? allAuthorsMap[selectedAutor] : undefined;
+        const tagId = selectedTag && selectedTag !== "Todos" ? allTagsMap[selectedTag] : undefined;
     
-            handlePageChange(1); 
-        }, [selectedAutor]);
+        updateFilters({ userId, tagId });
+        handlePageChange(1);
+    }, [selectedAutor, selectedTag]);
     
           useEffect(() => {
             const fetchAllAuthors = async () => {
@@ -43,16 +44,25 @@ export default function Page() {
                     });
     
                     const authorMap: Record<string, number> = {};
+                    const tagMap: Record<string, number> = {};
                     response.data.forEach(p => {
                         if (p.userFullName) {
                             authorMap[p.userFullName] = p.userId;
                         }
                     });
+                    response.data.forEach(p => {
+                        if (p.tag) {
+                            tagMap[p.tag] = p.tagId;
+                        }
+                    });
     
                     const uniqueAuthors = Object.keys(authorMap).sort();
+                    const uniqueTags = Object.keys(tagMap).sort();
     
                     setAuthorOptions(uniqueAuthors);
+                    setTagOptions(uniqueTags);
                     setAllAuthorsMap(authorMap);
+                    setAllTagsMap(tagMap)
                     setPageSize(response.pagination.size)
                 } catch (err) {
                     console.error("Error al obtener autores:", err);
@@ -63,7 +73,8 @@ export default function Page() {
         }, []);
 
         const resetFilters = () => {
-            setSelectedAutor(null); 
+            setSelectedAutor(null);
+            setSelectedTag(null); 
             updateFilters({}); 
           };
 
@@ -82,6 +93,7 @@ export default function Page() {
                     size,  
                     postTypeId: POST_TYPEID.BLOG, 
                     userId: filters?.userId ?? undefined,
+                    tagId: filters?.tagId ?? undefined,
                 });
             },
             initialPage: 1,
@@ -99,6 +111,13 @@ export default function Page() {
                         options={["Todos", ...authorOptions]}
                         selected={selectedAutor}
                         setSelected={setSelectedAutor}
+                    />
+
+                    <LabeledSelect
+                        label="Tags"
+                        options={["Todos", ...tagOptions]}
+                        selected={selectedTag}
+                        setSelected={setSelectedTag}
                     />
 
                     <ResetFiltersButton onClick={resetFilters} />
