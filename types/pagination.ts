@@ -20,7 +20,7 @@ export type queryParams = {
 export type postQueryParams = queryParams & {
   postTypeId?: number
   userId?: number
-  tagId?: number
+  tagIds?: number
 }
 
 export type petQueryParams = queryParams & {
@@ -57,3 +57,7 @@ export type bannerQueryParams = queryParams & {
   minPriority?: number;
   maxPriority?: number;
 };
+
+export type tagQueryParams = queryParams & {
+  postTypeIds?: number
+}

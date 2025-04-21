@@ -9,8 +9,8 @@ import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
+import { getTagsByPostType } from "@/utils/tags";
 import { Loader2 } from "lucide-react";
-import { unique } from "next/dist/build/utils";
 import { useEffect, useState } from "react";
 
 export default function Page() {
@@ -36,41 +36,43 @@ export default function Page() {
         handlePageChange(1);
     }, [selectedAutor, selectedTag]);
     
-          useEffect(() => {
-            const fetchAllAuthors = async () => {
-                try {
-                    const response = await getPosts({
-                        postTypeId: POST_TYPEID.BLOG
-                    });
-    
-                    const authorMap: Record<string, number> = {};
-                    const tagMap: Record<string, number> = {};
-                    response.data.forEach(p => {
-                        if (p.userFullName) {
-                            authorMap[p.userFullName] = p.userId;
-                        }
-                    });
-                    response.data.forEach(p => {
-                        if (p.tag) {
-                            tagMap[p.tag] = p.tagId;
-                        }
-                    });
-    
-                    const uniqueAuthors = Object.keys(authorMap).sort();
-                    const uniqueTags = Object.keys(tagMap).sort();
-    
-                    setAuthorOptions(uniqueAuthors);
-                    setTagOptions(uniqueTags);
-                    setAllAuthorsMap(authorMap);
-                    setAllTagsMap(tagMap)
-                    setPageSize(response.pagination.size)
-                } catch (err) {
-                    console.error("Error al obtener autores:", err);
-                }
-            };
-    
-            fetchAllAuthors();
-        }, []);
+    useEffect(() => {
+        const fetchAuthorsAndTags = async () => {
+          try {
+            const [postsResponse, tagsResponse] = await Promise.all([
+              getPosts({ postTypeId: POST_TYPEID.BLOG }),
+              getTagsByPostType({postTypeIds: POST_TYPEID.BLOG })
+            ]);
+      
+            const authorMap: Record<string, number> = {};
+            postsResponse.data.forEach(p => {
+              if (p.userFullName) {
+                authorMap[p.userFullName] = p.userId;
+              }
+            });
+      
+            const tagMap: Record<string, number> = {};
+            tagsResponse.data.forEach(tag => {
+              if (tag.name) {
+                tagMap[tag.name] = tag.id;
+              }
+            });
+      
+            const uniqueAuthors = Object.keys(authorMap).sort();
+            const uniqueTags = Object.keys(tagMap).sort();
+      
+            setAuthorOptions(uniqueAuthors);
+            setTagOptions(uniqueTags);
+            setAllAuthorsMap(authorMap);
+            setAllTagsMap(tagMap);
+            setPageSize(postsResponse.pagination.size);
+          } catch (err) {
+            console.error("Error al obtener autores o tags:", err);
+          }
+        };
+      
+        fetchAuthorsAndTags();
+      }, []);
 
         const resetFilters = () => {
             setSelectedAutor(null);
@@ -93,7 +95,7 @@ export default function Page() {
                     size,  
                     postTypeId: POST_TYPEID.BLOG, 
                     userId: filters?.userId ?? undefined,
-                    tagId: filters?.tagId ?? undefined,
+                    tagIds: filters?.tagId ?? undefined
                 });
             },
             initialPage: 1,
