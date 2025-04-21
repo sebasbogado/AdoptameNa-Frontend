@@ -6,6 +6,8 @@ import Footer from "@/components/footer";
 import SponsorsCarousel from "@/components/sponsorsCarousel";
 import { usePathname } from "next/navigation";
 import { getSponsors } from '@/utils/sponsors.http';
+import { getMediaById } from '@/utils/media.http';
+
 interface Sponsor {
   id: number;
   url: string;
@@ -17,19 +19,32 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
   const API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
   const pathname = usePathname();
 
+  
   useEffect(() => {
     const fetchSponsors = async () => {
-      const ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; // IDs de las imágenes a mostrar
       try {
-        const data = await getSponsors(ids);
-        setSponsors(data);
+        const sponsorsData = await getSponsors();
+        const logos = await Promise.all(
+          sponsorsData
+            .filter((s: any) => s.logoId !== null)
+            .map(async (s: any) => {
+              const logoRes = await getMediaById(s.logoId);
+              return {
+                id: s.id,
+                url: logoRes.url,
+              };
+            })
+        );
+  
+        setSponsors(logos);
       } catch (error) {
         console.error('Error al cargar imágenes de sponsors:', error);
       }
     };
-
+  
     fetchSponsors();
   }, []);
+  
   
 
   const allowedRoutes = [
@@ -51,7 +66,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
 
       {showCarousel && sponsors.length > 0 && (
         <div className="bg-white py-4">
-          <SponsorsCarousel images={sponsors} />
+          <SponsorsCarousel images={sponsors} scrollStep={1} delay={15} />
         </div>
       )}
 
