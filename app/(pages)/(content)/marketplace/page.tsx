@@ -170,6 +170,7 @@ export default function Page() {
     const resetFilters = () => {
         setSelectedCategory(null);
         setSelectedCondition(null);
+        setSelectedAnimal(null);
         setMinPrice(null);
         setMaxPrice(null);
         //setMinVal(allPrices[0]); 
