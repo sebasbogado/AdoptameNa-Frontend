@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X } from 'lucide-react';
 import RangeSlider from "@/components/range-slider/range-slider";
 import { getAnimals } from "@/utils/animals.http";
+import LabeledInput from "@/components/inputs/labeled-input";
 
 export default function Page() {
 
@@ -30,14 +31,14 @@ export default function Page() {
     const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [allPrices, setAllPrices] = useState<number[]>([]);
 
-    const [minVal, setMinVal] = useState<number | null>(null);
-    const [maxVal, setMaxVal] = useState<number| null>(null);
+    //const [minVal, setMinVal] = useState<number | null>(null);
+    //const [maxVal, setMaxVal] = useState<number| null>(null);
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [priceError, setPriceError] = useState<string | null>(null);
 
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
-    const [isPriceRangeInitialized, setIsPriceRangeInitialized] = useState(false);
+    //const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+    //const [isPriceRangeInitialized, setIsPriceRangeInitialized] = useState(false);
 
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
     const [availableAnimals, setAvailableAnimals] = useState<{ id: number; name: string }[]>([]);
@@ -58,8 +59,8 @@ export default function Page() {
         const fetchPrices = async () => {
             try {
                 const response = await getProducts({}); 
-                const prices = [...new Set(response.data.map(p => p.price))].sort((a, b) => a - b);
-                setAllPrices(prices);
+                //const prices = [...new Set(response.data.map(p => p.price))].sort((a, b) => a - b);
+                //setAllPrices(prices);
                 setPageSize(response.pagination.size)
             } catch (error) {
                 console.error("Error al obtener los precios:", error);
@@ -95,7 +96,7 @@ export default function Page() {
     
         fetchAnimals();
     }, []);
-    
+   {/**  
     useEffect(() => {
         if (allPrices.length > 0 && priceRange[0] === 0 && priceRange[1] === 0) {
           const min = allPrices[0];
@@ -105,7 +106,7 @@ export default function Page() {
           setPriceRange([min, max]);
           setIsPriceRangeInitialized(true);
         }
-      }, [allPrices, priceRange]);
+      }, [allPrices, priceRange]);*/}
 
     useEffect(() => {
         if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
@@ -169,10 +170,11 @@ export default function Page() {
     const resetFilters = () => {
         setSelectedCategory(null);
         setSelectedCondition(null);
+        setSelectedAnimal(null);
         setMinPrice(null);
         setMaxPrice(null);
-        setMinVal(allPrices[0]); 
-        setMaxVal(allPrices[allPrices.length - 1]);
+        //setMinVal(allPrices[0]); 
+        //setMaxVal(allPrices[allPrices.length - 1]);
         updateFilters({}); // limpia los filtros aplicados
     };
 
@@ -181,8 +183,8 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <Banners images={bannerImages} />
-            <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <LabeledSelect
                         label="Categorias"
                         options={["Todos", ...categories.map((category) => category.name)]}
@@ -204,6 +206,24 @@ export default function Page() {
                         setSelected={setSelectedAnimal}
                     />
 
+                    <LabeledInput 
+                        label="Precio minimo"
+                        placeholder="0"
+                        value={minPrice ?? null}
+                        onChange={setMinPrice} 
+                        
+                    />
+
+                    <LabeledInput 
+                        label="Precio maximo"
+                        placeholder="0"
+                        value={maxPrice ?? null}
+                        onChange={setMaxPrice}
+                        
+                    />
+
+
+                    {/** 
                     <RangeSlider
                         min={allPrices[0] ?? 0}
                         max={allPrices[allPrices.length - 1]}
@@ -219,7 +239,7 @@ export default function Page() {
                             }
                         }}
                         renderValue={(value) => `₲${value.toLocaleString('es-PY')}`}
-                    />
+                    /> */}
 
                     <div className="flex items-end justify-start">
                         <button
