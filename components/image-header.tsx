@@ -169,8 +169,8 @@ const HeaderImage = ({
                             src={notFoundSrc}
                             alt="Imagen por defecto"
                             className="h-full w-full object-cover"
-                            width={100}
-                            height={100}
+                            width={1000}
+                            height={1000}
                         />
                     ) : (
                         images.map((image, index) => (
