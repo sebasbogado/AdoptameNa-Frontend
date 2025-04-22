@@ -1,6 +1,6 @@
 import { Media } from "./media";
 import { PostType } from "./post-type";
-import { Tag } from "./tag";
+import { Tags } from "./tags";
 
 export interface Post {
   id: number;
@@ -15,7 +15,7 @@ export interface Post {
   publicationDate: string;
   postType: PostType;
   media: Media[];
-  tags: Tag[];
+  tags: Tags[];
 }
 
 export interface CreatePost {
