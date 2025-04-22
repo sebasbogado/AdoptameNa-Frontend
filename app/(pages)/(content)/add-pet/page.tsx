@@ -210,7 +210,7 @@ export default function Page() {
         setFormData(prev => ({ ...prev, mediaIds: [] }));
       }
 
-      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+      setCurrentImageIndex((prevIndex) => (prevIndex - 1 + updatedImages.length) % updatedImages.length);
       setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 3000); // Ocultar mensaje después de 3 segundos
 
     } catch (error) {
