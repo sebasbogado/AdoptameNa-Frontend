@@ -48,35 +48,42 @@ const HeaderImage = ({
         const maxSize = 5 * 1024 * 1024;
 
         // Filtrar archivos no permitidos o demasiado grandes
-        const validFiles = Array.from(files).filter((file) =>
+        const validFiles = Array.from(files).filter(file =>
             allowedTypes.includes(file.type) && file.size <= maxSize
         );
 
         if (validFiles.length !== files.length) {
-            setError("El archivo es de un formato inválido o muy grande, Usar imágenes JPG, PNG o WEBP de hasta 5 Megas.");
+            setError("Archivo no válido. Usa JPG, PNG o WEBP de hasta 5 MB.");
             return;
         }
 
-        // Subir todas las imágenes válidas
-        const formData = new FormData();
-        validFiles.forEach((file) => formData.append("file", file));
-
         try {
-            // Subir todas las imágenes a la vez
+            // Subir cada imagen por separado
             const responses = await Promise.all(
-                validFiles.map((file) => postMedia(formData, authToken))  // Suponiendo que postMedia acepta múltiples archivos
+                validFiles.map(file => {
+                    const formData = new FormData();
+                    formData.append("file", file);
+                    return postMedia(formData, authToken);
+                })
             );
 
-            // Añadir las imágenes al estado
-            const newMedias = responses.map((resp: MediaDTO) => resp);
-            setMedias([...medias, ...newMedias]);
+            // Añadir las nuevas medias al estado
+            const newMedias = responses as MediaDTO[];
+            setMedias(prev => [...prev, ...newMedias]);
 
             // Actualizar el perfil del usuario con los nuevos mediaIds
-            await updateUserProfile(user?.id, {
-                ...userProfile,
-                mediaIds: [...(medias.map(media => media.id)), ...newMedias.map((media) => media.id)],
-            }, authToken);
-        } catch (error) {
+            const allMediaIds = [
+                ...medias.map(m => m.id),
+                ...newMedias.map(m => m.id)
+            ];
+            await updateUserProfile(
+                user.id,
+                { ...userProfile, mediaIds: allMediaIds },
+                authToken
+            );
+
+        } catch (err) {
+            console.error(err);
             setError("Hubo un error al subir las imágenes.");
         }
     };
