@@ -29,6 +29,7 @@ const HeaderImage = ({
     const [error, setError] = useState<string | null>(null);
     const [editionMode, setEditionMode] = useState<boolean>(false);
     const [images, setImages] = useState<{ url: string; isVertical: boolean; id: number }[]>([]);
+    const maxImageLenght = 5;
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!user) throw new Error("No se encontró usuario");
@@ -36,6 +37,12 @@ const HeaderImage = ({
 
         const files = e.target.files;
         if (!files) return;
+
+        const attempting = files.length;
+        if (medias.length + attempting > maxImageLenght) {
+            setError(`Solo se pueden subir hasta ${maxImageLenght} imágenes de portada`);
+            return;
+        }
 
         const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
         const maxSize = 5 * 1024 * 1024;
@@ -46,7 +53,7 @@ const HeaderImage = ({
         );
 
         if (validFiles.length !== files.length) {
-            setError("Algunos archivos son inválidos o demasiado grandes.");
+            setError("El archivo es de un formato inválido o muy grande, Usar imágenes JPG, PNG o WEBP de hasta 5 Megas.");
             return;
         }
 
@@ -96,15 +103,25 @@ const HeaderImage = ({
 
 
     const checkOrientation = async (medias: MediaDTO[]) => {
-        const processedImages = medias.map((media) => {
-            return {
-                ...media,
-                isVertical: false
-            };
-        })
+        const promises = medias.map(media => {
+            return new Promise<{ id: number; url: string; isVertical: boolean }>(resolve => {
+                const img = new window.Image();
+                img.src = media.url;
+                img.onload = () => {
+                    const isVertical = img.naturalHeight >= img.naturalWidth;
+                    resolve({ id: media.id, url: media.url, isVertical });
+                };
+                img.onerror = () => {
+                    // en caso de fallo, asumimos horizontal
+                    resolve({ id: media.id, url: media.url, isVertical: false });
+                };
+            });
+        });
 
-        setImages(processedImages);
+        const processed = await Promise.all(promises);
+        setImages(processed);
     };
+
 
     useEffect(() => {
         checkOrientation(medias);
@@ -120,7 +137,8 @@ const HeaderImage = ({
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
-                <Carousel key={images.length}
+                <Carousel
+                    key={images.length}
                     className="rounded-xl overflow-hidden h-[400px] relative w-4/5"
                     loop
                     autoplay
@@ -129,32 +147,50 @@ const HeaderImage = ({
                     prevArrow={({ handlePrev }) => (
                         <button
                             onClick={handlePrev}
-                            className="!absolute top-2/4 left-4 -translate-y-2/4 rounded-full p-2 bg-black/30 hover:bg-black/50 transition-colors"
+                            className="!absolute top-2/4 left-4 -translate-y-2/4 rounded-full p-2 z-20 bg-black/30 hover:bg-black/50 transition-colors"
                         >
-                            <ChevronLeft className="w-6 h-6 text-white" /> 
+                            <ChevronLeft className="w-6 h-6 text-white" />
                         </button>
                     )}
                     nextArrow={({ handleNext }) => (
                         <button
                             onClick={handleNext}
-                            className="!absolute top-2/4 right-4 -translate-y-2/4 rounded-full p-2 bg-black/30 hover:bg-black/50 transition-colors"
+                            className="!absolute top-2/4 right-4 -translate-y-2/4 rounded-full p-2 z-20 bg-black/30 hover:bg-black/50 transition-colors"
                         >
-                            <ChevronRight className="w-6 h-6 text-white" /> 
+                            <ChevronRight className="w-6 h-6 text-white" />
                         </button>
                     )}
                 >
-                    {images.length === 0
-                        ? <img src={notFoundSrc} alt="Imagen por defecto" className="h-full w-full object-cover" />
-                        : images.map((image, index) => (
-                            <div key={index} className="relative w-full h-full">
+                    {images.length === 0 ? (
+                        <img
+                            src={notFoundSrc}
+                            alt="Imagen por defecto"
+                            className="h-full w-full object-cover"
+                        />
+                    ) : (
+                        images.map((image, index) => (
+                            <div
+                                key={index}
+                                className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/5"
+                            >
+                                {/* Fondo difuso sólo si es vertical */}
+                                {image.isVertical && (
+                                    <div
+                                        className="absolute inset-0 bg-center bg-cover filter blur-lg scale-110"
+                                        style={{ backgroundImage: `url(${image.url})` }}
+                                    />
+                                )}
+
+                                {/* Imagen principal por encima */}
                                 <img
                                     src={image.url}
                                     alt={`Imagen ${index + 1}`}
-                                    className={`h-full w-full ${image.isVertical ? 'object-contain' : 'object-cover'}`}
+                                    className={`relative z-10 h-full w-full ${image.isVertical ? "object-contain" : "object-cover"
+                                        }`}
                                 />
                             </div>
                         ))
-                    }
+                    )}
                 </Carousel>
 
                 {canEdit && (
@@ -170,7 +206,6 @@ const HeaderImage = ({
                             className="hidden"
                             accept="image/*"
                             onChange={handleUpload}
-                            multiple
                         />
                     </>
                 )}
@@ -187,7 +222,7 @@ const HeaderImage = ({
             </div>
 
             {canEdit && editionMode && (
-                <div className="absolute z-50 flex gap-3 p-4">
+                <div className="absolute inset-x-0 bottom-24 z-50 flex justify-center gap-3 p-4">
                     {images.map((image, index) => (
                         <div key={index} className="h-24 w-24 border border-gray-300 rounded-md relative">
                             <Image
