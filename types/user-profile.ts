@@ -22,7 +22,8 @@ export interface UserProfile {
   bannerImages: string[];
   email: string;
   isProfileCompleted: boolean;
-  media?: MediaDTO;
+  media?: MediaDTO[];
+  mediaIds?: number[]
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 
