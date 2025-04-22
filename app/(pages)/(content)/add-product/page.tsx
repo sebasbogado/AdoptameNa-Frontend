@@ -13,6 +13,14 @@ import Banners from "@/components/banners";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import Button from "@/components/buttons/button";
+import { useRouter } from "next/navigation";
+import { ConfirmationModal } from "@/components/form/modal";
+import { useAuth } from "@/contexts/auth-context";
+import { CreateProduct, Product } from "@/types/product";
+import { createProduct } from "@/utils/product.http";
+import { getUserProfile } from "@/utils/user-profile-client";
+import { Media } from "@/types/media";
+import Image from "next/image";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -25,7 +33,6 @@ export default function Page() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -33,18 +40,28 @@ export default function Page() {
       title: "",
       content: "",
       locationCoordinates: [0, 0],
-      contactNumber: "",
+      contactNumber: "", //traer del perfil y si no tiene, dejar vacio
       price: 0,
-      userId: 1,
+      userId: 0,
       categoryId: 0,
-      animalsId: [],
-      condition: ProductCondition.NEW
+      animalsId: [1], //hardcodeado por ahora
+      condition: ProductCondition.NEW,
+      mediaIds: []
     }
   });
 
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user, authToken, loading: authLoading } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<ProductFormValues | null>(null);
+  const [selectedImages, setSelectedImages] = useState<Media[]>([]);
+  const [arrayImages, setArrayImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
 
 
 
@@ -71,6 +88,16 @@ export default function Page() {
     fetchAnimals();
   }, []);
 
+  useEffect(() => {
+    if (!authLoading && !authToken) {
+      router.push("/login");
+    }
+  }, [authToken, authLoading, router])
+
+  const handleCancel = () => {
+    router.push("/dashboard");
+  }
+
   const onSubmit = async (data: ProductFormValues) => {
     console.log("Form submitted:", data);
   }
@@ -80,21 +107,128 @@ export default function Page() {
     setValue("locationCoordinates", newPosition); // Actualiza el formulario
   };
 
-  const location = watch("locationCoordinates");
+  const openConfirmationModal = (data: ProductFormValues) => {
+    console.log("Form data before confirmation:", data);
+    setFormData(data);
+    setIsModalOpen(true);
+  }
+
+  const confirmSubmit = async () => {
+    if (!authToken || !user?.id || !formData) return;
+    setLoading(true);
+    const postProduct: CreateProduct = {
+      title: formData.title,
+      content: formData.content,
+      price: formData.price,
+      categoryId: formData.categoryId,
+      condition: formData.condition,
+      animalsId: formData.animalsId,
+      mediaIds: formData.mediaIds ? formData.mediaIds : [],
+      contactNumber: formData.contactNumber,
+      userId: parseInt(user?.id as string, 10),
+      locationCoordinates: position?.join(",") || ""
+    };
+    try {
+      await createProduct(postProduct, authToken);
+      console.log("Product created successfully", postProduct);
+    } catch (error) {
+      console.error("Error creating product:", error);
+    } finally {
+      setLoading(false);
+      setIsModalOpen(false);
+      router.push("/dashboard");
+    }
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0];
+      const fileData = new FormData();
+      fileData.append("file", file);
+
+      if (!authToken) {
+        throw new Error("El token de autenticación es requerido");
+      }
+
+      // Verifica la cantidad de imagens que se pueden subir
+      // if (selectedImages.length >= 5) {
+      //   setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
+      //   return;
+      // }
+      // Verificar el tamaño del archivo (1MB)
+      // if (file.size > 5 * (1024 * 1024)) {
+      //   setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+      //   return;
+      // }
+
+      try {
+        setLoading(true);
+        const response = await postMedia(fileData, authToken);
+
+        if (response) {
+          const { id } = response;
+          setSelectedImages(prev => [...prev, response]);
+          setValue("mediaIds", [id]);
+          // setFormData(
+          //   prev => ({
+          //   ...prev,
+          //   mediaIds: [...(prev.mediaIds || []), id]
+          // }));
+        }
+      } catch (error) {
+        // setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
+        console.error("Error al subir la imagen", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   useEffect(() => {
-    console.log("Location changed:", location);
-  }, [location]);
+    console.log("Errors:", errors);
+  }, [errors]);
+
+  const capitalize = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  useEffect(() => {
+    //para mostrar las imagenes en el banner
+    const urls = selectedImages.map(image => image.url);
+    setArrayImages(urls || ["./logo.png"]);
+  }, [selectedImages]);
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      {/* <Banners images={}/> */}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <Banners images={arrayImages} />
+      {selectedImages.map((src, index) => (
+        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+          <Image
+            src={src.url}
+            alt="post"
+            fill
+            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+            onClick={() => setCurrentImageIndex(index)}
+          />
+          {/* Botón de eliminación */}
+          <button
+            // onClick={() => handleRemoveImage(index)}
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+            title="Eliminar imagen"
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+
+
+      <form onSubmit={handleSubmit(openConfirmationModal)}>
 
         <p>Tipo de animal</p>
         <label className="block text-sm font-medium">Estado</label>
-        <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
+        <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
           {Object.values(ProductCondition).map(cond => (
-            <option key={cond} value={cond}>{cond}</option>
+            <option key={cond} value={cond}>{capitalize(cond)}</option>
           ))}
         </select>
         {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
@@ -108,8 +242,17 @@ export default function Page() {
         </select>
         {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
 
-        <label>Contacto</label>
-        <input {...register("contactNumber")} className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
+        <label >Contacto</label>
+        <input
+          {...register("contactNumber")}
+          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
+          onKeyDown={(e) => {
+            if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+              e.preventDefault();
+            }
+          }
+          }
+        />
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
 
@@ -140,10 +283,7 @@ export default function Page() {
 
 
         {/*Mapa */}
-        {/**tiene un condition para moda VER */}
-        <div
-          className={`h-full relative transition-opacity duration-300`}
-        >
+        <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
           <MapWithNoSSR position={position} setPosition={handlePositionChange} />
         </div>
         {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
@@ -156,8 +296,8 @@ export default function Page() {
               type="button"
               variant="tertiary"
               className="border rounded text-gray-700 hover:bg-gray-100"
-              onClick={() => {}}
-              disabled={false}
+              onClick={handleCancel}
+              disabled={loading}
             >
               Cancelar
             </Button>
@@ -166,8 +306,7 @@ export default function Page() {
               type="submit"
               variant="cta"
               className="rounded hover:bg-purple-700"
-              onClick={() => { }}
-              disabled={false}
+              disabled={loading}
             >
               Crear producto
             </Button>
@@ -175,6 +314,17 @@ export default function Page() {
 
         </div>
       </form>
+      {isModalOpen && (
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          title="Confirmacion de creación"
+          message="¿Esta seguro que desea crear este producto?"
+          textConfirm="Confirmar"
+          confirmVariant="cta"
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={confirmSubmit}
+        />)
+      }
     </div>
   )
 }
