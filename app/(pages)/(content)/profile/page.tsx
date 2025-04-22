@@ -263,7 +263,7 @@ export default function ProfilePage() {
                         isDisable={!isEditing}
                         validationErrors={validationErrors}
                         fundraisingTitle="Recaudación de fondos para cancelar deuda en Veterinarias"
-                        donatedAmount={1000000}
+                        donatedAmount={15000000}
                         goalAmount={17000000}
                         isFundraisingActive={isFundraisingActive}
                         handleStartFundraising={handleStartFundraising}

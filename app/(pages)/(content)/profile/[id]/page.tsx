@@ -19,6 +19,7 @@ import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
 import MenuButton from '@/components/buttons/menu-button';
+import PostLocationMap from '@/components/post/post-location-map';
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
@@ -124,10 +125,10 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const userId = param.id;
-    if (!userId) {
-        setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
-        return;
-    }
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
         if (userAuth && userId == userAuth.id) {
             router.push('/profile');
         }
@@ -137,7 +138,7 @@ export default function ProfilePage() {
             setErrors,
             userId.toString()
         );
-    }, [userAuth, loadingAuth, param.id]); 
+    }, [userAuth, loadingAuth, param.id]);
     useEffect(() => {
         const userId = param.id;
         if (!userId) {
@@ -186,14 +187,20 @@ export default function ProfilePage() {
         console.log(errors.userProfile, user, loading)
         return NotFound();
     }
+
+    const isOrganization = !!userProfile?.organizationName?.trim();
+
+    const isFundraisingActive = true;
+    const fundraisingTitle = 'Recaudacion para vacunar animales Callejeros';
+
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
 
-            <Banners images={userProfile?.bannerImages || ['/logo.png']} />
+            <Banners images={userProfile?.media?.map((item: any) => item.url) || ['./logo.png']} />
+
             <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                 <div className="grid grid-cols-1 gap-4 p-6">
-
                     <Detail
                         posts={posts}
                         user={user!}
@@ -201,14 +208,34 @@ export default function ProfilePage() {
                         setUserProfile={setUserProfile}
                         isDisable={true}
                         validationErrors={validationErrors}
+                        donatedAmount={1000000}
+                        goalAmount={17000000}
+                        isFundraisingActive={isFundraisingActive}
+                        fundraisingTitle={"asdfasdf"}
                     />
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <ReportButton size="lg" />
-                        <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile}></DropdownMenuButtons>
-                        <MenuButton size="lg" />                 </div>
+                        <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
+                        <MenuButton size="lg" />
+                    </div>
+
+
+
+
+
+
+
+                    {/* Mostrar el mapa si las coordenadas están disponibles */}
+                    {userProfile?.addressCoordinates && (
+                        <div className='w-[40vw] mt-[-70px] '>
+                            <PostLocationMap location={userProfile?.addressCoordinates} />
+                        </div>
+                    )}
+
+                    {/* Mostrar el nombre de la organización en lugar del nombre del usuario */}
                     <Section
-                        title={`Mascotas de ${userProfile?.fullName.split(' ')[0]}`}
+                        title={`Mascotas de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
                         itemType="pet"
                         path={`/profile/my-pets/${user?.id}`}
                         items={pets}
@@ -218,7 +245,7 @@ export default function ProfilePage() {
                     />
 
                     <Section
-                        title={`Publicaciones de ${userProfile?.fullName.split(' ')[0]}`}
+                        title={`Publicaciones de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
                         itemType="post"
                         postTypeName="adoption"
                         path={`/profile/my-posts/${user?.id ?? ''}`}
@@ -227,7 +254,9 @@ export default function ProfilePage() {
                         error={errors.posts}
                         filterByType={false}
                     />
+
                 </div>
+
             </div>
 
         </div>

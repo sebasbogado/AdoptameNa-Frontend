@@ -1,10 +1,11 @@
 'use client';
 
+import { useAuth } from "@/contexts/auth-context";
 import { User } from "@/types/auth";
 import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
 import { MapPin, PhoneIcon } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface InputProps {
   user: User;
@@ -28,7 +29,19 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   };
 
   const isOrganization = !!userProfile?.organizationName?.trim();
-  const displayName = isOrganization ? userProfile?.organizationName : userProfile?.fullName ?? "";
+  const displayName: string = userProfile?.organizationName ?? userProfile?.fullName ?? "";
+  const { user: userAuth } = useAuth();
+  const [isOwner, setIsOwner] = useState(false);
+
+  useEffect(() => {
+    if (userAuth && userProfile?.id) {
+      if (String(userAuth.id) === String(userProfile.id)) {
+        setIsOwner(true);
+      } else {
+        setIsOwner(false);
+      }
+    }
+  }, [userAuth, userProfile]);
 
   return (
     <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
@@ -95,7 +108,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         </div>
 
         {/* Fase 1: Antes de Iniciar la colecta */}
-        {isOrganization && !isFundraisingActive && (
+        {!isFundraisingActive && isOwner && (
           <div className="mt-8">
             {/* Título de la fase 1 */}
             <p className="text-3xl font-extrabold text-gray-800 mb-4">
@@ -114,8 +127,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           </div>
         )}
 
+
         {/* Fase 2: Cuando la colecta está activa */}
-        {isOrganization && isFundraisingActive && fundraisingTitle && (
+        {isFundraisingActive && isOwner && (
           <div className="mt-8">
             <p className="text-3xl font-extrabold text-gray-800 mb-4">
               {fundraisingTitle}
@@ -153,6 +167,43 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                     className="bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
                   >
                     Actualizar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Fase 3: Cuando la colecta está activa y no se visita el perfil sin ser dueño*/}
+        {isFundraisingActive && !isOwner && (
+          <div className="mt-8">
+            <p className="text-3xl font-extrabold text-gray-800 mb-4">
+              {fundraisingTitle}
+            </p>
+
+            {/* Barra de Progreso */}
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+              <div
+                className="bg-yellow-400 h-4 rounded-full"
+                style={{
+                  width: goalAmount
+                    ? `${Math.min(100, (donatedAmount! / goalAmount) * 100)}%`
+                    : '0%',
+                }}
+              ></div>
+            </div>
+
+            {/* Monto + Botones */}
+            <div className="flex justify-between items-center">
+              <p className="text-xl text-gray-900 font-bold">
+                Gs. {donatedAmount?.toLocaleString('es-PY')} de Gs. {goalAmount?.toLocaleString('es-PY')}
+              </p>
+
+              {/* Botones visibles solo para el Visitante */}
+              {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
+                <div className="flex gap-4">
+                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                    Donar
                   </button>
                 </div>
               )}
