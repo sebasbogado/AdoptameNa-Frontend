@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import { useAuth } from "@/contexts/auth-context";
 import { getAnimals, createAnimal, deleteAnimal, updateAnimal } from "@/utils/animals.http";
-import { getPetStatuses, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
+import { getPetStatus, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 import FormAnimals from "@/components/form-animal";
 import FormPetStatus from "@/components/form-pet-status";
@@ -14,7 +14,7 @@ import PetBreeds from "@/components/pet-breeds";
 import { Alert } from "@material-tailwind/react";
 import { ConfirmationModal } from "@/components/form/modal";
 import { ReportReason } from "@/types/report-reason";
-import { getReportReasons, createReportReason, deleteReportReason, updateReportReason} from "@/utils/report-reasons.http";
+import { getReportReasons, createReportReason, deleteReportReason, updateReportReason } from "@/utils/report-reasons.http";
 import FormReportReason from "@/components/form-report-reason";
 
 export default function page() {
@@ -38,7 +38,7 @@ export default function page() {
       try {
         if (!authToken || !user || user.role !== "admin") return;
         const animals = await getAnimals();
-        const petStatuses = await getPetStatuses();
+        const petStatuses = await getPetStatus();
         const reportReasons = await getReportReasons();
 
         setAnimals(animals.data);
@@ -266,7 +266,7 @@ export default function page() {
             <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
           </Modal>
           <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Motivo de Reporte">
-            <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected}/>
+            <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected} />
           </Modal>
 
           <ConfirmationModal
