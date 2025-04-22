@@ -8,7 +8,7 @@ import { MapProps } from "@/types/map-props";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
 import { getBreed } from "@/utils/breed.http";
-import { getPet, postPets, updatePet } from "@/utils/pets.http";
+import { deletePet, getPet, postPets, updatePet } from "@/utils/pets.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
 import { ImagePlus } from "lucide-react";
@@ -141,12 +141,13 @@ export default function Page() {
         const petData = await getPet(String(petId));
         if (petData) {
           setPet(petData);
+          console.log("Pet data:", petData);    
 
           setValue("petStatusId", petData.petStatus.id || 0);
           setValue("animalId", petData.animal.id || 0);
           setValue("breedId", petData.breed.id || 0);
           setValue("name", petData.name || "");
-          setValue("birthdate", petData.birthdate || "");
+          setValue("birthdate", petData.birthdate ? new Date(petData.birthdate).toISOString().split("T")[0] : "");
           setValue("description", petData.description || "");
           setValue("isVaccinated", petData.isVaccinated || false);
           setValue("isSterilized", petData.isSterilized || false);
@@ -190,7 +191,7 @@ export default function Page() {
     }
 
     try {
-      await deletePost(String(petId), authToken);
+      await deletePet(String(petId), authToken);
 
       if (pet.media.length > 0) {
         // Eliminar las imágenes asociadas a la publicación
@@ -536,20 +537,6 @@ export default function Page() {
                   <label>Sí</label>
                   <input type="checkbox" {...register("isSterilized")} />
                   {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-                </div>
-
-                {/* Edad */}
-                <div className="mb-2">
-                  <label className="block mb-1">Edad</label>
-                  <input type="number" className="w-full p-2 border rounded" /*{...register("edad", { valueAsNumber: true })}*/ />
-                  {/*{errors.edad && <p className="text-red-500">{errors.edad.message}</p>}*/}
-                </div>
-
-                {/* Peso */}
-                <div className="mb-2">
-                  <label className="block mb-1">Peso</label>
-                  <input type="number" className="w-full p-2 border rounded" /*{...register("peso", { valueAsNumber: true })}*/ />
-                  {/*{errors.peso && <p className="text-red-500">{errors.peso.message}</p>}*/}
                 </div>
 
                 {/* Mapa */}
