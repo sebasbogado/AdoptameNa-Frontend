@@ -1,11 +1,11 @@
 import { PaginatedResponse } from "@/types/pagination";
-import { Sponsor } from "@/types/sponsor";
+import { Sponsor, ActiveSponsor } from "@/types/sponsor";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/sponsors`;
 
 export const getActiveSponsors = async (): Promise<
-  PaginatedResponse<Sponsor>
+  PaginatedResponse<ActiveSponsor>
 > => {
   try {
     const response = await axios.get(`${API_URL}/active`);
@@ -32,7 +32,6 @@ export const getAllSponsors = async (
     });
     return response.data;
   } catch (error: any) {
-    // Mejorar el manejo de errores específicos si es necesario
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       throw new Error("No autorizado para obtener la lista de sponsors.");
     }
@@ -68,10 +67,10 @@ export const updateSponsorStatus = async (
   isActive: boolean
 ): Promise<Sponsor> => {
   try {
-    // Asumiendo un endpoint PATCH para actualizar, ajustar si es PUT u otro
+
     const response = await axios.patch(
       `${API_URL}/${sponsorId}`,
-      { isActive }, // Solo enviamos el campo a actualizar
+      { isActive }, 
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -96,6 +95,47 @@ export const updateSponsorStatus = async (
   }
 };
 
+// Nueva función para aceptar una solicitud de sponsor
+export const approveSponsorRequest = async (
+  token: string,
+  sponsorId: number
+): Promise<Sponsor> => { 
+  if (!token) {
+    throw new Error("Token de autenticación requerido para aprobar.");
+  }
+  try {
+    const response = await axios.put(
+      `${API_URL}/accept/${sponsorId}`,
+      null, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+         
+        },
+      }
+    );
+    return response.data; // Devuelve el sponsor actualizado/aprobado
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+        if (status === 401) {
+            throw new Error("No autorizado para aprobar el sponsor.");
+        }
+        if (status === 404) {
+            throw new Error("Solicitud de sponsor no encontrada.");
+        }
+        
+        if (status === 500) {
+             console.error("Backend error during sponsor approval:", error.response?.data);
+             throw new Error("Error interno del servidor al aprobar la solicitud.");
+        }
+        throw new Error(`Error ${status} al aprobar: ${message}`);
+    }
+    throw new Error("Error inesperado al aprobar el sponsor");
+  }
+};
+
 export const deleteSponsor = async (
   token: string,
   sponsorId: number
@@ -106,7 +146,7 @@ export const deleteSponsor = async (
         Authorization: `Bearer ${token}`,
       },
     });
-    // No devuelve contenido en éxito (204 No Content usualmente)
+
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status;

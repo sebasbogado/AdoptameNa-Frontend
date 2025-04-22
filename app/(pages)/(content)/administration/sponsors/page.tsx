@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X } from 'lucide-react';
-import { getAllSponsors, updateSponsorStatus, deleteSponsor } from '@/utils/sponsor.http';
+import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
 import { getMediaById } from '@/utils/media.http'; // Importar la nueva función
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
@@ -94,7 +94,7 @@ export default function AdminSponsorsPage() {
     const handleApprove = async (applicationId: number) => {
         if (!authToken) return;
         try {
-            await updateSponsorStatus(authToken, applicationId, true);
+            await approveSponsorRequest(authToken, applicationId);
             setApplications(prev => prev.map(app => 
                 app.id === applicationId ? { ...app, isActive: true } : app
             ));

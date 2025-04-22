@@ -14,3 +14,10 @@ export type Sponsor = {
   isActive: boolean;
 };
 
+// Nuevo tipo para sponsors activos
+export type ActiveSponsor = {
+  id: number;
+  logoUrl: string;
+
+};
+
