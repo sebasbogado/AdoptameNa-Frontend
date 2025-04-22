@@ -32,6 +32,6 @@ export const createSponsor = async (
     });
     return response.data;
   } catch (error: any) {
-    throw new Error(error.message || "Error al obtener patrocinadores activos");
+    throw new Error(error.message || "Error al crear patrocinador");
   }
 };
