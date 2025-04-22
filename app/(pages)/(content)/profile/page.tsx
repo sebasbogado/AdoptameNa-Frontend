@@ -55,7 +55,7 @@ const getPostsData = async (
 
     try {
         // Cargar posts del usuario
-        const postParams = { 
+        const postParams = {
             page: 0,
             size: 5,
             sort: "id,desc",
@@ -80,7 +80,7 @@ const getPetsData = async (
 
 
     try {
-        const postParams = { 
+        const postParams = {
             page: 0,
             size: 5,
             sort: "id,desc",
@@ -109,6 +109,7 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
+    const [isFundraisingActive, setIsFundraisingActive] = useState(false);
     const [errors, setErrors] = useState({
         pets: false,
         posts: false,
@@ -120,9 +121,6 @@ export default function ProfilePage() {
             setIsEditing(true)
             return
         }
-
-
-
         setProfileLoading(true);
         setErrors(prev => ({ ...prev, userProfile: false }));
 
@@ -136,6 +134,12 @@ export default function ProfilePage() {
         } finally {
             setProfileLoading(false);
         }
+    };
+
+    const handleStartFundraising = () => {
+        setIsFundraisingActive(true);
+        // Aquí se pueden inicializar los valores de `donatedAmount`, `goalAmount` y `fundraisingTitle`
+        // por ejemplo, setFundraisingData({...}) si necesitas más información en el futuro.
     };
 
 
@@ -231,10 +235,13 @@ export default function ProfilePage() {
         return <Loading />;
     }
     if (!user) return;
+
+    const isOrganization = !!userProfile?.organizationName?.trim();
+
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.bannerImages || ['/logo.png']} />
+            <Banners images={userProfile?.media?.map((item: any) => item.url) || ['./logo.png']} />
             {isOpen &&
                 <ConfirmationModal
                     isOpen={isOpen}
@@ -255,6 +262,11 @@ export default function ProfilePage() {
                         setUserProfile={setTempUserProfile}
                         isDisable={!isEditing}
                         validationErrors={validationErrors}
+                        fundraisingTitle="Recaudación de fondos para cancelar deuda en Veterinarias"
+                        donatedAmount={1000000}
+                        goalAmount={17000000}
+                        isFundraisingActive={isFundraisingActive}
+                        handleStartFundraising={handleStartFundraising}
                     />
 
                     {/* Action Buttons */}
@@ -274,11 +286,11 @@ export default function ProfilePage() {
                         )}
                         {!isEditing && (
                             <MenuButton size="lg" />
-               
+
                         )}
                     </div>
                     <div className='w-[40vw] mt-[-70px] '>
-                    <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
+                        <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
 
                     </div>
 
@@ -294,7 +306,10 @@ export default function ProfilePage() {
 
                     {/* Posts Section (Con filtrado) */}
                     <Section
-                        title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                        title={`Publicaciones de ${isOrganization
+                            ? userProfile?.organizationName
+                            : user?.fullName?.split(' ')[0]
+                            }`}
                         itemType="post"
                         postTypeName="Adopcion"
                         path={`/profile/my-posts/${user.id}`}

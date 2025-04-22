@@ -19,18 +19,18 @@ import { z } from "zod";
 
 export default function CreateProfilePage() {
   const [error, setError] = useState("");
-  const { authToken, user, loading: authLoading , updateUserProfileCompletion } = useAuth();
-  const [loading, setLoading] = useState(true); 
-    const router = useRouter();
+  const { authToken, user, loading: authLoading, updateUserProfileCompletion } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting },reset,
+    formState: { errors, isSubmitting }, reset,
   } = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      fullName:  "",
+      fullName: "",
       phoneNumber: null,
       address: null,
       gender: "MALE",
@@ -42,7 +42,7 @@ export default function CreateProfilePage() {
   useEffect(() => {
     if (user) {
       reset({
-        
+
         fullName: user.fullName || "",
         phoneNumber: null,
         address: null,
@@ -55,11 +55,11 @@ export default function CreateProfilePage() {
 
   const onSubmit = (data: ProfileValues) => {
     setError("");
-  
+
     const formattedBirthdate = data.birthdate
       ? data.birthdate.toISOString().split("T")[0]
       : null;
-  
+
     console.log("Datos del formulario:", data); // Verificar aquí
     console.log("Coordenadas formateadas:", data.addressCoordinates?.join(","));
     updateProfile({
@@ -70,7 +70,7 @@ export default function CreateProfilePage() {
       organizationName: "",
       document: "",
       earnedPoints: 0,
-      bannerImages: [],
+      media: [],
       email: user?.email || "",
       isProfileCompleted: true,
     });
@@ -96,7 +96,7 @@ export default function CreateProfilePage() {
     if (!user) {
       router.push("/auth/login");
     }
-  
+
     if (user?.isProfileCompleted) {
       setLoading(false);  // Termina el loading si el perfil ya está completo
 
@@ -108,13 +108,13 @@ export default function CreateProfilePage() {
   if (authLoading || loading) {
     return Loading();
   }
-  
- 
+
+
   return (
     <div className="w-screen  flex justify-center items-center relative">
       <div className="w-full max-w-lg  p-8 bg-white text-center">
         <WelcomeUser />
-        <CreateProfile setValue = {setValue} handleSubmit={handleSubmit} onSubmit={onSubmit} register={register} isSubmitting={isSubmitting} errors={errors} />
+        <CreateProfile setValue={setValue} handleSubmit={handleSubmit} onSubmit={onSubmit} register={register} isSubmitting={isSubmitting} errors={errors} />
         {error && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
             <Alert color="red" onClose={() => setError("")} className="text-sm px-4  w-fit flex items-center">

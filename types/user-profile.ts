@@ -10,21 +10,21 @@ export interface UserProfile {
   phoneNumber: string | null;
   earnedPoints: number;
   addressCoordinates: string | null;
-  bannerImages: string[];
+  media: string[];
   email: string;
   isProfileCompleted: boolean;
 }
 export type UpdateUserProfile = Omit<UserProfile, 'id'>;
 
-export type UserReport = Omit<UserProfile,   'organizationName' |
-'address' |
-'description' |
-'gender' |
-'birthdate' |
-'document' |
-'phoneNumber' |
-'earnedPoints' |
-'addressCoordinates' |
-'bannerImages'>;
+export type UserReport = Omit<UserProfile, 'organizationName' |
+  'address' |
+  'description' |
+  'gender' |
+  'birthdate' |
+  'document' |
+  'phoneNumber' |
+  'earnedPoints' |
+  'addressCoordinates' |
+  'media'>;
 
-export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string } & {role?: string};
+export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string } & { role?: string };

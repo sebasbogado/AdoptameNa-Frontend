@@ -13,12 +13,22 @@ interface InputProps {
   userProfile: UserProfile | null;
   setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
   validationErrors: Record<string, string>; // Nuevo prop para errores de validación
+
+  //Para futuro uso con API
+  donatedAmount?: number; // ej. 2010500
+  goalAmount?: number;    // ej. 17000000
+  fundraisingTitle?: string;
+  isFundraisingActive?: boolean;
+  handleStartFundraising?: () => void;
 }
 
-export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validationErrors }: InputProps) => {
+export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, fundraisingTitle, donatedAmount, goalAmount, isFundraisingActive, handleStartFundraising }: InputProps) => {
   const handleInputChange = (field: string, value: string) => {
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
+
+  const isOrganization = !!userProfile?.organizationName?.trim();
+  const displayName = isOrganization ? userProfile?.organizationName : userProfile?.fullName ?? "";
 
   return (
     <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
@@ -27,10 +37,9 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
         <input
           type="text"
           disabled={isDisable}
-          value={userProfile?.fullName ?? ""}
-          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-            } focus:outline-none w-full`}
-          onChange={(e) => handleInputChange("fullName", e.target.value)}
+          value={displayName}
+          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+          onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
         />
         {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
 
@@ -68,8 +77,8 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
           {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
 
         </div>
-         {/* Direccion */}
-         {!isDisable && (
+        {/* Direccion */}
+        {!isDisable && (
           <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
         )}
         <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
@@ -84,6 +93,75 @@ export const Detail = ({ posts, userProfile, isDisable, setUserProfile, validati
           />
           {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
         </div>
+
+        {/* Fase 1: Antes de Iniciar la colecta */}
+        {isOrganization && !isFundraisingActive && (
+          <div className="mt-8">
+            {/* Título de la fase 1 */}
+            <p className="text-3xl font-extrabold text-gray-800 mb-4">
+              {"Inicia tu campaña de recaudación"}
+            </p>
+
+            {/* Contenedor para el botón con alineación a la derecha */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleStartFundraising}
+                className="bg-[#4781ff] hover:bg-[#222222] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg hover:scale-105"
+              >
+                Iniciar colecta
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Fase 2: Cuando la colecta está activa */}
+        {isOrganization && isFundraisingActive && fundraisingTitle && (
+          <div className="mt-8">
+            <p className="text-3xl font-extrabold text-gray-800 mb-4">
+              {fundraisingTitle}
+            </p>
+
+            {/* Barra de Progreso */}
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+              <div
+                className="bg-yellow-400 h-4 rounded-full"
+                style={{
+                  width: goalAmount
+                    ? `${Math.min(100, (donatedAmount! / goalAmount) * 100)}%`
+                    : '0%',
+                }}
+              ></div>
+            </div>
+
+            {/* Monto + Botones */}
+            <div className="flex justify-between items-center">
+              <p className="text-xl text-gray-900 font-bold">
+                Gs. {donatedAmount?.toLocaleString('es-PY')} de Gs. {goalAmount?.toLocaleString('es-PY')}
+              </p>
+
+              {/* Botones visibles solo al dueño */}
+              {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                  >
+                    Finalizar
+                  </button>
+                  <button
+                    type="button"
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                  >
+                    Actualizar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+
+
 
       </form>
     </div>
