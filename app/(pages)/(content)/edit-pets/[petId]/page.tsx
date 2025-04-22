@@ -397,7 +397,7 @@ export default function Page() {
                 {/* Botón de eliminación */}
                 <button
                   onClick={() => handleRemoveImage(index)}
-                  className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
                 >
                   ✕
                 </button>

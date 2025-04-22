@@ -174,7 +174,7 @@ export default function Page() {
                     mediaIds: [],
                     tagsIds: [],
                 });
-
+                
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setTimeout(() => router.push(`/posts/${response.id}`), 3500);
@@ -227,7 +227,7 @@ export default function Page() {
             try {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
-
+                
                 if (response) {
                     const { id, url } = response;
                     setSelectedImages(prev => [...prev, response]);
@@ -249,7 +249,7 @@ export default function Page() {
     useEffect(() => {
         const urls = selectedImages.map(image => image.url);
         setArrayImages(urls || ["./logo.png"]);
-    }, [selectedImages]);
+      }, [selectedImages]);
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -267,7 +267,7 @@ export default function Page() {
                         {/* Botón de eliminación */}
                         <button
                             onClick={() => handleRemoveImage(index)}
-                            className="absolute top-1 right-1 bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
                             title="Eliminar imagen"
                         >
                             ✕
