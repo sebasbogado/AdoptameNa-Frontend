@@ -20,7 +20,7 @@ import { postSchema, PostFormValues } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
-import { Tag } from "@/types/tag";
+import { Tags } from "@/types/tags";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -63,7 +63,7 @@ export default function Page() {
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<Media[]>([]);
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [arrayImages, setArrayImages] = useState<string[]>([]);
@@ -208,7 +208,7 @@ export default function Page() {
 
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imagen.");
+                setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)
