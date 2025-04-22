@@ -17,7 +17,7 @@ import { getPets, getPetsDashboard } from '@/utils/pets.http'
 import { PET_STATUS, POST_TYPEID } from '@/types/constants'
 import page from '../administration/settings/page'
 import { set } from 'zod'
-import { getProducts } from '@/utils/product.http'
+import { getProducts } from '@/utils/products.http'
 import { Product } from '@/types/product'
 
 type FetchContentDataParams = {
