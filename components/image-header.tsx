@@ -255,7 +255,7 @@ const HeaderImage = ({
                             htmlFor="fileInput"
                             className={clsx(
                                 "flex flex-col items-center justify-center w-24 h-24 rounded-md border-2 border-dashed border-gray-300 bg-gray-100 cursor-pointer",
-                                images.length >= maxImageLenght && "hidden"
+                                images.length >= maxImageLength && "hidden"
                             )}
                         >
                             <ImagePlusIcon className="h-8 w-8 text-gray-500" />
