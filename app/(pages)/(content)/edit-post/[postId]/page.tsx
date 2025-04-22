@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
-import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
+import { deleteMedia, postMedia } from "@/utils/media.http";
 import { ImagePlus } from "lucide-react";
 import { Media } from "@/types/media";
 
@@ -88,7 +88,7 @@ export default function Page() {
     useEffect(() => {
         const urls = selectedImages.map(image => image.url);
         setArrayImages(urls);
-      }, [selectedImages]);
+    }, [selectedImages]);
 
     const fetchPostTypes = async () => {
         try {
@@ -119,7 +119,7 @@ export default function Page() {
                 setValue("contactNumber", postData.contactNumber || "");
                 setValue("locationCoordinates", [lat, lng]);
 
-                if (postData.media.length > 0) {  
+                if (postData.media.length > 0) {
                     setSelectedImages(postData.media);
                 } else {
                     setSelectedImages([]);
@@ -236,6 +236,11 @@ export default function Page() {
                 setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            if (!allowedTypes.includes(file.type)) {
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+                return;
+            }
             // Verificar el tamaño del archivo (1MB)
             if (file.size > 5 * (1024 * 1024)) {
                 setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
@@ -302,7 +307,7 @@ export default function Page() {
         }
     };
 
-    
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
@@ -367,17 +372,6 @@ export default function Page() {
                         className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
                         onClose={() => setPrecautionMessage("")}>
                         {precautionMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
                     </Alert>
                 </div>
             )}
