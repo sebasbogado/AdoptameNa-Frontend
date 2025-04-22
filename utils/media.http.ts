@@ -81,6 +81,10 @@ export async function deleteMediaByUrl(imageUrl: string, token: string) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+
+    
     throw new Error(error.message || "Error al eliminar Post");
   }
 }
+
+
