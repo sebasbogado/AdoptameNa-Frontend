@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  const phase =
-    process.env.NEXT_PUBLIC_IS_DEV === "true"
-      ? "development"
-      : process.env.VERCEL_ENV === "preview"
-      ? "preview"
-      : "production";
+  const phase = PHASE_DEVELOPMENT_SERVER
+    ? "development"
+    : process.env.VERCEL_ENV === "preview"
+    ? "preview"
+    : "production";
 
   const defaultCSPDirectives = `
     default-src 'self';
