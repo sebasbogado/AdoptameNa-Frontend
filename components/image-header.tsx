@@ -189,8 +189,8 @@ const HeaderImage = ({
                                     alt={`Imagen ${index + 1}`}
                                     className={`relative z-10 h-full w-full ${image.isVertical ? "object-contain" : "object-cover"
                                         }`}
-                                    width={100}
-                                    height={100}
+                                    width={1000}
+                                    height={1000}
                                 />
                             </div>
                         ))
