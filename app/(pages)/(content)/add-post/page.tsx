@@ -222,8 +222,7 @@ export default function Page() {
                 const response = await postMedia(fileData, authToken);
                 
                 if (response) {
-                    console.log("Imagen subida exitosamente", response);
-                    const { id } = response;
+                    const { id, url } = response;
                     setSelectedImages(prev => [...prev, response]);
                     setValue("mediaIds", [id]);
                     setFormData(prev => ({
