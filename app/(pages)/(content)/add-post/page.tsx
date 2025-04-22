@@ -20,7 +20,7 @@ import { postSchema, PostFormValues } from "@/validations/post-schema";
 import { useForm } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
-import { Tag } from "@/types/tag";
+import { Tags } from "@/types/tags";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -63,7 +63,7 @@ export default function Page() {
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<Media[]>([]);
-    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+    const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [arrayImages, setArrayImages] = useState<string[]>([]);
