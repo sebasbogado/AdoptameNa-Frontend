@@ -233,7 +233,7 @@ export default function Page() {
 
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imagen.");
+                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
             const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
