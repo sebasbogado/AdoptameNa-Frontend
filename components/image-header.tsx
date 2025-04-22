@@ -31,7 +31,7 @@ const HeaderImage = ({
     const [images, setImages] = useState<
         { url: string; isVertical: boolean; id: number }[]
     >([]);
-    const maxImageLenght = 5;
+    const maxImageLength = 5;
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!user) throw new Error("No se encontró usuario");
@@ -41,8 +41,8 @@ const HeaderImage = ({
         if (!files) return;
 
         const attempting = files.length;
-        if (medias.length + attempting > maxImageLenght) {
-            setError(`Solo se pueden subir hasta ${maxImageLenght} imágenes de portada`);
+        if (medias.length + attempting > maxImageLength) {
+            setError(`Solo se pueden subir hasta ${maxImageLength} imágenes de portada`);
             return;
         }
 
@@ -165,10 +165,12 @@ const HeaderImage = ({
                     }
                 >
                     {images.length === 0 ? (
-                        <img
+                        <Image
                             src={notFoundSrc}
                             alt="Imagen por defecto"
                             className="h-full w-full object-cover"
+                            width={100}
+                            height={100}
                         />
                     ) : (
                         images.map((image, index) => (
@@ -182,11 +184,13 @@ const HeaderImage = ({
                                         style={{ backgroundImage: `url(${image.url})` }}
                                     />
                                 )}
-                                <img
+                                <Image
                                     src={image.url}
                                     alt={`Imagen ${index + 1}`}
                                     className={`relative z-10 h-full w-full ${image.isVertical ? "object-contain" : "object-cover"
                                         }`}
+                                    width={100}
+                                    height={100}
                                 />
                             </div>
                         ))
