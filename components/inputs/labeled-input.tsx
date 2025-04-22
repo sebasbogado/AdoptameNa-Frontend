@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 
 interface LabeledInputProps {
   label?: string;
@@ -32,43 +33,30 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   debounceDelay = 500, // Valor por defecto de 500ms de debounce
 }) => {
   const [inputValue, setInputValue] = useState(value !== null ? formatNumber(value) : ''); 
-  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedOnChange = useDebounce((val: number | null) => {
+    onChange(val);
+  }, debounceDelay);
 
   // Actualizar el valor en el estado de inputValue y disparar el cambio con debounce
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value;
+  let val = e.target.value;
 
-    // Filtramos los puntos (no los dejamos escribir)
-    val = val.replace(/\./g, ''); // Eliminar los puntos del input
+  val = val.replace(/\./g, '');
+  if (val.length > maxLength) return;
+  val = val.replace(/[^0-9]/g, '');
 
-    // Limita el número de caracteres a maxLength
-    if (val.length > maxLength) return;
+  setInputValue(formatNumber(Number(val)));
 
-    // Filtramos caracteres no numéricos (evitar letras)
-    val = val.replace(/[^0-9]/g, ''); // Eliminar cualquier carácter que no sea un número
-
-    // Establecemos el valor en el estado, formateado
-    setInputValue(formatNumber(Number(val)));  // Aseguramos que sea un string
-
-    // Limpiar el timeout anterior
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
+  const unformattedValue = unformatNumber(val);
+  if (unformattedValue === '') {
+    debouncedOnChange(null);
+  } else {
+    const parsed = parseInt(unformattedValue);
+    if (!isNaN(parsed) && parsed >= min) {
+      debouncedOnChange(parsed);
     }
-
-    // Establecer el timeout para ejecutar el cambio después de un retraso
-    debounceTimeoutRef.current = setTimeout(() => {
-      const unformattedValue = unformatNumber(val); // Limpiar los separadores de miles
-
-      if (unformattedValue === '') {
-        onChange(null); // Si está vacío, lo ponemos como null
-      } else {
-        const parsed = parseInt(unformattedValue);
-        if (!isNaN(parsed) && parsed >= min) {
-          onChange(parsed); // Si es válido, se pasa el número
-        }
-      }
-    }, debounceDelay); // Ejecutar después de un tiempo de espera
-  };
+  }
+};
 
   // Limpia el input cuando el valor es null
   useEffect(() => {
