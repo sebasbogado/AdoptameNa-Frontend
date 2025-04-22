@@ -18,9 +18,9 @@ export type queryParams = {
 };
 
 export type postQueryParams = queryParams & {
-  postTypeId?: number
-  userId?: number
-  tagIds?: number
+  postTypeId?: number;
+  userId?: number;
+  tagIds?: number[];
 }
 
 export type petQueryParams = queryParams & {
