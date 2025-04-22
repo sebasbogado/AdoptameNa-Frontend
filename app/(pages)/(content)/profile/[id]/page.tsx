@@ -193,7 +193,7 @@ export default function ProfilePage() {
             {/* Banner */}
 
             <HeaderImage 
-                isEditEnabled={true} 
+                isEditEnabled={false} 
                 userProfile={userProfile}
                 medias={medias}
                 setMedias={setMedias}
