@@ -163,4 +163,22 @@ export const getPetSMissing = async (
     }
     throw new Error(error.message || "Error al obtener Pets");
   }
+};
+
+export async function deletePet(id: string, token: string) {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al eliminar publicación de mascota");
+  }
 }
