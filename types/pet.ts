@@ -8,7 +8,7 @@ export interface Pet {
   name: string;
   description: string;
   birthdate: string;
-  gender: "MALE" | "FEMALE";
+  gender: "MALE" | "FEMALE" | "OTHER";
   isSterilized: boolean;
   isVaccinated: boolean;
   addressCoordinates: string;
@@ -25,7 +25,7 @@ export interface Pet {
 export interface CreatePet {
   name: string;
   description: string;
-  birthdate: string;
+  birthdate: string | undefined;
   gender: "MALE" | "FEMALE" | "OTHER";
   mediaIds: number[];
   isSterilized: boolean;
@@ -39,17 +39,17 @@ export interface CreatePet {
 }
 
 export interface UpdatePet {
-  animalId: number;
-  birthdate: string;
-  breedId: number;
+  name: string;
   description: string;
-  gender: "MALE" | "FEMALE";
-  healthStateId: number;
+  birthdate: string | undefined;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  mediaIds: number[];
   isSterilized: boolean;
   isVaccinated: boolean;
-  name: string;
-  petStatusId: number;
-  urlPhoto: string | null;
-  userId: number;
   addressCoordinates: string;
+  userId: number;
+  animalId: number;
+  breedId: number;
+  //healthStateId: number;
+  petStatusId: number;
 }

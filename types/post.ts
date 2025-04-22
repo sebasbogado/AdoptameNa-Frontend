@@ -1,5 +1,6 @@
 import { Media } from "./media";
 import { PostType } from "./post-type";
+import { Tags } from "./tags";
 
 export interface Post {
   id: number;
@@ -12,28 +13,29 @@ export interface Post {
   status: string;
   sharedCounter: number;
   publicationDate: string;
-  urlPhoto: string;
   postType: PostType;
   media: Media[];
+  tags: Tags[];
 }
 
 export interface CreatePost {
   title: string;
   content: string;
+  tagsIds: number[];
   postTypeId: number;
   locationCoordinates: string;
   contactNumber: string;
-  status: string;
-  sharedCounter: number;
+  userId: number;
   mediaIds: number[];
 }
 
 export interface UpdatePost {
   title: string;
   content: string;
-  idPostType: number;
+  tagsIds: number[];
+  postTypeId: number;
   locationCoordinates: string;
   contactNumber: string;
-  status: string;
+  userId: number;
   mediaIds: number[];
 }

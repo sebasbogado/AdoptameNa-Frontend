@@ -19,20 +19,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
-import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
+import { deleteMedia, postMedia } from "@/utils/media.http";
 import { ImagePlus } from "lucide-react";
+import { Media } from "@/types/media";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
     { ssr: false }
 );
-
-type SelectedImage = {
-    id?: number | null;
-    file: File | null;
-    url_API: string;
-    url: string;
-};
 
 export default function Page() {
     const { postId } = useParams();
@@ -43,7 +37,8 @@ export default function Page() {
     const [postError, setPostError] = useState<string | null>(null);
     const router = useRouter();
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
     const {
         register,
         handleSubmit: zodHandleSubmit,  // Renombramos el handleSubmit de useForm
@@ -52,30 +47,32 @@ export default function Page() {
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
-            idPostType: 0,
+            postTypeId: 0,
             title: "",
             content: "",
             locationCoordinates: [0, 0],
             contactNumber: "",
-            urlPhoto: ""
+            mediaIds: [],
+            tagsIds: [1],
         }
     });
     const [formData, setFormData] = useState<PostFormValues>({
-        idPostType: 0,
+        postTypeId: 0,
         title: "",
         content: "",
         locationCoordinates: [0, 0], // Array de coordenadas
         contactNumber: "",
-        status: "activo", // Valor estático
-        urlPhoto: "",
+        mediaIds: [],
+        tagsIds: [1],
     });
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const [selectedImages, setSelectedImages] = useState<SelectedImage[]>([]);
+    const [selectedImages, setSelectedImages] = useState<Media[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const MAX_IMAGES = 1; //Tam max de imagenes
+    const [arrayImages, setArrayImages] = useState<string[]>([]);
+    const MAX_IMAGES = 5; //Tam max de imagenes
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
@@ -88,18 +85,25 @@ export default function Page() {
         }
     }, [authToken, authLoading, router])
 
+    useEffect(() => {
+        const urls = selectedImages.map(image => image.url);
+        setArrayImages(urls);
+    }, [selectedImages]);
+
     const fetchPostTypes = async () => {
         try {
             const data = await getPostsType();
             setPostTypes(data.data);
         } catch (error: any) {
-            setError(error.message);
+            console.error("Error al cargar los tipos de publicación:", error);
+            setErrorMessage("Ocurrió un error al cargar los tipos de publicación.");
         } finally {
             setLoading(false);
         }
     };
 
     const fetchPost = async () => {
+        setLoading(true);
         if (authLoading || !authToken || !user?.id) return;
 
         try {
@@ -109,28 +113,21 @@ export default function Page() {
 
                 const [lat, lng] = postData.locationCoordinates.split(',').map(Number);
                 setPosition([lat, lng]);
-                setValue("idPostType", postData.postType?.id || 0);
+                setValue("postTypeId", postData.postType?.id || 0);
                 setValue("title", postData.title || "");
                 setValue("content", postData.content || "");
                 setValue("contactNumber", postData.contactNumber || "");
                 setValue("locationCoordinates", [lat, lng]);
-                setValue("urlPhoto", postData.urlPhoto || "");
 
-                if (postData.urlPhoto && postData.urlPhoto.trim() !== "") {
-                    setSelectedImages([
-                        {
-                            file: null,
-                            url_API: postData.urlPhoto,
-                            url: postData.urlPhoto
-                        }
-                    ]);
+                if (postData.media.length > 0) {
+                    setSelectedImages(postData.media);
                 } else {
                     setSelectedImages([]);
                 }
             }
         } catch (err) {
-            console.error("Error al cargar posts:", err);
-            setPostError("No se pudieron cargar las publicaciones.");
+            console.error("Error al cargar post:", err);
+            setPostError("No se pudo cargar la publicación.");
             return NotFound();
         } finally {
             setLoading(false);
@@ -164,6 +161,8 @@ export default function Page() {
 
         const updatedFormData = {
             ...formData,
+            userId: Number(user?.id),
+            mediaIds: selectedImages.length > 0 ? selectedImages.map(media => media.id) : [],
             locationCoordinates: position ? `${position[0]}, ${position[1]}` : ""
         };
 
@@ -174,7 +173,7 @@ export default function Page() {
             setTimeout(() => router.push(`/posts/${post.id}`), 3500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
-            setError('Hubo un problema al actualizar la publicación.');
+            setErrorMessage('Hubo un problema al actualizar la publicación.');
         } finally {
             setLoading(false);
         }
@@ -186,19 +185,19 @@ export default function Page() {
 
     const handleDelete = async () => {
         setIsDeleteModalOpen(false);
-
+        setLoading(true);
         if (!post?.id || !authToken) {
             console.error('Falta el ID de la publicación o el token');
             return;
         }
 
-        setLoading(true);
-
         try {
             await deletePost(String(post.id), authToken);
 
-            if (post.urlPhoto) {
-                await deleteMediaByUrl(post.urlPhoto, authToken); // Eliminar la imagen asociada
+            if (post.media.length > 0) {
+                // Eliminar las imágenes asociadas a la publicación
+                const mediaIds = post.media.map(media => media.id);
+                await Promise.all(mediaIds.map(mediaId => deleteMedia(mediaId, authToken)));
             }
 
             setSuccessMessage('Publicación eliminada con éxito');
@@ -206,7 +205,7 @@ export default function Page() {
 
         } catch (error) {
             console.error('Error al eliminar la publicación:', error);
-            setError('Hubo un problema al eliminar la publicación.');
+            setErrorMessage('Hubo un problema al eliminar la publicación.');
         } finally {
             setLoading(false);
         }
@@ -233,13 +232,18 @@ export default function Page() {
             }
 
             // Verifica la cantidad de imagens que se pueden subir
-            if (selectedImages.length >= 2) {
-                setError("Solo puedes subir hasta 2 imágenes.");
+            if (selectedImages.length >= 5) {
+                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
+                return;
+            }
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            if (!allowedTypes.includes(file.type)) {
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)
-            if (file.size > 1024 * 1024) {
-                setError("El archivo es demasiado grande. Tamaño máximo: 1MB.");
+            if (file.size > 5 * (1024 * 1024)) {
+                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
                 return;
             }
 
@@ -248,20 +252,17 @@ export default function Page() {
                 const response = await postMedia(fileData, authToken);
 
                 if (response) {
-                    const { id, url } = response;
-                    setValue("urlPhoto", url); // Actualiza react-hook-form
-                    setFormData(prev => ({ ...prev, urlPhoto: url })); // Sincroniza con formData
-                    setSelectedImages(prevImages => [
-                        ...prevImages,
-                        {
-                            id,
-                            file,
-                            url_API: url,
-                            url: URL.createObjectURL(file)
-                        }
-                    ]);
+                    console.log("Imagen subida exitosamente", response);
+                    const { id } = response;
+                    setSelectedImages(prev => [...prev, response]);
+                    setValue("mediaIds", [id]);
+                    setFormData(prev => ({
+                        ...prev,
+                        mediaIds: [...(prev.mediaIds || []), id]
+                    }));
                 }
             } catch (error) {
+                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
                 console.error("Error al subir la imagen", error);
             } finally {
                 setLoading(false);
@@ -273,7 +274,7 @@ export default function Page() {
         const imageToRemove = selectedImages[index];
 
         if (!authToken) {
-            setError("El token de autenticación es requerido");
+            console.log("El token de autenticación es requerido");
             return;
         }
 
@@ -281,8 +282,8 @@ export default function Page() {
             setLoading(true);
 
             // Llamar a la API para eliminar la imagen
-            if (imageToRemove.url_API) {
-                await deleteMediaByUrl(imageToRemove.url_API, authToken);
+            if (imageToRemove.id) {
+                await deleteMedia(imageToRemove.id, authToken);
             }
 
             // Eliminar del estado local
@@ -291,31 +292,32 @@ export default function Page() {
 
             // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
             if (updatedImages.length === 0) {
-                setValue("urlPhoto", "");
-                setFormData(prev => ({ ...prev, urlPhoto: "" }));
+                setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
+                setFormData(prev => ({ ...prev, mediaIds: [] }));
             }
+
+            setSuccessMessage("Imagen eliminada exitosamente.");
+            setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
 
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
-            setError("No se pudo eliminar la imagen. Intenta nuevamente.");
+            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
         } finally {
             setLoading(false);
         }
     };
 
-    const arrayImages = selectedImages.length > 0 ? selectedImages.map(image => image.url_API) : ['../logo.png'];
 
-    console.log("arrayImages", arrayImages);
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <Banners images={arrayImages} />
             <div className="flex gap-2 mt-2 justify-center items-center">
                 {selectedImages.map((src, index) => (
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        {src.url_API && (
+                        {src.url && (
                             <>
                                 <Image
-                                    src={src.url_API}
+                                    src={src.url}
                                     alt="post-image"
                                     fill
                                     className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
@@ -332,8 +334,6 @@ export default function Page() {
                                 </button>
                             </>
                         )}
-
-
                     </div>
                 ))}
                 <input
@@ -354,7 +354,28 @@ export default function Page() {
                 </label>
             </div>
 
-            {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+            {errorMessage && (
+                <div>
+                    <Alert
+                        color="red"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setErrorMessage("")}>
+                        {errorMessage}
+                    </Alert>
+                </div>
+            )}
+
+            {precautionMessage && (
+                <div>
+                    <Alert
+                        color="orange"
+                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                        onClose={() => setPrecautionMessage("")}>
+                        {precautionMessage}
+                    </Alert>
+                </div>
+            )}
+
             {successMessage && (
                 <div>
                     <Alert
@@ -369,15 +390,15 @@ export default function Page() {
             <form onSubmit={zodHandleSubmit(openConfirmationModalEdit)}>
                 {/* Tipo de publicación */}
                 <select
-                    {...register("idPostType", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.idPostType ? 'border-red-500' : ''}`}
+                    {...register("postTypeId", { valueAsNumber: true })}
+                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
                 >
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {errors.idPostType && <p className="text-red-500 text-sm">{errors.idPostType.message}</p>}
+                {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
 
                 {/* Título */}
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
