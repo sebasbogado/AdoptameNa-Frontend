@@ -59,5 +59,5 @@ export type bannerQueryParams = queryParams & {
 };
 
 export type tagQueryParams = queryParams & {
-  postTypeIds?: number
+  postTypeIds?: number[];
 }

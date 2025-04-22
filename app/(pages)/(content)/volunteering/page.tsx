@@ -10,15 +10,18 @@ import LabeledSelect from "@/components/labeled-selected";
 import { usePagination } from "@/hooks/use-pagination";
 import Pagination from "@/components/pagination";
 import { Loader2 } from "lucide-react";
-import { getTagsByPostType } from "@/utils/tags";
+import { getTags } from "@/utils/tags";
 import { Tags } from "@/types/tags";
+import { getAnimals } from "@/utils/animals.http";
+import { Animal } from "@/types/animal";
 
 export default function Page() {
 
     const [selectedLocation, setSelectedLocation] = useState("");
-    const [selectedHelpType, setSelectedHelpType] = useState("Todos");
+    const [selectedHelpType, setSelectedHelpType] = useState("");
     const [selectedAnimal, setSelectedAnimal] = useState("");
     const [tags, setTags] = useState<Tags[]>([]);
+    const [animals, setAnimals] = useState<Animal[]>([]);
     const [selectedTagsId, setSelectedTagsId] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const pageSize = 5;
@@ -49,9 +52,12 @@ export default function Page() {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const tagsData = await getTagsByPostType({ postTypeIds: POST_TYPEID.VOLUNTEERING });
+                const tagsData = await getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] });
+                const animalsData = await getAnimals();
+
                 setTags(tagsData.data);
-            } catch {
+                setAnimals(animalsData.data);
+            } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
                 setIsLoading(false);
@@ -74,7 +80,7 @@ export default function Page() {
         const filteredData = {
             tagIds: selectedTagsId.length > 0 ? selectedTagsId.join(',') : undefined,
         };
-    
+
         const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
     }, [selectedTagsId, updateFilters]);
@@ -100,14 +106,14 @@ export default function Page() {
                         setSelected={setSelectedLocation}
                     />
                     <LabeledSelect
-                        label="Tipo de ayuda"
+                        label="Etiquetas"
                         options={["Todos", ...tags.map((tag) => tag.name)]}
                         selected={selectedHelpType}
                         setSelected={setSelectedHelpType}
                     />
                     <LabeledSelect
                         label="Tipo de mascota"
-                        options={["Todos", "Perro", "Gato", "Otro"]}
+                        options={["Todos", ...animals.map((animal) => animal.name)]}
                         selected={selectedAnimal}
                         setSelected={setSelectedAnimal}
                     />
