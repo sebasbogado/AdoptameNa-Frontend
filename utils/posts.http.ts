@@ -14,6 +14,7 @@ export const getPosts = async (
         size: queryParams?.size || 10,
         userId: queryParams?.userId,
         postTypeId: queryParams?.postTypeId,
+        tagIds: queryParams?.tagIds,
       },
       headers: {
         "Content-Type": "application/json",
