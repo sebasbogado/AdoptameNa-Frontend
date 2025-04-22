@@ -48,13 +48,6 @@ export type reportQueryParams = queryParams & {
   idPet?: number;
 };
 
-export type productQueryParams = queryParams & {
-  categoryId?: number;
-  condition?: string;
-  price?: number;
-  minPrice?: number;
-  maxPrice?: number;
-};
 
 export type bannerQueryParams = queryParams & {
   minStartDate?: string;

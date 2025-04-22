@@ -6,3 +6,4 @@ export type Sponsor = {
   logoId: number;
   bannerId: number;
 };
+
