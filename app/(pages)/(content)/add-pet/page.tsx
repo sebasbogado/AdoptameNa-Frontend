@@ -125,7 +125,7 @@ export default function Page() {
 
   useEffect(() => {
     getFromData()
-  }, [])
+  }, []);
 
   // useEffect(() => {
   //   if (petsStatus?.length && animals?.length && breed?.length) {
@@ -143,17 +143,17 @@ export default function Page() {
       const file = e.target.files[0];
       // Verifica la cantidad de imagens que se pueden subir
       if (selectedImages.length >= 5) {
-        setErrorMessage(`Solo puedes subir hasta 5 imágenes.`);
+        setPrecautionMessage(`Solo puedes subir hasta 5 imágenes.`);
         return;
       }
       const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
       if (!allowedTypes.includes(file.type)) {
-        setErrorMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
         return;
       }
       // Verificar el tamaño del archivo
       if (file.size > 5 * 1024 * 1024) {
-        setErrorMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+        setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
         return;
       }
 
