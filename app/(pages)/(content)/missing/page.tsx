@@ -11,7 +11,7 @@ import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import { Animal } from "@/types/animal";
 import { getAnimals } from "@/utils/animals.http";
-import { getPetStatuses } from "@/utils/pet-statuses.http";
+import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 
 export default function Page() {
@@ -56,7 +56,7 @@ export default function Page() {
       setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
       setAnimals(animals.data);
 
-      const petStatus = await getPetStatuses();
+      const petStatus = await getPetStatus();
       setPetStatuses(petStatus.data);
       setPetStatusesList([
         "Todos",
@@ -75,7 +75,7 @@ export default function Page() {
 
 
   useEffect(() => {
-    if(!selectedAnimal && !selectedPetStatus) return;
+    if (!selectedAnimal && !selectedPetStatus) return;
     const selectedAnimalObj = animals.find(
       (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
     );
