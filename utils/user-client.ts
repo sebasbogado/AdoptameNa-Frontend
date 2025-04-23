@@ -45,11 +45,11 @@ export const getUsers = async (
   }
 };
 
-export const deleteUser = async (toke: string, id: number) => {
+export const deleteUser = async (token: string, id: number) => {
   try {
     const response = await axios.delete(`${API_URL}/${id}`, {
       headers: {
-        Authorization: `Bearer ${toke}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });

@@ -13,18 +13,24 @@ export interface UserProfile {
   bannerImages: string[];
   email: string;
   isProfileCompleted: boolean;
+  creationDate: string;
 }
-export type UpdateUserProfile = Omit<UserProfile, 'id'>;
+export type UpdateUserProfile = Omit<UserProfile, "id">;
 
-export type UserReport = Omit<UserProfile,   'organizationName' |
-'address' |
-'description' |
-'gender' |
-'birthdate' |
-'document' |
-'phoneNumber' |
-'earnedPoints' |
-'addressCoordinates' |
-'bannerImages'>;
+export type UserReport = Omit<
+  UserProfile,
+  | "organizationName"
+  | "address"
+  | "description"
+  | "gender"
+  | "birthdate"
+  | "document"
+  | "phoneNumber"
+  | "earnedPoints"
+  | "addressCoordinates"
+  | "bannerImages"
+>;
 
-export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string } & {role?: string};
+export type UserList = Pick<UserProfile, "id" | "fullName" | "email"> & {
+  creationDate: string;
+} & { role?: string };
