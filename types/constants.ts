@@ -5,6 +5,7 @@ export const PET_STATUS = {
   };
 
   export const POST_TYPEID = {
+    ALL: 0,
     VOLUNTEERING: 1,
     BLOG: 2,
   };
