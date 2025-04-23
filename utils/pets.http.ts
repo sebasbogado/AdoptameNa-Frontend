@@ -1,5 +1,5 @@
 import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
-import { Pet, UpdatePet } from "@/types/pet";
+import { CreatePet, Pet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
@@ -31,7 +31,7 @@ export const getPetsByUserId = async (queryParams: myPetsQueryParams)
   }
 };
 
-export const postPets = async (params: any, token?: string) => {
+export const postPets = async (params: CreatePet, token: string) => {
   try {
     const response = await axios.post(`${API_URL}`, params, {
       headers: {
@@ -162,5 +162,23 @@ export const getPetSMissing = async (
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener Pets");
+  }
+};
+
+export async function deletePet(id: string, token: string) {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al eliminar publicación de mascota");
   }
 }
