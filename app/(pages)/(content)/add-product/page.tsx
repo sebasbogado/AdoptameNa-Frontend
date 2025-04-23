@@ -107,7 +107,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!authLoading && !authToken) {
-      router.push("/login");
+      router.push("/auth/login");
     } else {
       const fetchUserData = async () => {
         if (!user?.id) return;
