@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -197,5 +196,74 @@ export default function AdminSponsorsPage() {
                 onConfirm={confirmReject}
             />
         </div>
-    )
+    );
+}
+
+interface SponsorCardProps {
+    application: SponsorApplication;
+    onApprove: (applicationId: number) => void;
+    onReject: (applicationId: number) => void;
+}
+
+function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
+    const [hasLogoError, setHasLogoError] = useState(false);
+
+    const handleLogoError = () => {
+        setHasLogoError(true);
+    };
+
+    return (
+        <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
+            <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
+                {application.logoUrl && !hasLogoError ? (
+                    <Image
+                        src={application.logoUrl}
+                        alt={`Logo Solicitud ${application.id}`}
+                        fill
+                        className="object-contain p-4"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        onError={handleLogoError}
+                    />
+                ) : (
+                    <span className="logo-placeholder text-gray-400 text-sm italic">
+                        {application.logoId ? 'Error al cargar logo' : 'Sin logo'}
+                    </span>
+                )}
+            </div>
+            <div className="p-4 flex-grow">
+                <h3 className="text-lg font-semibold mb-1">{application.organizationName || application.fullName}</h3>
+                <p className="text-sm text-gray-600 mb-2">
+                    <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
+                </p>
+                <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
+                <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                    {application.reason || 'No especificada'}
+                </p>
+            </div>
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
+                {!application.isActive ? (
+                    <>
+                        <button
+                            onClick={() => onReject(application.id)}
+                            className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Rechazar (Eliminar)"
+                        >
+                            <X size={20} />
+                        </button>
+                        <button
+                            onClick={() => onApprove(application.id)}
+                            className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Aprobar"
+                        >
+                            <Check size={20} />
+                        </button>
+                    </>
+                ) : (
+                    <span className="text-sm font-medium text-green-600 flex items-center">
+                        <Check size={16} className="mr-1"/> Aprobado
+                    </span>
+                )}
+            </div>
+        </div>
+    );
 }
