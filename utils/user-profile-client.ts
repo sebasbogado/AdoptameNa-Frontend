@@ -1,4 +1,9 @@
-import { UpdateUserProfile } from "@/types/user-profile";
+import {
+  PaginatedResponse,
+  profileQueryParams,
+  queryParams,
+} from "@/types/pagination";
+import { UpdateUserProfile, UserProfile } from "@/types/user-profile";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users`;
@@ -27,37 +32,42 @@ export const getUserProfile = async (id: string) => {
   }
 };
 
-
 export const updateUserProfile = async (
   id: string,
   updatedProfile: UpdateUserProfile | null, // Usamos la interfaz para el perfil
   token: string
 ) => {
   try {
-    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users/${id}/profile`;
+    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/${id}/profile`;
 
     const response = await axios.put(API_URL, updatedProfile, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     return response.data;
   } catch (error: any) {
     if (error.response) {
-      throw new Error(error.response.data.message || 'Error al actualizar el perfil');
+      throw new Error(
+        error.response.data.message || "Error al actualizar el perfil"
+      );
     } else {
-      throw new Error(error.message || 'Error al actualizar el perfil');
+      throw new Error(error.message || "Error al actualizar el perfil");
     }
   }
 };
 
-export const getUserProfiles = async (queryParams?: any) => {
+export const getUserProfiles = async (
+  token: string,
+  queryParams?: queryParams
+) => {
   try {
     const response = await axios.get(`${API_URL}/profiles`, {
       params: queryParams,
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
@@ -65,4 +75,22 @@ export const getUserProfiles = async (queryParams?: any) => {
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener los perfiles");
   }
-}
+};
+
+export const getAllFullUserProfile = async (
+  token: string,
+  queryParams?: profileQueryParams
+): Promise<PaginatedResponse<UserProfile>> => {
+  try {
+    const response = await axios.get(`${API_URL}/fullUser`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener los perfiles");
+  }
+};
