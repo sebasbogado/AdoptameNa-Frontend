@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { deleteUser } from "@/utils/user-client"
 import { getAllFullUserProfile } from "@/utils/user-profile-client"
 import UserTable from "@/components/administration/user/user-table"
-import { UserList, UserProfile } from "@/types/user-profile"
+import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
@@ -26,7 +26,6 @@ export default function AdminsPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading, user } = useAuth();
     const pageSize = 10;
-
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -66,28 +65,6 @@ export default function AdminsPage() {
         initialPageSize: pageSize,
     });
 
-    const formatUsers = (users: UserProfile[]): UserList[] => {
-        return users.map(user => ({
-            id: user.id,
-            fullName: user.fullName,
-            email: user.email,
-            creationDate: formatDate(user.birthdate || ""),
-            address: user.address,
-            phoneNumber: user.phoneNumber,
-            earnedPoints: user.earnedPoints
-        }));
-    };
-
-    const formatDate = (dateString: string): string => {
-        if (!dateString) return "-";
-        const date = new Date(dateString);
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const year = date.getUTCFullYear();
-
-        return `${day}/${month}/${year}`;
-    };
-
     useEffect(() => {
         const filters = {
             name: searchQuery || undefined,
@@ -96,7 +73,6 @@ export default function AdminsPage() {
 
         updateFilters(filters);
     }, [searchQuery, refreshTrigger, updateFilters]);
-
 
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
@@ -174,7 +150,7 @@ export default function AdminsPage() {
 
             <UserTable
                 title="Lista de Administradores"
-                data={formatUsers(admins || [])}
+                data={admins}
                 loading={adminsLoading}
                 onDelete={(id) => {
                     setSelectedUser(id);

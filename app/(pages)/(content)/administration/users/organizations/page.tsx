@@ -65,18 +65,6 @@ export default function OrganizationsPage() {
         initialPageSize: pageSize,
     });
 
-    const formatUsers = (users: UserProfile[]): UserList[] => {
-        return users.map(user => ({
-            id: user.id,
-            fullName: user.fullName,
-            email: user.email,
-            creationDate: formatDate(user.birthdate || ""),
-            address: user.address,
-            phoneNumber: user.phoneNumber,
-            earnedPoints: user.earnedPoints
-        }));
-    };
-
     const formatDate = (dateString: string): string => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -164,7 +152,7 @@ export default function OrganizationsPage() {
 
             <UserTable
                 title="Lista de Organizaciones"
-                data={formatUsers(organizations || [])}
+                data={organizations}
                 loading={organizationsLoading}
                 onDelete={(id) => {
                     setSelectedUser(id);

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { deleteUser } from "@/utils/user-client"
 import { getAllFullUserProfile } from "@/utils/user-profile-client"
 import UserTable from "@/components/administration/user/user-table"
-import { UserList, UserProfile } from "@/types/user-profile"
+import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
@@ -26,7 +26,6 @@ export default function RegularUsersPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
     const pageSize = 10;
-
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -67,30 +66,6 @@ export default function RegularUsersPage() {
         initialPageSize: pageSize,
     });
 
-    // Format users to match UserList type
-    const formatUsers = (users: UserProfile[]): UserList[] => {
-        return users.map(user => ({
-            id: user.id,
-            fullName: user.fullName,
-            email: user.email,
-            creationDate: formatDate(user.birthdate || ""),
-            address: user.address,
-            phoneNumber: user.phoneNumber,
-            earnedPoints: user.earnedPoints
-        }));
-    };
-
-    const formatDate = (dateString: string): string => {
-        if (!dateString) return "-";
-        const date = new Date(dateString);
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const year = date.getUTCFullYear();
-
-        return `${day}/${month}/${year}`;
-    };
-
-    // Aplicar filtros de búsqueda
     useEffect(() => {
         const filters = {
             name: searchQuery || undefined,
@@ -105,7 +80,6 @@ export default function RegularUsersPage() {
         if (!authToken || !selectedUser) return;
         try {
             await deleteUser(authToken, selectedUser);
-            // Incrementar el contador para forzar la actualización de los datos
             setRefreshTrigger(prev => prev + 1);
             setSuccessMessage("Usuario eliminado correctamente");
         } catch (error: any) {
@@ -170,7 +144,7 @@ export default function RegularUsersPage() {
 
             <UserTable
                 title="Lista de Usuarios"
-                data={formatUsers(users || [])}
+                data={users}
                 loading={usersLoading}
                 onDelete={(id) => {
                     setSelectedUser(id);
