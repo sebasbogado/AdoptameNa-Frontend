@@ -141,7 +141,7 @@ export default function Page() {
         const petData = await getPet(String(petId));
         if (petData) {
           setPet(petData);
-          console.log("Pet data:", petData);    
+          console.log("Pet data:", petData);
 
           setValue("petStatusId", petData.petStatus.id || 0);
           setValue("animalId", petData.animal.id || 0);
@@ -524,20 +524,19 @@ export default function Page() {
                 </div>
 
                 {/* isVaccinated */}
-                <label className="block mb-1">¿Está Vacunado?</label>
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Sí</label>
+                  <label>Esta desparasitado</label>
                   <input type="checkbox" {...register("isVaccinated")} />
                   {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
                 </div>
 
                 {/* isSterilized */}
-                <label className="block mb-1">¿Está Esterilizado?</label>
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Sí</label>
+                  <label>Esta esterilizado</label>
                   <input type="checkbox" {...register("isSterilized")} />
                   {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
                 </div>
+
 
                 {/* Mapa */}
                 <div
