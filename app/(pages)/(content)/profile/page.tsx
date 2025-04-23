@@ -139,7 +139,7 @@ export default function ProfilePage() {
     const handleStartFundraising = () => {
         setIsFundraisingActive(true);
         // Aquí se pueden inicializar los valores de `donatedAmount`, `goalAmount` y `fundraisingTitle`
-        // por ejemplo, setFundraisingData({...}) si necesitas más información en el futuro.
+        // por ejemplo, setFundraisingData({...}) 
     };
 
 
@@ -241,7 +241,8 @@ export default function ProfilePage() {
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.media?.map((item: any) => item.url) || ['./logo.png']} />
+            <Banners images={userProfile?.media?.length ? userProfile?.media?.map((item: any) => item.url) : ['./logo.png']} />
+
             {isOpen &&
                 <ConfirmationModal
                     isOpen={isOpen}

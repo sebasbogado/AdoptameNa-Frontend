@@ -29,7 +29,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   };
 
   const isOrganization = !!userProfile?.organizationName?.trim();
-  const displayName: string = userProfile?.organizationName ?? userProfile?.fullName ?? "";
+  const displayName: string = userProfile?.organizationName?.trim() ? userProfile.organizationName : userProfile?.fullName ?? "";
   const { user: userAuth } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
 
@@ -108,7 +108,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         </div>
 
         {/* Fase 1: Antes de Iniciar la colecta */}
-        {!isFundraisingActive && isOwner && (
+        {!isFundraisingActive && isOwner && isOrganization && (
           <div className="mt-8">
             {/* Título de la fase 1 */}
             <p className="text-3xl font-extrabold text-gray-800 mb-4">
@@ -129,7 +129,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
 
         {/* Fase 2: Cuando la colecta está activa */}
-        {isFundraisingActive && isOwner && (
+        {isFundraisingActive && isOwner && isOrganization && (
           <div className="mt-8">
             <p className="text-3xl font-extrabold text-gray-800 mb-4">
               {fundraisingTitle}
@@ -175,7 +175,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         )}
 
         {/* Fase 3: Cuando la colecta está activa y no se visita el perfil sin ser dueño*/}
-        {isFundraisingActive && !isOwner && (
+        {isFundraisingActive && !isOwner && isOrganization && (
           <div className="mt-8">
             <p className="text-3xl font-extrabold text-gray-800 mb-4">
               {fundraisingTitle}
