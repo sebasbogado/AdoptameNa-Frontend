@@ -3,12 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
-import { Post } from "@/types/post";
-import { useAuth } from "@/contexts/auth-context";
-import { getPosts } from "@/utils/posts-api";
-
 import Banners from "@/components/banners";
-import Footer from "@/components/footer";
 import { PostHeader } from "@/components/post/post-header";
 import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
@@ -30,7 +25,6 @@ const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<
 };
 
 const PostPage = () => {
-    const { user, loading: userLoading } = useAuth();
     const [pet, setPet] = useState<Pet | null>(null);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -47,29 +41,37 @@ const PostPage = () => {
     }, []);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            const posts = await getPets();
-            setPets(posts);
+        const idStatus = pet?.petStatus.id
+        const fetchPets = async () => {
+            const pets = await getPets({
+                size: 5,
+                petStatusId: idStatus
+            });
+            setPets(pets.data);
         };
-        fetchPosts();
-    }, []);
+        fetchPets();
+    }, [pet]);
 
     if (loading) {
-        return Loading();
+        return <Loading />;
     }
 
     if (error) {
-        return NotFound();
+        return <NotFound />;
     }
 
     return (
         <>
             <div>
-                <Banners images={[pet?.urlPhoto || '/logo.png']} className="h-[550px]" />
+                <Banners images={(pet?.media && pet.media.length > 0)
+                    ? pet.media.map(media => media.url)
+                    : ['/logo.png']}
+                    className="h-[550px]"
+                />
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-10 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader pet={pet as Pet} />
-                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId}/>
+                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId} />
 
                         <PostContent pet={pet} />
                         <PostSidebar pets={pets} />

@@ -11,7 +11,7 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
     return (
         <section className="mt-8 ml-16">
             <h2 className="pl-12 text-2xl text-gray-700 my-4">
-                {posts ? "Posts relacionados" : "Otros peluditos en adopción"}
+                {posts ? "Posts relacionados" : `Otros peluditos: ${pets?.[0]?.petStatus.name}`}
             </h2>
             {
                 posts ?
