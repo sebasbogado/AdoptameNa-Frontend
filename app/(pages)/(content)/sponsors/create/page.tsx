@@ -38,6 +38,7 @@ export default function SponsorFormPage() {
     } | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showLogoError, setShowLogoError] = useState(false);
     
     const { authToken } = useAuth();
     const router = useRouter();
@@ -66,20 +67,10 @@ export default function SponsorFormPage() {
 
         const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
         if (!allowedTypes.includes(file.type)) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Tipo de archivo no permitido. Solo PNG, JPG y WEBP."
-            });
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "El archivo es demasiado grande. Máximo: 5MB."
-            });
             return;
         }
 
@@ -90,29 +81,14 @@ export default function SponsorFormPage() {
             const response = await postMedia(formData, authToken);
             setFormData(prev => ({ ...prev, logoId: response.id }));
             setLogoPreviewUrl(response.url);
-            setAlertInfo({
-                open: true,
-                color: "green",
-                message: "Logo subido exitosamente"
-            });
         } catch (error) {
             console.error("Error al subir logo", error);
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
-            });
         }
     };
 
     const handleRemoveLogo = () => {
         setFormData(prev => ({ ...prev, logoId: null }));
         setLogoPreviewUrl(null);
-        setAlertInfo({
-            open: true,
-            color: "green",
-            message: "Logo eliminado exitosamente"
-        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -126,21 +102,8 @@ export default function SponsorFormPage() {
             return;
         }
 
-        if (formData.wantsLogo && !formData.logoId) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Es necesario subir el logo de tu organización. Por favor, haz click en el botón '+ Añadir logo' y selecciona una imagen antes de continuar."
-            });
-            return;
-        }
-
         if (!formData.logoId) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Para crear un auspiciante es necesario incluir un logo. Por favor, marca la casilla 'Quiero que mi logo aparezca en la sección de Auspiciantes' y sube una imagen."
-            });
+            setShowLogoError(true);
             return;
         }
 
@@ -156,6 +119,7 @@ export default function SponsorFormPage() {
             setShowSuccessModal(true);
             setFormData(initialFormState);
             setLogoPreviewUrl(null);
+            setShowLogoError(false);
 
         } catch (error) {
             console.error("Error al enviar solicitud:", error);
@@ -195,11 +159,6 @@ export default function SponsorFormPage() {
                     auspiciante y ayudar a nuestra causa
                 </p>
                 
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 text-sm">
-                    <p className="font-medium mb-1">Información importante:</p>
-                    <p>Para completar tu solicitud de auspiciante, <span className="font-semibold">es obligatorio subir el logo de tu organización</span>. Este logo aparecerá en la sección de auspiciantes del sitio.</p>
-                </div>
-
                 <div className="space-y-4">
                     <div>
                         <label className="block mb-1">Nombre del responsable</label>
@@ -243,18 +202,12 @@ export default function SponsorFormPage() {
                         </div>
                     </div>
 
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            checked={formData.wantsLogo}
-                            onChange={() => handleCheckboxChange('wantsLogo')}
-                        />
-                        <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
-                    </label>
-                    
-                    {formData.wantsLogo && (
-                        <>
-                            <p className="text-sm text-blue-600 italic mb-2 text-center">
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block mb-1">
+                                Logo de tu organización
+                            </label>
+                            <p className={`text-sm ${showLogoError ? 'text-red-600' : 'text-blue-600'} italic mb-2 text-center`}>
                                 Para continuar debes subir el logo de tu organización haciendo click en el cuadro de abajo
                             </p>
                             <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto relative">
@@ -295,8 +248,19 @@ export default function SponsorFormPage() {
                                     </label>
                                 )}
                             </div>
-                        </>
-                    )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="flex items-center space-x-2">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.wantsLogo}
+                                    onChange={() => handleCheckboxChange('wantsLogo')}
+                                />
+                                <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
+                            </label>
+                        </div>
+                    </div>
 
                     <label className="flex items-center space-x-2">
                         <input
