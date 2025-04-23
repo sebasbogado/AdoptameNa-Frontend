@@ -334,6 +334,17 @@ export default function Page() {
         </label>
       </div>
       <form onSubmit={handleSubmit(openConfirmationModal)}>
+        <label className="block text-sm font-medium">Título</label>
+        <input
+          type="text"
+          {...register("title")}
+          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
+        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+
+        <label className="block text-sm font-medium">Descripción</label>
+        <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+        />
+        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
         <label className="block text-sm font-medium">Tipo de animal</label>
         <MultiSelect
           options={animals}
@@ -375,17 +386,9 @@ export default function Page() {
         />
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
-        <label className="block text-sm font-medium">Título</label>
-        <input
-          type="text"
-          {...register("title")}
-          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
-        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
-        <label className="block text-sm font-medium">Descripción</label>
-        <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-        />
-        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+
+
 
         <label className="block text-sm font-medium">Precio</label>
         <input type="number" {...register("price", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
