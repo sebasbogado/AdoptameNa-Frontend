@@ -249,17 +249,6 @@ export default function SponsorFormPage() {
                                 )}
                             </div>
                         </div>
-
-                        <div className="space-y-2">
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.wantsLogo}
-                                    onChange={() => handleCheckboxChange('wantsLogo')}
-                                />
-                                <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
-                            </label>
-                        </div>
                     </div>
 
                     <label className="flex items-center space-x-2">
