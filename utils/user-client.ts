@@ -1,3 +1,5 @@
+import { UserResponse } from "@/types/auth";
+import { PaginatedResponse, userQueryParams } from "@/types/pagination";
 import axios from "axios";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users`;
 
@@ -25,11 +27,15 @@ export const getUser = async (id: string) => {
   }
 };
 
-export const getUsers = async (queryParams?: any) => {
+export const getUsers = async (
+  authToken: string,
+  queryParams?: userQueryParams
+): Promise<PaginatedResponse<UserResponse>> => {
   try {
     const response = await axios.get(`${API_URL}`, {
       params: queryParams,
       headers: {
+        Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
     });
@@ -37,7 +43,7 @@ export const getUsers = async (queryParams?: any) => {
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener los usuarios");
   }
-}
+};
 
 export const deleteUser = async (toke: string, id: number) => {
   try {
@@ -48,8 +54,7 @@ export const deleteUser = async (toke: string, id: number) => {
       },
     });
     return response.data;
-  }
-  catch (error: any) {
+  } catch (error: any) {
     throw new Error(error.message || "Error al eliminar el usuario");
   }
-}
+};
