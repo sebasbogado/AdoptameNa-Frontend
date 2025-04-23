@@ -21,7 +21,7 @@ export type postQueryParams = queryParams & {
   postTypeId?: number;
   userId?: number;
   tagIds?: number[];
-}
+};
 
 export type petQueryParams = queryParams & {
   petStatusId?: number;
@@ -41,7 +41,7 @@ export type myPetsQueryParams = queryParams & {
   minAge?: number;
   maxAge?: number;
   userId?: number;
-}
+};
 
 export type reportQueryParams = queryParams & {
   idPost?: number;
@@ -60,4 +60,14 @@ export type bannerQueryParams = queryParams & {
 
 export type tagQueryParams = queryParams & {
   postTypeIds?: number[];
-}
+};
+
+export type userQueryParams = queryParams & {
+  role?: string;
+  name?: string;
+};
+
+export type profileQueryParams = queryParams & {
+  name?: string;
+  role?: string;
+};
