@@ -211,7 +211,7 @@ export default function Page() {
       }
 
       setCurrentImageIndex((prevIndex) => (prevIndex - 1 + updatedImages.length) % updatedImages.length);
-      setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 3000); // Ocultar mensaje después de 3 segundos
+      setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 1000); // Ocultar mensaje después de 3 segundos
 
     } catch (error) {
       console.error("Error al eliminar la imagen", error);
@@ -299,7 +299,7 @@ export default function Page() {
       const response = await postPets(params, authToken);
       if (response) {
         setSuccessMessage("Se creó exitosamente")
-        setTimeout(() => router.push(`/pets/${response.id}`), 3500);
+        setTimeout(() => router.push(`/pets/${response.id}`), 1500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
