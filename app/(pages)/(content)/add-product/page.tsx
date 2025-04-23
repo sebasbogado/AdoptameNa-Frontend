@@ -16,12 +16,15 @@ import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
 import { ConfirmationModal } from "@/components/form/modal";
 import { useAuth } from "@/contexts/auth-context";
-import { CreateProduct, Product } from "@/types/product";
+import { CreateProduct } from "@/types/product";
 import { createProduct } from "@/utils/product.http";
-import { getUserProfile } from "@/utils/user-profile-client";
+import { getFullUser } from "@/utils/user-profile-client";
+import { deleteMedia, postMedia } from "@/utils/media.http";
 import { Media } from "@/types/media";
 import Image from "next/image";
-
+import { Alert } from "@material-tailwind/react";
+import { ImagePlus } from "lucide-react";
+import { MultiSelect } from "@/components/multi-select";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -40,11 +43,11 @@ export default function Page() {
       title: "",
       content: "",
       locationCoordinates: [0, 0],
-      contactNumber: "", //traer del perfil y si no tiene, dejar vacio
+      contactNumber: "",
       price: 0,
       userId: 0,
       categoryId: 0,
-      animalsId: [1], //hardcodeado por ahora
+      animalsId: [],
       condition: ProductCondition.NEW,
       mediaIds: []
     }
@@ -52,18 +55,32 @@ export default function Page() {
 
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [animals, setAnimals] = useState<Animal[]>([]);
+  const [selectedAnimals, setSelectedAnimals] = useState<Animal[]>([]);
   const [position, setPosition] = useState<[number, number] | null>(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, authToken, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<ProductFormValues | null>(null);
+  const [formData, setFormData] = useState<ProductFormValues>({
+    title: "",
+    content: "",
+    locationCoordinates: [0, 0],
+    contactNumber: "",
+    price: 0,
+    userId: 0,
+    categoryId: 0,
+    animalsId: [],
+    condition: ProductCondition.NEW,
+    mediaIds: []
+  });
   const [selectedImages, setSelectedImages] = useState<Media[]>([]);
   const [arrayImages, setArrayImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [precautionMessage, setPrecautionMessage] = useState("");
+  const MAX_IMAGES = 5;
+  const selectedAnimalsIds = selectedAnimals.map((animal) => animal.id);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -91,15 +108,25 @@ export default function Page() {
   useEffect(() => {
     if (!authLoading && !authToken) {
       router.push("/login");
+    } else {
+      const fetchUserData = async () => {
+        if (!user?.id) return;
+        try {
+          const response = await getFullUser(user?.id as string);
+          let userPhone = response.phoneNumber;
+          if (userPhone) {
+            setValue("contactNumber", userPhone);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+      fetchUserData();
     }
-  }, [authToken, authLoading, router])
+  }, [authToken, authLoading, router, user?.id]);
 
   const handleCancel = () => {
     router.push("/dashboard");
-  }
-
-  const onSubmit = async (data: ProductFormValues) => {
-    console.log("Form submitted:", data);
   }
 
   const handlePositionChange = (newPosition: [number, number]) => {
@@ -108,7 +135,6 @@ export default function Page() {
   };
 
   const openConfirmationModal = (data: ProductFormValues) => {
-    console.log("Form data before confirmation:", data);
     setFormData(data);
     setIsModalOpen(true);
   }
@@ -122,7 +148,7 @@ export default function Page() {
       price: formData.price,
       categoryId: formData.categoryId,
       condition: formData.condition,
-      animalsId: formData.animalsId,
+      animalsId: selectedAnimalsIds,
       mediaIds: formData.mediaIds ? formData.mediaIds : [],
       contactNumber: formData.contactNumber,
       userId: parseInt(user?.id as string, 10),
@@ -151,15 +177,15 @@ export default function Page() {
       }
 
       // Verifica la cantidad de imagens que se pueden subir
-      // if (selectedImages.length >= 5) {
-      //   setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
-      //   return;
-      // }
+      if (selectedImages.length >= 5) {
+        setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
+        return;
+      }
       // Verificar el tamaño del archivo (1MB)
-      // if (file.size > 5 * (1024 * 1024)) {
-      //   setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
-      //   return;
-      // }
+      if (file.size > 5 * (1024 * 1024)) {
+        setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+        return;
+      }
 
       try {
         setLoading(true);
@@ -169,24 +195,61 @@ export default function Page() {
           const { id } = response;
           setSelectedImages(prev => [...prev, response]);
           setValue("mediaIds", [id]);
-          // setFormData(
-          //   prev => ({
-          //   ...prev,
-          //   mediaIds: [...(prev.mediaIds || []), id]
-          // }));
+          setFormData(
+            prev => ({
+              ...prev,
+              mediaIds: [...(prev.mediaIds || []), id]
+            }));
         }
-      } catch (error) {
-        // setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
-        console.error("Error al subir la imagen", error);
+      } catch (error: any) {
+        if (error.response?.status === 415) {
+          setErrorMessage("Formato de imagen no soportado. Usa JPG, JPEG o PNG.");
+        } else {
+          setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
+        }
+        setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
       } finally {
         setLoading(false);
       }
     }
   };
 
-  useEffect(() => {
-    console.log("Errors:", errors);
-  }, [errors]);
+  const handleRemoveImage = async (index: number) => {
+    const imageToRemove = selectedImages[index];
+
+    if (!authToken) {
+      console.log("El token de autenticación es requerido");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Llamar a la API para eliminar la imagen
+      if (imageToRemove.id) {
+        await deleteMedia(imageToRemove.id, authToken);
+      }
+
+      // Eliminar del estado local
+      const updatedImages = selectedImages.filter((_, i) => i !== index);
+      setSelectedImages(updatedImages);
+
+      // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
+      if (updatedImages.length === 0) {
+        setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
+        setFormData(prev => ({ ...prev, mediaIds: [] }));
+      }
+
+      setSuccessMessage("Imagen eliminada exitosamente.");
+      setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
+
+    } catch (error) {
+      setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -200,31 +263,88 @@ export default function Page() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <Banners images={arrayImages} />
-      {selectedImages.map((src, index) => (
-        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-          <Image
-            src={src.url}
-            alt="post"
-            fill
-            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-            onClick={() => setCurrentImageIndex(index)}
-          />
-          {/* Botón de eliminación */}
-          <button
-            // onClick={() => handleRemoveImage(index)}
-            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
-            title="Eliminar imagen"
-          >
-            ✕
-          </button>
+      {errorMessage && (
+        <div>
+          <Alert
+            color="red"
+            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+            onClose={() => setErrorMessage("")}>
+            {errorMessage}
+          </Alert>
         </div>
-      ))}
+      )}
 
+      {precautionMessage && (
+        <div>
+          <Alert
+            color="orange"
+            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+            onClose={() => setPrecautionMessage("")}>
+            {precautionMessage}
+          </Alert>
+        </div>
+      )}
 
+      {successMessage && (
+        <div>
+          <Alert
+            color="green"
+            onClose={() => setSuccessMessage("")}
+            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+            {successMessage}
+          </Alert>
+        </div>
+      )}
+      <Banners images={arrayImages} />
+      <div className="flex gap-2 mt-2 justify-center items-center">
+        {selectedImages.map((src, index) => (
+          <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+            <Image
+              src={src.url}
+              alt="post"
+              fill
+              className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+              onClick={() => setCurrentImageIndex(index)}
+            />
+            {/* Botón de eliminación */}
+            <button
+              onClick={() => handleRemoveImage(index)}
+              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+              title="Eliminar imagen"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          id="fileInput"
+          onChange={handleImageUpload}
+          disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
+        />
+        <label
+          htmlFor="fileInput"
+          className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+            } bg-white`}
+        >
+          <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+        </label>
+      </div>
       <form onSubmit={handleSubmit(openConfirmationModal)}>
+        <label className="block text-sm font-medium">Tipo de animal</label>
+        <MultiSelect
+          options={animals}
+          selected={selectedAnimals}
+          onChange={(selected) => {
+            setSelectedAnimals(selected);
+            setValue("animalsId", selected.map((animal) => animal.id));
+          }}
+          placeholder="Seleccionar animales"
+        />
 
-        <p>Tipo de animal</p>
         <label className="block text-sm font-medium">Estado</label>
         <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
           {Object.values(ProductCondition).map(cond => (
@@ -242,7 +362,7 @@ export default function Page() {
         </select>
         {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
 
-        <label >Contacto</label>
+        <label className="text-sm font-medium">Contacto</label>
         <input
           {...register("contactNumber")}
           className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
@@ -254,7 +374,6 @@ export default function Page() {
           }
         />
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
 
         <label className="block text-sm font-medium">Título</label>
         <input
@@ -272,16 +391,6 @@ export default function Page() {
         <input type="number" {...register("price", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
         {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
 
-
-        {/* <label>Tipo de Animal</label>
-        <select multiple {...register("animalsId")} className="form-multiselect w-full mb-2">
-          {animals.map(animal => (
-            <option key={animal.id} value={animal.id}>{animal.name}</option>
-          ))}
-        </select>
-        {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>} */}
-
-
         {/*Mapa */}
         <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
           <MapWithNoSSR position={position} setPosition={handlePositionChange} />
@@ -290,7 +399,6 @@ export default function Page() {
 
         {/*Buttons */}
         <div className="flex justify-end items-center mt-6 gap-10">
-          {/*VER: boton de eliminar publicacion, no se como no aparece al  crear*/}
           <div className="flex gap-4">
             <Button
               type="button"
