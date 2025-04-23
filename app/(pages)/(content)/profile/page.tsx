@@ -56,7 +56,7 @@ const getPostsData = async (
 
     try {
         // Cargar posts del usuario
-        const postParams = { 
+        const postParams = {
             page: 0,
             size: 5,
             sort: "id,desc",
@@ -81,7 +81,7 @@ const getPetsData = async (
 
 
     try {
-        const postParams = { 
+        const postParams = {
             page: 0,
             size: 5,
             sort: "id,desc",
@@ -110,6 +110,7 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
+    const [isFundraisingActive, setIsFundraisingActive] = useState(false);
     const [errors, setErrors] = useState({
         pets: false,
         posts: false,
@@ -124,9 +125,6 @@ export default function ProfilePage() {
             setIsEditing(true)
             return
         }
-
-
-
         setProfileLoading(true);
         setErrors(prev => ({ ...prev, userProfile: false }));
 
@@ -140,6 +138,22 @@ export default function ProfilePage() {
         } finally {
             setProfileLoading(false);
         }
+    };
+
+    const handleStartFundraising = () => {
+        setIsFundraisingActive(true);
+        // Aquí se pueden inicializar los valores de `donatedAmount`, `goalAmount` y `fundraisingTitle`
+        // por ejemplo, setFundraisingData({...}) 
+    };
+
+    // Función para finalizar la recaudación
+    const handleFinishFundraising = () => {
+        setIsFundraisingActive(false);
+    };
+
+    // Función para actualizar la recaudación
+    const handleUpdateFundraising = () => {
+        setIsFundraisingActive(false);
     };
 
 
@@ -239,17 +253,20 @@ export default function ProfilePage() {
         return <Loading />;
     }
     if (!user) return;
+
+    const isOrganization = !!userProfile?.organizationName?.trim();
+
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            
-            <HeaderImage 
-                isEditEnabled={true} 
+
+            <HeaderImage
+                isEditEnabled={true}
                 userProfile={userProfile}
                 medias={medias}
                 setMedias={setMedias}
             />
-            
+
             {isOpen &&
                 <ConfirmationModal
                     isOpen={isOpen}
@@ -270,10 +287,18 @@ export default function ProfilePage() {
                         setUserProfile={setTempUserProfile}
                         isDisable={!isEditing}
                         validationErrors={validationErrors}
+                        fundraisingTitle="Recaudación de fondos para cancelar deuda en Veterinarias"
+                        donatedAmount={15000000}
+                        goalAmount={17000000}
+                        isFundraisingActive={isFundraisingActive}
+                        handleStartFundraising={handleStartFundraising}
+                        handleUpdateFundraising={handleUpdateFundraising}
+                        handleFinishFundraising={handleFinishFundraising}
+
                     />
 
                     {/* Action Buttons */}
-                    <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                    <div className="relative top-[-25vh] right-5 mr-10 mt-4 z-50 flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
                         <EditButton
                             size="lg"
                             isEditing={isEditing}
@@ -289,11 +314,12 @@ export default function ProfilePage() {
                         )}
                         {!isEditing && (
                             <MenuButton size="lg" />
-               
+
                         )}
                     </div>
-                    <div className='w-[40vw] mt-[-70px] '>
-                    <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
+
+                    <div className='w-[40vw] mt-[-30px] '>
+                        <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
 
                     </div>
 
@@ -309,7 +335,10 @@ export default function ProfilePage() {
 
                     {/* Posts Section (Con filtrado) */}
                     <Section
-                        title={`Publicaciones de ${user?.fullName.split(' ')[0]}`}
+                        title={`Publicaciones de ${isOrganization
+                            ? userProfile?.organizationName
+                            : user?.fullName?.split(' ')[0]
+                            }`}
                         itemType="post"
                         postTypeName="Adopcion"
                         path={`/profile/my-posts/${user.id}`}
