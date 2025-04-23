@@ -5,11 +5,9 @@ import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
 import { useAuth } from "@/contexts/auth-context";
-import { getPost, sharePost } from "@/utils/posts.http";
-import { getPosts } from "@/utils/posts-api";
+import { getPost, getPosts, sharePost } from "@/utils/posts.http";
 
 import Banners from "@/components/banners";
-import Footer from "@/components/footer";
 import { PostHeader } from "@/components/post/post-header";
 import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
@@ -47,8 +45,11 @@ const PostPage = () => {
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const posts = await getPosts();
-            setPosts(posts);
+            const posts = await getPosts({
+                size: 5,
+                page: 0,
+            });
+            setPosts(posts.data);
         };
         fetchPosts();
     }, []);
@@ -71,22 +72,25 @@ const PostPage = () => {
     };
 
     if (loading) {
-        return Loading();
+        return <Loading />;
     }
 
     if (error) {
-        return NotFound();
+        return <NotFound />;
     }
 
     return (
         <>
             <div>
-                <Banners images={[post?.urlPhoto || '/logo.png']} className="h-[550px]" />
+                <Banners images={(post?.media && post.media.length > 0)
+                    ? post.media.map(media => media.url)
+                    : ['/logo.png']}
+                    className="h-[550px]"
+                />
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader post={post as Post} />
                         <PostButtons postId={String(post?.id)} onShare={handleShare} postIdUser={post?.userId} />
-
                         <PostContent post={post} />
                         <PostSidebar posts={posts} />
                     </div>
