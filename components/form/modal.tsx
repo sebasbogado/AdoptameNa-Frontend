@@ -44,7 +44,7 @@ useEffect(() => {
               type="button"
               variant={confirmVariant}
               size="md"
-              className="rounded hover:bg-red-900"
+              className={`rounded ${confirmVariant === "cta" ? "hover:bg-green-700" : "hover:bg-red-900"}`}
               onClick={onConfirm}
             >
               {textConfirm}

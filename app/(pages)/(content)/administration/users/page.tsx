@@ -1,145 +1,51 @@
 "use client"
-import { useEffect, useState } from "react"
-import { getUsers, deleteUser } from "@/utils/user-client"
-import { getUserProfiles } from "@/utils/user-profile-client"
-import UserTable from "@/components/administration/user/user-table"
-import { UserList, UserProfile } from "@/types/user-profile"
+import { useRouter } from "next/navigation"
+import { UserCircle, Users, Building, Shield } from "lucide-react"
+import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
-import { ConfirmationModal } from "@/components/form/modal"
-import { Alert } from "@material-tailwind/react"
-
 
 export default function Page() {
-  const [users, setUsers] = useState<UserList[]>();
-  const [admins, setAdmins] = useState<UserList[]>();
-  const [organizations, setOrganizations] = useState<UserList[]>();
-  const [modalConfirmation, setModalConfirmation] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<number | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const { authToken } = useAuth()
-  const params: any = { "page": 0, "size": 100 }
+  const router = useRouter();
+  const { authToken, loading } = useAuth();
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const year = date.getUTCFullYear();
-
-    return `${day}/${month}/${year}`;
-  };
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const users = await getUsers(params)
-        const profiles = await getUserProfiles(params)
-
-        const UserListRaw: UserList[] = users.map((user: any) => ({
-          id: user.id,
-          fullName: profiles.find((profile: UserProfile) => profile.id === user.id)?.fullName,
-          email: user.email,
-          role: user.role,
-          creationDate: formatDate(user.creationDate),
-        }))
-
-        let listUser: UserList[] = []
-        let listAdmin: UserList[] = []
-        let listOrganization: UserList[] = []
-        for (const user of UserListRaw) {
-          if (user.role === "admin") {
-            listAdmin.push(user)
-          } else if (user.role === "user") {
-            listUser.push(user)
-          } else if (user.role === "organization") {
-            listOrganization.push(user)
-          }
-        }
-        setUsers(listUser)
-        setAdmins(listAdmin)
-        setOrganizations(listOrganization)
-
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    }
-    fetchData()
-  }, [authToken])
-
-  const handleDelete = async () => {
-    if (!authToken || !selectedUser) return;
-    try {
-      await deleteUser(authToken, selectedUser);
-      const updatedUsers = users?.filter((user) => user.id !== selectedUser);
-      setUsers(updatedUsers);
-      setSuccessMessage("Usuario eliminado correctamente");
-    } catch (error: any) {
-      setErrorMessage("Error al eliminar el usuario");
-      console.error("Error deleting user:", error);
-    } finally {
-      setModalConfirmation(false);
-      setSelectedUser(null);
-    }
-  }
+  if (loading) return <div className="h-screen w-screen flex justify-center items-center">Cargando...</div>
+  if (!authToken) return <div className="h-screen w-screen flex justify-center items-center">No tienes permisos para ver esta página</div>
 
   return (
-    <div className="mt-8">
-      {successMessage && (
-        <div>
-          <Alert
-            color="green"
-            onClose={() => setSuccessMessage("")}
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-            {successMessage}
-          </Alert>
-        </div>
-      )}
-      {errorMessage && (
-        <div>
-          <Alert
-            color="red"
-            onClose={() => setErrorMessage("")}
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-            {errorMessage}
-          </Alert>
-        </div>
-      )}
-      <ConfirmationModal
-        isOpen={modalConfirmation}
-        onClose={() => { setSelectedUser(null); setModalConfirmation(false) }}
-        onConfirm={handleDelete}
-        message="¿Estás seguro de que deseas eliminar este usuario?"
-        title="Eliminar Usuario"
-        textConfirm="Eliminar"
-        confirmVariant="danger"
-      />
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-8">Administración de Usuarios</h1>
 
-      <UserTable
-        title="Administradores"
-        data={admins || []}
-        onDelete={(id) => {
-          setSelectedUser(id);
-          setModalConfirmation(true)
-        }}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Link href="/administration/users/regular">
+          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+            <div className="bg-blue-100 p-4 rounded-full mb-4">
+              <UserCircle size={48} className="text-blue-600" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Usuarios Regulares</h2>
+            <p className="text-gray-600 text-center">Gestionar usuarios comunes de la plataforma</p>
+          </div>
+        </Link>
 
-      <UserTable
-        title="Organizaciones"
-        data={organizations || []}
-        onDelete={(id) => {
-          setSelectedUser(id);
-          setModalConfirmation(true)
-        }}
-      />
+        <Link href="/administration/users/organizations">
+          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+            <div className="bg-purple-100 p-4 rounded-full mb-4">
+              <Building size={48} className="text-purple-600" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Organizaciones</h2>
+            <p className="text-gray-600 text-center">Gestionar organizaciones y refugios registrados</p>
+          </div>
+        </Link>
 
-      <UserTable
-        title="Lista de Usuarios"
-        data={users || []}
-        onDelete={(id) => {
-          setSelectedUser(id);
-          setModalConfirmation(true)
-        }}
-      />
-    </div>)
+        <Link href="/administration/users/admins">
+          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+            <div className="bg-amber-100 p-4 rounded-full mb-4">
+              <Shield size={48} className="text-amber-600" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Administradores</h2>
+            <p className="text-gray-600 text-center">Gestionar administradores del sistema</p>
+          </div>
+        </Link>
+      </div>
+    </div>
+  )
 }

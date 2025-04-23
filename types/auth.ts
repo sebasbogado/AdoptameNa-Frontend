@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  id: number;
   fullName: string;
   email: string;
   role: string;
@@ -29,3 +29,11 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+
+export type UserResponse = {
+  creationDate: string;
+  email: string;
+  id: number;
+  isVerified: boolean;
+  role: string;
+};
