@@ -9,6 +9,7 @@ import AnimalBreedModal from "@/components/animal-breed-modal";
 import SearchBar from "@/components/search-bar";
 import AnimalFilter from "@/components/animal-filter";
 import ClickableTag from "./admin-card/clickable-tag";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface Breed {
   id: number;
@@ -28,6 +29,9 @@ export default function PetBreeds({
   setSuccessMessage: (msg: string | null) => void,
   setErrorMessage: (msg: string | null) => void
 }) {
+  // Estado para el campo de búsqueda (UI)
+  const [inputValue, setInputValue] = useState("");
+  // Estado para el término de búsqueda (para el filtro real)
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("Todos");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -40,6 +44,26 @@ export default function PetBreeds({
   const [loadingBreeds, setLoadingBreeds] = useState(true);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loadingAnimals, setLoadingAnimals] = useState(true);
+
+  // Uso del debounce para el buscador
+  const debouncedSearch = useDebounce((value: string) => {
+    // Solo aplicar el filtro cuando hay al menos 3 caracteres o cuando está vacío
+    if (value.length >= 3 || value === "") {
+      setSearchQuery(value);
+    }
+  }, 300);
+
+  // Manejar cambios en el campo de búsqueda
+  const handleSearch = (query: string) => {
+    setInputValue(query); // Actualizar el valor del input inmediatamente
+    debouncedSearch(query); // Procesar la búsqueda con debounce
+  };
+
+  // Limpiar la búsqueda
+  const handleClearSearch = () => {
+    setInputValue("");
+    setSearchQuery("");
+  };
 
   const handleBreedSaved = (updatedBreed: Breed) => {
     setBreeds((prev) => {
@@ -117,10 +141,13 @@ export default function PetBreeds({
     <div className="w-full max-w-2xl mx-auto rounded-xl border border-gray-200 p-6 bg-white">
       <h4 className="mb-4">Razas</h4>
       <div className="flex gap-4 mb-6">
-        {/* 🔎 Barra de búsqueda */}
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <SearchBar
+          value={inputValue}
+          onChange={handleSearch}
+          onClear={handleClearSearch}
+          placeholder="Buscar razas..."
+        />
 
-        {/* 🏷️ Filtro por animal (ahora con el nuevo componente) */}
         <AnimalFilter
           selectedFilter={selectedFilter}
           setSelectedFilter={setSelectedFilter}
@@ -155,8 +182,8 @@ export default function PetBreeds({
         selectedBreed={selectedBreed}
         onBreedSaved={handleBreedSaved}
         onBreedDeleted={handleBreedDeleted}
-        setSuccessMessage={setSuccessMessage}  // 👈 Pasar los métodos
-        setErrorMessage={setErrorMessage}      // 👈 Pasar los métodos
+        setSuccessMessage={setSuccessMessage}
+        setErrorMessage={setErrorMessage}
       />
     </div>
   );

@@ -3,7 +3,7 @@ export interface MediaDTO {
   mimeType: string;
   url: string;
   userId: number;
-  uploadDate: string; // ISO 8601 format
+  uploadDate: string;
 }
 
 
@@ -21,10 +21,12 @@ export interface UserProfile {
   addressCoordinates: string | null;
   email: string;
   isProfileCompleted: boolean;
+  creationDate: string;
   media?: MediaDTO[];
   mediaIds?: number[]
 }
-export type UpdateUserProfile = Omit<UserProfile, 'id'>;
+export type UpdateUserProfile = Omit<UserProfile, "id">;
+
 
 export type UserReport = Omit<UserProfile, 'organizationName' |
   'address' |
@@ -38,3 +40,4 @@ export type UserReport = Omit<UserProfile, 'organizationName' |
   'media'>;
 
 export type UserList = Pick<UserProfile, 'id' | 'fullName' | 'email'> & { creationDate: string } & { role?: string };
+

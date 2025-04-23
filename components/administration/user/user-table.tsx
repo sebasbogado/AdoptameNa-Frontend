@@ -1,142 +1,95 @@
 "use client";
-import { useState, useMemo, useEffect } from "react";
-import { Trash2 } from "lucide-react";
-
-interface UserList {
-  id: number;
-  fullName: string;
-  email: string;
-  creationDate: string;
-}
+import { UserProfile } from "@/types/user-profile";
+import { Loader2, Trash2, UserCircle } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   title: string;
-  data: UserList[];
+  data: UserProfile[];
   onDelete: (id: number) => void;
+  loading?: boolean;
 }
 
-export default function UserTable({ title, data, onDelete }: Props) {
-  const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
-  const [isNextPage, setIsNextPage] = useState(false);
-  const pageSize = 20;
+export default function UserTable({ title, data, onDelete, loading = false }: Props) {
 
-  const filteredData = useMemo(() => {
-    return data.filter((user) =>
-      user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-      user.email?.toLowerCase().includes(search.toLowerCase()) ||
-      user.id.toString().includes(search)
-    );
-  }, [data, search]);
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
 
-  const totalPages = Math.ceil(filteredData.length / pageSize);
-
-  const paginatedData = useMemo(() => {
-    const start = currentPage * pageSize;
-    return filteredData.slice(start, start + pageSize);
-  }, [filteredData, currentPage]);
-
-  const handleDelete = (id: number) => {
-    onDelete(id);
-    const newTotalPages = Math.ceil((filteredData.length - 1) / pageSize);
-    if (currentPage > newTotalPages) {
-      setCurrentPage(newTotalPages);
-    }
-  };
-
-  useEffect(() => {
-    const start = (currentPage + 1) * pageSize;
-    setIsNextPage(start < filteredData.length);
-  }, [filteredData, currentPage]);
-
-  const handlePreviousPage = () => {
-    if (currentPage > 0) setCurrentPage(currentPage - 1);
-  };
-
-  const handleNextPage = () => {
-    if (isNextPage) setCurrentPage(currentPage + 1);
+    return `${day}/${month}/${year}`;
   };
   return (
-    <div className="mb-8 px-8" >
-
+    <div className="mb-8">
       <div className="flex items-center justify-between mb-1">
         <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, email o ID"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(0);
-          }}
-          className="mb-4 px-3 py-2 border rounded w-full max-w-md"
-        />
-
       </div>
 
-      <table className="w-full border-collapse border text-sm table-fixed">
-        <thead>
-          <tr>
-            <th className="border px-3 py-2 text-left w-10">ID</th>
-            <th className="border px-3 py-2 text-left">Nombre</th>
-            <th className="border px-3 py-2 text-left">Email</th>
-            <th className="border px-3 py-2 text-left">Fecha de creación</th>
-            <th className="border px-3 py-2 w-20">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="text-center py-4">No se encontraron resultados.</td>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border text-sm">
+          <thead>
+            <tr className="bg-gray-50">
+              <th className="border px-3 py-2 text-left">ID</th>
+              <th className="border px-3 py-2 text-left">Nombre</th>
+              <th className="border px-3 py-2 text-left">Email</th>
+              <th className="border px-3 py-2 text-left">Teléfono</th>
+              <th className="border px-3 py-2 text-left">Dirección</th>
+              <th className="border px-3 py-2 text-left">Puntos</th>
+              <th className="border px-3 py-2 text-left">Fecha de Nacimiento</th>
+              <th className="border px-3 py-2 text-left">Fecha de Registro</th>
+              <th className="border px-3 py-2 text-center">Acciones</th>
             </tr>
-          ) : (
-            paginatedData.map((user) => (
-              <tr key={user.id}>
-                <td className="border px-3 py-2">{user.id}</td>
-                <td className="border px-3 py-2">{user.fullName}</td>
-                <td className="border px-3 py-2">{user.email}</td>
-                <td className="border px-3 py-2">{user.creationDate}</td>
-                <td className="border px-3 py-2 flex items-center justify-center">
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="hover:text-red-600 text-red-500 "
-                  >
-                    <Trash2 className="inline mr-1" size={20} />
-                  </button>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr>
+                <td colSpan={9} className="text-center py-8">
+                  <div className="flex justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+                  </div>
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-      {data.length > pageSize && (
-        <div className="flex justify-center gap-4 py-4" >
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 0}
-            className={`px-4 py-2 rounded-md ${currentPage === 0
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-purple-500 text-white hover:bg-purple-600'
-              }`}
-          >
-            Anterior
-          </button>
-
-          < span className="px-4 py-2 bg-gray-200 rounded-md" >
-            Página {currentPage + 1}
-          </span>
-
-          < button
-            onClick={handleNextPage}
-            disabled={!isNextPage}
-            className={`px-4 py-2 rounded-md ${!isNextPage
-              ? 'bg-gray-300 cursor-not-allowed'
-              : 'bg-purple-500 text-white hover:bg-purple-600'
-              }`}
-          >
-            Siguiente
-          </button>
-        </div>)}
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center py-4">No se encontraron resultados.</td>
+              </tr>
+            ) : (
+              data.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50">
+                  <td className="border px-3 py-2">{user.id}</td>
+                  <td className="border px-3 py-2">{user.fullName}</td>
+                  <td className="border px-3 py-2">{user.email}</td>
+                  <td className="border px-3 py-2">{user.phoneNumber || "-"}</td>
+                  <td className="border px-3 py-2">{user.address || "-"}</td>
+                  <td className="border px-3 py-2">{user.earnedPoints !== undefined ? user.earnedPoints : "-"}</td>
+                  <td className="border px-3 py-2">{formatDate(user.birthdate || "")}</td>
+                  <td className="border px-3 py-2">{formatDate(user.creationDate)}</td>
+                  <td className="border px-3 py-2">
+                    <div className="flex items-center justify-center space-x-2">
+                      <Link
+                        href={`/profile/${user.id}`}
+                        className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-100"
+                        title="Ver perfil"
+                      >
+                        <UserCircle size={20} />
+                      </Link>
+                      <button
+                        onClick={() => onDelete(user.id)}
+                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-100"
+                        title="Eliminar usuario"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
