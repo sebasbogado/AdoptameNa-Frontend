@@ -6,7 +6,7 @@ import { Section } from '@/components/section';
 import { getPosts } from '@/utils/posts.http';
 import { getPetsByUserId } from '@/utils/pets.http';
 import { getUserProfile } from '@/utils/user-profile-client';
-import { UserProfile } from '@/types/user-profile';
+import { MediaDTO, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useParams, useRouter } from 'next/navigation';
@@ -19,6 +19,7 @@ import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
 import { getUser } from '@/utils/user-client';
 import MenuButton from '@/components/buttons/menu-button';
+import HeaderImage from '@/components/image-header';
 import PostLocationMap from '@/components/post/post-location-map';
 
 const getUserProfileData = async (
@@ -102,6 +103,7 @@ export default function ProfilePage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const param = useParams()
+    const [medias, setMedias] = useState<MediaDTO[]>([])
     const [errors, setErrors] = useState({
         user: false,
         pets: false,
@@ -197,8 +199,12 @@ export default function ProfilePage() {
         <div className="w-full font-roboto">
             {/* Banner */}
 
-            <Banners images={userProfile?.media?.map((item: any) => item.url) || ['./logo.png']} />
-
+            <HeaderImage
+                isEditEnabled={false}
+                userProfile={userProfile}
+                medias={medias}
+                setMedias={setMedias}
+            />
             <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                 <div className="grid grid-cols-1 gap-4 p-6">
                     <Detail
@@ -247,7 +253,7 @@ export default function ProfilePage() {
                     <Section
                         title={`Publicaciones de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
                         itemType="post"
-                        postTypeName="adoption"
+                        postTypeName="Adopcion"
                         path={`/profile/my-posts/${user?.id ?? ''}`}
                         items={posts}
                         loading={loading}

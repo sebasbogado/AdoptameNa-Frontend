@@ -12,7 +12,7 @@ import { ConfirmationModal } from "@/components/form/modal";
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
 import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
-import { UpdateUserProfile, UserProfile } from '@/types/user-profile';
+import { MediaDTO, UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
@@ -24,14 +24,15 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileEditSchema, profileSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
-const getUserProfileData = async (
+import ImageHeader from '@/components/image-header';
+import HeaderImage from '@/components/image-header';
 
+const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
     setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
     userId: string,
 ) => {
-
     try {
         // Cargar perfil de usuario
         const profile = await getUserProfile(userId);
@@ -115,6 +116,9 @@ export default function ProfilePage() {
         posts: false,
         userProfile: false
     });
+
+    const [medias, setMedias] = useState<MediaDTO[]>([])
+
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
         if (!validateProfile(profileToUpdate)) {
@@ -230,6 +234,10 @@ export default function ProfilePage() {
         return true;
     };
 
+    useEffect(() => {
+        userProfile && setMedias(userProfile.media ?? [])
+    }, [userProfile?.media])
+
 
     if (authLoading || loading) {
         return <Loading />;
@@ -241,7 +249,13 @@ export default function ProfilePage() {
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
-            <Banners images={userProfile?.media?.length ? userProfile?.media?.map((item: any) => item.url) : ['./logo.png']} />
+
+            <HeaderImage
+                isEditEnabled={true}
+                userProfile={userProfile}
+                medias={medias}
+                setMedias={setMedias}
+            />
 
             {isOpen &&
                 <ConfirmationModal
