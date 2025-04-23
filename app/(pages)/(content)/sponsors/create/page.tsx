@@ -11,7 +11,6 @@ import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
 
 interface SponsorFormData {
-    companyName: string;
     responsibleName: string;
     email: string;
     reason: string;
@@ -21,7 +20,6 @@ interface SponsorFormData {
 }
 
 const initialFormState: SponsorFormData = {
-    companyName: '',
     responsibleName: '',
     email: '',
     reason: '',
@@ -142,7 +140,7 @@ export default function SponsorFormPage() {
             const sponsorData = {
                 contact: formData.email,
                 reason: formData.reason,
-                logoId: formData.logoId!,
+                logoId: formData.logoId!
             };
 
             await createSponsor(authToken, sponsorData);
@@ -184,19 +182,6 @@ export default function SponsorFormPage() {
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block mb-1">Nombre de la empresa</label>
-                        <input
-                            type="text"
-                            name="companyName"
-                            value={formData.companyName}
-                            onChange={handleInputChange}
-                            className="w-full p-2 rounded-md border-2 border-blue-500"
-                            maxLength={30}
-                            required
-                        />
-                    </div>
-
-                    <div>
                         <label className="block mb-1">Nombre del responsable</label>
                         <input
                             type="text"
@@ -204,7 +189,7 @@ export default function SponsorFormPage() {
                             value={formData.responsibleName}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-md border-2 border-blue-500"
-                            maxLength={30}
+                            maxLength={100}
                             required
                         />
                     </div>
@@ -217,7 +202,7 @@ export default function SponsorFormPage() {
                             value={formData.email}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-md border-2 border-blue-500"
-                            maxLength={30}
+                            maxLength={100}
                             required
                         />
                     </div>
@@ -229,12 +214,12 @@ export default function SponsorFormPage() {
                             value={formData.reason}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-md border-2 border-blue-500 min-h-[100px] resize-y"
-                            maxLength={200}
+                            maxLength={255}
                             required
                             placeholder="Escribe aquí tu razón para ser auspiciante..."
                         />
                         <div className="text-sm text-gray-500 text-right">
-                            {formData.reason.length}/200 caracteres
+                            {formData.reason.length}/255 caracteres
                         </div>
                     </div>
 
