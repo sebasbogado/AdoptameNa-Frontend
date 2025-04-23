@@ -65,3 +65,16 @@ export const getUserProfiles = async (queryParams?: any) => {
     throw new Error(error.message || "Error al obtener los perfiles");
   }
 };
+
+export const getFullUser = async (id: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}/fullUser`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.message || "Error al obtener el perfil");
+  }
+}
