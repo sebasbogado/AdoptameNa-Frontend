@@ -41,7 +41,10 @@ const PostPage = () => {
     }, []);
 
     useEffect(() => {
-        const idStatus = pet?.petStatus.id
+        if (!pet || !pet.petStatus?.id) {
+            return;
+        }
+        const idStatus = pet.petStatus.id;
         const fetchPets = async () => {
             const pets = await getPets({
                 size: 5,
