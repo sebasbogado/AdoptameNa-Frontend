@@ -1,8 +1,9 @@
 import axios from "axios";
 import { PetStatus } from "@/types/pet-status";
+import { queryParams } from "@/types/pagination";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pet-status`;
 
-export const getPetStatuses = async (queryParams?: any) => {
+export const getPetStatus = async (queryParams?: queryParams) => {
   try {
     const response = await axios.get(API_URL, {
       params: queryParams,
