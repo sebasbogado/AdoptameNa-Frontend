@@ -38,9 +38,8 @@ export const updateUserProfile = async (
   token: string
 ) => {
   try {
-    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/${id}/profile`;
 
-    const response = await axios.put(API_URL, updatedProfile, {
+    const response = await axios.put(`${API_URL}/${id}/profile`, updatedProfile, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
