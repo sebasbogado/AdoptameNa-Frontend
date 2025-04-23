@@ -45,7 +45,7 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-8">
+                <td colSpan={9} className="text-center py-8">
                   <div className="flex justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
                   </div>
