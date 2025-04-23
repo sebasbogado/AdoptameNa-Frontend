@@ -13,6 +13,7 @@ import BannerCard from './banner-card';
 import Pagination from '../pagination';
 import { useAuth } from '@/contexts/auth-context';
 import Loading from '@/app/loading';
+import { ConfirmationModal } from '@/components/form/modal';
 
 export default function BannerList() {
     const { authToken, loading: userloading } = useAuth();
@@ -25,6 +26,8 @@ export default function BannerList() {
         color: "green" | "red" | "blue";
         message: string;
     } | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
 
     useEffect(() => {
         if (alertInfo?.open) {
@@ -136,10 +139,15 @@ export default function BannerList() {
     };
 
     const handleDelete = async (id: number) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este banner?')) return;
+        setSelectedBannerId(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedBannerId) return;
 
         try {
-            await deleteBanner(id, authToken);
+            await deleteBanner(selectedBannerId, authToken);
             setAlertInfo({
                 open: true,
                 color: "green",
@@ -153,6 +161,9 @@ export default function BannerList() {
                 color: "red",
                 message: "Error al eliminar el banner. Por favor, inténtalo de nuevo."
             });
+        } finally {
+            setIsDeleteModalOpen(false);
+            setSelectedBannerId(null);
         }
     };
 
@@ -232,6 +243,16 @@ export default function BannerList() {
                     </div>
                 </div>
             )}
+
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Eliminar Banner"
+                message="¿Estás seguro de que quieres eliminar este banner?"
+                textConfirm="Eliminar"
+                confirmVariant="danger"
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

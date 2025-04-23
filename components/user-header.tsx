@@ -26,7 +26,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content
-            className="min-w-[220px] bg-white rounded-md p-2 shadow-md"
+            className="min-w-[220px] bg-white rounded-md p-2 shadow-md z-50"
             sideOffset={5}
           >
             {/* User info section */}

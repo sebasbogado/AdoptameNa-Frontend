@@ -174,7 +174,8 @@ export default function Page() {
                     mediaIds: [],
                     tagsIds: [],
                 });
-                //setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
+                
+                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
                 setTimeout(() => router.push(`/posts/${response.id}`), 3500);
             } else {
@@ -204,6 +205,12 @@ export default function Page() {
 
             if (!authToken) {
                 throw new Error("El token de autenticación es requerido");
+            }
+
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            if (!allowedTypes.includes(file.type)) {
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+                return;
             }
 
             // Verifica la cantidad de imagens que se pueden subir
@@ -269,7 +276,7 @@ export default function Page() {
                 ))}
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/webp"
                     multiple
                     className="hidden"
                     id="fileInput"
