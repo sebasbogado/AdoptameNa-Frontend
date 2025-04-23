@@ -1,26 +1,26 @@
 "use client";
+import { UserProfile } from "@/types/user-profile";
 import { Loader2, Trash2, UserCircle } from "lucide-react";
 import Link from "next/link";
 
-interface UserList {
-  id: number;
-  fullName: string;
-  email: string;
-  creationDate: string;
-  role?: string;
-  address?: string | null;
-  phoneNumber?: string | null;
-  earnedPoints?: number;
-}
-
 interface Props {
   title: string;
-  data: UserList[];
+  data: UserProfile[];
   onDelete: (id: number) => void;
   loading?: boolean;
 }
 
 export default function UserTable({ title, data, onDelete, loading = false }: Props) {
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-1">
@@ -38,6 +38,7 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
               <th className="border px-3 py-2 text-left">Dirección</th>
               <th className="border px-3 py-2 text-left">Puntos</th>
               <th className="border px-3 py-2 text-left">Fecha de Nacimiento</th>
+              <th className="border px-3 py-2 text-left">Fecha de Registro</th>
               <th className="border px-3 py-2 text-center">Acciones</th>
             </tr>
           </thead>
@@ -63,7 +64,8 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
                   <td className="border px-3 py-2">{user.phoneNumber || "-"}</td>
                   <td className="border px-3 py-2">{user.address || "-"}</td>
                   <td className="border px-3 py-2">{user.earnedPoints !== undefined ? user.earnedPoints : "-"}</td>
-                  <td className="border px-3 py-2">{user.creationDate}</td>
+                  <td className="border px-3 py-2">{formatDate(user.birthdate || "")}</td>
+                  <td className="border px-3 py-2">{formatDate(user.creationDate)}</td>
                   <td className="border px-3 py-2">
                     <div className="flex items-center justify-center space-x-2">
                       <Link
