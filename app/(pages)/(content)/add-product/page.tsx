@@ -151,7 +151,7 @@ export default function Page() {
       animalsId: selectedAnimalsIds,
       mediaIds: formData.mediaIds ? formData.mediaIds : [],
       contactNumber: formData.contactNumber,
-      userId: parseInt(user?.id.toString()),
+      userId: parseInt(user?.id.toString(), 10),
       locationCoordinates: position?.join(",") || ""
     };
     try {
