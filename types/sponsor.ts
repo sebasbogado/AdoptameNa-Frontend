@@ -1,6 +1,8 @@
 export type Sponsor = {
   id: number;
   idUser: number;
+  organizationName: string;
+  fullName: string;
   reason: string;
   contact: string;
   logoId: number | null; // Hacer opcional/nullable

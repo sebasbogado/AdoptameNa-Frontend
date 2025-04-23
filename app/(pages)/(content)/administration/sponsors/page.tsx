@@ -6,8 +6,6 @@ import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X } from 'lucide-react';
 import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
 import { getMediaById } from '@/utils/media.http';
-import { getUser } from '@/utils/user-client';
-import { getUserProfile } from '@/utils/user-profile-client';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
 import { PaginatedResponse, Pagination } from '@/types/pagination';
@@ -17,8 +15,6 @@ import { ConfirmationModal } from "@/components/form/modal";
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
-    username?: string;
-    userFullName?: string;
 }
 
 type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
@@ -43,8 +39,6 @@ export default function AdminSponsorsPage() {
             const applicationsData: SponsorApplication[] = await Promise.all(
                 response.data.map(async (sponsor) => {
                     let logoUrl: string | undefined = undefined;
-                    let username: string | undefined = undefined;
-                    let userFullName: string | undefined = undefined;
 
                     if (sponsor.logoId && authToken) {
                         try {
@@ -59,28 +53,23 @@ export default function AdminSponsorsPage() {
                         }
                     }
 
-                    if (sponsor.idUser && authToken) {
-                        try {
-                            const userData = await getUser(sponsor.idUser.toString());
-                            username = userData.username;
-                            const userProfile = await getUserProfile(sponsor.idUser.toString());
-                            userFullName = userProfile.fullName;
-                        } catch (userError) {
-                            console.error(`Error fetching user data for ID ${sponsor.idUser}:`, userError);
-                        }
-                    }
-
-                    return { ...sponsor, logoUrl, username, userFullName };
+                    return { ...sponsor, logoUrl };
                 })
             );
-            
-            setApplications(applicationsData);
-            setPagination(response.pagination);
 
+            setApplications(applicationsData);
+            setPagination(prev => ({
+                ...prev,
+                totalPages: response.pagination.totalPages,
+                currentPage: response.pagination.page
+            }));
         } catch (error) {
-            console.error("Error fetching sponsor applications:", error);
-            const errorMessage = error instanceof Error ? error.message : "Error al cargar las solicitudes.";
-            setAlertInfo({ open: true, color: "red", message: errorMessage });
+            console.error('Error fetching sponsor applications:', error);
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Error al cargar las solicitudes de auspicio"
+            });
         } finally {
             setLoading(false);
         }
@@ -277,11 +266,11 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                         }}
                     />
                 ) : (
-                     <span className="logo-placeholder text-gray-400 text-sm italic">{application.logoId ? 'Cargando logo...' : 'Sin logo'}</span>
+                    <span className="logo-placeholder text-gray-400 text-sm italic">{application.logoId ? 'Cargando logo...' : 'Sin logo'}</span>
                 )}
             </div>
             <div className="p-4 flex-grow">
-                <h3 className="text-lg font-semibold mb-1">{application.userFullName || 'No disponible'}</h3>
+                <h3 className="text-lg font-semibold mb-1">{application.organizationName || application.fullName}</h3>
                 <p className="text-sm text-gray-600 mb-2">
                     <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
                 </p>

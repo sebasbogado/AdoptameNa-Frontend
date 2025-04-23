@@ -120,7 +120,9 @@ export const approveSponsorRequest = async (
         },
       }
     );
+    console.log(response.data);
     return response.data; // Devuelve el sponsor actualizado/aprobado
+    
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status;
