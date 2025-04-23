@@ -298,7 +298,7 @@ export default function ProfilePage() {
                     />
 
                     {/* Action Buttons */}
-                    <div className=" relative md:top-[-20rem]  lg:top-[-25rem] mr-16  flex justify-end gap-2 items-center ">
+                    <div className="relative top-[-25vh] right-5 mr-10 mt-4 z-50 flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
                         <EditButton
                             size="lg"
                             isEditing={isEditing}
@@ -317,7 +317,8 @@ export default function ProfilePage() {
 
                         )}
                     </div>
-                    <div className='w-[40vw] mt-[-70px] '>
+
+                    <div className='w-[40vw] mt-[-30px] '>
                         <PostLocationMap location={userProfile?.addressCoordinates ?? undefined} />
 
                     </div>
