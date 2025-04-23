@@ -20,46 +20,24 @@ export default function SponsorsCarousel({
 
   useEffect(() => {
     const carousel = carouselRef.current;
-    if (!carousel || images.length === 0) return;
+    if (!carousel) return;
 
-    const checkScroll = () => {
-      if (carousel.scrollWidth <= carousel.clientWidth) {
-        carousel.scrollTo({ left: 0, behavior: 'auto' });
-        return null;
+    let scrollAmount = 0;
+
+    const scrollInterval = setInterval(() => {
+      if (carousel.scrollWidth - carousel.clientWidth <= scrollAmount) {
+        scrollAmount = 0;
+      } else {
+        scrollAmount += scrollStep;
       }
+      carousel.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth',
+      });
+    }, delay);
 
-      let scrollAmount = carousel.scrollLeft;
-
-      const intervalId = setInterval(() => {
-        if (carousel.scrollWidth <= carousel.clientWidth) {
-           clearInterval(intervalId);
-           carousel.scrollTo({ left: 0, behavior: 'auto' });
-           return;
-        }
-        
-        if (carousel.scrollWidth - carousel.clientWidth <= scrollAmount) {
-          scrollAmount = 0;
-        } else {
-          scrollAmount += scrollStep;
-          scrollAmount = Math.min(scrollAmount, carousel.scrollWidth - carousel.clientWidth);
-        }
-        carousel.scrollTo({
-          left: scrollAmount,
-          behavior: 'smooth',
-        });
-      }, delay);
-
-      return intervalId;
-    };
-
-    let scrollInterval = checkScroll();
-
-    return () => {
-      if (scrollInterval) {
-        clearInterval(scrollInterval);
-      }
-    };
-  }, [images, scrollStep, delay]);
+    return () => clearInterval(scrollInterval);
+  }, [scrollStep, delay]);
 
   return (
     <div
@@ -74,7 +52,7 @@ export default function SponsorsCarousel({
       {images.map((image) => (
         <div
           key={image.id}
-          className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/4 aspect-[2/1] max-h-24 snap-start relative px-4"
+          className="flex-shrink-0 w-1/2 sm:w-1/3 md:w-1/4 aspect-[2/1] snap-start relative"
         >
           <Image
             src={image.url}

@@ -27,9 +27,10 @@ export const getUserProfile = async (id: string) => {
   }
 };
 
+
 export const updateUserProfile = async (
   id: string,
-  updatedProfile: UpdateUserProfile | null,
+  updatedProfile: UpdateUserProfile | null, // Usamos la interfaz para el perfil
   token: string
 ) => {
   try {
@@ -64,4 +65,4 @@ export const getUserProfiles = async (queryParams?: any) => {
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener los perfiles");
   }
-};
+}
