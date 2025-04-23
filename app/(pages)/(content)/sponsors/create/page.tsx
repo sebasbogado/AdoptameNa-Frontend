@@ -142,7 +142,7 @@ export default function SponsorFormPage() {
             const sponsorData = {
                 contact: formData.email,
                 reason: formData.reason,
-                logoId: formData.logoId!,
+                logoId: formData.logoId!
             };
 
             await createSponsor(authToken, sponsorData);
@@ -217,7 +217,7 @@ export default function SponsorFormPage() {
                             value={formData.email}
                             onChange={handleInputChange}
                             className="w-full p-2 rounded-md border-2 border-blue-500"
-                            maxLength={30}
+                            maxLength={50}
                             required
                         />
                     </div>

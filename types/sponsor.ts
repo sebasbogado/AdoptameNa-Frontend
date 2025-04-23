@@ -1,11 +1,5 @@
 export type Sponsor = {
   id: number;
-  // Campos existentes (pueden venir de otra llamada o estar obsoletos?)
-  // organizationName: string;
-  // logoUrl: string; 
-  // bannerUrl: string;
-  
-  // Campos de la respuesta de getAllSponsors
   idUser: number;
   reason: string;
   contact: string;
@@ -18,6 +12,13 @@ export type Sponsor = {
 export type ActiveSponsor = {
   id: number;
   logoUrl: string;
+};
 
+// Tipo para la creación de sponsors
+export type CreateSponsorRequest = {
+  contact: string;
+  reason: string;
+  logoId: number;
+  bannerId?: number;
 };
 

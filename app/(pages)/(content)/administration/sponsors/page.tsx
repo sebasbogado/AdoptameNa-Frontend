@@ -5,17 +5,20 @@ import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X } from 'lucide-react';
 import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
-import { getMediaById } from '@/utils/media.http'; // Importar la nueva función
+import { getMediaById } from '@/utils/media.http';
+import { getUser } from '@/utils/user-client';
+import { getUserProfile } from '@/utils/user-profile-client';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
 import { PaginatedResponse, Pagination } from '@/types/pagination';
 import { Sponsor } from '@/types/sponsor';
 import Button from "@/components/buttons/button";
-import { ConfirmationModal } from "@/components/form/modal"; // Importar ConfirmationModal
-
+import { ConfirmationModal } from "@/components/form/modal";
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
+    username?: string;
+    userFullName?: string;
 }
 
 type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
@@ -40,21 +43,34 @@ export default function AdminSponsorsPage() {
             const applicationsData: SponsorApplication[] = await Promise.all(
                 response.data.map(async (sponsor) => {
                     let logoUrl: string | undefined = undefined;
+                    let username: string | undefined = undefined;
+                    let userFullName: string | undefined = undefined;
+
                     if (sponsor.logoId && authToken) {
                         try {
-                           
                             const mediaData = await getMediaById(sponsor.logoId, authToken);
                             if (mediaData && mediaData.url) {
                                 logoUrl = mediaData.url;
                             }
                         } catch (logoError) {
-                        
-                             if (!(logoError instanceof Error && logoError.message === "Medio no encontrado.")) {
+                            if (!(logoError instanceof Error && logoError.message === "Medio no encontrado.")) {
                                 console.error(`Error fetching logo URL for ID ${sponsor.logoId}:`, logoError);
                             }
                         }
                     }
-                    return { ...sponsor, logoUrl };
+
+                    if (sponsor.idUser && authToken) {
+                        try {
+                            const userData = await getUser(sponsor.idUser.toString());
+                            username = userData.username;
+                            const userProfile = await getUserProfile(sponsor.idUser.toString());
+                            userFullName = userProfile.fullName;
+                        } catch (userError) {
+                            console.error(`Error fetching user data for ID ${sponsor.idUser}:`, userError);
+                        }
+                    }
+
+                    return { ...sponsor, logoUrl, username, userFullName };
                 })
             );
             
@@ -265,7 +281,7 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                 )}
             </div>
             <div className="p-4 flex-grow">
-                <h3 className="text-lg font-semibold mb-1">Solicitud #{application.id}</h3>
+                <h3 className="text-lg font-semibold mb-1">{application.userFullName || 'No disponible'}</h3>
                 <p className="text-sm text-gray-600 mb-2">
                     <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
                 </p>
@@ -273,9 +289,6 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                 <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
                     {application.reason || 'No especificada'}
                 </p>
-                <div className="text-xs text-gray-500 mt-2">
-                    {application.bannerId && <span className="ml-2">Banner ID: {application.bannerId}</span>}
-                </div>
             </div>
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
                 {!application.isActive ? (

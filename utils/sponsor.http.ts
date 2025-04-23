@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "@/types/pagination";
-import { Sponsor, ActiveSponsor } from "@/types/sponsor";
+import { Sponsor, ActiveSponsor, CreateSponsorRequest } from "@/types/sponsor";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/sponsors`;
@@ -41,13 +41,8 @@ export const getAllSponsors = async (
 
 export const createSponsor = async (
   token: string,
-  sponsorData: {
-    reason: string;
-    contact: string;
-    logoId: number;
-    bannerId?: number; 
-  }
-) => {
+  sponsorData: CreateSponsorRequest
+): Promise<Sponsor> => {
   try {
     const response = await axios.post(`${API_URL}`, sponsorData, {
       headers: {
@@ -57,6 +52,17 @@ export const createSponsor = async (
     });
     return response.data;
   } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message || error.message;
+      if (status === 401) {
+        throw new Error("No autorizado para crear el sponsor.");
+      }
+      if (status === 400) {
+        throw new Error("Datos de sponsor inválidos.");
+      }
+      throw new Error(`Error ${status}: ${message}`);
+    }
     throw new Error(error.message || "Error al crear patrocinador");
   }
 };
