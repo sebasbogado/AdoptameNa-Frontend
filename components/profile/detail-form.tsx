@@ -21,9 +21,11 @@ interface InputProps {
   fundraisingTitle?: string;
   isFundraisingActive?: boolean;
   handleStartFundraising?: () => void;
+  handleUpdateFundraising?: () => void;
+  handleFinishFundraising?: () => void;
 }
 
-export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, fundraisingTitle, donatedAmount, goalAmount, isFundraisingActive, handleStartFundraising }: InputProps) => {
+export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, fundraisingTitle, donatedAmount, goalAmount, isFundraisingActive, handleStartFundraising, handleUpdateFundraising, handleFinishFundraising }: InputProps) => {
   const handleInputChange = (field: string, value: string) => {
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -119,7 +121,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             <div className="flex justify-end">
               <button
                 onClick={handleStartFundraising}
-                className="bg-[#4781ff] hover:bg-[#222222] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg hover:scale-105"
+                className="bg-[#4781ff] hover:bg-[#4781ff] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg"
               >
                 Iniciar colecta
               </button>
@@ -138,7 +140,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             {/* Barra de Progreso */}
             <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
               <div
-                className="bg-yellow-400 h-4 rounded-full"
+                className="bg-[#F2AA0F] h-4 rounded-full"
                 style={{
                   width: goalAmount
                     ? `${Math.min(100, (donatedAmount! / goalAmount) * 100)}%`
@@ -159,12 +161,14 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                   <button
                     type="button"
                     className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                    onClick={handleFinishFundraising}
                   >
                     Finalizar
                   </button>
                   <button
                     type="button"
-                    className="bg-yellow-400 hover:bg-yellow-500 text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                    className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                    onClick={handleUpdateFundraising}
                   >
                     Actualizar
                   </button>
@@ -184,7 +188,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             {/* Barra de Progreso */}
             <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
               <div
-                className="bg-yellow-400 h-4 rounded-full"
+                className="bg-[#F2AA0F] h-4 rounded-full"
                 style={{
                   width: goalAmount
                     ? `${Math.min(100, (donatedAmount! / goalAmount) * 100)}%`
@@ -202,7 +206,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               {/* Botones visibles solo para el Visitante */}
               {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
                 <div className="flex gap-4">
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                  <button className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
                     Donar
                   </button>
                 </div>

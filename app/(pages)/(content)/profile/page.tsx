@@ -146,6 +146,16 @@ export default function ProfilePage() {
         // por ejemplo, setFundraisingData({...}) 
     };
 
+    // Función para finalizar la recaudación
+    const handleFinishFundraising = () => {
+        setIsFundraisingActive(false);
+    };
+
+    // Función para actualizar la recaudación
+    const handleUpdateFundraising = () => {
+        setIsFundraisingActive(false);
+    };
+
 
     const handleEditButtonClick = () => {
 
@@ -282,10 +292,13 @@ export default function ProfilePage() {
                         goalAmount={17000000}
                         isFundraisingActive={isFundraisingActive}
                         handleStartFundraising={handleStartFundraising}
+                        handleUpdateFundraising={handleUpdateFundraising}
+                        handleFinishFundraising={handleFinishFundraising}
+
                     />
 
                     {/* Action Buttons */}
-                    <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
+                    <div className=" relative md:top-[-20rem]  lg:top-[-25rem] mr-16  flex justify-end gap-2 items-center ">
                         <EditButton
                             size="lg"
                             isEditing={isEditing}
