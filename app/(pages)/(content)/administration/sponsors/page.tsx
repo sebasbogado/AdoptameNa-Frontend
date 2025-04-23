@@ -26,7 +26,9 @@ export default function AdminSponsorsPage() {
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const [loading, setLoading] = useState(true);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
+    const [sponsorToApproveId, setSponsorToApproveId] = useState<number | null>(null);
     const { authToken } = useAuth();
 
     const {
@@ -82,20 +84,34 @@ export default function AdminSponsorsPage() {
         }
     }, [alertInfo]);
 
-    const handleApprove = async (applicationId: number) => {
-        if (!authToken) return;
+    const handleApprove = (applicationId: number) => {
+        setSponsorToApproveId(applicationId);
+        setIsApproveModalOpen(true);
+    };
+
+    const confirmApprove = async () => {
+        if (!authToken || sponsorToApproveId === null) return;
+        
         try {
-            await approveSponsorRequest(authToken, applicationId);
+            await approveSponsorRequest(authToken, sponsorToApproveId);
             setApplications(prev => prev.map(app => 
-                app.id === applicationId ? { ...app, isActive: true } : app
+                app.id === sponsorToApproveId ? { ...app, isActive: true } : app
             ));
             setAlertInfo({ open: true, color: "green", message: `Solicitud aprobada.` });
         } catch (error) {
             console.error("Error approving application:", error);
             const errorMessage = error instanceof Error ? error.message : "Error al aprobar.";
             setAlertInfo({ open: true, color: "red", message: errorMessage });
+        } finally {
+            setIsApproveModalOpen(false);
+            setSponsorToApproveId(null);
         }
     };
+
+    const closeApproveModal = () => {
+        setIsApproveModalOpen(false);
+        setSponsorToApproveId(null);
+    }
 
     const handleReject = (applicationId: number) => {
         setSponsorToDeleteId(applicationId);
@@ -194,6 +210,16 @@ export default function AdminSponsorsPage() {
                 confirmVariant="danger"
                 onClose={closeModal}
                 onConfirm={confirmReject}
+            />
+
+            <ConfirmationModal
+                isOpen={isApproveModalOpen}
+                title="Confirmar Aprobación"
+                message="¿Estás seguro de que deseas aprobar esta solicitud de auspicio?"
+                textConfirm="Aprobar"
+                confirmVariant="cta"
+                onClose={closeApproveModal}
+                onConfirm={confirmApprove}
             />
         </div>
     );
