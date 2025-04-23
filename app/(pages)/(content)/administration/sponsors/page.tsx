@@ -15,6 +15,7 @@ import { ConfirmationModal } from "@/components/form/modal";
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
+    hasLogoError?: boolean;
 }
 
 type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
@@ -26,8 +27,8 @@ export default function AdminSponsorsPage() {
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState<Pagination>({ page: 0, size: 10, totalPages: 0, totalElements: 0, last: false });
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false); // Estado para el modal
-    const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null); // Estado para ID a eliminar
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const { authToken } = useAuth();
 
     const fetchSponsorApplications = useCallback(async (page = 0) => {
@@ -53,7 +54,7 @@ export default function AdminSponsorsPage() {
                         }
                     }
 
-                    return { ...sponsor, logoUrl };
+                    return { ...sponsor, logoUrl, hasLogoError: false };
                 })
             );
 
@@ -61,7 +62,7 @@ export default function AdminSponsorsPage() {
             setPagination(prev => ({
                 ...prev,
                 totalPages: response.pagination.totalPages,
-                currentPage: response.pagination.page
+                page: response.pagination.page
             }));
         } catch (error) {
             console.error('Error fetching sponsor applications:', error);
@@ -143,7 +144,7 @@ export default function AdminSponsorsPage() {
             fetchSponsorApplications(newPage);
         }
     };
-    
+
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-2">Solicitudes de Auspicio</h1>
@@ -243,30 +244,28 @@ interface SponsorCardProps {
 }
 
 function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
+    const [hasLogoError, setHasLogoError] = useState(false);
+
+    const handleLogoError = () => {
+        setHasLogoError(true);
+    };
+
     return (
         <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
             <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
-                {application.logoUrl ? (
+                {application.logoUrl && !hasLogoError ? (
                     <Image
                         src={application.logoUrl}
                         alt={`Logo Solicitud ${application.id}`}
                         fill
                         className="object-contain p-4"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        onError={(e) => { 
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none'; 
-                            const parent = target.parentElement;
-                            if (parent && !parent.querySelector('.logo-placeholder')) {
-                                const placeholder = document.createElement('span');
-                                placeholder.className = 'logo-placeholder text-gray-400 text-sm italic';
-                                placeholder.textContent = application.logoId ? 'Error al cargar logo' : 'Sin logo';
-                                parent.appendChild(placeholder);
-                            }
-                        }}
+                        onError={handleLogoError}
                     />
                 ) : (
-                    <span className="logo-placeholder text-gray-400 text-sm italic">{application.logoId ? 'Cargando logo...' : 'Sin logo'}</span>
+                    <span className="logo-placeholder text-gray-400 text-sm italic">
+                        {application.logoId ? 'Error al cargar logo' : 'Sin logo'}
+                    </span>
                 )}
             </div>
             <div className="p-4 flex-grow">
