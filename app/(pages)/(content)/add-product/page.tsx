@@ -355,6 +355,8 @@ export default function Page() {
           }}
           placeholder="Seleccionar animales"
         />
+        {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
+
 
         <label className="block text-sm font-medium">Estado</label>
         <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
@@ -376,7 +378,7 @@ export default function Page() {
         <label className="text-sm font-medium">Contacto</label>
         <input
           {...register("contactNumber")}
-          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
+          className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
           onKeyDown={(e) => {
             if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
               e.preventDefault();
