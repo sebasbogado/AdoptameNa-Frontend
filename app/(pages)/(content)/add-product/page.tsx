@@ -112,7 +112,7 @@ export default function Page() {
       const fetchUserData = async () => {
         if (!user?.id) return;
         try {
-          const response = await getFullUser(user?.id as string);
+          const response = await getFullUser(user?.id.toString());
           let userPhone = response.phoneNumber;
           if (userPhone) {
             setValue("contactNumber", userPhone);
@@ -126,7 +126,7 @@ export default function Page() {
   }, [authToken, authLoading, router, user?.id]);
 
   const handleCancel = () => {
-    router.push("/dashboard");
+    router.push("/marketplace");
   }
 
   const handlePositionChange = (newPosition: [number, number]) => {
@@ -151,7 +151,7 @@ export default function Page() {
       animalsId: selectedAnimalsIds,
       mediaIds: formData.mediaIds ? formData.mediaIds : [],
       contactNumber: formData.contactNumber,
-      userId: parseInt(user?.id as string, 10),
+      userId: parseInt(user?.id.toString()),
       locationCoordinates: position?.join(",") || ""
     };
     try {
