@@ -5,17 +5,16 @@ import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X } from 'lucide-react';
 import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
-import { getMediaById } from '@/utils/media.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
-import { PaginatedResponse, Pagination } from '@/types/pagination';
+import { PaginatedResponse } from '@/types/pagination';
 import { Sponsor } from '@/types/sponsor';
-import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
+import Pagination from '@/components/pagination';
+import { usePagination } from '@/hooks/use-pagination';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
-    hasLogoError?: boolean;
 }
 
 type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
@@ -26,44 +25,30 @@ export default function AdminSponsorsPage() {
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('Todos');
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState<Pagination>({ page: 0, size: 10, totalPages: 0, totalElements: 0, last: false });
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const { authToken } = useAuth();
 
-    const fetchSponsorApplications = useCallback(async (page = 0) => {
+    const {
+        currentPage,
+        totalPages,
+        handlePageChange,
+        updateFilters
+    } = usePagination<Sponsor>({
+        fetchFunction: async (page, size) => {
+            if (!authToken) throw new Error("No autorizado");
+            return await getAllSponsors(authToken, page, size);
+        },
+        initialPage: 1,
+        initialPageSize: 10
+    });
+
+    const fetchSponsorApplications = async () => {
         if (!authToken) return;
         setLoading(true);
         try {
-            const response: PaginatedResponse<Sponsor> = await getAllSponsors(authToken, page, pagination.size);
-            
-            const applicationsData: SponsorApplication[] = await Promise.all(
-                response.data.map(async (sponsor) => {
-                    let logoUrl: string | undefined = undefined;
-
-                    if (sponsor.logoId && authToken) {
-                        try {
-                            const mediaData = await getMediaById(sponsor.logoId, authToken);
-                            if (mediaData && mediaData.url) {
-                                logoUrl = mediaData.url;
-                            }
-                        } catch (logoError) {
-                            if (!(logoError instanceof Error && logoError.message === "Medio no encontrado.")) {
-                                console.error(`Error fetching logo URL for ID ${sponsor.logoId}:`, logoError);
-                            }
-                        }
-                    }
-
-                    return { ...sponsor, logoUrl, hasLogoError: false };
-                })
-            );
-
-            setApplications(applicationsData);
-            setPagination(prev => ({
-                ...prev,
-                totalPages: response.pagination.totalPages,
-                page: response.pagination.page
-            }));
+            const response: PaginatedResponse<Sponsor> = await getAllSponsors(authToken, currentPage - 1, 10);
+            setApplications(response.data);
         } catch (error) {
             console.error('Error fetching sponsor applications:', error);
             setAlertInfo({
@@ -74,11 +59,11 @@ export default function AdminSponsorsPage() {
         } finally {
             setLoading(false);
         }
-    }, [authToken, pagination.size]);
+    };
 
     useEffect(() => {
-        fetchSponsorApplications(pagination.page);
-    }, [authToken, pagination.page, fetchSponsorApplications]);
+        fetchSponsorApplications();
+    }, [authToken, currentPage]);
 
     useEffect(() => {
         let filtered = applications;
@@ -139,12 +124,6 @@ export default function AdminSponsorsPage() {
         setSponsorToDeleteId(null);
     }
 
-    const goToPage = (newPage: number) => {
-        if (newPage >= 0 && newPage < pagination.totalPages) {
-            fetchSponsorApplications(newPage);
-        }
-    };
-
     return (
         <div className="container mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-2">Solicitudes de Auspicio</h1>
@@ -198,29 +177,12 @@ export default function AdminSponsorsPage() {
                         <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {filterStatus !== 'Todos' ? `en estado ${filterStatus.toLowerCase()}` : ''}.</p>
                     )}
 
-                    {pagination.totalPages > 1 && (
-                        <div className="flex justify-center items-center mt-8 space-x-2">
-                            <Button
-                                variant="secondary" 
-                                size="sm"
-                                onClick={() => goToPage(pagination.page - 1)}
-                                disabled={pagination.page === 0}
-                            >
-                                Anterior
-                            </Button>
-                            <span className="text-sm text-gray-700">
-                                Página {pagination.page + 1} de {pagination.totalPages}
-                            </span>
-                            <Button
-                                variant="secondary" 
-                                size="sm"
-                                onClick={() => goToPage(pagination.page + 1)}
-                                disabled={pagination.page >= pagination.totalPages - 1}
-                            >
-                                Siguiente
-                            </Button>
-                        </div>
-                    )}
+                    <Pagination
+                        totalPages={totalPages}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                        size="md"
+                    />
                 </>
             )}
 
