@@ -1,27 +1,21 @@
 'use client'
 
 import Loading from "@/app/loading";
-import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
 import ProductCard from "@/components/product-Card/product-card";
 import { usePagination } from "@/hooks/use-pagination";
-import { Post } from "@/types/post";
 import { Product } from "@/types/product";
 import { ProductCategory } from "@/types/product-category";
-import { getPosts } from '@/utils/posts.http';
 import { getProductCategories } from "@/utils/product-category.http";
 import { getProducts } from "@/utils/products.http";
 import { useEffect, useMemo, useState } from "react";
 import { X } from 'lucide-react';
-import RangeSlider from "@/components/range-slider/range-slider";
 import { getAnimals } from "@/utils/animals.http";
 import LabeledInput from "@/components/inputs/labeled-input";
+import Link from "next/link";
 
 export default function Page() {
-
-    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
-
     const [pageSize, setPageSize] = useState<number>();
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -31,14 +25,9 @@ export default function Page() {
     const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [allPrices, setAllPrices] = useState<number[]>([]);
 
-    //const [minVal, setMinVal] = useState<number | null>(null);
-    //const [maxVal, setMaxVal] = useState<number| null>(null);
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [priceError, setPriceError] = useState<string | null>(null);
-
-    //const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
-    //const [isPriceRangeInitialized, setIsPriceRangeInitialized] = useState(false);
 
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
     const [availableAnimals, setAvailableAnimals] = useState<{ id: number; name: string }[]>([]);
@@ -46,30 +35,26 @@ export default function Page() {
     const selectedAnimalId = useMemo(() => {
         const found = availableAnimals.find(a => a.name === selectedAnimal);
         return found ? found.id : null;
-      }, [selectedAnimal, availableAnimals]);
-
+    }, [selectedAnimal, availableAnimals]);
 
     const cleanFilters = (filters: Record<string, any>) => {
         return Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
+            Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
         );
-      };
+    };
 
     useEffect(() => {
         const fetchPrices = async () => {
             try {
-                const response = await getProducts({}); 
-                //const prices = [...new Set(response.data.map(p => p.price))].sort((a, b) => a - b);
-                //setAllPrices(prices);
+                const response = await getProducts({});
                 setPageSize(response.pagination.size)
             } catch (error) {
                 console.error("Error al obtener los precios:", error);
             }
         };
-    
+
         fetchPrices();
     }, []);
-
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -87,26 +72,15 @@ export default function Page() {
     useEffect(() => {
         const fetchAnimals = async () => {
             try {
-                const response = await getAnimals(); 
+                const response = await getAnimals();
                 setAvailableAnimals(response.data);
             } catch (error) {
                 console.error("Error al obtener animales:", error);
             }
         };
-    
+
         fetchAnimals();
     }, []);
-   {/**  
-    useEffect(() => {
-        if (allPrices.length > 0 && priceRange[0] === 0 && priceRange[1] === 0) {
-          const min = allPrices[0];
-          const max = allPrices[allPrices.length - 1];
-          setMinVal(min);
-          setMaxVal(max);
-          setPriceRange([min, max]);
-          setIsPriceRangeInitialized(true);
-        }
-      }, [allPrices, priceRange]);*/}
 
     useEffect(() => {
         if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
@@ -131,7 +105,7 @@ export default function Page() {
         currentPage,
         totalPages,
         handlePageChange,
-        updateFilters, // Usar para actualizar filtros
+        updateFilters,
     } = usePagination<Product>({
         fetchFunction: (page, size, filters) =>
             getProducts({
@@ -142,26 +116,24 @@ export default function Page() {
                 condition: filters?.condition || undefined,
                 price: filters?.price || undefined,
                 minPrice: filters?.minPrice || undefined,
-                maxPrice: filters?.maxPrice|| undefined,
+                maxPrice: filters?.maxPrice || undefined,
                 animalIds: selectedAnimalId ? selectedAnimalId : undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
 
-
     const cleanedFilters = useMemo(() => {
         return cleanFilters({
-          categoryId: selectedCategoryId,
-          condition: selectedCondition === "Todos" ? null : selectedCondition,
-          minPrice,
-          maxPrice,
-          animalIds: selectedAnimalId ? [selectedAnimalId] : null,
+            categoryId: selectedCategoryId,
+            condition: selectedCondition === "Todos" ? null : selectedCondition,
+            minPrice,
+            maxPrice,
+            animalIds: selectedAnimalId ? [selectedAnimalId] : null,
         });
-      }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
+    }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
 
     useEffect(() => {
-        
         if (priceError) return;
 
         updateFilters(cleanedFilters);
@@ -173,16 +145,13 @@ export default function Page() {
         setSelectedAnimal(null);
         setMinPrice(null);
         setMaxPrice(null);
-        //setMinVal(allPrices[0]); 
-        //setMaxVal(allPrices[allPrices.length - 1]);
-        updateFilters({}); // limpia los filtros aplicados
+        updateFilters({});
     };
 
     if (!pageSize) return <Loading />;
 
     return (
         <div className="flex flex-col gap-5">
-            <Banners images={bannerImages} />
             <div className="w-full max-w-7xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <LabeledSelect
@@ -206,40 +175,19 @@ export default function Page() {
                         setSelected={setSelectedAnimal}
                     />
 
-                    <LabeledInput 
+                    <LabeledInput
                         label="Precio minimo"
                         placeholder="0"
                         value={minPrice ?? null}
-                        onChange={setMinPrice} 
-                        
+                        onChange={setMinPrice}
                     />
 
-                    <LabeledInput 
+                    <LabeledInput
                         label="Precio maximo"
                         placeholder="0"
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
-                        
                     />
-
-
-                    {/** 
-                    <RangeSlider
-                        min={allPrices[0] ?? 0}
-                        max={allPrices[allPrices.length - 1]}
-                        step={1000}
-                        value={priceRange}
-                        onChange={(range) => {
-                            if (range[0] !== priceRange[0] || range[1] !== priceRange[1]) {
-                                setPriceRange(range);  // Actualiza el rango
-                                setMinVal(range[0]);   // Actualiza minVal
-                                setMaxVal(range[1]);   // Actualiza maxVal
-                                setMinPrice(range[0]); // Directamente actualiza minPrice
-                                setMaxPrice(range[1]); // Directamente actualiza maxPrice
-                            }
-                        }}
-                        renderValue={(value) => `₲${value.toLocaleString('es-PY')}`}
-                    /> */}
 
                     <div className="flex items-end justify-start">
                         <button
@@ -277,6 +225,14 @@ export default function Page() {
                 onPageChange={handlePageChange}
                 size="md"
             />
+            <Link href="/add-product">
+                <div className="fixed bottom-5 right-5">
+                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
+                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
+                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
+                    </button>
+                </div>
+            </Link>
         </div>
     );
 }

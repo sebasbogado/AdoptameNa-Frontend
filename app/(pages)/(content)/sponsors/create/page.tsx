@@ -23,7 +23,7 @@ const initialFormState: SponsorFormData = {
     responsibleName: '',
     email: '',
     reason: '',
-    wantsLogo: false,
+    wantsLogo: true,
     wantsBanner: false,
     logoId: null
 };
@@ -38,6 +38,7 @@ export default function SponsorFormPage() {
     } | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showLogoError, setShowLogoError] = useState(false);
     
     const { authToken } = useAuth();
     const router = useRouter();
@@ -46,7 +47,7 @@ export default function SponsorFormPage() {
         if (alertInfo?.open) {
             const timer = setTimeout(() => {
                 setAlertInfo(prev => prev ? { ...prev, open: false } : null);
-            }, 3000);
+            }, 5000);
             return () => clearTimeout(timer);
         }
     }, [alertInfo]);
@@ -66,20 +67,10 @@ export default function SponsorFormPage() {
 
         const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
         if (!allowedTypes.includes(file.type)) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Tipo de archivo no permitido. Solo PNG, JPG y WEBP."
-            });
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "El archivo es demasiado grande. Máximo: 5MB."
-            });
             return;
         }
 
@@ -90,29 +81,14 @@ export default function SponsorFormPage() {
             const response = await postMedia(formData, authToken);
             setFormData(prev => ({ ...prev, logoId: response.id }));
             setLogoPreviewUrl(response.url);
-            setAlertInfo({
-                open: true,
-                color: "green",
-                message: "Logo subido exitosamente"
-            });
         } catch (error) {
             console.error("Error al subir logo", error);
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
-            });
         }
     };
 
     const handleRemoveLogo = () => {
         setFormData(prev => ({ ...prev, logoId: null }));
         setLogoPreviewUrl(null);
-        setAlertInfo({
-            open: true,
-            color: "green",
-            message: "Logo eliminado exitosamente"
-        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -126,12 +102,8 @@ export default function SponsorFormPage() {
             return;
         }
 
-        if (formData.wantsLogo && !formData.logoId) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Debes subir un logo antes de enviar la solicitud."
-            });
+        if (!formData.logoId) {
+            setShowLogoError(true);
             return;
         }
 
@@ -140,13 +112,14 @@ export default function SponsorFormPage() {
             const sponsorData = {
                 contact: formData.email,
                 reason: formData.reason,
-                logoId: formData.logoId!
+                logoId: formData.logoId
             };
 
             await createSponsor(authToken, sponsorData);
             setShowSuccessModal(true);
             setFormData(initialFormState);
             setLogoPreviewUrl(null);
+            setShowLogoError(false);
 
         } catch (error) {
             console.error("Error al enviar solicitud:", error);
@@ -166,7 +139,13 @@ export default function SponsorFormPage() {
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color}
-                    className="mb-4"
+                    className={`mb-6 shadow-md font-medium border-l-4 ${
+                        alertInfo.color === "red" 
+                            ? "border-red-500" 
+                            : alertInfo.color === "green" 
+                                ? "border-green-500" 
+                                : "border-blue-500"
+                    }`}
                     onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 >
                     {alertInfo.message}
@@ -179,7 +158,7 @@ export default function SponsorFormPage() {
                     Estás a un paso de convertirte en un <br />
                     auspiciante y ayudar a nuestra causa
                 </p>
-
+                
                 <div className="space-y-4">
                     <div>
                         <label className="block mb-1">Nombre del responsable</label>
@@ -223,50 +202,54 @@ export default function SponsorFormPage() {
                         </div>
                     </div>
 
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            checked={formData.wantsLogo}
-                            onChange={() => handleCheckboxChange('wantsLogo')}
-                        />
-                        <span>Quiero que mi logo aparezca en la sección de Auspiciantes</span>
-                    </label>
-
-                    {formData.wantsLogo && (
-                        <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto relative">
-                            {logoPreviewUrl ? (
-                                <>
-                                    <div className="relative w-full h-full">
-                                        <Image 
-                                            src={logoPreviewUrl} 
-                                            alt="Logo preview" 
-                                            fill
-                                            className="object-contain"
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block mb-1">
+                                Logo de tu organización
+                            </label>
+                            <p className={`text-sm ${showLogoError ? 'text-red-600' : 'text-blue-600'} italic mb-2 text-center`}>
+                                Para continuar debes subir el logo de tu organización haciendo click en el cuadro de abajo
+                            </p>
+                            <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto relative">
+                                {logoPreviewUrl ? (
+                                    <>
+                                        <div className="relative w-full h-full">
+                                            <Image 
+                                                src={logoPreviewUrl} 
+                                                alt="Logo preview" 
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveLogo}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </>
+                                ) : (
+                                    <label className="cursor-pointer flex flex-col items-center justify-center">
+                                        <div className="bg-blue-100 hover:bg-blue-200 text-blue-600 font-medium py-2 px-4 rounded-lg transition-colors">
+                                            + Añadir logo
+                                        </div>
+                                        <p className="text-sm text-gray-500 mt-2">
+                                            Haz clic para seleccionar una imagen
+                                        </p>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleLogoUpload}
+                                            className="hidden"
                                         />
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveLogo}
-                                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </>
-                            ) : (
-                                <label className="cursor-pointer block">
-                                    + Añadir logo
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleLogoUpload}
-                                        className="hidden"
-                                    />
-                                </label>
-                            )}
+                                    </label>
+                                )}
+                            </div>
                         </div>
-                    )}
+                    </div>
 
                     <label className="flex items-center space-x-2">
                         <input

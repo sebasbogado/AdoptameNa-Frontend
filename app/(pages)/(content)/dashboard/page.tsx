@@ -1,14 +1,11 @@
 'use client'
 
-
-import Banners from '@/components/banners'
 import PetCard from '@/components/petCard/pet-card'
 import Title from '@/components/title'
 import Footer from '@/components/footer'
 import { useEffect, useState } from 'react'
 import { getPosts } from '@/utils/posts.http'
 import { Post } from '@/types/post'
-
 
 import { Section } from '@/components/section'
 import Link from 'next/link'
@@ -30,7 +27,6 @@ type FetchContentDataParams = {
     setError: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-
 const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeringPosts, setBlogPosts, setMarketplacePosts, setLoading, setError }: FetchContentDataParams) => {
     const pageSize = 5;
     const pageNumber = 0;
@@ -43,9 +39,9 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
     };
 
     try {
-        const petAdoptionData = await getPets({...queryParams, petStatusId: PET_STATUS.ADOPTION});
-        const petMissingData = await getPetsDashboard({...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND]});
-        const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING});
+        const petAdoptionData = await getPets({ ...queryParams, petStatusId: PET_STATUS.ADOPTION });
+        const petMissingData = await getPetsDashboard({ ...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND] });
+        const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING });
         const postBlogData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.BLOG });
         const postMarketplaceData = await getProducts(queryParams);
 
@@ -74,11 +70,8 @@ export default function Page() {
         fetchContentData({ setVolunteeringPosts, setBlogPosts, setMarketplacePosts, setAdoptionPets, setMissingPets, setLoading, setError });
     }, []);
 
-    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
     return (
         <div className='flex flex-col gap-3'>
-            <Banners images={bannerImages} />
-
             <Section
                 title='En adopcion'
                 path='adoption'
@@ -88,7 +81,6 @@ export default function Page() {
                 error={error}
                 itemType='pet'>
             </Section>
-
 
             {/* Sección de Desaparecidos */}
             <Section
@@ -112,7 +104,6 @@ export default function Page() {
                 error={error}>
             </Section>
 
-
             {/* Sección de Blogs */}
             <Section
                 title='Blog'
@@ -134,7 +125,7 @@ export default function Page() {
                 loading={loading}
                 error={error}>
             </Section>
-            
+
             <Link href="/add-post">
                 <div className="fixed bottom-5 right-5">
                     <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">

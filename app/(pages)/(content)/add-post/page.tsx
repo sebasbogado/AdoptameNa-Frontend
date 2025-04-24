@@ -101,7 +101,7 @@ export default function Page() {
             }
 
             setSuccessMessage("Imagen eliminada exitosamente.");
-            setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
+            setTimeout(() => setSuccessMessage(""), 1000); // Ocultar mensaje después de 3 segundos
 
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
@@ -177,7 +177,7 @@ export default function Page() {
                 
                 setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
                 setSuccessMessage("¡Publicación creada exitosamente!");
-                setTimeout(() => router.push(`/posts/${response.id}`), 3500);
+                setTimeout(() => router.push(`/posts/${response.id}`), 1500);
             } else {
                 setErrorMessage("Error al guardar publicación");
             }
@@ -215,7 +215,7 @@ export default function Page() {
 
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
+                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)

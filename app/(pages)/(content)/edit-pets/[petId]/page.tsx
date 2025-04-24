@@ -141,7 +141,7 @@ export default function Page() {
         const petData = await getPet(String(petId));
         if (petData) {
           setPet(petData);
-          console.log("Pet data:", petData);    
+          console.log("Pet data:", petData);
 
           setValue("petStatusId", petData.petStatus.id || 0);
           setValue("animalId", petData.animal.id || 0);
@@ -200,7 +200,7 @@ export default function Page() {
       }
 
       setSuccessMessage('Publicación eliminada con éxito');
-      setTimeout(() => router.push('/dashboard'), 3500);
+      setTimeout(() => router.push('/dashboard'), 1500);
 
     } catch (error) {
       console.error('Error al eliminar la publicación:', error);
@@ -282,7 +282,7 @@ export default function Page() {
       }
 
       setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
-      setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 3000); // Ocultar mensaje después de 3 segundos
+      setTimeout(() => setSuccessMessage("Imagen eliminada exitosamente."), 1000); // Ocultar mensaje después de 3 segundos
 
     } catch (error) {
       console.error("Error al eliminar la imagen", error);
@@ -359,7 +359,7 @@ export default function Page() {
       const response = await updatePet(String(petId), updatedData, authToken);
       if (response) {
         setSuccessMessage("Se guardó exitosamente");
-        setTimeout(() => router.push(`/pets/${response.id}`), 3500);
+        setTimeout(() => router.push(`/pets/${response.id}`), 1500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
@@ -524,20 +524,19 @@ export default function Page() {
                 </div>
 
                 {/* isVaccinated */}
-                <label className="block mb-1">¿Está Vacunado?</label>
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Sí</label>
+                  <label>Esta desparasitado</label>
                   <input type="checkbox" {...register("isVaccinated")} />
                   {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
                 </div>
 
                 {/* isSterilized */}
-                <label className="block mb-1">¿Está Esterilizado?</label>
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Sí</label>
+                  <label>Esta esterilizado</label>
                   <input type="checkbox" {...register("isSterilized")} />
                   {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
                 </div>
+
 
                 {/* Mapa */}
                 <div
