@@ -1,20 +1,53 @@
 'use client'
-import Image from 'next/image';
+import { useRouter } from "next/navigation";
 import sponsorsData from '@/lib/sponsors.json'
 import Button from '@/components/buttons/button';
-import { useRouter } from "next/navigation";
-import sponsorLogosData from '@/lib/sponsors-logos.json';
 import ImageComponent from '@/components/image-component';
 import { useAuth } from "@/contexts/auth-context";
+import SponsorsCarousel from "@/components/sponsorsCarousel";
+import { useCallback, useEffect, useState } from "react";
+import { getActiveSponsors } from '@/utils/sponsor.http';
+import { ActiveSponsor } from '@/types/sponsor';
+
+interface SponsorImage {
+  id: number;
+  url: string;
+}
 
 export default function Page() {
   const router = useRouter();
   const { user } = useAuth();
+  const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
+
+  const fetchSponsors = useCallback(async () => {
+    try {
+      const sponsorsData = await getActiveSponsors();
+      const sponsorsArray = sponsorsData.data;
+
+      const images = sponsorsArray
+        .map((s: ActiveSponsor) => {
+          if (s.logoUrl) {
+            return { id: s.id, url: s.logoUrl };
+          }
+          return null;
+        })
+        .filter((img): img is SponsorImage => img !== null);
+
+      setSponsorImages(images);
+    } catch (error) {
+      console.error('Error al cargar sponsors activos:', error);
+      setSponsorImages([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSponsors();
+  }, [fetchSponsors]);
 
   function handleFormSponsors() {
     router.push('/sponsors/create')
-
   }
+
   return (
     <div className="w-full px-12">
       <ImageComponent src="/sponsor/sponsor.png" />
@@ -35,19 +68,14 @@ export default function Page() {
 
                 {blockIndex === 0 && <div className="mb-8 -ml-40">
                   <h3 className="text-gray-600 mb-8">Auspician este sitio:</h3>
-                  <div className="flex gap-32">
-                    {sponsorLogosData.map((logo, index) => (
-                      <Image
-                        key={index}
-                        src={logo.src}
-                        alt={`Logo ${index + 1}`}
-                        width={parseInt(logo.width)}
-                        height={parseInt(logo.height)}
-                      />
-                    ))}
-                  </div>
+                  {sponsorImages.length > 0 ? (
+                    <div className="w-full">
+                      <SponsorsCarousel images={sponsorImages} scrollStep={1} delay={15} />
+                    </div>
+                  ) : (
+                    <div className="text-gray-400">No hay auspiciantes activos</div>
+                  )}
                 </div>}
-
 
                 {block.downDetails && (
                   <div className='mb-8'>
@@ -68,8 +96,6 @@ export default function Page() {
         )}
 
       </div>
-
-
     </div>
   )
 }
