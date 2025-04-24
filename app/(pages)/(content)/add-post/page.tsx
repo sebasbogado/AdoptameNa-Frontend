@@ -215,7 +215,7 @@ export default function Page() {
 
             // Verifica la cantidad de imagens que se pueden subir
             if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
+                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
             // Verificar el tamaño del archivo (1MB)
