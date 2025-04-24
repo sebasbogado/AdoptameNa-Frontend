@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from "@material-tailwind/react";
+import { Input } from '@/components/ui/input';
+import Button from '@/components/buttons/button';
 import { ProductCategory } from '@/types/product-category';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,50 +16,44 @@ export default function FormProductCategory({ onCreate, onDelete, productCategor
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors, isSubmitting }
     } = useForm<ProductCategoryInput>({
         resolver: zodResolver(productCategorySchema),
-        defaultValues: productCategoryData
+        defaultValues: {
+            id: productCategoryData.id || undefined,
+            name: productCategoryData.name,
+        }
     });
 
-    const onSubmit = (data: ProductCategoryInput) => {
+    const onSubmit = async (data: ProductCategoryInput) => {
         onCreate(data as ProductCategory);
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-                <label htmlFor="name" className="text-sm font-semibold">Nombre</label>
-                <input
-                    type="text"
-                    id="name"
-                    className="border rounded-md p-2"
+        <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-2">
+                <label className="block mb-1">Nombre</label>
+                <Input
+                    placeholder="Ejemplo: Juguetes"
+                    className={`w-full border p-2 rounded ${errors.name ? 'border-red-500 focus:outline-none' : 'border-gray-300'}`}
                     {...register("name")}
+                    maxLength={50}
                 />
                 {errors.name && (
-                    <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                    <p className='text-red-500 text-xs mt-1'>{errors.name.message}</p>
                 )}
             </div>
 
-            <div className="flex justify-between mt-4">
-                <Button
-                    type="submit"
-                    color="green"
-                    className="px-4 py-2"
-                >
-                    {productCategoryData.id ? "Actualizar" : "Crear"}
-                </Button>
-
-                {productCategoryData.id > 0 && (
-                    <Button
-                        type="button"
-                        color="red"
-                        className="px-4 py-2"
-                        onClick={onDelete}
-                    >
-                        Eliminar
+            <div className="flex justify-end items-center mt-6 w-full">
+                <div className="flex gap-4">
+                    <Button variant={productCategoryData.id === 0 ? "secondary" : "danger"} type="button" onClick={onDelete}>
+                        {productCategoryData.id === 0 ? "Cancelar" : "Eliminar"}
                     </Button>
-                )}
+
+                    <Button variant='primary' disabled={isSubmitting} type="submit">
+                        {isSubmitting ? "Guardando..." : "Guardar"}
+                    </Button>
+                </div>
             </div>
         </form>
     );
