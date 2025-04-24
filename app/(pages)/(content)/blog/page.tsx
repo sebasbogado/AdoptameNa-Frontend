@@ -39,7 +39,7 @@ export default function Page() {
             try {
                 const [postsResponse, tagsResponse] = await Promise.all([
                     getPosts({ postTypeId: POST_TYPEID.BLOG }),
-                    getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] })
+                    getTags({ postTypeIds: [POST_TYPEID.BLOG, POST_TYPEID.ALL] })
                 ]);
 
                 const authorMap: Record<string, number> = {};
