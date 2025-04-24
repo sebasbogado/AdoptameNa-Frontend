@@ -1,5 +1,6 @@
 import { ProductCategory } from "@/types/product-category";
 import { ProductCondition } from "./product-condition";
+import { Media } from "./media";
 
 export interface Product{
     id: number;
@@ -7,7 +8,7 @@ export interface Product{
     content: string;
     locationCoordinates: string;
     contactNumber: string;
-    urlPhoto: string;
+    urlPhoto: Media;
     idUser: number;
     userFullName: string;
     price: number;
