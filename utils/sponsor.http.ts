@@ -18,7 +18,8 @@ export const getActiveSponsors = async (): Promise<
 export const getAllSponsors = async (
   token: string,
   page: number = 0,
-  size: number = 10
+  size: number = 10,
+  isActive?: boolean
 ): Promise<PaginatedResponse<Sponsor>> => {
   try {
     const response = await axios.get(API_URL, {
@@ -28,6 +29,7 @@ export const getAllSponsors = async (
       params: {
         page,
         size,
+        ...(isActive !== undefined && { isActive })
       },
     });
     return response.data;
