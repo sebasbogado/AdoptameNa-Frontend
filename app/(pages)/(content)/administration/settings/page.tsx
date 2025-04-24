@@ -16,19 +16,25 @@ import { ConfirmationModal } from "@/components/form/modal";
 import { ReportReason } from "@/types/report-reason";
 import { getReportReasons, createReportReason, deleteReportReason, updateReportReason } from "@/utils/report-reasons.http";
 import FormReportReason from "@/components/form-report-reason";
+import { ProductCategory } from "@/types/product-category";
+import { getProductCategories, createProductCategory, updateProductCategory, deleteProductCategory } from "@/utils/product-category.http";
+import FormProductCategory from "@/components/form-product-category";
 
 export default function page() {
   const [modalAnimal, setModalAnimal] = useState(false);
   const [modalPetStatus, setModalPetStatus] = useState(false);
-  const [modalReportReason, setModalReportReason] = useState(false)
+  const [modalReportReason, setModalReportReason] = useState(false);
+  const [modalProductCategory, setModalProductCategory] = useState(false);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]);
   const [reportReasons, setReportReasons] = useState<ReportReason[]>([]);
+  const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
   const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
   const [reportReasonSelected, setReportReasonSelected] = useState<ReportReason>({ id: 0, description: "" });
-  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | "reportReason" | null>(null);
+  const [productCategorySelected, setProductCategorySelected] = useState<ProductCategory>({ id: 0, name: "" });
+  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | "reportReason" | "productCategory" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { authToken, user } = useAuth();
@@ -40,12 +46,14 @@ export default function page() {
         const animals = await getAnimals();
         const petStatuses = await getPetStatus();
         const reportReasons = await getReportReasons();
+        const productCategoriesResponse = await getProductCategories();
 
         setAnimals(animals.data);
         setPetStatuses(petStatuses.data);
         setReportReasons(reportReasons.data);
+        setProductCategories(productCategoriesResponse.data);
       } catch (error: any) {
-        console.error('Error al obtener animales:', error);
+        console.error('Error al obtener datos:', error);
         setErrorMessage(error.message);
       }
     }
@@ -235,6 +243,68 @@ export default function page() {
     setReportReasonSelected({ id: 0, description: "" });
     setModalReportReason(true);
   }
+
+  const openEditProductCategory = (productCategory: ProductCategory) => {
+    setProductCategorySelected(productCategory);
+    setModalProductCategory(true);
+  }
+
+  const onClickLabelAddProductCategory = () => {
+    setProductCategorySelected({ id: 0, name: "" });
+    setModalProductCategory(true);
+  }
+
+  const handleSubmitProductCategory = async (newProductCategory: ProductCategory) => {
+    try {
+      if (!authToken) return;
+      if (newProductCategory.id) {
+        await updateProductCategory(authToken, newProductCategory);
+        setProductCategories(productCategories.map(category =>
+          category.id === newProductCategory.id ? newProductCategory : category
+        ));
+        setModalProductCategory(false);
+        setSuccessMessage("Categoría de producto actualizada correctamente");
+        return;
+      } else {
+        const { id, ...categoryData } = newProductCategory;
+        const productCategory = await createProductCategory(authToken, categoryData);
+        setProductCategories([...productCategories, productCategory]);
+        setModalProductCategory(false);
+        setSuccessMessage("Categoría de producto creada correctamente");
+      }
+    } catch (error: any) {
+      console.error('Error al guardar categoría de producto:', error);
+      setErrorMessage(error.message);
+    }
+  }
+
+  const handleDeleteProductCategory = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (productCategorySelected.id === 0) {
+      setModalProductCategory(false);
+      return;
+    }
+    setDeleteType("productCategory");
+    setIsOpenModal(true);
+    return;
+  }
+
+  const confirmDeleteProductCategory = async () => {
+    try {
+      if (!authToken) return;
+      await deleteProductCategory(authToken, productCategorySelected.id);
+      setProductCategories(productCategories.filter(category => category.id !== productCategorySelected.id));
+      setModalProductCategory(false);
+      setSuccessMessage("Categoría de producto eliminada correctamente");
+    } catch (error: any) {
+      console.error('Error al eliminar categoría de producto:', error);
+      setErrorMessage(error.message);
+    } finally {
+      setIsOpenModal(false);
+      setModalProductCategory(false);
+    }
+  }
+
   return (
     <>
       {successMessage && (
@@ -268,15 +338,27 @@ export default function page() {
           <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Motivo de Reporte">
             <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected} />
           </Modal>
+          <Modal isOpen={modalProductCategory} onClose={() => setModalProductCategory(false)} title={productCategorySelected.id === 0 ? "Crear categoría de producto" : "Editar categoría de producto"}>
+            <FormProductCategory onCreate={handleSubmitProductCategory} onDelete={handleDeleteProductCategory} productCategoryData={productCategorySelected} />
+          </Modal>
 
           <ConfirmationModal
             isOpen={isOpenModal}
             title="Eliminar"
-            message={`¿Estás seguro de que deseas eliminar este ${deleteType === "animal" ? "animal" : deleteType === "petStatus" ? "estado" : "motivo"}?`}
+            message={`¿Estás seguro de que deseas eliminar ${deleteType === "animal" ? "este animal" :
+              deleteType === "petStatus" ? "este estado" :
+                deleteType === "reportReason" ? "este motivo" :
+                  "esta categoría de producto"
+              }?`}
             textConfirm="Eliminar"
             confirmVariant="danger"
             onClose={() => { setIsOpenModal(false); setDeleteType(null); }}
-            onConfirm={deleteType === "animal" ? confirmDeleteAnimal : deleteType === "petStatus" ? confirmDeletePetStatus : confirmDeleteReportReason}
+            onConfirm={
+              deleteType === "animal" ? confirmDeleteAnimal :
+                deleteType === "petStatus" ? confirmDeletePetStatus :
+                  deleteType === "reportReason" ? confirmDeleteReportReason :
+                    confirmDeleteProductCategory
+            }
           />
 
           {/**Cards*/}
@@ -292,13 +374,18 @@ export default function page() {
             onClickLabelDefault={openEditPetStatus}
             onClickLabelAdd={onClickLabelAddPetStatus}
           />
-
           <Card
             title="Motivos de reporte"
             content={reportReasons}
             onClickLabelDefault={openEditReportReason}
             onClickLabelAdd={onClickLabelAddReportReason}
-          ></Card>
+          />
+          <Card
+            title="Categorías de productos"
+            content={productCategories}
+            onClickLabelDefault={openEditProductCategory}
+            onClickLabelAdd={onClickLabelAddProductCategory}
+          />
         </div>
         <div className="flex justify-center mt-10">
           <PetBreeds setSuccessMessage={setSuccessMessage} setErrorMessage={setErrorMessage} />
