@@ -41,9 +41,9 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                     </Alert>
                 )}
             </div>
-            
+
             <Link href={`/marketplace`}>
-                <CardImage media={product.urlPhoto}/>
+                <CardImage media={product.media[0]} />
                 <CardText post={product} />
             </Link>
         </div>
