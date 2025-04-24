@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Banners from '@/components/banners';
 import PetCard from '@/components/petCard/pet-card';
 import { getPets } from "@/utils/pets.http";
 import { getAnimals } from "@/utils/animals.http";
@@ -11,7 +10,6 @@ import { PET_STATUS } from "@/types/constants";
 import { usePagination } from "@/hooks/use-pagination";
 import { Loader2 } from "lucide-react";
 import Pagination from "@/components/pagination";
-
 
 export default function Page() {
     const [selectedVacunado, setSelectedVacunado] = useState<string | null>(null);
@@ -78,12 +76,8 @@ export default function Page() {
         return true;
     });
 
-    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
-
     return (
         <div className='flex flex-col gap-5'>
-            <Banners images={bannerImages} />
-
             <div className="w-full max-w-4xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 
