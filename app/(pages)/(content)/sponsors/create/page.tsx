@@ -65,12 +65,22 @@ export default function SponsorFormPage() {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
 
-        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+        const allowedTypes = ["image/png", "image/jpeg"];
         if (!allowedTypes.includes(file.type)) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Tipo de archivo no permitido. Solo se permiten PNG y JPG."
+            });
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "El archivo es demasiado grande. Tamaño máximo: 5MB."
+            });
             return;
         }
 
@@ -81,8 +91,18 @@ export default function SponsorFormPage() {
             const response = await postMedia(formData, authToken);
             setFormData(prev => ({ ...prev, logoId: response.id }));
             setLogoPreviewUrl(response.url);
+            setAlertInfo({
+                open: true,
+                color: "green",
+                message: "Logo subido exitosamente"
+            });
         } catch (error) {
             console.error("Error al subir logo", error);
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
+            });
         }
     };
 
