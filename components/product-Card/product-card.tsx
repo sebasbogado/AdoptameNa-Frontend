@@ -10,7 +10,7 @@ import Link from "next/link";
 import CardText from "../petCard/card-text";
 
 type ProductCardProps = {
-    product: any;
+    product: Product;
     className?: string
 };
 
@@ -41,9 +41,9 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                     </Alert>
                 )}
             </div>
-            
-            <Link href={`/products/${(product as Product).id}`}>
-                <CardImage image={(product as Product).urlPhoto  || ""} />
+
+            <Link href={`/marketplace`}>
+                <CardImage media={product.media[0]} />
                 <CardText post={product} />
             </Link>
         </div>
