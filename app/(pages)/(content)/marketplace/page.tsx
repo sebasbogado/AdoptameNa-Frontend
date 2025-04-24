@@ -207,17 +207,19 @@ export default function Page() {
                 </div>
             </div>
 
-            <section>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                    {loading ? (
-                        <p className="text-center col-span-full">Cargando datos...</p>
-                    ) : products.length === 0 ? (
-                        <p className="text-center col-span-full">No se han encontrado resultados</p>
-                    ) : (
-                        products.map((item) => <ProductCard key={item.id} product={item} />)
-                    )}
-                </div>
-            </section>
+            <div className="w-full flex flex-col items-center justify-center mb-6">
+                {loading ? (
+                    <p className="text-center col-span-full">Cargando datos...</p>
+                ) : products.length === 0 ? (
+                    <p className="text-center col-span-full">No se han encontrado resultados</p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
+                        {products.map((item) => (
+                            <ProductCard key={item.id} product={item} />
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <Pagination
                 totalPages={totalPages}

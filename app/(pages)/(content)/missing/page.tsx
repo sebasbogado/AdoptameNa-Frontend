@@ -14,7 +14,7 @@ import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 
 export default function Page() {
-  const pageSize = 20;
+  const pageSize = 10;
   const sort = "id,desc";
   const [animals, setAnimals] = useState<Animal[]>([]); //para obtener de la api
   const [selectedAnimal, setSelectedAnimal] = useState(""); //para selected y setSelected del filtro
@@ -113,7 +113,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
+      <div className="w-full flex flex-col items-center justify-center mb-6">
         {error && (
           <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">
             {error.message || "Error al cargar mascotas"}
