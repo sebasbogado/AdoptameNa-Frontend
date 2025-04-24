@@ -39,7 +39,7 @@ export function middleware(request: NextRequest) {
       style-src 'self' https://vercel.live/fonts 'nonce-${nonce}';
       script-src 'self' https://vercel.live/ 'nonce-${nonce}';
       connect-src 'self' https://vercel.live/ https://vitals.vercel-insights.com wss://*.pusher.com/ https://*.pusher.com/ https://adoptamena-api.rodrigomaidana.com;
-      img-src 'self' data: https://vercel.com/ https://vercel.live/ https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
+      img-src 'self' https://vercel.com/ https://vercel.live/ https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
       frame-src 'self' https://vercel.live/;
     `;
   } else {

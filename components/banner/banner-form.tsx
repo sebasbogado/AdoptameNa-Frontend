@@ -12,7 +12,7 @@ import BannerImage from './banner-image';
 import { BannerForm as BannerFormType, bannerSchema } from '@/validations/banner-schema';
 import { useAuth } from '@/contexts/auth-context';
 import Loading from '@/app/loading';
-import { Sponsor } from '@/types/sponsor';
+import { ActiveSponsor, Sponsor } from '@/types/sponsor';
 import { getActiveSponsors } from '@/utils/sponsor.http';
 import { Banner } from '@/types/banner';
 
@@ -38,7 +38,7 @@ export default function BannerForm({ banner }: BannerFormProps) {
     const [imageSourceType, setImageSourceType] = useState<'upload' | 'sponsor'>(
         banner ? 'upload' : 'upload'
     );
-    const [sponsorImages, setSponsorImages] = useState<Sponsor[]>([]);
+    const [sponsorImages, setSponsorImages] = useState<ActiveSponsor[]>([]);
     const [alertInfo, setAlertInfo] = useState<{
         open: boolean;
         color: "green" | "red" | "blue";
@@ -242,14 +242,14 @@ export default function BannerForm({ banner }: BannerFormProps) {
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {sponsorImages.map((image) => (
                                     <div
-                                        key={image.bannerId}
+                                        key={image.id}
                                         className={`border rounded-lg overflow-hidden cursor-pointer transition-all ${uploadedImage?.id === image.bannerId ? 'ring-2 ring-purple-500' : 'hover:shadow-md'
                                             }`}
                                         onClick={() => handleSelectSponsorImage({ id: image.bannerId, url: image.bannerUrl })}
                                     >
                                         <div className="relative h-40">
                                             <Image
-                                                src={image.bannerUrl}
+                                                src={image.logoUrl}
                                                 alt={image.organizationName}
                                                 fill
                                                 className="object-cover"

@@ -13,7 +13,11 @@ export type Sponsor = {
 // Nuevo tipo para sponsors activos
 export type ActiveSponsor = {
   id: number;
+  organizationName: string;
   logoUrl: string;
+  bannerUrl: string;
+  logoId: number;
+  bannerId: number;
 };
 
 // Tipo para la creación de sponsors
@@ -23,4 +27,3 @@ export type CreateSponsorRequest = {
   logoId: number;
   bannerId?: number;
 };
-
