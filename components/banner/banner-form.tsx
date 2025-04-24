@@ -240,27 +240,34 @@ export default function BannerForm({ banner }: BannerFormProps) {
                             />
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {sponsorImages.map((image) => (
-                                    <div
-                                        key={image.id}
-                                        className={`border rounded-lg overflow-hidden cursor-pointer transition-all ${uploadedImage?.id === image.bannerId ? 'ring-2 ring-purple-500' : 'hover:shadow-md'
-                                            }`}
-                                        onClick={() => handleSelectSponsorImage({ id: image.bannerId, url: image.bannerUrl })}
-                                    >
-                                        <div className="relative h-40">
-                                            <Image
-                                                src={image.logoUrl}
-                                                alt={image.organizationName}
-                                                fill
-                                                className="object-cover"
-                                                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
-                                            />
-                                        </div>
-                                        <div className="p-2 text-center">
-                                            <p className="text-sm font-medium">{image.organizationName}</p>
-                                        </div>
+                                {sponsorImages.filter(image => image.bannerUrl).length > 0 ? (
+                                    sponsorImages
+                                        .filter(image => image.bannerUrl)
+                                        .map((image) => (
+                                            <div
+                                                key={image.id}
+                                                className={`border rounded-lg overflow-hidden cursor-pointer transition-all ${uploadedImage?.id === image.bannerId ? 'ring-2 ring-purple-500' : 'hover:shadow-md'}`}
+                                                onClick={() => handleSelectSponsorImage({ id: image.bannerId, url: image.bannerUrl })}
+                                            >
+                                                <div className="relative h-40">
+                                                    <Image
+                                                        src={image.bannerUrl}
+                                                        alt={image.organizationName}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                                                    />
+                                                </div>
+                                                <div className="p-2 text-center">
+                                                    <p className="text-sm font-medium">{image.organizationName}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                ) : (
+                                    <div className="col-span-full flex items-center justify-center p-10 text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+                                        <p className="text-center">No hay sponsors con banners disponibles</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         )}
 
