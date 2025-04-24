@@ -93,16 +93,16 @@ export default function MyPostsPage() {
             const [min, max] = edadStr.replace(" años", "").split("-").map(Number);
             return [min, max];
         };
-    
+
         const [minAge, maxAge] = getAgeRange(selectedEdad || "");
-    
+
         const filteredData = {
             animalId: selectedMascotaId,
             minAge,
             maxAge,
             city: selectedCiudad,
         };
-    
+
         const cleanedFilters = cleanFilters(filteredData);
         updateFilters(cleanedFilters);
     }, [selectedMascotaId, selectedEdad, selectedCiudad, updateFilters]);
@@ -142,7 +142,8 @@ export default function MyPostsPage() {
                 </div>
             </div>
 
-            {loading ? (
+            <div className="w-full flex flex-col items-center justify-center mb-6">
+                {loading ? (
                     <div className="flex justify-center items-center">
                         <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
                     </div>
@@ -152,18 +153,18 @@ export default function MyPostsPage() {
                             <p className="text-gray-600">No se encontraron mascotas.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
                             {pets.map((pet) => (
                                 <PetCard
                                     key={pet.id}
                                     post={pet}
                                     isPost={false}
-                                    className="w-full max-w-md"
                                 />
                             ))}
                         </div>
                     )
                 )}
+            </div>
 
             <Pagination
                 totalPages={totalPages}
