@@ -8,6 +8,7 @@ import Banners from "@/components/banners";
 import { usePathname } from "next/navigation";
 import { getActiveSponsors } from '@/utils/sponsor.http';
 import { ActiveSponsor } from '@/types/sponsor';
+import { getPublicBanners } from "@/utils/banner.http";
 
 interface SponsorImage {
   id: number;
@@ -48,11 +49,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
 
   const fetchBanners = useCallback(async () => {
     try {
-      const response = await fetch('https://adoptamena-api.rodrigomaidana.com/api/banners/public');
-      if (!response.ok) {
-        throw new Error('Error al obtener banners');
-      }
-      const data: Banner[] = await response.json();
+      const data = await getPublicBanners();
       const bannerUrls = data.map(banner => banner.imageUrl);
       setBannerImages(bannerUrls);
     } catch (error) {
