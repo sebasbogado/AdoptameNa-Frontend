@@ -33,6 +33,7 @@ export default function Navbar() {
                         width={140}
                         height={40}
                         className="h-10 w-auto"
+                        priority
                     />
                 </Link>
 
@@ -42,7 +43,7 @@ export default function Navbar() {
                         {navbarItems.map(({ name, path }) => (
                             <Link
                                 key={path}
-                                href={path}
+                                href={path as any}
                                 className={`text-lg font-bold hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"
                                     }`}
                             >
