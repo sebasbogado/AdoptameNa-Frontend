@@ -49,7 +49,7 @@ export function middleware(request: NextRequest) {
       style-src 'self' 'nonce-${nonce}';
       script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
       connect-src 'self' https://vitals.vercel-insights.com https://adoptamena-api.rodrigomaidana.com;
-      img-src 'self' data: https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
+      img-src 'self' https://*.tile.openstreetmap.org https://unpkg.com/leaflet@1.9.4/dist/images/ https://adoptamena-api.rodrigomaidana.com;
       frame-src 'none';
     `;
   }
