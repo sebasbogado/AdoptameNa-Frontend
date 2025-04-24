@@ -19,7 +19,7 @@ export default function Page() {
     const [animalTypes, setAnimalTypes] = useState<string[]>([]);
     const [animals, setAnimals] = useState<{ id: number; name: string }[]>([]);
 
-    const pageSize = 20;
+    const pageSize = 10;
     const sort = "id,desc";
 
     const {

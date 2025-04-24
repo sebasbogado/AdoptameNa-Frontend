@@ -23,7 +23,7 @@ export default function Page() {
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [selectedTagsId, setSelectedTagsId] = useState<number[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const pageSize = 20;
+    const pageSize = 10;
     const sort = "id,desc";
     const {
         data: posts,

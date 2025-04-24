@@ -31,7 +31,7 @@ export default function MyPostsPage() {
 
     const [animals, setAnimals] = useState<Animal[]>([]);
 
-    const pageSize = 20;
+    const pageSize = 10;
     const {
         data: pets,
         loading,

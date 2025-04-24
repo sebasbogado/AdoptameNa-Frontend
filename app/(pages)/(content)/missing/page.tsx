@@ -14,7 +14,7 @@ import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 
 export default function Page() {
-  const pageSize = 20;
+  const pageSize = 10;
   const sort = "id,desc";
   const [animals, setAnimals] = useState<Animal[]>([]); //para obtener de la api
   const [selectedAnimal, setSelectedAnimal] = useState(""); //para selected y setSelected del filtro

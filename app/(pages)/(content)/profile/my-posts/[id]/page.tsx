@@ -23,7 +23,7 @@ export default function MyPostsPage() {
     const [selectedPostTypeId, setSelectedPostTypeId] = useState<number | null>(null);
     const myUserId = user?.id;
     const isVisitor = profileId !== myUserId;
-    const pageSize = 20;
+    const pageSize = 10;
 
     const {
         data: posts,
