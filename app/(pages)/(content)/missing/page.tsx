@@ -7,7 +7,6 @@ import { getPetSMissing } from "@/utils/pets.http";
 import { PET_STATUS } from "@/types/constants";
 import PetCard from "@/components/petCard/pet-card";
 import { Loader2 } from "lucide-react";
-import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import { Animal } from "@/types/animal";
 import { getAnimals } from "@/utils/animals.http";
@@ -23,7 +22,6 @@ export default function Page() {
   const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]); //para obtener de la api
   const [petStatusesList, setPetStatusesList] = useState<string[]>([]); //para options del filtro
   const [selectedPetStatus, setSelectedPetStatus] = useState(""); //para selected y setSelected del filtro
-  const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"]
   //temp
   const distancias = ["A menos de 1 Km", "1 a 3 Km", "Mas de 3 Km", "Cualquier distancia"];
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -91,7 +89,6 @@ export default function Page() {
 
   return (
     <div className="flex flex-col gap-5">
-      <Banners images={bannerImages} />
       <div className="w-full max-w-4xl mx-auto p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/*Falta por ubicacion*/}

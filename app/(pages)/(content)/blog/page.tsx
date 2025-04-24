@@ -9,13 +9,11 @@ import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
-import { getTagsByPostType } from "@/utils/tags";
+import { getTags } from "@/utils/tags";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Page() {
-
-    const bannerImages = ["banner1.png", "banner2.png", "banner3.png", "banner4.png"];
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
     const [authorOptions, setAuthorOptions] = useState<string[]>([]);
@@ -31,80 +29,79 @@ export default function Page() {
     useEffect(() => {
         const userId = selectedAutor && selectedAutor !== "Todos" ? allAuthorsMap[selectedAutor] : undefined;
         const tagId = selectedTag && selectedTag !== "Todos" ? allTagsMap[selectedTag] : undefined;
-    
+
         updateFilters({ userId, tagId });
         handlePageChange(1);
     }, [selectedAutor, selectedTag]);
-    
+
     useEffect(() => {
         const fetchAuthorsAndTags = async () => {
-          try {
-            const [postsResponse, tagsResponse] = await Promise.all([
-              getPosts({ postTypeId: POST_TYPEID.BLOG }),
-              getTagsByPostType({postTypeIds: POST_TYPEID.BLOG })
-            ]);
-      
-            const authorMap: Record<string, number> = {};
-            postsResponse.data.forEach(p => {
-              if (p.userFullName) {
-                authorMap[p.userFullName] = p.userId;
-              }
-            });
-      
-            const tagMap: Record<string, number> = {};
-            tagsResponse.data.forEach(tag => {
-              if (tag.name) {
-                tagMap[tag.name] = tag.id;
-              }
-            });
-      
-            const uniqueAuthors = Object.keys(authorMap).sort();
-            const uniqueTags = Object.keys(tagMap).sort();
-      
-            setAuthorOptions(uniqueAuthors);
-            setTagOptions(uniqueTags);
-            setAllAuthorsMap(authorMap);
-            setAllTagsMap(tagMap);
-            setPageSize(postsResponse.pagination.size);
-          } catch (err) {
-            console.error("Error al obtener autores o tags:", err);
-          }
-        };
-      
-        fetchAuthorsAndTags();
-      }, []);
+            try {
+                const [postsResponse, tagsResponse] = await Promise.all([
+                    getPosts({ postTypeId: POST_TYPEID.BLOG }),
+                    getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] })
+                ]);
 
-        const resetFilters = () => {
-            setSelectedAutor(null);
-            setSelectedTag(null); 
-            updateFilters({}); 
-          };
+                const authorMap: Record<string, number> = {};
+                postsResponse.data.forEach(p => {
+                    if (p.userFullName) {
+                        authorMap[p.userFullName] = p.userId;
+                    }
+                });
+
+                const tagMap: Record<string, number> = {};
+                tagsResponse.data.forEach(tag => {
+                    if (tag.name) {
+                        tagMap[tag.name] = tag.id;
+                    }
+                });
+
+                const uniqueAuthors = Object.keys(authorMap).sort();
+                const uniqueTags = Object.keys(tagMap).sort();
+
+                setAuthorOptions(uniqueAuthors);
+                setTagOptions(uniqueTags);
+                setAllAuthorsMap(authorMap);
+                setAllTagsMap(tagMap);
+                setPageSize(postsResponse.pagination.size);
+            } catch (err) {
+                console.error("Error al obtener autores o tags:", err);
+            }
+        };
+
+        fetchAuthorsAndTags();
+    }, []);
+
+    const resetFilters = () => {
+        setSelectedAutor(null);
+        setSelectedTag(null);
+        updateFilters({});
+    };
 
     const {
-            data: posts,
-            loading,
-            error,
-            currentPage,
-            totalPages,
-            handlePageChange,
-            updateFilters
-        } = usePagination<Post>({
-            fetchFunction: async (page, size, filters) => {
-                return await getPosts({ 
-                    page, 
-                    size,  
-                    postTypeId: POST_TYPEID.BLOG, 
-                    userId: filters?.userId ?? undefined,
-                    tagIds: filters?.tagId ?? undefined
-                });
-            },
-            initialPage: 1,
-            initialPageSize: pageSize
-        });
+        data: posts,
+        loading,
+        error,
+        currentPage,
+        totalPages,
+        handlePageChange,
+        updateFilters
+    } = usePagination<Post>({
+        fetchFunction: async (page, size, filters) => {
+            return await getPosts({
+                page,
+                size,
+                postTypeId: POST_TYPEID.BLOG,
+                userId: filters?.userId ?? undefined,
+                tagIds: filters?.tagId ?? undefined
+            });
+        },
+        initialPage: 1,
+        initialPageSize: pageSize
+    });
 
     return (
         <div className="flex flex-col gap-5">
-            <Banners images={bannerImages} />
 
             <div className="w-full max-w-4xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -125,8 +122,8 @@ export default function Page() {
                     <ResetFiltersButton onClick={resetFilters} />
                 </div>
             </div>
-            
-            
+
+
             <section>
                 <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
                     {error && (
