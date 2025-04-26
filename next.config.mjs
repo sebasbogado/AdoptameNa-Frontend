@@ -18,9 +18,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    typedRoutes: true,
-  },
   poweredByHeader: false,
 };
 
