@@ -38,6 +38,12 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const params = useParams();
 
     const petId = Number(params.id);
+
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(prev => !prev);
+    };
     
 
     const handleShare = async () => {
@@ -117,9 +123,18 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             </div>
 
             <ReportButton size="lg" />
+
+            {isMenuOpen && (
+                <div className="absolute top-12 m-1 right-0 bg-white shadow-lg p-4 rounded-lg">
+                    {/* Contenido del menú */}
+                    <Button variant="secondary" className="text-gray-500">
+                        Transferir mascota
+                    </Button>
+                </div>
+            )}
             
             {  isMyPets && 
-                <MenuButton size="lg" />
+                <MenuButton size="lg" onClick={toggleMenu} />
             }
 
             <div className="relative">
