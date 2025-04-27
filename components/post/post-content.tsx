@@ -3,7 +3,7 @@ import PostComments from "@/components/post/post-comments";
 import { Post } from "@/types/post";
 import { useAuth } from "@/contexts/auth-context";
 import { Pet } from "@/types/pet";
-import { POST_TYPEID } from "@/types/constants";
+import { POST_TYPEID, PET_STATUS } from "@/types/constants";
 
 interface PostContentProps {
     post?: Post | null;
@@ -14,6 +14,7 @@ const PostContent = ({ post, pet }: PostContentProps) => {
     const { user, loading: userLoading, authToken } = useAuth();
     const isPost = !!post;
     const isPreciseLocation = post?.postType.id === POST_TYPEID.VOLUNTEERING;
+    const isAdoption = pet?.petStatus?.id === PET_STATUS.ADOPTION
 
     return (
         <section>
@@ -23,7 +24,7 @@ const PostContent = ({ post, pet }: PostContentProps) => {
                 </p>
             </div>
 
-            <PostLocationMap location={post?.locationCoordinates || pet?.addressCoordinates} isPreciseLocation={isPreciseLocation}/>
+            <PostLocationMap location={post?.locationCoordinates || pet?.addressCoordinates} isPreciseLocation={isPreciseLocation || isAdoption}/>
             <PostComments authToken={authToken ?? undefined} user={user} userLoading={userLoading} referenceId={isPost ? post?.id : pet?.id as number} referenceType={isPost ? "POST" : "PET"} />
         </section>
     );
