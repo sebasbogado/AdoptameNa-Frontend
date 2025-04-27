@@ -16,6 +16,8 @@ import MenuButton from "../buttons/menu-button";
 import { getPetsByUserId } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { useParams } from "next/navigation";
+import TransferModal from "../transfer-modal";
+import { RefreshCcw } from "lucide-react";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -41,10 +43,22 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const [openTransferModal, setOpenTransferModal] = useState(false);
+
     const toggleMenu = () => {
         setIsMenuOpen(prev => !prev);
     };
+
+    const handleTransferClick = () => {
+        setOpenTransferModal(true);
+        setIsMenuOpen(false)
+    };
     
+    const handleConfirmTransfer = () => {
+        //transferir mascota llamando al api
+        console.log("Mascota transferida!");
+        setOpenTransferModal(false); 
+      };
 
     const handleShare = async () => {
         if (!postId) return;
@@ -103,7 +117,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     
         checkIfPetIsMine();
       }, [user?.id, petId]);
-      
+
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
@@ -124,17 +138,29 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
 
             <ReportButton size="lg" />
 
+            {openTransferModal && (
+                <TransferModal
+                    isOpen={openTransferModal}
+                    onClose={() => setOpenTransferModal(false)}
+                    onConfirm={handleConfirmTransfer}
+              />
+            )}
+
             {isMenuOpen && (
-                <div className="absolute top-12 m-1 right-0 bg-white shadow-lg p-4 rounded-lg">
+                <div className="absolute top-12 right-0 m-1 bg-white shadow-2xl p-4 rounded-xl border border-gray-100 transition-all duration-200 ease-out z-50">
                     {/* Contenido del menú */}
-                    <Button variant="secondary" className="text-gray-500">
+                    <button 
+                        className="flex items-center gap-2 text-gray-700 hover:bg-gray-100 w-full text-left p-2 rounded"
+                        onClick={handleTransferClick}
+                    >
+                        <RefreshCcw className="w-4 h-4" />
                         Transferir mascota
-                    </Button>
+                    </button>
                 </div>
             )}
             
             {  isMyPets && 
-                <MenuButton size="lg" onClick={toggleMenu} />
+                <MenuButton size="lg" onClick={toggleMenu} className="hover:bg-gray-100" />
             }
 
             <div className="relative">
