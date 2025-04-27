@@ -1,4 +1,6 @@
-import { useState } from "react";
+'use client';
+
+import { useEffect, useState } from "react";
 import Button from "../buttons/button";
 import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
@@ -10,6 +12,10 @@ import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 import EditButton from "../buttons/edit-button";
 import Link from "next/link";
+import MenuButton from "../buttons/menu-button";
+import { getPetsByUserId } from "@/utils/pets.http";
+import { Pet } from "@/types/pet";
+import { useParams } from "next/navigation";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -27,6 +33,12 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
     const isEditing = user?.id === postIdUser;
+
+    const [isMyPets, setIsMyPet] = useState(false);
+    const params = useParams();
+
+    const petId = Number(params.id);
+    
 
     const handleShare = async () => {
         if (!postId) return;
@@ -67,6 +79,25 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             console.error("Error al actualizar favorito", error);
         }
     };
+
+    useEffect(() => {
+        const checkIfPetIsMine = async () => {
+          if (!user?.id || !petId) return;
+    
+          try {
+            const response = await getPetsByUserId({ userId: user.id });
+            const myPets: Pet[] = response.data;
+    
+            const found = myPets.some(pet => pet.id === petId);
+            setIsMyPet(found);
+          } catch (error) {
+            console.error("Error al obtener mascotas del usuario", error);
+          }
+        };
+    
+        checkIfPetIsMine();
+      }, [user?.id, petId]);
+      
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
@@ -86,6 +117,10 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             </div>
 
             <ReportButton size="lg" />
+            
+            {  isMyPets && 
+                <MenuButton size="lg" />
+            }
 
             <div className="relative">
                 {!isPet &&
