@@ -235,7 +235,7 @@ export default function ProfilePage() {
                     {/* Mostrar el mapa si las coordenadas están disponibles */}
                     {userProfile?.addressCoordinates && (
                         <div className='w-[40vw] mt-[-70px] '>
-                            <PostLocationMap location={userProfile?.addressCoordinates} />
+                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization}/>
                         </div>
                     )}
 
