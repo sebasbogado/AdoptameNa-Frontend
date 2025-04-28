@@ -40,6 +40,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const params = useParams();
 
     const petId = Number(params.id);
+    const [petName, setPetName] = useState("");
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -108,8 +109,13 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             const response = await getPetsByUserId({ userId: user.id });
             const myPets: Pet[] = response.data;
     
-            const found = myPets.some(pet => pet.id === petId);
-            setIsMyPet(found);
+            const found = myPets.find(pet => pet.id === petId);
+                if (found) {
+                    setIsMyPet(true);
+                    setPetName(found.name);
+                } else {
+                    setIsMyPet(false);
+                }
           } catch (error) {
             console.error("Error al obtener mascotas del usuario", error);
           }
@@ -143,6 +149,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                     isOpen={openTransferModal}
                     onClose={() => setOpenTransferModal(false)}
                     onConfirm={handleConfirmTransfer}
+                    message={`¿Estás seguro de transferir a ${petName}?`}
               />
             )}
 

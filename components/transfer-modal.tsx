@@ -19,6 +19,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
 }) => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (email: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -58,12 +59,12 @@ const TransferModal: React.FC<TransferModalProps> = ({
       </div>
 
       <div className="mt-4 flex justify-end space-x-2">
-        <Button variant="danger" onClick={onClose}>
+        <Button variant="secondary" size="md" onClick={onClose}>
           Cancelar
         </Button>
-        <button onClick={handleConfirm} className="px-4 py-2 text-gray-700 border border-gray-300 rounded">
+        <Button variant="primary" size="md" onClick={handleConfirm} disabled={loading}>
           Confirmar
-        </button>
+        </Button>
       </div>
     </Modal>
   );
