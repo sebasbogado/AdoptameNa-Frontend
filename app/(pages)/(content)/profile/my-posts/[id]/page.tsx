@@ -23,7 +23,7 @@ export default function MyPostsPage() {
     const [selectedPostTypeId, setSelectedPostTypeId] = useState<number | null>(null);
     const myUserId = user?.id;
     const isVisitor = profileId !== myUserId;
-    const pageSize = 20;
+    const pageSize = 10;
 
     const {
         data: posts,
@@ -105,38 +105,36 @@ export default function MyPostsPage() {
                 </div>
             </div>
 
-            <section>
-                <div className="min-h-[400px] w-full flex flex-col items-center justify-center mb-6">
-                    {error ? (
-                        <div className="bg-red-100 text-red-700 p-4 rounded-md max-w-md">
-                            Error al cargar los posts
-                        </div>
-                    ) : postsLoading ? (
-                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
-                    ) : posts.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-4">
-                            {isVisitor ? (
-                                <p className="text-gray-600">Este usuario no ha hecho publicaciones aún</p>
-                            ) : (
-                                <p className="text-gray-600">Aún no tenés posts creados</p>
-                            )}
-                            <Link
-                                href="/"
-                                className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow hover:bg-primary/90 transition-colors"
-                            >
-                                <Home size={18} />
-                                <span>Volver al inicio</span>
-                            </Link>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 px-12 py-4">
-                            {posts.map((post) => (
-                                <PetCard key={post.id} post={post} isPost className="w-full max-w-md" />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
+            <div className="w-full flex flex-col items-center justify-center mb-6">
+                {error ? (
+                    <div className="bg-red-100 text-red-700 p-4 rounded-md max-w-md">
+                        Error al cargar los posts
+                    </div>
+                ) : postsLoading ? (
+                    <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                ) : posts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        {isVisitor ? (
+                            <p className="text-gray-600">Este usuario no ha hecho publicaciones aún</p>
+                        ) : (
+                            <p className="text-gray-600">Aún no tenés posts creados</p>
+                        )}
+                        <Link
+                            href="/"
+                            className="mt-2 inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg shadow hover:bg-primary/90 transition-colors"
+                        >
+                            <Home size={18} />
+                            <span>Volver al inicio</span>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
+                        {posts.map((post) => (
+                            <PetCard key={post.id} post={post} isPost />
+                        ))}
+                    </div>
+                )}
+            </div>
 
             <div className="flex justify-center my-6">
                 <Pagination
