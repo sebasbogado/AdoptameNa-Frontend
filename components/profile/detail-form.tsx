@@ -6,6 +6,7 @@ import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
 import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import DonationModal from "../donation-modal";
 
 interface InputProps {
   user: User;
@@ -35,6 +36,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const { user: userAuth } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
 
+  const [openDonationModal, setOpenDonationModal] = useState(false);
+
   useEffect(() => {
     if (userAuth && userProfile?.id) {
       if (String(userAuth.id) === String(userProfile.id)) {
@@ -44,6 +47,17 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       }
     }
   }, [userAuth, userProfile]);
+
+  const hanleDonationclick = () => {
+    setOpenDonationModal(true);
+  }; 
+
+  const handleConfirmDonation = () => {
+    // Abrir whatsapp y setear estos datos
+    console.log("Monto Donado!");
+    console.log({ name: userProfile?.fullName, telefono: userProfile?.phoneNumber });
+    setOpenDonationModal(false); 
+  };
 
   return (
     <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
@@ -206,9 +220,19 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               {/* Botones visibles solo para el Visitante */}
               {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
                 <div className="flex gap-4">
-                  <button className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                  <button type="button" onClick={hanleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
                     Donar
                   </button>
+
+                  {openDonationModal && (
+                    <DonationModal
+                      isOpen={openDonationModal}
+                      title={`Donación para ${fundraisingTitle}`}
+                      onClose={() => setOpenDonationModal(false)}
+                      onConfirm={handleConfirmDonation}
+                      user={{ name: userProfile.fullName, telefono: userProfile.phoneNumber }}
+                    />
+                  )}
                 </div>
               )}
             </div>
