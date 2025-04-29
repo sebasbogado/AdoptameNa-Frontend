@@ -252,7 +252,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                       title={`Donación para ${fundraisingTitle}`}
                       onClose={() => setOpenDonationModal(false)}
                       onConfirm={handleConfirmDonation}
-                      user={{ name: userAuth?.fullName || "Donador Anonimo"}}
+                      user={{ name: userAuth?.fullName || "Donador Anónimo"}}
                     />
                   )}
                 </div>
