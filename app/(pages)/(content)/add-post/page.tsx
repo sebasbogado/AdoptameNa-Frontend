@@ -35,6 +35,7 @@ export default function Page() {
         register,
         handleSubmit,
         setValue,
+        watch,
         control,
         formState: { errors, isSubmitting }
     } = useForm<PostFormValues>({
@@ -355,10 +356,11 @@ export default function Page() {
                 <label className="block text-sm font-medium">Tipo de publicación <span className="text-red-500">*</span></label>
                 <select
                     {...register("postTypeId", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
+                    className={`w-full p-2 border rounded mb-4 
+                        ${errors.postTypeId ? 'border-red-500' : ''} 
+                        ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
                 >
-                    {/* Opción por defecto explícita si postTypeId 0 no es una opción seleccionable */}
-                    <option value={0}>Seleccione un tipo</option>
+                    <option disabled value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
@@ -382,6 +384,7 @@ export default function Page() {
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
                 <input
                     type="text"
+                    placeholder="Titulo"
                     {...register("title")}
                     className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
                 />
@@ -391,6 +394,7 @@ export default function Page() {
                 <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
                 <textarea
                     {...register("content")}
+                    placeholder="Descripción"
                     className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
                 />
                 {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
@@ -399,6 +403,7 @@ export default function Page() {
                 <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
                 <input
                     type="text"
+                    placeholder="0000123456"
                     {...register("contactNumber")}
                     className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
                 />
