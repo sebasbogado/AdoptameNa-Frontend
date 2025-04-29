@@ -5,7 +5,7 @@ import { CreateProfile } from "@/components/profile/create-form";
 import { WelcomeUser } from "@/components/profile/welcome-user";
 import { useAuth } from "@/contexts/auth-context";
 import { UpdateUserProfile } from "@/types/user-profile";
-import { updateUserProfile } from "@/utils/user-profile-client";
+import { updateUserProfile } from "@/utils/user-profile.http";
 import { profileSchema, ProfileValues } from "@/validations/user-profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
