@@ -18,7 +18,7 @@ import { ConfirmationModal } from "@/components/form/modal";
 import { useAuth } from "@/contexts/auth-context";
 import { CreateProduct } from "@/types/product";
 import { createProduct } from "@/utils/product.http";
-import { getFullUser } from "@/utils/user-profile-client";
+import { getFullUser } from "@/utils/user-profile.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { Media } from "@/types/media";
 import Image from "next/image";
