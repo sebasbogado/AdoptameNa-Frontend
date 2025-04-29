@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ProductFormValues, productSchema } from "@/validations/product-schema";
 import { ProductCondition } from "@/types/product-condition";
 import { getAnimals } from "@/utils/animals.http";
@@ -74,13 +74,13 @@ export default function Page() {
     mediaIds: []
   });
   const [selectedImages, setSelectedImages] = useState<Media[]>([]);
-  const [arrayImages, setArrayImages] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [precautionMessage, setPrecautionMessage] = useState("");
   const MAX_IMAGES = 5;
   const selectedAnimalsIds = selectedAnimals.map((animal) => animal.id);
+  const [validatedData, setValidatedData] = useState<ProductFormValues | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -125,44 +125,60 @@ export default function Page() {
     }
   }, [authToken, authLoading, router, user?.id]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     router.push("/marketplace");
-  }
+  }, [router]);
 
-  const handlePositionChange = (newPosition: [number, number]) => {
-    setPosition(newPosition); // Actualiza el estado local
-    setValue("locationCoordinates", newPosition); // Actualiza el formulario
+  const onSubmit = (data: ProductFormValues) => {
+    // 'data' aquí ya está validado por Zod
+    openConfirmationModal(data); // Pasa los datos validados al modal/handler
   };
 
+  const handlePositionChange = useCallback((newPosition: [number, number]) => {
+    setPosition(newPosition);
+    setValue("locationCoordinates", newPosition, { shouldValidate: true });
+  }, [setValue]);
+
   const openConfirmationModal = (data: ProductFormValues) => {
-    setFormData(data);
+    setValidatedData(data);
     setIsModalOpen(true);
   }
 
   const confirmSubmit = async () => {
-    if (!authToken || !user?.id || !formData) return;
+    if (!authToken || !user?.id || !validatedData) {
+      setPrecautionMessage("Faltan completar datos para crear producto!");
+      return;
+    }
     setLoading(true);
     const postProduct: CreateProduct = {
-      title: formData.title,
-      content: formData.content,
-      price: formData.price,
-      categoryId: formData.categoryId,
-      condition: formData.condition,
-      animalsId: selectedAnimalsIds,
-      mediaIds: formData.mediaIds ? formData.mediaIds : [],
-      contactNumber: formData.contactNumber,
+      title: validatedData.title,
+      content: validatedData.content,
+      price: validatedData.price,
+      categoryId: validatedData.categoryId,
+      condition: validatedData.condition,
+      animalIds: selectedAnimalsIds,
+      mediaIds: validatedData.mediaIds || [],
+      contactNumber: validatedData.contactNumber,
       userId: parseInt(user?.id.toString(), 10),
-      locationCoordinates: position?.join(",") || ""
+      locationCoordinates: validatedData.locationCoordinates.join(",") // Usa validatedData
     };
     try {
-      await createProduct(postProduct, authToken);
-      console.log("Product created successfully", postProduct);
+      const response = await createProduct(postProduct, authToken);
+      if (response && response.id) {
+        // Redirige AHORA usando el ID de la RESPUESTA
+        router.push(`/product/${response.id}`);
+    } else {
+        // Si no hay ID en la respuesta, maneja el caso (ej: redirige a dashboard)
+        console.warn("Producto creado, pero no se recibió ID en la respuesta. Redirigiendo al dashboard.");
+        router.push("/dashboard"); // O a donde sea apropiado como fallback
+    }
+      setValidatedData(null);
     } catch (error) {
       console.error("Error creating product:", error);
+      setErrorMessage("Hubo un error al crear el producto. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
       setIsModalOpen(false);
-      router.push("/dashboard");
     }
   }
 
@@ -192,14 +208,11 @@ export default function Page() {
         const response = await postMedia(fileData, authToken);
 
         if (response) {
-          const { id } = response;
-          setSelectedImages(prev => [...prev, response]);
-          setValue("mediaIds", [id]);
-          setFormData(
-            prev => ({
-              ...prev,
-              mediaIds: [...(prev.mediaIds || []), id]
-            }));
+          const newSelectedImages = [...selectedImages, response];
+          setSelectedImages(newSelectedImages);
+          // Actualiza react-hook-form con TODOS los IDs actuales
+          const updatedMediaIds = newSelectedImages.map(img => img.id);
+          setValue("mediaIds", updatedMediaIds, { shouldValidate: true }); // Añadir validación si es necesario
         }
       } catch (error: any) {
         if (error.response?.status === 415) {
@@ -230,18 +243,13 @@ export default function Page() {
         await deleteMedia(imageToRemove.id, authToken);
       }
 
-      // Eliminar del estado local
       const updatedImages = selectedImages.filter((_, i) => i !== index);
       setSelectedImages(updatedImages);
-
-      // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
-      if (updatedImages.length === 0) {
-        setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
-        setFormData(prev => ({ ...prev, mediaIds: [] }));
-      }
+      // Actualiza react-hook-form con los IDs restantes
+      const updatedMediaIds = updatedImages.map(img => img.id);
+      setValue("mediaIds", updatedMediaIds, { shouldValidate: true }); // Añadir validación si es necesario
 
       setSuccessMessage("Imagen eliminada exitosamente.");
-      setTimeout(() => setSuccessMessage(""), 3000); // Ocultar mensaje después de 3 segundos
 
     } catch (error) {
       setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
@@ -254,12 +262,6 @@ export default function Page() {
   const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
-
-  useEffect(() => {
-    //para mostrar las imagenes en el banner
-    const urls = selectedImages.map(image => image.url);
-    setArrayImages(urls || ["./logo.png"]);
-  }, [selectedImages]);
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
@@ -295,7 +297,7 @@ export default function Page() {
           </Alert>
         </div>
       )}
-      <Banners images={arrayImages} />
+      <Banners images={selectedImages.length > 0 ? selectedImages.map(img => img.url) : ["/logo.png"]} />
       <div className="flex gap-2 mt-2 justify-center items-center">
         {selectedImages.map((src, index) => (
           <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
@@ -333,7 +335,7 @@ export default function Page() {
           <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
         </label>
       </div>
-      <form onSubmit={handleSubmit(openConfirmationModal)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <label className="block text-sm font-medium">Título</label>
         <input
           type="text"
@@ -387,10 +389,6 @@ export default function Page() {
           }
         />
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-
-
-
 
         <label className="block text-sm font-medium">Precio</label>
         <input type="number" {...register("price", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
