@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useState } from "react";
 import { ProductFormValues, productSchema } from "@/validations/product-schema";
@@ -25,6 +25,7 @@ import Image from "next/image";
 import { Alert } from "@material-tailwind/react";
 import { ImagePlus } from "lucide-react";
 import { MultiSelect } from "@/components/multi-select";
+import LabeledInput from "@/components/inputs/labeled-input";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -36,7 +37,8 @@ export default function Page() {
     register,
     handleSubmit,
     formState: { errors },
-    setValue
+    setValue,
+    control
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -61,18 +63,6 @@ export default function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, authToken, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<ProductFormValues>({
-    title: "",
-    content: "",
-    locationCoordinates: [0, 0],
-    contactNumber: "",
-    price: 0,
-    userId: 0,
-    categoryId: 0,
-    animalsId: [],
-    condition: ProductCondition.NEW,
-    mediaIds: []
-  });
   const [selectedImages, setSelectedImages] = useState<Media[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -166,9 +156,10 @@ export default function Page() {
       const response = await createProduct(postProduct, authToken);
       if (response && response.id) {
         // Redirige AHORA usando el ID de la RESPUESTA
-        router.push(`/product/${response.id}`);
+        //router.push(`/product/${response.id}`);
+        router.push("/marketplace");
     } else {
-        // Si no hay ID en la respuesta, maneja el caso (ej: redirige a dashboard)
+        // Si no hay ID en la respuesta
         console.warn("Producto creado, pero no se recibió ID en la respuesta. Redirigiendo al dashboard.");
         router.push("/dashboard"); // O a donde sea apropiado como fallback
     }
@@ -390,9 +381,29 @@ export default function Page() {
         />
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
-        <label className="block text-sm font-medium">Precio</label>
-        <input type="number" {...register("price", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
-        {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+        {/*--- Input de Precio --- */}
+        <Controller
+          name="price" // El nombre del campo en tu schema/formValues
+          control={control}
+          render={({ field, fieldState }) => (
+            // field: { onChange, onBlur, value, name, ref }
+            // fieldState: { invalid, isTouched, isDirty, error }
+            <div> {/* Envuelve para posicionar el error correctamente */}
+              <LabeledInput
+                label="Precio" // Pasas la etiqueta como prop
+                value={field.value} // Conectas el valor de RHF al componente
+                onChange={field.onChange} // Conectas el onChange de RHF al componente
+                placeholder="0"
+              />
+              {/* Muestras el error asociado a este campo desde RHF */}
+              {fieldState.error && (
+                <p className="text-red-500 text-sm mt-1">
+                  {fieldState.error.message}
+                </p>
+              )}
+            </div>
+          )}
+        />
 
         {/*Mapa */}
         <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
