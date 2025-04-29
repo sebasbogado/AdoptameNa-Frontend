@@ -4,8 +4,7 @@ import Button from "./buttons/button";
 import LabeledInput from "./inputs/labeled-input";
 
 interface User {
-    name: string;
-    telefono: string | null;
+    name: string | undefined;
   }
 
 interface DonationModalProps {
@@ -44,7 +43,6 @@ const DonationModal: React.FC<DonationModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
         <div className="border border-gray-300 rounded m-2 p-2">
             <p>Donador: {user.name}</p>
-            <p>Telefono: {user.telefono}</p>
         </div>
 
         <div className="m-2 p-2">

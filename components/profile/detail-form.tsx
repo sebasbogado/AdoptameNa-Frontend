@@ -52,10 +52,32 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     setOpenDonationModal(true);
   }; 
 
-  const handleConfirmDonation = () => {
-    // Abrir whatsapp y setear estos datos
-    console.log("Monto Donado!");
-    console.log({ name: userProfile?.fullName, telefono: userProfile?.phoneNumber });
+  const handleConfirmDonation = (donation: number | null) => {
+    
+    const dName = userAuth?.fullName || "Donador Anónimo";
+    const rName = userProfile?.fullName || "Receptor";
+    let rawPhone = userProfile?.phoneNumber || "";
+
+    // Limpia el número (quitar espacios, guiones, etc.)
+    rawPhone = rawPhone.replace(/\D/g, "");
+
+    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    if (!rawPhone || rawPhone.length < 8) {
+      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+    return;
+  }
+
+    // Convierte a formato internacional si empieza con 0
+    if (rawPhone.startsWith("0")) {
+      rawPhone = "595" + rawPhone.slice(1); // 🇵🇾 Paraguay (ajústalo según país)
+    }
+
+    const message = `Hola ${rName}, has recibido una donación de Gs. ${donation?.toLocaleString("es-PY")} de parte de ${dName}.`;
+
+    const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
     setOpenDonationModal(false); 
   };
 
@@ -230,7 +252,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                       title={`Donación para ${fundraisingTitle}`}
                       onClose={() => setOpenDonationModal(false)}
                       onConfirm={handleConfirmDonation}
-                      user={{ name: userProfile.fullName, telefono: userProfile.phoneNumber }}
+                      user={{ name: userAuth?.fullName || "Donador Anonimo"}}
                     />
                   )}
                 </div>
