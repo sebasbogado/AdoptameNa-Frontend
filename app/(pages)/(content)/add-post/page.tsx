@@ -42,7 +42,7 @@ export default function Page() {
             locationCoordinates: [0, 0],
             contactNumber: "",
             mediaIds: [],
-            tagsIds: [],
+            tagIds: [],
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
