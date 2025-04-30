@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../buttons/button";
 import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
@@ -10,6 +10,9 @@ import { Favorites } from "@/types/favorites";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 import EditButton from "../buttons/edit-button";
 import Link from "next/link";
+import AdoptionModal from "../adoption-modal";
+import { UserProfile } from "@/types/user-profile";
+import { getUserProfile } from "@/utils/user-profile-client";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -27,6 +30,39 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const isFavorite = favorites.some((fav: Favorites) => String(fav.postId) === String(postId));
     const isEditing = user?.id === postIdUser;
+
+
+    const [openAdoptionModal, setOpenAdoptionModal] = useState(false);
+
+    const [userProfile, setUserProfile] = useState<UserProfile>();
+
+    const getUserProfileData = async (userId: string) => {
+        try {
+            const profile = await getUserProfile(userId);
+            console.log("Perfil recibido:", profile);
+            setUserProfile(profile);
+        } catch (err) {
+            console.error("Error al cargar el perfil:", err);
+        }
+    };
+    
+
+    useEffect(() => {
+        if (user?.id) {
+            getUserProfileData(String(user.id));
+        }
+    }, [authToken, user?.id]);
+
+    const handleAdoptionClick = () => {
+        setOpenAdoptionModal(true);
+    };
+
+    const handleConfirmAdoption = (data: any) => {
+        //Agregar id de mascota a donar
+        console.log("datos para enviar al backend", data);
+        setOpenAdoptionModal(false);
+    };
+    
 
     const handleShare = async () => {
         if (!postId) return;
@@ -69,11 +105,22 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     };
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
-            {isPet && <Button variant="cta" size="lg">Adoptar</Button>}
+            {isPet && <Button variant="cta" size="lg" onClick={handleAdoptionClick} >Adoptar</Button>}
             {isEditing && (
                 <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
                     <EditButton size="lg" isEditing={false} />
                 </Link>
+            )}
+            
+            {openAdoptionModal && (
+                <AdoptionModal
+                isOpen={openAdoptionModal}
+                onClose={() => setOpenAdoptionModal(false)}
+                onConfirm={handleConfirmAdoption}
+                currentUser={userProfile?.fullName}
+                email={user?.email ?? ""}
+                telefono={userProfile?.phoneNumber ?? undefined}
+              />
             )}
 
             <div className="relative">
