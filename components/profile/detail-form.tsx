@@ -52,9 +52,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     setOpenDonationModal(true);
   }; 
 
-  const handleConfirmDonation = (donation: number | null) => {
+  const handleConfirmDonation = (donation: number | null, nombre: string | null) => {
     
-    const dName = userAuth?.fullName || "Donador Anónimo";
+    const dName = userAuth?.fullName || nombre || "Donador Anónimo";
     const rName = userProfile?.fullName || "Receptor";
     let rawPhone = userProfile?.phoneNumber || "";
 
@@ -72,7 +72,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       rawPhone = "595" + rawPhone.slice(1); // 🇵🇾 Paraguay (ajústalo según país)
     }
 
-    const message = `Hola ${rName}, has recibido una donación de Gs. ${donation?.toLocaleString("es-PY")} de parte de ${dName}.`;
+    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${donation?.toLocaleString("es-PY")}, soy ${dName}.`;
 
     const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
 
