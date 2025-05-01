@@ -6,7 +6,8 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
-import rps from "@/services/request-password-service";
+import { resetPassword } from "@/utils/auth.http";
+
 
 export default function ResetPasswordConfirm() {
   const { loading } = useAuth();
@@ -19,15 +20,15 @@ export default function ResetPasswordConfirm() {
   const searchParams = useSearchParams();
 
   // Obtener el token de la URL
-    useEffect(() => {
-      const tokenFromUrl = searchParams.get("token");
-      if (tokenFromUrl) {
-        setToken(tokenFromUrl);
-        setError(""); 
-      }else{
-        setError("El token no existe o es invalido")
-      }
-    }, [searchParams]);
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get("token");
+    if (tokenFromUrl) {
+      setToken(tokenFromUrl);
+      setError("");
+    } else {
+      setError("El token no existe o es invalido")
+    }
+  }, [searchParams]);
 
   // Función para manejar el cambio de los campos de entrada
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +59,7 @@ export default function ResetPasswordConfirm() {
     setIsSubmitting(true);
 
     try {
-      const response = await rps.postPassword({newPassword: credentials.password, token: token});
+      const response = await resetPassword({ newPassword: credentials.password, token: token });
       if (response) {
         console.log("Console responde: " + response.data)
       }
