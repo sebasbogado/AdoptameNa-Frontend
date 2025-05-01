@@ -12,7 +12,7 @@ import EditButton from "../buttons/edit-button";
 import Link from "next/link";
 import AdoptionModal from "../adoption-modal";
 import { UserProfile } from "@/types/user-profile";
-import { getUserProfile } from "@/utils/user-profile-client";
+import { getUserProfile } from "@/utils/user-profile.http";
 import { AdoptionRequest } from "@/types/adoption-request";
 import { postAdoption } from "@/utils/adoptions.http";
 import { getPetsByUserId } from "@/utils/pets.http";
