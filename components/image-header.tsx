@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/auth-context";
 import EditButton from "./buttons/edit-button";
 import { postMedia } from "@/utils/media.http";
 import { Alert, Carousel, Tooltip } from "@material-tailwind/react";
-import { updateUserProfile } from "@/utils/user-profile-client";
+import { updateUserProfile } from "@/utils/user-profile.http";
 import { MediaDTO, UserProfile } from "@/types/user-profile";
 import { ChevronLeft, ChevronRight, ImagePlusIcon, X } from "lucide-react";
 import Image from "next/image";

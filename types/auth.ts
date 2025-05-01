@@ -4,6 +4,10 @@ export interface User {
   email: string;
   role: string;
   isProfileCompleted: boolean;
+  location?: {
+    lat: number | null;
+    lon: number | null;
+  };
 }
 
 export interface AuthState {
