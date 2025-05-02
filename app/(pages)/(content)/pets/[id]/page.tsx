@@ -9,7 +9,7 @@ import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import { Pet } from "@/types/pet";
 import { getPet, getPets } from "@/utils/pets.http";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {

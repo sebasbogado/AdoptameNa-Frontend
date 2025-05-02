@@ -11,7 +11,6 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
-import Banners from "@/components/banners";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
@@ -22,7 +21,7 @@ import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { ImagePlus } from "lucide-react";
 import { Media } from "@/types/media";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),

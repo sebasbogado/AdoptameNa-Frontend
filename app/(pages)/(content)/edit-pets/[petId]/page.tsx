@@ -25,7 +25,7 @@ import { Animal } from "@/types/animal";
 import { Breed } from "@/types/breed";
 import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),

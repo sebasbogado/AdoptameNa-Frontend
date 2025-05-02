@@ -10,7 +10,7 @@ import { PostHeader } from "@/components/post/post-header";
 import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {

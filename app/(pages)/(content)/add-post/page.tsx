@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
 import { Tags } from "@/types/tags";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
