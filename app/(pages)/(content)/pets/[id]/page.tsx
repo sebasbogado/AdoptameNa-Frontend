@@ -3,13 +3,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
-import Banners from "@/components/banners";
 import { PostHeader } from "@/components/post/post-header";
 import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import { Pet } from "@/types/pet";
 import { getPet, getPets } from "@/utils/pets.http";
+import NewBanner from "@/components/NewBanner";
 
 const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -66,11 +66,7 @@ const PostPage = () => {
     return (
         <>
             <div>
-                <Banners images={(pet?.media && pet.media.length > 0)
-                    ? pet.media.map(media => media.url)
-                    : ['/logo.png']}
-                    className="h-[550px]"
-                />
+                <NewBanner medias={pet?.media || []}/>
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-10 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader pet={pet as Pet} />
