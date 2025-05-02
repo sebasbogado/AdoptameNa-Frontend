@@ -421,7 +421,7 @@ export default function Page() {
                 <div className="w-full mb-2">
                   <label className="block mb-1">Tipo de Animal</label>
                   <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
-                    <option value="0">Seleccione el tipo de animal</option>
+                    <option value="0">Seleccion el tipo de animal</option>
                     {animals?.map((a, i) => (
                       <option key={i} value={a.id}>{a.name}</option>
                     ))}
@@ -473,14 +473,14 @@ export default function Page() {
 
                 {/* isVaccinated */}
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Está desparasitado</label>
+                  <label>Esta desparasitado</label>
                   <input type="checkbox" {...register("isVaccinated")} />
                   {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
                 </div>
 
                 {/* isSterilized */}
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Está esterilizado</label>
+                  <label>Esta esterilizado</label>
                   <input type="checkbox" {...register("isSterilized")} />
                   {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
                 </div>

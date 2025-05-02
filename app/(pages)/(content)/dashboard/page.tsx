@@ -73,7 +73,7 @@ export default function Page() {
     return (
         <div className='flex flex-col gap-3'>
             <Section
-                title='En adopción'
+                title='En adopcion'
                 path='adoption'
                 postTypeName="Adopcion"
                 items={adoptionPets}
