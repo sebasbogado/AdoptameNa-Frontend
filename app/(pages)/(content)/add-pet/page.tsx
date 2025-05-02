@@ -26,7 +26,7 @@ import { Breed } from "@/types/breed";
 import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
 import { CreatePet } from "@/types/pet";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -383,17 +383,17 @@ export default function Page() {
               {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
             </div>
 
-            {/* Tipo de Animal */}
-            <div className="w-full mb-2">
-              <label className="block mb-1">Tipo de Animal</label>
-              <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
-                <option value="0">Seleccion el tipo de animal</option>
-                {animals?.map((a, i) => (
-                  <option key={i} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-              {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
-            </div>
+                {/* Tipo de Animal */}
+                <div className="w-full mb-2">
+                  <label className="block mb-1">Tipo de Animal</label>
+                  <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
+                    <option value="0">Seleccione el tipo de animal</option>
+                    {animals?.map((a, i) => (
+                      <option key={i} value={a.id}>{a.name}</option>
+                    ))}
+                  </select>
+                  {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
+                </div>
 
             {/* breedId */}
             <div className="w-full mb-2f">
@@ -437,19 +437,19 @@ export default function Page() {
               <input type="radio" value="FEMALE" {...register("gender")} />
             </div>
 
-            {/* isVaccinated */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Esta desparasitado</label>
-              <input type="checkbox" {...register("isVaccinated")} />
-              {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
-            </div>
+                {/* isVaccinated */}
+                <div className="flex gap-2 items-center mb-2">
+                  <label>Está desparasitado</label>
+                  <input type="checkbox" {...register("isVaccinated")} />
+                  {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
+                </div>
 
-            {/* isSterilized */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Esta esterilizado</label>
-              <input type="checkbox" {...register("isSterilized")} />
-              {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-            </div>
+                {/* isSterilized */}
+                <div className="flex gap-2 items-center mb-2">
+                  <label>Está esterilizado</label>
+                  <input type="checkbox" {...register("isSterilized")} />
+                  {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
+                </div>
 
             {/* Mapa */}
             <div
