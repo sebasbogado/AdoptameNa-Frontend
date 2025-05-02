@@ -9,28 +9,28 @@ import { Alert } from "@material-tailwind/react";
 import Modal from "@/components/modal";
 import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
+import BannerImage from '@/components/banner/banner-image';
 
 interface SponsorFormData {
     responsibleName: string;
     email: string;
     reason: string;
-    wantsLogo: boolean;
-    wantsBanner: boolean;
     logoId: number | null;
+    bannerId: number | null;
 }
 
 const initialFormState: SponsorFormData = {
     responsibleName: '',
     email: '',
     reason: '',
-    wantsLogo: true,
-    wantsBanner: false,
-    logoId: null
+    logoId: null,
+    bannerId: null
 };
 
 export default function SponsorFormPage() {
     const [formData, setFormData] = useState<SponsorFormData>(initialFormState);
     const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+    const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
     const [alertInfo, setAlertInfo] = useState<{
         open: boolean;
         color: "green" | "red" | "blue";
@@ -57,22 +57,35 @@ export default function SponsorFormPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCheckboxChange = (name: string) => {
-        setFormData(prev => ({ ...prev, [name]: !prev[name as keyof SponsorFormData] }));
+
+    const validateFile = (file: File, type: 'logo' | 'banner') => {
+        const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+        if (!allowedTypes.includes(file.type)) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: `El archivo debe ser una imagen (PNG, JPEG o WEBP)`
+            });
+            return false;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: `El tamaño de la imagen debe ser menor a 5MB`
+            });
+            return false;
+        }
+
+        return true;
     };
 
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
 
-        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
-        if (!allowedTypes.includes(file.type)) {
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            return;
-        }
+        if (!validateFile(file, 'logo')) return;
 
         const formData = new FormData();
         formData.append("file", file);
@@ -81,14 +94,30 @@ export default function SponsorFormPage() {
             const response = await postMedia(formData, authToken);
             setFormData(prev => ({ ...prev, logoId: response.id }));
             setLogoPreviewUrl(response.url);
+            setShowLogoError(false);
         } catch (error) {
             console.error("Error al subir logo", error);
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
+            });
         }
+    };
+
+    const handleBannerUpload = (imageData: { id: number; url: string }) => {
+        setFormData(prev => ({ ...prev, bannerId: imageData.id }));
+        setBannerPreviewUrl(imageData.url);
     };
 
     const handleRemoveLogo = () => {
         setFormData(prev => ({ ...prev, logoId: null }));
         setLogoPreviewUrl(null);
+    };
+
+    const handleRemoveBanner = () => {
+        setFormData(prev => ({ ...prev, bannerId: null }));
+        setBannerPreviewUrl(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -103,6 +132,11 @@ export default function SponsorFormPage() {
         }
 
         if (!formData.logoId) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Debes subir el logo de tu organización para continuar"
+            });
             setShowLogoError(true);
             return;
         }
@@ -112,13 +146,16 @@ export default function SponsorFormPage() {
             const sponsorData = {
                 contact: formData.email,
                 reason: formData.reason,
-                logoId: formData.logoId
+                logoId: formData.logoId,
+                bannerId: formData.bannerId || undefined
             };
+
 
             await createSponsor(authToken, sponsorData);
             setShowSuccessModal(true);
             setFormData(initialFormState);
             setLogoPreviewUrl(null);
+            setBannerPreviewUrl(null);
             setShowLogoError(false);
 
         } catch (error) {
@@ -208,7 +245,7 @@ export default function SponsorFormPage() {
                                 Logo de tu organización
                             </label>
                             <p className={`text-sm ${showLogoError ? 'text-red-600' : 'text-blue-600'} italic mb-2 text-center`}>
-                                Para continuar debes subir el logo de tu organización haciendo click en el cuadro de abajo
+                                Sube el logo de tu organización haciendo click en el cuadro de abajo
                             </p>
                             <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto relative">
                                 {logoPreviewUrl ? (
@@ -249,30 +286,21 @@ export default function SponsorFormPage() {
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            checked={formData.wantsBanner}
-                            onChange={() => handleCheckboxChange('wantsBanner')}
-                        />
-                        <span>Quiero publicar un banner publicitario</span>
-                    </label>
-
-                    {formData.wantsBanner && (
-                        <div className="h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center">
-                            <label className="cursor-pointer block">
-                                + Añadir banner
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                />
+                        <div>
+                            <label className="block mb-1">
+                                Banner publicitario
                             </label>
-                            <p className="text-sm text-gray-500 mt-2">Tamaño sugerido: 900x300 píxeles</p>
+                            <p className="text-sm text-blue-600 italic mb-2 text-center">
+                                Tamaño recomendado: 900x300 píxeles
+                            </p>
+                            <BannerImage
+                                onImageUploaded={handleBannerUpload}
+                                initialImage={bannerPreviewUrl || undefined}
+                                token={authToken || ''}
+                            />
                         </div>
-                    )}
+                    </div>
 
                     <div className="flex flex-col justify-center gap-4 mt-6">
                         <Button
