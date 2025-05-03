@@ -71,8 +71,10 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
     };
 
     return (
-        <div className={clsx("w-64 h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            <div className="relative">
+        <div className={clsx(
+            "min-w-64 sm:min-w-0 w-full md:w-64 lg:w-64 h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+            className
+        )}>            <div className="relative">
                 {successMessage && (
                     <Alert
                         color="green"
