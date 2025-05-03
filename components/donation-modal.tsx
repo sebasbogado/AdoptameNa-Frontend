@@ -5,24 +5,8 @@ import LabeledInput from "./inputs/labeled-input";
 import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 
-// Validación con Zod
-const donationSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Por favor, ingresa un nombre válido.")
-    .regex(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/, "Solo se permiten letras y espacios.")
-    .optional(),
-  amount: z
-    .number({
-      required_error: "Por favor, ingresa un monto válido.",
-      invalid_type_error: "El monto debe ser un número.",
-    })
-    .min(1, "Por favor, ingresa un monto mayor a 0."),
-});
-
-type DonationFormData = z.infer<typeof donationSchema>;
+import { donationSchema, DonationFormData } from "@/types/schemas/donation-schema";
 
 interface User {
   name: string | undefined;
