@@ -7,7 +7,7 @@ import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
@@ -25,7 +25,7 @@ import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -45,7 +45,7 @@ export default function Page() {
     const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
     const {
         register,
-        handleSubmit,
+        handleSubmit,  // Renombramos el handleSubmit de useForm
         setValue,
         reset,
         control,
@@ -77,10 +77,10 @@ export default function Page() {
         name: "postTypeId", // El nombre del campo en tu formulario
     });
 
-    const handlePositionChange = (newPosition: [number, number]) => {
-        setPosition(newPosition); // Actualiza el estado local
-        setValue("locationCoordinates", newPosition); // Actualiza el formulario
-    };
+    const handlePositionChange = useCallback((newPosition: [number, number]) => {
+        setPosition(newPosition);
+        setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+    }, [setValue]);
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -88,6 +88,8 @@ export default function Page() {
         }
     }, [authToken, authLoading, router])
 
+
+    // --- Carga de Datos Iniciales (Post, Tipos, Tags) ---
     useEffect(() => {
         if (!post || !user?.id) return;
         if ((postError !== null) || (String(post.userId) !== String(user.id))) {
@@ -188,23 +190,15 @@ export default function Page() {
     }, [allTags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
 
     useEffect(() => {
-        // Cuando las opciones filtradas cambian, debemos asegurarnos
-        // de que los tags seleccionados actualmente todavía están en la lista de opciones válidas.
-        const validSelectedTags = selectedTags.filter(selectedTag =>
-            filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
-        );
-
-        // Si la lista de seleccionados válidos es diferente a la actual, actualiza
-        if (validSelectedTags.length !== selectedTags.length) {
-            setSelectedTags(validSelectedTags);
-            setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
+        if (!post || !user?.id) return;
+        if ((postError !== null) || (String(post.userId) !== String(user.id))) {
+            router.push("/");
         }
-        // Queremos que esto se ejecute solo cuando las *opciones* filtradas cambien.
-    }, [filteredTags, setValue]);
+    }, [post, user?.id]);
 
     if (authLoading) return Loading();
     if (loading) return Loading();
-    if (postError !== null) return NotFound();
+    if (!post) return NotFound();
 
     const openConfirmationModalEdit = (data: PostFormValues) => {
         setValidatedData(data); // Guardamos los datos validados
@@ -230,18 +224,20 @@ export default function Page() {
         try {
             await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => router.push(`/posts/${post.id}`), 1500);
+            setTimeout(() => {
+                router.push(`/posts/${post.id}`); // Redirige a la vista del post
+            }, 1500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
             setErrorMessage('Hubo un problema al actualizar la publicación.');
         } finally {
             setLoading(false);
+            setValidatedData(null); // Limpia los datos guardados
         }
     };
 
-    const openConfirmationModalDelete = () => {
-        setIsDeleteModalOpen(true);
-    };
+    // --- Lógica de Eliminación ---
+    const openDeleteModal = () => setIsDeleteModalOpen(true);
 
     const handleDelete = async () => {
         setIsDeleteModalOpen(false);
@@ -271,17 +267,23 @@ export default function Page() {
         }
     };
 
+    // --- Otros Handlers ---
     const closeModal = () => {
         setIsEditModalOpen(false);
         setIsDeleteModalOpen(false);
+        setValidatedData(null); // Limpia datos si se cierra el modal de edición
     };
 
     const handleCancel = () => {
-        if (!post) return
-        router.push(`/posts/${post.id}`);
+        if (!post?.id) {
+            router.push("/dashboard"); // Fallback si no hay ID
+        } else {
+            router.push(`/posts/${post.id}`);
+        }
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLoading(true);
         if (e.target.files) {
             const file = e.target.files[0];
             const fileData = new FormData();
@@ -317,36 +319,30 @@ export default function Page() {
                     // Actualiza react-hook-form con TODOS los IDs actuales
                     const updatedMediaIds = newSelectedImages.map(img => img.id);
                     setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
+                    setSuccessMessage("Imagen subida.");
+                    setTimeout(() => setSuccessMessage(null), 2000);
                 }
             } catch (error) {
                 setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
                 console.error("Error al subir la imagen", error);
             } finally {
                 setLoading(false);
+                if (e.target) e.target.value = '';
             }
         }
     };
 
     const handleRemoveImage = async (index: number) => {
+        if (!authToken) return;
         const imageToRemove = selectedImages[index];
 
-        if (!authToken) {
-            console.log("El token de autenticación es requerido");
-            return;
-        }
+        setLoading(true);
+        setErrorMessage(null);
 
         try {
-            setLoading(true);
-
-            // Llamar a la API para eliminar la imagen
-            if (imageToRemove.id) {
-                await deleteMedia(imageToRemove.id, authToken);
-            }
-
-            // Eliminar del estado local
+            await deleteMedia(imageToRemove.id, authToken);
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
-
             // Actualiza RHF con los IDs restantes
             setValue("mediaIds", updatedImages.map(img => img.id), { shouldValidate: true, shouldDirty: true });
             setSuccessMessage("Imagen eliminada.");
@@ -354,10 +350,7 @@ export default function Page() {
             if (currentImageIndex >= updatedImages.length) {
                 setCurrentImageIndex(Math.max(0, updatedImages.length - 1));
             }
-
-            setSuccessMessage("Imagen eliminada exitosamente.");
             setTimeout(() => setSuccessMessage(null), 2000);
-
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
             setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
@@ -470,19 +463,6 @@ export default function Page() {
                 />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
-                {/* Tags (MultiSelect) */}
-                <label className="block text-sm font-medium">Tags</label>
-                <MultiSelect
-                    options={filteredTags} // <-- Usa los tags filtrados
-                    selected={selectedTags}
-                    onChange={(selected) => {
-                        setSelectedTags(selected);
-                        setValue("tagIds", selected.map((animal) => animal.id));
-                    }}
-                    placeholder="Seleccionar tags"
-                />
-                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
-
                 {/* Descripción */}
                 <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
                 <textarea
@@ -514,7 +494,7 @@ export default function Page() {
                         variant="danger"
                         size="md"
                         className="rounded hover:bg-red-700"
-                        onClick={openConfirmationModalDelete}
+                        onClick={openDeleteModal}
                         disabled={loading}
                     >
                         {loading ? 'Eliminando...' : 'Eliminar publicación'}

@@ -20,7 +20,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
 import { Tags } from "@/types/tags";
-import NewBanner from "@/components/NewBanner";
+import NewBanner from "@/components/newBanner";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import { MultiSelect } from "@/components/multi-select";
