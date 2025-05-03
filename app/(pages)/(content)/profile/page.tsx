@@ -27,6 +27,7 @@ import PostLocationMap from '@/components/post/post-location-map';
 import ImageHeader from '@/components/image-header';
 import HeaderImage from '@/components/image-header';
 
+
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
@@ -110,13 +111,13 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
-    const [isFundraisingActive, setIsFundraisingActive] = useState(false);
     const [errors, setErrors] = useState({
         pets: false,
         posts: false,
         userProfile: false
     });
-
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [medias, setMedias] = useState<MediaDTO[]>([])
 
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
@@ -139,23 +140,6 @@ export default function ProfilePage() {
             setProfileLoading(false);
         }
     };
-
-    const handleStartFundraising = () => {
-        setIsFundraisingActive(true);
-        // Aquí se pueden inicializar los valores de `donatedAmount`, `goalAmount` y `fundraisingTitle`
-        // por ejemplo, setFundraisingData({...}) 
-    };
-
-    // Función para finalizar la recaudación
-    const handleFinishFundraising = () => {
-        setIsFundraisingActive(false);
-    };
-
-    // Función para actualizar la recaudación
-    const handleUpdateFundraising = () => {
-        setIsFundraisingActive(false);
-    };
-
 
     const handleEditButtonClick = () => {
 
@@ -247,8 +231,6 @@ export default function ProfilePage() {
     useEffect(() => {
         userProfile && setMedias(userProfile.media ?? [])
     }, [userProfile?.media])
-
-
     if (authLoading || loading) {
         return <Loading />;
     }
@@ -287,14 +269,8 @@ export default function ProfilePage() {
                         setUserProfile={setTempUserProfile}
                         isDisable={!isEditing}
                         validationErrors={validationErrors}
-                        fundraisingTitle="Recaudación de fondos para cancelar deuda en Veterinarias"
-                        donatedAmount={15000000}
-                        goalAmount={17000000}
-                        isFundraisingActive={isFundraisingActive}
-                        handleStartFundraising={handleStartFundraising}
-                        handleUpdateFundraising={handleUpdateFundraising}
-                        handleFinishFundraising={handleFinishFundraising}
-
+                        setSuccessMessage={setSuccessMessage}
+                        setErrorMessage={setErrorMessage}
                     />
 
                     {/* Action Buttons */}
@@ -351,3 +327,4 @@ export default function ProfilePage() {
         </div>
     );
 }
+
