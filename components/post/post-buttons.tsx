@@ -18,6 +18,7 @@ import { postAdoption } from "@/utils/adoptions.http";
 import { getPetsByUserId } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { useParams } from "next/navigation";
+import { AdoptionFormData } from "@/types/schemas/adoption-schema";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -90,7 +91,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         setOpenAdoptionModal(true);
     };
 
-    const handleConfirmAdoption = async (data: { fullname: string; currentEmail: string; phone: string; commitment: boolean }) => {
+    const handleConfirmAdoption = async (data: AdoptionFormData) => {
       
         const requestData: AdoptionRequest = {
           petId: Number(postId),
