@@ -25,7 +25,7 @@ export function Section({ title, postTypeName, path, items, loading, error, item
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
     return (
-        <div className=" md:ml-6  lg:ml-6 ">
+        <div className="mt-6 md:mt-12 md:ml-6 lg:ml-6 ">
             <Title title={title} postType={postTypeName} path={path}></Title>
 
             {loading ? (
