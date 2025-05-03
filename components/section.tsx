@@ -25,7 +25,7 @@ export function Section({ title, postTypeName, path, items, loading, error, item
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
     return (
-        <div className="mt-6 md:mt-12 md:ml-6 lg:ml-6 ">
+        <div className="mt-6 ml-6 md:mt-12  ">
             <Title title={title} postType={postTypeName} path={path}></Title>
 
             {loading ? (
@@ -33,29 +33,37 @@ export function Section({ title, postTypeName, path, items, loading, error, item
             ) : error ? (
                 <p className="text-red-500">No se pudieron cargar los datos</p>
             ) : (
-                <div className="flex overflow-x-auto scrollbar-hide gap-4 mt-2 p-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
-
-                    {items.map((item) => {
-                        if (itemType === "post") {
-                            return (
-                                <PetCard post={item} isPost key={item.id} />
-                            );
-                        } else if (itemType === "pet") {
-                            return (
-                                <PetCard post={item} key={item.id} />
-                            );
-                        } else if (itemType === "product") {
-                            return <ProductCard product={item as Product} key={item.id} />
-                        } else {
-                            return null
-                        }
-                    })}
-                    {
-                        insertAddButton && (
-                            <AddPet />
-                        )
-                    }
-                </div>
+<div
+    className="
+         flex 
+    overflow-x-auto 
+    gap-10
+    mt-2 
+    p-2 
+    scrollbar-hide 
+    snap-x 
+    snap-mandatory
+    "
+>
+    {items.map((item) => {
+        if (itemType === "post") {
+            return (
+                <PetCard post={item} isPost key={item.id} />
+            );
+        } else if (itemType === "pet") {
+            return (
+                <PetCard post={item} key={item.id} />
+            );
+        } else if (itemType === "product") {
+            return <ProductCard product={item as Product} key={item.id} />
+        } else {
+            return null;
+        }
+    })}
+    {insertAddButton && (
+        <AddPet />
+    )}
+</div>
             )}
         </div>
     );
