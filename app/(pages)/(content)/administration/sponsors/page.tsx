@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
-import { Check, X } from 'lucide-react';
-import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
+import { Check, X, Trash } from 'lucide-react';
+import { getAllSponsors, approveSponsorRequest, deleteSponsor, updateSponsorStatus } from '@/utils/sponsor.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
 import { PaginatedResponse } from '@/types/pagination';
@@ -15,67 +15,51 @@ import { usePagination } from '@/hooks/use-pagination';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
+    status?: string | null;
 }
 
-type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
+type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado' | 'Rechazado';
 
 export default function AdminSponsorsPage() {
-    const [applications, setApplications] = useState<SponsorApplication[]>([]);
-    const [filteredApplications, setFilteredApplications] = useState<SponsorApplication[]>([]);
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('Todos');
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
-    const [loading, setLoading] = useState(true);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const [sponsorToApproveId, setSponsorToApproveId] = useState<number | null>(null);
     const { authToken } = useAuth();
+    const [isDefinitiveDelete, setIsDefinitiveDelete] = useState(false);
+
+    // Mapeo de filtro frontend a backend
+    const getBackendStatus = (status: FilterStatus) => {
+        if (status === 'Pendiente') return 'PENDING';
+        if (status === 'Aprobado') return 'ACTIVE';
+        if (status === 'Rechazado') return 'INACTIVE';
+        return undefined; // Para 'Todos'
+    };
 
     const {
+        data: applications,
+        loading,
         currentPage,
         totalPages,
         handlePageChange,
         updateFilters
-    } = usePagination<Sponsor>({
-        fetchFunction: async (page, size) => {
+    } = usePagination<SponsorApplication>({
+        fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("No autorizado");
-            return await getAllSponsors(authToken, page, size);
+            const status = getBackendStatus(filters?.status);
+            return await getAllSponsors(authToken, page, size, status);
         },
         initialPage: 1,
         initialPageSize: 10
     });
 
-    const fetchSponsorApplications = async () => {
-        if (!authToken) return;
-        setLoading(true);
-        try {
-            const response: PaginatedResponse<Sponsor> = await getAllSponsors(authToken, currentPage - 1, 10);
-            setApplications(response.data);
-        } catch (error) {
-            console.error('Error fetching sponsor applications:', error);
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Error al cargar las solicitudes de auspicio"
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Actualizar filtros cuando cambia el estado del filtro
     useEffect(() => {
-        fetchSponsorApplications();
-    }, [authToken, currentPage]);
-
-    useEffect(() => {
-        let filtered = applications;
-        if (filterStatus === 'Pendiente') {
-            filtered = applications.filter(app => !app.isActive);
-        } else if (filterStatus === 'Aprobado') {
-            filtered = applications.filter(app => app.isActive);
-        }
-        setFilteredApplications(filtered);
-    }, [filterStatus, applications]);
+        updateFilters({ status: filterStatus });
+        handlePageChange(1); // Volver a la primera página al cambiar el filtro
+    }, [filterStatus, updateFilters]);
 
     useEffect(() => {
         if (alertInfo) {
@@ -91,12 +75,9 @@ export default function AdminSponsorsPage() {
 
     const confirmApprove = async () => {
         if (!authToken || sponsorToApproveId === null) return;
-        
         try {
             await approveSponsorRequest(authToken, sponsorToApproveId);
-            setApplications(prev => prev.map(app => 
-                app.id === sponsorToApproveId ? { ...app, isActive: true } : app
-            ));
+            updateFilters({ status: filterStatus });
             setAlertInfo({ open: true, color: "green", message: `Solicitud aprobada.` });
         } catch (error) {
             console.error("Error approving application:", error);
@@ -120,11 +101,14 @@ export default function AdminSponsorsPage() {
 
     const confirmReject = async () => {
         if (!authToken || sponsorToDeleteId === null) return;
-        
         try {
-            await deleteSponsor(authToken, sponsorToDeleteId);
-            setApplications(prev => prev.filter(app => app.id !== sponsorToDeleteId));
-            setAlertInfo({ open: true, color: "green", message: `Solicitud rechazada.` });
+            if (isDefinitiveDelete) {
+                await deleteSponsor(authToken, sponsorToDeleteId);
+            } else {
+                await updateSponsorStatus(authToken, sponsorToDeleteId, false);
+            }
+            updateFilters({ status: filterStatus });
+            setAlertInfo({ open: true, color: "green", message: isDefinitiveDelete ? `Solicitud eliminada definitivamente.` : `Solicitud rechazada.` });
         } catch (error) {
             console.error("Error rejecting application:", error);
             const errorMessage = error instanceof Error ? error.message : "Error al rechazar.";
@@ -132,6 +116,7 @@ export default function AdminSponsorsPage() {
         } finally {
             setIsConfirmModalOpen(false);
             setSponsorToDeleteId(null);
+            setIsDefinitiveDelete(false);
         }
     };
 
@@ -169,6 +154,7 @@ export default function AdminSponsorsPage() {
                     <Option value="Todos">Todos</Option>
                     <Option value="Pendiente">Pendiente</Option>
                     <Option value="Aprobado">Aprobado</Option>
+                    <Option value="Rechazado">Rechazado</Option>
                 </Select>
             </div>
 
@@ -178,14 +164,19 @@ export default function AdminSponsorsPage() {
                 </div>
             ) : (
                 <>
-                    {filteredApplications.length > 0 ? (
+                    {applications.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredApplications.map((application) => (
+                            {applications.map((application) => (
                                 <SponsorCard
                                     key={application.id}
                                     application={application}
                                     onApprove={handleApprove}
                                     onReject={handleReject}
+                                    onDelete={async (id) => {
+                                        setSponsorToDeleteId(id);
+                                        setIsConfirmModalOpen(true);
+                                        setIsDefinitiveDelete(true);
+                                    }}
                                 />
                             ))}
                         </div>
@@ -204,10 +195,10 @@ export default function AdminSponsorsPage() {
 
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
-                title="Confirmar Rechazo"
-                message="¿Estás seguro de que deseas rechazar (eliminar) esta solicitud?"
-                textConfirm="Rechazar"
-                confirmVariant="danger"
+                title={isDefinitiveDelete ? "Eliminar Solicitud" : "Confirmar Rechazo"}
+                message={isDefinitiveDelete ? "¿Estás seguro de que deseas eliminar definitivamente esta solicitud?" : "¿Estás seguro de que deseas rechazar (eliminar) esta solicitud?"}
+                textConfirm={isDefinitiveDelete ? "Eliminar" : "Rechazar"}
+                confirmVariant={isDefinitiveDelete ? "danger" : "danger"}
                 onClose={closeModal}
                 onConfirm={confirmReject}
             />
@@ -229,9 +220,10 @@ interface SponsorCardProps {
     application: SponsorApplication;
     onApprove: (applicationId: number) => void;
     onReject: (applicationId: number) => void;
+    onDelete: (applicationId: number) => void;
 }
 
-function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
+function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCardProps) {
     const [hasLogoError, setHasLogoError] = useState(false);
 
     const handleLogoError = () => {
@@ -266,29 +258,38 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                     {application.reason || 'No especificada'}
                 </p>
             </div>
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
-                {!application.isActive ? (
-                    <>
-                        <button
-                            onClick={() => onReject(application.id)}
-                            className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Rechazar (Eliminar)"
-                        >
-                            <X size={20} />
-                        </button>
-                        <button
-                            onClick={() => onApprove(application.id)}
-                            className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Aprobar"
-                        >
-                            <Check size={20} />
-                        </button>
-                    </>
-                ) : (
-                    <span className="text-sm font-medium text-green-600 flex items-center">
-                        <Check size={16} className="mr-1"/> Aprobado
-                    </span>
-                )}
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                <button
+                    onClick={() => onDelete(application.id)}
+                    className="p-2 rounded-full text-gray-500 hover:bg-red-200 transition-colors"
+                    title="Eliminar definitivamente"
+                >
+                    <Trash size={20} />
+                </button>
+                <div className="flex gap-3 items-center">
+                    {application.status === null || application.status === 'PENDING' ? (
+                        <>
+                            <button
+                                onClick={() => onReject(application.id)}
+                                className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Rechazar (Eliminar)"
+                            >
+                                <X size={20} />
+                            </button>
+                            <button
+                                onClick={() => onApprove(application.id)}
+                                className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Aprobar"
+                            >
+                                <Check size={20} />
+                            </button>
+                        </>
+                    ) : application.status === 'ACTIVE' ? (
+                        <span className="text-sm font-medium text-green-600 flex items-center">
+                            <Check size={16} className="mr-1"/> Aprobado
+                        </span>
+                    ) : null}
+                </div>
             </div>
         </div>
     );
