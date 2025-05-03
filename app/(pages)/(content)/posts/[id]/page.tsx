@@ -6,12 +6,11 @@ import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
 import { useAuth } from "@/contexts/auth-context";
 import { getPost, getPosts, sharePost } from "@/utils/posts.http";
-
-import Banners from "@/components/banners";
 import { PostHeader } from "@/components/post/post-header";
 import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
+import NewBanner from "@/components/newBanner";
 
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -82,11 +81,7 @@ const PostPage = () => {
     return (
         <>
             <div>
-                <Banners images={(post?.media && post.media.length > 0)
-                    ? post.media.map(media => media.url)
-                    : ['/logo.png']}
-                    className="h-[550px]"
-                />
+                <NewBanner medias={post?.media || []}/>
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader post={post as Post} />
