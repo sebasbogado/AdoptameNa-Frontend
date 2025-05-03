@@ -463,6 +463,19 @@ export default function Page() {
                 />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
+                {/* Tags (MultiSelect) */}
+                <label className="block text-sm font-medium">Tags</label>
+                <MultiSelect
+                    options={filteredTags} // <-- Usa los tags filtrados
+                    selected={selectedTags}
+                    onChange={(selected) => {
+                        setSelectedTags(selected);
+                        setValue("tagIds", selected.map((animal) => animal.id));
+                    }}
+                    placeholder="Seleccionar tags"
+                />
+                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
+
                 {/* Descripción */}
                 <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
                 <textarea
