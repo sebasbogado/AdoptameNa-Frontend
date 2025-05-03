@@ -7,6 +7,7 @@ import { UserProfile } from "@/types/user-profile";
 import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import DonationModal from "../donation-modal";
+import { DonationFormData } from "@/types/schemas/donation-schema";
 
 interface InputProps {
   user: User;
@@ -52,9 +53,10 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     setOpenDonationModal(true);
   }; 
 
-  const handleConfirmDonation = (donation: number | null, nombre: string | null) => {
-    
-    const dName = nombre || "Donador Anónimo";
+  const handleConfirmDonation = (data: DonationFormData) => {
+    const { amount, name } = data;
+
+    const dName = name || "Donador Anónimo";
     const rName = userProfile?.fullName || "Receptor";
     let rawPhone = userProfile?.phoneNumber || "";
 
@@ -64,15 +66,15 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     // Si está vacío o tiene menos de 8 dígitos, muestra error
     if (!rawPhone || rawPhone.length < 8) {
       alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
-    return;
-  }
+      return;
+    }
 
     // Convierte a formato internacional si empieza con 0
     if (rawPhone.startsWith("0")) {
-      rawPhone = "595" + rawPhone.slice(1); // 🇵🇾 Paraguay (ajústalo según país)
+      rawPhone = "595" + rawPhone.slice(1); // Paraguay
     }
 
-    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${donation?.toLocaleString("es-PY")}, soy ${dName}.`;
+    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${amount?.toLocaleString("es-PY")}, soy ${dName}.`;
 
     const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
 

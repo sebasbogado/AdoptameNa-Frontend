@@ -15,7 +15,7 @@ interface User {
 interface DonationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (donation: number, nombre: string | null) => void;
+  onConfirm: (data: DonationFormData) => void;
   title?: string;
   user: User;
 }
@@ -47,7 +47,7 @@ const DonationModal: React.FC<DonationModalProps> = ({
 
   const handleConfirm = (data: DonationFormData) => {
     setLoading(true);
-    onConfirm(data.amount, data.name ?? null);
+    onConfirm(data);
     setLoading(false);
     reset(); 
     onClose();
