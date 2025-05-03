@@ -6,6 +6,8 @@ import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
 import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import DonationModal from "../donation-modal";
+import { DonationFormData } from "@/types/schemas/donation-schema";
 
 interface InputProps {
   user: User;
@@ -35,6 +37,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const { user: userAuth } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
 
+  const [openDonationModal, setOpenDonationModal] = useState(false);
+
   useEffect(() => {
     if (userAuth && userProfile?.id) {
       if (String(userAuth.id) === String(userProfile.id)) {
@@ -44,6 +48,40 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       }
     }
   }, [userAuth, userProfile]);
+
+  const handleDonationclick = () => {
+    setOpenDonationModal(true);
+  }; 
+
+  const handleConfirmDonation = (data: DonationFormData) => {
+    const { amount, name } = data;
+
+    const dName = name || "Donador Anónimo";
+    const rName = userProfile?.fullName || "Receptor";
+    let rawPhone = userProfile?.phoneNumber || "";
+
+    // Limpia el número (quitar espacios, guiones, etc.)
+    rawPhone = rawPhone.replace(/\D/g, "");
+
+    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    if (!rawPhone || rawPhone.length < 8) {
+      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      return;
+    }
+
+    // Convierte a formato internacional si empieza con 0
+    if (rawPhone.startsWith("0")) {
+      rawPhone = "595" + rawPhone.slice(1); // Paraguay
+    }
+
+    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${amount?.toLocaleString("es-PY")}, soy ${dName}.`;
+
+    const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
+    setOpenDonationModal(false); 
+  };
 
   return (
     <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
@@ -206,9 +244,19 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               {/* Botones visibles solo para el Visitante */}
               {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
                 <div className="flex gap-4">
-                  <button className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                  <button type="button" onClick={handleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
                     Donar
                   </button>
+
+                  {openDonationModal && (
+                    <DonationModal
+                      isOpen={openDonationModal}
+                      title={`Donación para ${fundraisingTitle}`}
+                      onClose={() => setOpenDonationModal(false)}
+                      onConfirm={handleConfirmDonation}
+                      user={{ name: userAuth?.fullName || "Donador Anónimo"}}
+                    />
+                  )}
                 </div>
               )}
             </div>
