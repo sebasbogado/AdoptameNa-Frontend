@@ -48,13 +48,13 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     }
   }, [userAuth, userProfile]);
 
-  const hanleDonationclick = () => {
+  const handleDonationclick = () => {
     setOpenDonationModal(true);
   }; 
 
   const handleConfirmDonation = (donation: number | null, nombre: string | null) => {
     
-    const dName = userAuth?.fullName || nombre || "Donador Anónimo";
+    const dName = nombre || "Donador Anónimo";
     const rName = userProfile?.fullName || "Receptor";
     let rawPhone = userProfile?.phoneNumber || "";
 
@@ -242,7 +242,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               {/* Botones visibles solo para el Visitante */}
               {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
                 <div className="flex gap-4">
-                  <button type="button" onClick={hanleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                  <button type="button" onClick={handleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
                     Donar
                   </button>
 
