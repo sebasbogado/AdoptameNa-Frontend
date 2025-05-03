@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X, Trash } from 'lucide-react';
-import { getAllSponsors, approveSponsorRequest, deleteSponsor, updateSponsorStatus } from '@/utils/sponsor.http';
+import { getAllSponsors, approveSponsorRequest, deleteSponsor, rejectSponsorRequest } from '@/utils/sponsor.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
-import { PaginatedResponse } from '@/types/pagination';
+
 import { Sponsor } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
@@ -81,8 +81,16 @@ export default function AdminSponsorsPage() {
             setAlertInfo({ open: true, color: "green", message: `Solicitud aprobada.` });
         } catch (error) {
             console.error("Error approving application:", error);
-            const errorMessage = error instanceof Error ? error.message : "Error al aprobar.";
-            setAlertInfo({ open: true, color: "red", message: errorMessage });
+            if (error instanceof Error) {
+                setAlertInfo({ open: true, color: "red", message: error.message });
+            } else if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-ignore
+                setAlertInfo({ open: true, color: "red", message: JSON.stringify(error.response?.data) });
+                // @ts-ignore
+                console.error('Backend error response:', error.response);
+            } else {
+                setAlertInfo({ open: true, color: "red", message: 'Error al aprobar (desconocido).' });
+            }
         } finally {
             setIsApproveModalOpen(false);
             setSponsorToApproveId(null);
@@ -105,14 +113,22 @@ export default function AdminSponsorsPage() {
             if (isDefinitiveDelete) {
                 await deleteSponsor(authToken, sponsorToDeleteId);
             } else {
-                await updateSponsorStatus(authToken, sponsorToDeleteId, false);
+                await rejectSponsorRequest(authToken, sponsorToDeleteId);
             }
             updateFilters({ status: filterStatus });
             setAlertInfo({ open: true, color: "green", message: isDefinitiveDelete ? `Solicitud eliminada definitivamente.` : `Solicitud rechazada.` });
         } catch (error) {
             console.error("Error rejecting application:", error);
-            const errorMessage = error instanceof Error ? error.message : "Error al rechazar.";
-            setAlertInfo({ open: true, color: "red", message: errorMessage });
+            if (error instanceof Error) {
+                setAlertInfo({ open: true, color: "red", message: error.message });
+            } else if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-ignore
+                setAlertInfo({ open: true, color: "red", message: JSON.stringify(error.response?.data) });
+                // @ts-ignore
+                console.error('Backend error response:', error.response);
+            } else {
+                setAlertInfo({ open: true, color: "red", message: 'Error al rechazar (desconocido).' });
+            }
         } finally {
             setIsConfirmModalOpen(false);
             setSponsorToDeleteId(null);
@@ -287,6 +303,10 @@ function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCard
                     ) : application.status === 'ACTIVE' ? (
                         <span className="text-sm font-medium text-green-600 flex items-center">
                             <Check size={16} className="mr-1"/> Aprobado
+                        </span>
+                    ) : application.status === 'INACTIVE' ? (
+                        <span className="text-sm font-medium text-red-500 flex items-center">
+                            <X size={16} className="mr-1"/> Rechazado
                         </span>
                     ) : null}
                 </div>
