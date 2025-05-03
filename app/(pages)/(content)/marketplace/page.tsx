@@ -155,14 +155,14 @@ export default function Page() {
             <div className="w-full max-w-7xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <LabeledSelect
-                        label="Categorias"
+                        label="Categorías"
                         options={["Todos", ...categories.map((category) => category.name)]}
                         selected={selectedCategory}
                         setSelected={setSelectedCategory}
                     />
 
                     <LabeledSelect
-                        label="Condicion"
+                        label="Condición"
                         options={["Todos", "NUEVO", "USADO"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
@@ -176,14 +176,14 @@ export default function Page() {
                     />
 
                     <LabeledInput
-                        label="Precio minimo"
+                        label="Precio mínimo"
                         placeholder="0"
                         value={minPrice ?? null}
                         onChange={setMinPrice}
                     />
 
                     <LabeledInput
-                        label="Precio maximo"
+                        label="Precio máximo"
                         placeholder="0"
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
