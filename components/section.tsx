@@ -25,7 +25,7 @@ export function Section({ title, postTypeName, path, items, loading, error, item
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
     return (
-        <div className="mt-12 ml-6">
+        <div className=" md:ml-6  lg:ml-6 ">
             <Title title={title} postType={postTypeName} path={path}></Title>
 
             {loading ? (
@@ -33,7 +33,8 @@ export function Section({ title, postTypeName, path, items, loading, error, item
             ) : error ? (
                 <p className="text-red-500">No se pudieron cargar los datos</p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                <div className="flex overflow-x-auto scrollbar-hide gap-4 mt-2 p-2 sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5">
+
                     {items.map((item) => {
                         if (itemType === "post") {
                             return (
