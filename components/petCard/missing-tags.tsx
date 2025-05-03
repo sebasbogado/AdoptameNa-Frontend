@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 
 const tagBaseClass =
-    "text-white font-semibold rounded-tr-md rounded-br-md mt-6 px-2 w-fit border flex justify-center items-center p-1";
+"text-white font-semibold rounded-tr-md rounded-br-md md:px-2 mt-6 px-4 w-24 border flex justify-center items-center p-1 md:p-1";
 
 interface TagProps {
     postType?: string; // Ej: "Perdido", "Encontrado", u otros
@@ -20,7 +20,7 @@ const MissingTags: React.FC<TagProps> = ({ postType, parentClassName }) => {
 
     return (
         <div className={clsx(tagBaseClass, tagsColor[postType], parentClassName)}>
-            <span className="text-xs">{postType}</span>
+            <span className="text-md">{postType}</span>
         </div>
     );
 };

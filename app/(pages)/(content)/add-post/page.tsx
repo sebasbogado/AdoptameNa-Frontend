@@ -10,10 +10,9 @@ import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
-import { deleteMedia, deleteMediaByUrl, postMedia } from "@/utils/media.http";
+import { deleteMedia, postMedia } from "@/utils/media.http";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
-import Banners from "@/components/banners";
 import { ImagePlus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema, PostFormValues } from "@/validations/post-schema";
@@ -21,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
 import { Tags } from "@/types/tags";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -30,7 +30,7 @@ const MapWithNoSSR = dynamic<MapProps>(
 export default function Page() {
     const {
         register,
-        handleSubmit: zodHandleSubmit,  // Renombramos el handleSubmit de useForm
+        handleSubmit,
         setValue,
         formState: { errors, isSubmitting }
     } = useForm<PostFormValues>({
@@ -42,7 +42,7 @@ export default function Page() {
             locationCoordinates: [0, 0],
             contactNumber: "",
             mediaIds: [],
-            tagsIds: [],
+            tagIds: [],
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
@@ -52,22 +52,13 @@ export default function Page() {
     const [precautionMessage, setPrecautionMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
-    const [formData, setFormData] = useState<PostFormValues>({
-        postTypeId: 0,
-        title: "",
-        content: "",
-        locationCoordinates: [0, 0], // Array de coordenadas
-        contactNumber: "",
-        mediaIds: [],
-        tagsIds: [],
-    });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedImages, setSelectedImages] = useState<Media[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const [arrayImages, setArrayImages] = useState<string[]>([]);
     const MAX_IMAGES = 5; //Tam max de imagenes
+    const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
@@ -94,14 +85,9 @@ export default function Page() {
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
 
-            // Si solo tienes una imagen en el formulario, también podrías limpiar el formData y el react-hook-form
-            if (updatedImages.length === 0) {
-                setValue("mediaIds", []); // Limpiar el campo de imágenes en el formulario
-                setFormData(prev => ({ ...prev, mediaIds: [] }));
-            }
-
-            setSuccessMessage("Imagen eliminada exitosamente.");
-            setTimeout(() => setSuccessMessage(""), 1000); // Ocultar mensaje después de 3 segundos
+            const updatedMediaIds = updatedImages.map(img => img.id);
+            setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
+            setSuccessMessage("Imagen eliminada exitosamente.")
 
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
@@ -118,10 +104,15 @@ export default function Page() {
         }
     }, [authToken, authLoading, router]);
 
-    const fetchPostTypes = async () => {
+    const fetchInitialData = async () => {
         try {
-            const data = await getPostsType();
-            setPostTypes(data.data);
+            setLoading(true);
+            const [postTypeData] = await Promise.all([
+                getPostsType(),
+                //getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.BLOG, POST_TYPEID.VOLUNTEERING] })
+            ]);
+            setPostTypes(postTypeData.data);
+            //setTags(tagsData.data);
         } catch (error: any) {
             console.log(error.message);
         } finally {
@@ -130,30 +121,37 @@ export default function Page() {
     };
 
     useEffect(() => {
-        if (authLoading || !authToken) return;
-        fetchPostTypes();
-    }, [authToken, authLoading]);
+        fetchInitialData();
+    }, []);
 
     // Abre el modal cuando el formulario es válido
     const openConfirmationModal = (data: PostFormValues) => {
-        setFormData(data); // Guardamos los datos validados
+        setValidatedData(data); // Guardamos los datos validados
         setIsModalOpen(true);
     };
 
+    const onSubmit = (data: PostFormValues) => {
+        // 'data' aquí ya está validado por Zod
+        openConfirmationModal(data); // Pasa los datos validados al modal/handler
+    };
+
     const confirmSubmit = async () => {
+        if (!authToken || !user?.id || !validatedData) {
+            setPrecautionMessage("Faltan completar datos para crear producto!");
+            return;
+        }
         setIsModalOpen(false);
         setLoading(true);
 
         const updatedFormData: CreatePost = {
             userId: Number(user?.id),
-            title: formData.title,
-            content: formData.content,
-            //tagsIds: selectedTags.length > 0 ? selectedTags.map(tag => tag.id) : [],
-            tagsIds: [1], // Cambiado a un array vacío para evitar errores
-            postTypeId: formData.postTypeId,
-            contactNumber: formData.contactNumber,
-            locationCoordinates: formData.locationCoordinates?.join(",") || "",
-            mediaIds: selectedImages.length > 0 ? selectedImages.map(media => media.id) : []
+            title: validatedData.title,
+            content: validatedData.content,
+            tagIds: validatedData.tagIds || [],
+            postTypeId: validatedData.postTypeId,
+            contactNumber: validatedData.contactNumber,
+            locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
+            mediaIds: validatedData.mediaIds || []
         };
 
         if (!authToken) {
@@ -164,22 +162,12 @@ export default function Page() {
 
         try {
             const response = await createPost(updatedFormData, authToken);
-            if (response) {
-                setFormData({
-                    postTypeId: 0,
-                    title: "",
-                    content: "",
-                    locationCoordinates: [0, 0], // Array de coordenadas
-                    contactNumber: "",
-                    mediaIds: [],
-                    tagsIds: [],
-                });
-                
-                setCurrentImageIndex((prevIndex) => (prevIndex - 1 + selectedImages.length) % selectedImages.length);
-                setSuccessMessage("¡Publicación creada exitosamente!");
-                setTimeout(() => router.push(`/posts/${response.id}`), 1500);
+            if (response && response.id) {
+                setSuccessMessage("Post creado exitosamente.")
+                router.push(`/posts/${response.id}`);
             } else {
-                setErrorMessage("Error al guardar publicación");
+                setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
+                router.push("/dashboard"); // O a donde sea apropiado como fallback
             }
         } catch (error: any) {
             setErrorMessage("Error al crear la publicación");
@@ -227,15 +215,13 @@ export default function Page() {
             try {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
-                
+
                 if (response) {
-                    const { id, url } = response;
-                    setSelectedImages(prev => [...prev, response]);
-                    setValue("mediaIds", [id]);
-                    setFormData(prev => ({
-                        ...prev,
-                        mediaIds: [...(prev.mediaIds || []), id]
-                    }));
+                    const newSelectedImages = [...selectedImages, response];
+                    setSelectedImages(newSelectedImages);
+                    // Actualiza react-hook-form con TODOS los IDs actuales
+                    const updatedMediaIds = newSelectedImages.map(img => img.id);
+                    setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
                 }
             } catch (error) {
                 setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
@@ -246,14 +232,11 @@ export default function Page() {
         }
     };
 
-    useEffect(() => {
-        const urls = selectedImages.map(image => image.url);
-        setArrayImages(urls || ["./logo.png"]);
-      }, [selectedImages]);
-
     return (
         <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <Banners images={arrayImages} />
+            <NewBanner
+                medias={selectedImages}
+            />
             <div className="flex gap-2 mt-2 justify-center items-center">
                 {selectedImages.map((src, index) => (
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
@@ -267,7 +250,7 @@ export default function Page() {
                         {/* Botón de eliminación */}
                         <button
                             onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600 transition"
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
                             title="Eliminar imagen"
                         >
                             ✕
@@ -325,18 +308,20 @@ export default function Page() {
                 </div>
             )}
 
-            <form onSubmit={zodHandleSubmit(openConfirmationModal)}>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 {/* Tipo de publicación */}
+                <label className="block text-sm font-medium">Tipo de publicación <span className="text-red-500">*</span></label>
                 <select
                     {...register("postTypeId", { valueAsNumber: true })}
                     className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
                 >
+                    {/* Opción por defecto explícita si postTypeId 0 no es una opción seleccionable */}
                     <option value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
-                {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+                {errors.postTypeId && <p className="text-red-500">{errors.postTypeId.message}</p>}
 
                 {/* Título */}
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
