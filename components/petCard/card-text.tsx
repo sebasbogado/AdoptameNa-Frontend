@@ -26,7 +26,7 @@ const CardText = ({ post, className = "" }: props) => {
   return (
     <div className="px-2 py-2 flex flex-col bg-white rounded-lg card-text">
       <div className="flex flex-col gap-1">
-        <p className="text-md font-semibold max-h-7 truncate text-ellipsis">{post.title || post.name}</p>
+        <p className="text-lg md:text-base lg:sm-lg font-semibold max-h-7 truncate text-ellipsis">{post.title || post.name}</p>
         <div className="flex flex-wrap max-h-16 overflow-hidden gap-1">
           {post.tags ? Object.entries(post.tags).map(([iconType, value], index) => (
             <PostsTags key={index} postType={post.postType} iconType={iconType} value={String(value)} />
@@ -35,7 +35,7 @@ const CardText = ({ post, className = "" }: props) => {
           ))}
         </div>
         <p className="text-xs text-blue-gray-700">{post.author}</p>
-        <p className="text-sm h-16 overflow-clip text-ellipsis">{post.content || post.description} </p>
+        <p className="text-base md:text-sm lg:text-sm h-16 overflow-clip text-ellipsis">{post.content || post.description} </p>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ const PostsTags: React.FC<TagProps> = ({ postType, iconType, value }) => {
         <div className={clsx(tagBaseClass, postColors[postType])}>
             {IconComponent && <IconComponent className="w-4 h-4 mr-1" />}
             
-            <span className="text-xs">{value}</span>
+            <span className="text-xs md:text-xs lg:text-xs">{value}</span>
         </div>
     )
 }
