@@ -67,7 +67,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         };
     
         checkIfPetIsMine();
-      }, [user?.id, postId]);
+      }, [user?.id, params.id]);
 
     const getUserProfileData = async (userId: string) => {
         try {
@@ -84,13 +84,13 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         if (user?.id) {
             getUserProfileData(String(user.id));
         }
-    }, [authToken, user?.id]);
+    }, [user?.id]);
 
     const handleAdoptionClick = () => {
         setOpenAdoptionModal(true);
     };
 
-    const handleConfirmAdoption = async (data: { fullname: string; currentEmail: string; phone: string }) => {
+    const handleConfirmAdoption = async (data: { fullname: string; currentEmail: string; phone: string; commitment: boolean }) => {
       
         const requestData: AdoptionRequest = {
           petId: Number(postId),

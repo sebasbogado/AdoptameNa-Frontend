@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import Button from "./buttons/button";
 import { Input } from "@/components/ui/input";
+import { AdoptionFormData, adoptionSchema } from "@/types/schemas/adoption-schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface AdoptionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: { fullname: string; currentEmail: string; phone: string; commitment: boolean }) => void;
+  onConfirm: (data: AdoptionFormData) => void;
   title?: string;
   currentUser?: string;
   email?: string;
@@ -20,60 +23,54 @@ const AdoptionModal: React.FC<AdoptionModalProps> = ({
   title = "Solicitud de Adopción.",
   currentUser,
   email,
-  telefono
+  telefono,
 }) => {
-  const [fullname, setFullname] = useState(currentUser ?? "");
-  const [currentEmail, setCurrentEmail] = useState(email ?? "");
-  const [phone, setPhone] = useState(telefono ?? "");
-  const [commitment, setCommitment] = useState(false);
-  const [errors, setErrors] = useState<{ fullname?: string; email?: string; phone?: string; commitment?: string }>({});
-  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<AdoptionFormData>({
+    resolver: zodResolver(adoptionSchema),
+    defaultValues: {
+      fullname: currentUser ?? "",
+      currentEmail: email ?? "",
+      phone: telefono ?? "",
+      commitment: false,
+    },
+  });
 
-  const validate = () => {
-    const newErrors: typeof errors = {};
-    if (!fullname.trim()) newErrors.fullname = "El nombre completo es obligatorio.";
-    if (!currentEmail.trim()) newErrors.email = "El correo electrónico es obligatorio.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(currentEmail)) newErrors.email = "El correo no es válido.";
-    if (!phone.trim()) newErrors.phone = "El teléfono es obligatorio.";
-    else if (!/^\+?\d{10,15}$/.test(phone)) newErrors.phone = "El teléfono debe ser válido (solo números).";
-    if (!commitment) newErrors.commitment = "Debes aceptar el compromiso para continuar.";
-    return newErrors;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+  useEffect (() => {
+    if (isOpen) {
+      reset({
+        fullname: currentUser ?? "",
+        currentEmail: email ?? "",
+        phone: telefono ?? "",
+        commitment: false,
+      });
     }
+  }, [isOpen, currentUser, email, telefono, reset]);
 
-    setLoading(true);
-    setErrors({});
-    try {
-      onConfirm({ fullname, currentEmail, phone, commitment });
-    } catch (e) {
-      setErrors({ email: "Ocurrió un error al confirmar." });
-    } finally {
-      setLoading(false);
-    }
+  const onSubmit = (data: AdoptionFormData) => {
+    onConfirm(data);
+    onClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="m-2">
           <label className="block mb-1">Nombre y Apellido</label>
           <Input
             placeholder=""
-            value={fullname}
-            onChange={(e) => setFullname(e.target.value)}
             maxLength={100}
+            {...register("fullname")}
             className={`w-full border p-2 rounded ${
-              errors.fullname ? "border-red-500 focus:outline-none" : "border-gray-300"
+              errors.fullname ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {errors.fullname && <p className="text-red-500 text-sm mt-1">{errors.fullname}</p>}
+          {errors.fullname && <p className="text-red-500 text-sm mt-1">{errors.fullname.message}</p>}
         </div>
 
         <div className="m-2">
@@ -81,13 +78,12 @@ const AdoptionModal: React.FC<AdoptionModalProps> = ({
           <Input
             placeholder=""
             type="email"
-            value={currentEmail} 
-            onChange={(e) => setCurrentEmail(e.target.value)}
+            {...register("currentEmail")}
             className={`w-full border p-2 rounded ${
-              errors.email ? "border-red-500 focus:outline-none" : "border-gray-300"
+              errors.currentEmail ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+          {errors.currentEmail && <p className="text-red-500 text-sm mt-1">{errors.currentEmail.message}</p>}
         </div>
 
         <div className="m-2">
@@ -95,36 +91,36 @@ const AdoptionModal: React.FC<AdoptionModalProps> = ({
           <Input
             placeholder=""
             type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
             maxLength={15}
+            {...register("phone")}
             className={`w-full border p-2 rounded ${
-              errors.phone ? "border-red-500 focus:outline-none" : "border-gray-300"
+              errors.phone ? "border-red-500" : "border-gray-300"
             }`}
           />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
         </div>
 
-        <div className="m-2 flex items-center">
+        <div className="m-2 flex items-start gap-2">
           <input
             type="checkbox"
             id="commitment"
-            checked={commitment}
-            onChange={() => setCommitment(!commitment)}
-            className="mr-2"
+            {...register("commitment")}
+            className="mt-1"
           />
           <label htmlFor="commitment" className="text-sm">
             Me comprometo a cuidar de la mascota, y declaro que tengo las condiciones necesarias para darle un buen hogar y alimento.
           </label>
         </div>
-        {errors.commitment && <p className="text-red-500 text-sm mt-1">{errors.commitment}</p>}
+        {errors.commitment && (
+          <p className="text-red-500 text-sm mt-1">{errors.commitment.message}</p>
+        )}
 
         <div className="mt-4 flex justify-end space-x-2">
           <Button variant="secondary" size="md" onClick={onClose} type="button">
             Cancelar
           </Button>
-          <Button variant="primary" size="md" type="submit" disabled={loading}>
-            {loading ? "Confirmando..." : "Confirmar"}
+          <Button variant="primary" size="md" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Confirmando..." : "Confirmar"}
           </Button>
         </div>
       </form>
