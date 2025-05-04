@@ -17,6 +17,7 @@ export interface Product {
   condition: "NUEVO" | "USADO"; // Enum como string
   sharedCounter: number;
   animals: Animal[];
+  userId: number;
 }
 
 export interface CreateProduct {

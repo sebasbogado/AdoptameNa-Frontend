@@ -1,6 +1,8 @@
 'use client'
 
 import { Product } from "@/types/product";
+import ProductImageCarousel from "./product-image-carousel";
+import { ProductTag } from "./product-tag";
 
 interface ProductSpecificationProps {
   product?: Product
@@ -8,8 +10,30 @@ interface ProductSpecificationProps {
 
 export const ProductSpecification = ({ product }: ProductSpecificationProps) => {
   return (
-    <div >
-      {/** Imagenes */}
+    <div className={"grid grid-cols-5 px-12"}>
+      <ProductImageCarousel media={product?.media as any} className="col-span-4" />
+      <div className="col-span-1 pl-12">
+        {/**Precio */}
+        <ProductTag label={product?.price.toString() as string} isPrice={true}/>
+        
+        {/*Estado */}
+        <h2 className="text-2xl">Estado</h2>
+        <ProductTag label={product?.condition as string} />
+
+        {/** Categoria */}
+        <h2 className="text-2xl">Categoria</h2>
+        <ProductTag label={product?.category.name as string} />
+
+        {/**Animals */}
+        {product?.animals && product?.animals.length > 0 && (
+          <>
+            <h2 className="text-2xl">Disponible para:</h2>
+            {product.animals.map((animal) => (
+              <ProductTag key={animal.id} label={animal.name} />
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 }
