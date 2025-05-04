@@ -17,14 +17,18 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             >
                 {post?.title || pet?.name}
             </h1>
-            <p className="text-2xl text-gray-700 mt-8">
-                {post ? <span>
-                    Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
-                    <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
-                </span> :
-                    <span>
-                        {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},
-                        {pet?.isVaccinated ? " vacunado" : " no vacunado"}
+            <p className="text-2xl text-gray-700">
+                {post ?
+                    <span className="text-xl">
+                        Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
+                        <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
+                    </span> :
+                    <span className="flex flex-col">
+                        <span className="text-xl">Publicado por <Link className="text-[#4781FF]" href={`/profile/${pet?.userId}`}>{pet?.userFullName} </Link></span>
+                        <span className="mt-8">
+                            {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},
+                            {pet?.isVaccinated ? " vacunado" : " no vacunado"}
+                        </span>
                     </span>
                 }
             </p>
