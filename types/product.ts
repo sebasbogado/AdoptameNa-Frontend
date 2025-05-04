@@ -1,6 +1,7 @@
 import { ProductCategory } from "@/types/product-category";
 import { ProductCondition } from "./product-condition";
 import { Media } from "./media";
+import { Animal } from "./animal";
 
 export interface Product {
   id: number;
@@ -15,6 +16,7 @@ export interface Product {
   category: ProductCategory;
   condition: "NUEVO" | "USADO"; // Enum como string
   sharedCounter: number;
+  animals: Animal[];
 }
 
 export interface CreateProduct {
