@@ -99,7 +99,7 @@ export default function Page() {
         filters.petStatusId = selectedStatusObj.id;
       }
     } else {
-      filters.petStatusId = [PET_STATUS.MISSING.toString(), PET_STATUS.FOUND.toString()];
+      filters.petStatusId = [PET_STATUS.MISSING, PET_STATUS.FOUND];
     }
     
     filters = {

@@ -65,9 +65,9 @@ export const getPets = async (
   queryParams?: petQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
-    const queryString =  buildQueryParams(queryParams);
+    const params =  buildQueryParams(queryParams);
     const response = await axios.get(API_URL, {
-      params: queryString,
+      params: params,
       headers: {
         "Content-Type": "application/json",
       },
