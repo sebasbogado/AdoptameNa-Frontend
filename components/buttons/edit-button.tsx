@@ -8,7 +8,7 @@ interface EditButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 const EditButton: React.FC<EditButtonProps> = ({ size = "md", className, isEditing, ...props }) => {
-  const baseStyles = "bg-btn-primary text-btn-primary-text rounded-lg transition-all duration-200 flex items-center  justify-center w-fit";
+  const baseStyles = "bg-btn-primary z-0 text-btn-primary-text rounded-lg transition-all duration-200 flex items-center  justify-center w-fit";
 
   const sizes = {
     sm: "p-2 w-8 h-8",

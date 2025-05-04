@@ -20,9 +20,10 @@ type PetCardProps = {
     post: any;
     className?: string
     isPost?: boolean;
+    isHorizontalSection?: boolean;
 };
 
-export default function PetCard({ post, className, isPost }: PetCardProps) {
+export default function PetCard({ post, className, isPost, isHorizontalSection }: PetCardProps) {
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -71,10 +72,14 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
     };
 
     return (
-        <div className={clsx(
-            "snap-start shrink-0 w-[16rem] h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
-            className
-        )}>            <div className="relative">
+        <div
+            className={clsx(
+                "snap-start sm:w-full md:w-[19rem] shrink-0 h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+                isHorizontalSection && " sm:w-[20rem] px-4", 
+                className
+            )}
+        >
+            <div className="relative">
                 {successMessage && (
                     <Alert
                         color="green"

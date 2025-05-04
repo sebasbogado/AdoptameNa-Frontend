@@ -94,7 +94,7 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex flex-wrap gap-4">
                     <LabeledSelect
                         label="Distancia"
                         options={["Todos", "Cercano", "Lejano"]}
@@ -133,7 +133,20 @@ export default function Page() {
                             <p className="text-gray-600">No se encontraron posts</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
+                        <div className="
+      grid 
+      grid-cols-1 
+      sm:grid-cols-2 
+      md:grid-cols-3 
+      lg:grid-cols-4 
+      xl:grid-cols-5 
+      gap-6 
+      mt-2 
+      p-2
+       scrollbar-hide 
+    snap-x 
+    snap-mandatory
+    ">
                             {posts.map((post) => (
                                 <PetCard
                                     key={post.id}
