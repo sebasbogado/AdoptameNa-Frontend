@@ -1,7 +1,7 @@
 import { Loader2Icon, AlertCircle, MapPinIcon, CheckCircleIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { MapProps } from "@/types/map-props";
-import { useLocation } from "@/hooks/location/useLocation";
+import { useLocation } from "@/hooks/location/use-location";
 import { DEFAULT_COORDINATES, LocationSelectorProps } from "@/types/location-selector";
 
 const MapWithNoSSR = dynamic<MapProps>(

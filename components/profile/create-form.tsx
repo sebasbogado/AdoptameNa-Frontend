@@ -1,9 +1,8 @@
 import { ProfileValues } from "@/validations/user-profile"
-import { PersonalInfoForm } from "./PersonalInfoForm";
-import { LocationSelector } from "./LocationSelector";
-import { SubmitButton } from "./SubmitButton";
+import { PersonalInfoForm } from "./personal-info-form";
+import { LocationSelector } from "./location-selector";
+import { SubmitButton } from "./submit-button";
 import { UseFormRegister } from "react-hook-form";
-import { useEffect } from "react";
 
 interface CreateProfileProps {
     handleSubmit: (onSubmit: (data: ProfileValues) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
