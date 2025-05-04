@@ -1,8 +1,8 @@
 import { useState, useReducer } from 'react';
 import { LocationState, LocationAction } from '@/types/location-selector';
-import { initialLocationState, locationReducer } from './locationReducer';
-import { useLocationData } from './useLocationData';
-import { useLocationHandlers } from './useLocationHandlers';
+import { initialLocationState, locationReducer } from './use-location-reducer';
+import { useLocationData } from './use-location-data';
+import { useLocationHandlers } from './use-location-handlers';
 import { ProfileValues } from '@/validations/user-profile';
 
 export function useLocation(
