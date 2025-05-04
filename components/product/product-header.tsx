@@ -4,6 +4,7 @@ import { Product } from "@/types/product";
 import Button from "@/components/buttons/button";
 import ReportButton from "../buttons/report-button";
 import EditButton from "../buttons/edit-button";
+import Link from "next/link";
 
 interface ProductHeaderProps {
   product?: Product
@@ -17,7 +18,7 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
           {product?.title}
         </h1>
         <p className="text-2xl text-gray-700 ">
-          Publicado por <span className="text-[#4781FF]">{product?.userFullName}</span>
+          Publicado por <Link className="text-[#4781FF]" href={`/profile/${product?.userId}`}>{product?.userFullName}</Link>
         </p>
       </div>
       <div className="gap-3 flex justify-end h-16">
