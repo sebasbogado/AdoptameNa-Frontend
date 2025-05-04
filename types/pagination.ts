@@ -71,3 +71,12 @@ export type profileQueryParams = queryParams & {
   name?: string;
   role?: string;
 };
+
+export type adoptionsResponseQueryParams = queryParams & {
+  petId?: number;
+  userId?: number;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  isAccepted?: boolean
+};
