@@ -48,7 +48,7 @@ export default function UpdateAmountModal({
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="fixed z-[10001] inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg w-80 p-6">
                 <div className="flex justify-between items-center border-b pb-2 mb-4">
                     <h2 className="text-xl font-medium">Actualizar Recaudación</h2>
