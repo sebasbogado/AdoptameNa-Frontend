@@ -10,6 +10,7 @@ import Modal from "@/components/modal";
 import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
 import BannerImage from '@/components/banner/banner-image';
+import { z } from "zod";
 
 interface SponsorFormData {
     responsibleName: string;
@@ -26,6 +27,18 @@ const initialFormState: SponsorFormData = {
     logoId: null,
     bannerId: null
 };
+
+const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+const fileSchema = z
+  .instanceof(File)
+  .refine(file => allowedTypes.includes(file.type), {
+    message: "El archivo debe ser una imagen (PNG, JPEG o WEBP)",
+  })
+  .refine(file => file.size <= maxFileSize, {
+    message: "El tamaño de la imagen debe ser menor a 5MB",
+  });
 
 export default function SponsorFormPage() {
     const [formData, setFormData] = useState<SponsorFormData>(initialFormState);
@@ -57,35 +70,20 @@ export default function SponsorFormPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-
-    const validateFile = (file: File, type: 'logo' | 'banner') => {
-        const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-        if (!allowedTypes.includes(file.type)) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: `El archivo debe ser una imagen (PNG, JPEG o WEBP)`
-            });
-            return false;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: `El tamaño de la imagen debe ser menor a 5MB`
-            });
-            return false;
-        }
-
-        return true;
-    };
-
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
 
-        if (!validateFile(file, 'logo')) return;
+        const result = fileSchema.safeParse(file);
+
+        if (!result.success) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: result.error.errors[0].message
+            });
+            return;
+        }
 
         const formData = new FormData();
         formData.append("file", file);
