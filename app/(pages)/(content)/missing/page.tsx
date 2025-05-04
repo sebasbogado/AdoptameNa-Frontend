@@ -13,7 +13,7 @@ import { getAnimals } from "@/utils/animals.http";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 import { useAuth } from "@/contexts/auth-context";
-import LocationFilter from "@/components/filters/LocationFilter";
+import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters } from "@/types/location-filter";
 
 export default function Page() {
