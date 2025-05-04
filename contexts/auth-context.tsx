@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, FC, ReactNode } from 'r
 import { useRouter } from 'next/navigation';
 import { User, AuthContextType, LoginCredentials } from '../types/auth';
 import * as authServices from '@/utils/auth.http';
+import { getFullUser } from '@/utils/user-profile.http';
 import Cookies from 'js-cookie';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,11 +35,35 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         userData.isProfileCompleted = false;
       }
 
+      // Obtener información completa del usuario incluyendo datos de ubicación
+      try {
+        const fullUserData = await getFullUser(userData.id.toString());
+        // Combinar la información básica con la información completa (incluida la ubicación)
+        const enhancedUserData = {
+          ...userData,
+          location: {
+            lat: fullUserData.latitude || null,
+            lon: fullUserData.longitude || null,
+            neighborhoodId: fullUserData.neighborhoodId || null,
+            districtId: fullUserData.districtId || null,
+            departmentId: fullUserData.departmentId || null,
+            neighborhoodName: fullUserData.neighborhoodName || null,
+            districtName: fullUserData.districtName || null,
+            departmentName: fullUserData.departmentName || null,
+          }
+   
+        };
+        
+        setUser(enhancedUserData);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(userData); // En caso de error, mantenemos los datos básicos
+      }
+
       if (userData.isProfileCompleted === false) {
         router.push('/auth/create-profile');
       }
 
-      setUser(userData);
       setAuthToken(token);
     } catch (error) {
       console.error("Error verificando token:", error);
@@ -70,7 +95,30 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        // Obtener información completa del usuario incluyendo datos de ubicación
+        const fullUserData = await getFullUser(user.id.toString());
+        // Combinar la información básica con la información completa
+        const enhancedUser = {
+          ...user,
+          location: {
+            lat: fullUserData.latitude || null,
+            lon: fullUserData.longitude || null,
+            neighborhoodId: fullUserData.neighborhoodId || null,
+            districtId: fullUserData.districtId || null,
+            departmentId: fullUserData.departmentId || null,
+            neighborhoodName: fullUserData.neighborhoodName || null,
+            districtName: fullUserData.districtName || null,
+            departmentName: fullUserData.departmentName || null,
+          }
+
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user); // En caso de error, mantenemos los datos básicos
+      }
+      
       setAuthToken(token);
 
       return true;
@@ -88,7 +136,29 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        // Obtener información completa del usuario incluyendo datos de ubicación
+        const fullUserData = await getFullUser(user.id.toString());
+        // Combinar la información básica con la información completa
+        const enhancedUser = {
+          ...user,
+          location: {
+            lat: fullUserData.latitude || null,
+            lon: fullUserData.longitude || null,
+            neighborhoodId: fullUserData.neighborhoodId || null,
+            districtId: fullUserData.districtId || null,
+            departmentId: fullUserData.departmentId || null,
+            neighborhoodName: fullUserData.neighborhoodName || null,
+            districtName: fullUserData.districtName || null,
+            departmentName: fullUserData.departmentName || null,
+          }
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user); // En caso de error, mantenemos los datos básicos
+      }
+      
       setAuthToken(token);
       router.push('/dashboard');
     } catch (error) {
@@ -106,7 +176,16 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion, isProfileCompleted: user?.isProfileCompleted ?? false }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      loading, 
+      authToken, 
+      loginWithGoogle, 
+      updateUserProfileCompletion, 
+      isProfileCompleted: user?.isProfileCompleted ?? false 
+    }}>
       {children}
     </AuthContext.Provider>
   );
