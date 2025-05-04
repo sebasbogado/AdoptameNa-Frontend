@@ -10,7 +10,8 @@ export interface Product {
   locationCoordinates: string;
   contactNumber: string;
   media: Media[];
-  idUser: number;
+  userId: number;
+  animals: Animal[];
   userFullName: string;
   price: number;
   category: ProductCategory;
@@ -28,7 +29,7 @@ export interface CreateProduct {
   price: number;
   categoryId: number;
   condition: ProductCondition;
-  animalsId: number[];
+  animalIds: number[];
   mediaIds: number[];
   userId: number;
 }
