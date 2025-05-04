@@ -47,7 +47,6 @@ const ProductPage = () => {
     fetchProducts();
   }, [])
 
-  useEffect(() => { console.log(product) }, [product]);
   return (
     <div>
       <div className="mt-6 ">
