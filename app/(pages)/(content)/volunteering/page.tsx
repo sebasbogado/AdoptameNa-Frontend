@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import PetCard from '@/components/petCard/pet-card';
 import { Post } from "@/types/post";
 import { getPosts } from "@/utils/posts.http";
@@ -13,103 +13,114 @@ import { getTags } from "@/utils/tags";
 import { Tags } from "@/types/tags";
 import { getAnimals } from "@/utils/animals.http";
 import { Animal } from "@/types/animal";
+import LocationFilter from "@/components/filters/location-filter";
+import { useAuth } from "@/contexts/auth-context";
+import { LocationFilters } from "@/types/location-filter";
 
 export default function Page() {
-
-    const [selectedLocation, setSelectedLocation] = useState("");
-    const [selectedHelpType, setSelectedHelpType] = useState("");
-    const [selectedAnimal, setSelectedAnimal] = useState("");
-    const [tags, setTags] = useState<Tags[]>([]);
-    const [animals, setAnimals] = useState<Animal[]>([]);
-    const [selectedTagsId, setSelectedTagsId] = useState<number[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { user } = useAuth();
     const pageSize = 10;
     const sort = "id,desc";
+    const [animals, setAnimals] = useState<Animal[]>([]);
+    const [selectedAnimal, setSelectedAnimal] = useState("");
+    const [animalList, setAnimalList] = useState<string[]>([]);
+    const [tags, setTags] = useState<Tags[]>([]);
+    const [tagsList, setTagsList] = useState<string[]>([]);
+    const [selectedTag, setSelectedTag] = useState("");
+    const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
+    const [filterChanged, setFilterChanged] = useState(false);
+
     const {
         data: posts,
         loading,
         error,
         currentPage,
         totalPages,
-        handlePageChange,
         updateFilters,
+        handlePageChange
     } = usePagination<Post>({
-        fetchFunction: async (page, size, filters) =>
-            getPosts({
+        fetchFunction: async (page, size, filters) => {
+            return getPosts({
                 page,
                 size,
                 sort,
                 postTypeId: POST_TYPEID.VOLUNTEERING,
-                tagIds: filters?.tagIds || undefined,
-            }),
+                ...filters
+            });
+        },
         initialPage: 1,
-        scrollToTop: false,
-        initialPageSize: pageSize,
+        initialPageSize: pageSize
     });
 
+    const fetchData = async () => {
+        try {
+            const animals = await getAnimals();
+            setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
+            setAnimals(animals.data);
+
+            const tagsData = await getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] });
+            setTags(tagsData.data);
+            setTagsList(["Todos", ...tagsData.data.map((tag: Tags) => tag.name)]);
+        } catch (err: any) {
+            console.error('Error fetching data:', err.message);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const tagsData = await getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] });
-                const animalsData = await getAnimals();
-
-                setTags(tagsData.data);
-                setAnimals(animalsData.data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchData();
+    }, [user]);
+
+    const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
+        setLocationFilters(filters);
+        setFilterChanged(prev => !prev);
     }, []);
 
     useEffect(() => {
-        if (selectedHelpType && !selectedHelpType.includes("Todos")) {
-            const found = tags.find(a => a.name === selectedHelpType);
-            setSelectedTagsId(found ? [found.id] : []);
-        } else {
-            setSelectedTagsId([]);
+        let filters: any = {};
+        
+        if (selectedAnimal && selectedAnimal !== "Todos") {
+            const selectedAnimalObj = animals.find(
+                (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
+            );
+            if (selectedAnimalObj) {
+                filters.animalId = selectedAnimalObj.id;
+            }
         }
-    }, [selectedHelpType, tags]);
-
-    useEffect(() => {
-        const filteredData = {
-            tagIds: selectedTagsId.length > 0 ? selectedTagsId.join(',') : undefined,
+        
+        if (selectedTag && selectedTag !== "Todos") {
+            const selectedTagObj = tags.find(
+                (tag) => tag.name.toLowerCase() === selectedTag.toLowerCase()
+            );
+            if (selectedTagObj) {
+                filters.tagIds = selectedTagObj.id.toString();
+            }
+        }
+        
+        filters = {
+            ...filters,
+            ...locationFilters
         };
 
-        const cleanedFilters = cleanFilters(filteredData);
-        updateFilters(cleanedFilters);
-    }, [selectedTagsId, updateFilters]);
-
-
-    const cleanFilters = (filters: Record<string, any>) => {
-        return Object.fromEntries(
-            Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
-        );
-    };
+        updateFilters(filters);
+    }, [selectedAnimal, selectedTag, locationFilters, filterChanged]);
 
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-4xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <LabeledSelect
-                        label="Distancia"
-                        options={["Todos", "Cercano", "Lejano"]}
-                        selected={selectedLocation}
-                        setSelected={setSelectedLocation}
+                    <LocationFilter 
+                        user={user} 
+                        onFilterChange={handleLocationFilterChange} 
                     />
                     <LabeledSelect
                         label="Etiquetas"
-                        options={["Todos", ...tags.map((tag) => tag.name)]}
-                        selected={selectedHelpType}
-                        setSelected={setSelectedHelpType}
+                        options={tagsList}
+                        selected={selectedTag}
+                        setSelected={setSelectedTag}
                     />
                     <LabeledSelect
                         label="Tipo de mascota"
-                        options={["Todos", ...animals.map((animal) => animal.name)]}
+                        options={animalList}
                         selected={selectedAnimal}
                         setSelected={setSelectedAnimal}
                     />
@@ -127,26 +138,23 @@ export default function Page() {
                     <div className="flex justify-center items-center">
                         <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
                     </div>
+                ) : posts.length === 0 ? (
+                    <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
+                        <p className="text-gray-600">No se encontraron posts</p>
+                    </div>
                 ) : (
-                    posts.length === 0 ? (
-                        <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
-                            <p className="text-gray-600">No se encontraron posts</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
-                            {posts.map((post) => (
-                                <PetCard
-                                    key={post.id}
-                                    post={post}
-                                    isPost={true}
-                                />
-                            ))}
-                        </div>
-                    )
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                        {posts.map((post) => (
+                            <PetCard
+                                key={post.id}
+                                post={post}
+                                isPost={true}
+                            />
+                        ))}
+                    </div>
                 )}
             </div>
 
-            {/* Controles de paginación */}
             <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}

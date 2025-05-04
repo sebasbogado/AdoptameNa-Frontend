@@ -15,6 +15,7 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
+
 };
 
 export type postQueryParams = queryParams & locationQueryParams  & {
@@ -24,7 +25,7 @@ export type postQueryParams = queryParams & locationQueryParams  & {
 };
 
 export type petQueryParams = queryParams & locationQueryParams  & {
-  petStatusId?: number;
+  petStatusId?: number[];
 };
 
 export type productQueryParams = queryParams & locationQueryParams & {
@@ -76,9 +77,22 @@ export type locationQueryParams = queryParams & {
   departmentId?: string;
   districtId?: string;
   neighborhoodId?: string;
-  coordinates?: [
-    number,
-    number,
-    number, 
-  ]
+  coordinates?: number[];
 };
+
+export function buildQueryParams(params?: Record<string, any>): URLSearchParams {
+  const searchParams = new URLSearchParams();
+  if (params) {
+    for (const key in params) {
+      const typedKey = key as keyof typeof params;
+      const value = params[typedKey];
+      if (Array.isArray(value)) {
+        value.forEach(val => searchParams.append(key, String(val)));
+      } else {
+        searchParams.append(key, value as string);
+      }
+      
+    }
+  }
+  return searchParams;
+}

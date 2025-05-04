@@ -1,25 +1,20 @@
-import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
+import { myPetsQueryParams, petQueryParams, PaginatedResponse, buildQueryParams } from "@/types/pagination";
 import { CreatePet, Pet, UpdatePet } from "@/types/pet";
+
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 
 export const getPetsByUserId = async (queryParams: myPetsQueryParams)
   : Promise<PaginatedResponse<Pet>> => {
+
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(`${API_URL}`, {
       headers: {
         "Content-Type": "application/json",
       },
-      params: {
-        page: queryParams.page || 0,
-        size: queryParams.size || 10,
-        sort: queryParams.sort || "id,desc",
-        userId: queryParams.userId,
-        animalId: queryParams.animalId,
-        minAge: queryParams.minAge,
-        maxAge: queryParams.maxAge,
-      },
+      params: params,
     });
 
     return response.data;
@@ -70,8 +65,9 @@ export const getPets = async (
   queryParams?: petQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
+    const queryString =  buildQueryParams(queryParams);
     const response = await axios.get(API_URL, {
-      params: queryParams,
+      params: queryString,
       headers: {
         "Content-Type": "application/json",
       },
@@ -86,33 +82,15 @@ export const getPets = async (
   }
 };
 
-function buildQueryString(params: Record<string, any>): string {
-  const searchParams = new URLSearchParams();
 
-  for (const key in params) {
-    const value = params[key];
-
-    if (Array.isArray(value)) {
-      value.forEach((val) => {
-        if (val !== undefined && val !== null && val !== "") {
-          searchParams.append(key, String(val));
-        }
-      });
-    } else if (value !== undefined && value !== null && value !== "") {
-      searchParams.append(key, String(value));
-    }
-  }
-
-  return searchParams.toString();
-}
 
 export const getPetsDashboard = async (
-  queryParams?: Record<string, any>
+  queryParams?: petQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
-    const queryString = queryParams ? buildQueryString(queryParams) : "";
-    const url = `${API_URL}${queryString && `?${queryString}`}`;
-    const response = await axios.get(url, {
+    const queryString = buildQueryParams(queryParams);
+    const response = await axios.get(API_URL, {
+      params: queryString,
       headers: {
         "Content-Type": "application/json",
       },
@@ -146,11 +124,13 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
 }
 
 export const getPetSMissing = async (
-  queryParams?: Record<string, any>): Promise<PaginatedResponse<Pet>> => {
+  queryParams?: petQueryParams): Promise<PaginatedResponse<Pet>> => {
   try {
-    const queryString = queryParams ? buildQueryString(queryParams) : "";
-    const url = `${API_URL}${queryString && `?${queryString}`}`;
-    const response = await axios.get(url, {
+    const params = buildQueryParams(queryParams);
+    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets?petStatusId=1`;
+
+    const response = await axios.get(API_URL, {
+      params: params,
       headers: {
         "Content-Type": "application/json",
       },
