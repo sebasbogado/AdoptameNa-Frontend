@@ -11,7 +11,7 @@ import { ConfirmationModal } from "@/components/form/modal";
 
 import { getPosts } from '@/utils/posts.http';
 import { getPets } from '@/utils/pets.http';
-import { getUserProfile, updateUserProfile } from '@/utils/user-profile-client';
+import { getUserProfile, updateUserProfile } from '@/utils/user-profile.http';
 import { MediaDTO, UpdateUserProfile, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';

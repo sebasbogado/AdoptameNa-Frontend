@@ -5,8 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
-import axios from "axios";
-import rps from "@/services/request-password-service";
+import { requestPasswordReset } from "@/utils/auth.http";
 
 export default function ResetPassword() {
   const [credentials, setCredentials] = useState({ email: "" });
@@ -23,22 +22,22 @@ export default function ResetPassword() {
     e.preventDefault();
 
     try {
-        const response = await rps.post({email: credentials.email});
-        console.log("Recuperar contraseña para:", credentials.email);
+      const response = await requestPasswordReset({ email: credentials.email });
+      console.log("Recuperar contraseña para:", credentials.email);
+      console.log("Console responde: " + response.data)
+
+
+      if (response) {
         console.log("Console responde: " + response.data)
-
-
-        if (response) {
-            console.log("Console responde: " + response.data)
         setMessage("Se ha enviado un correo para la recuperación de contraseña.");
       }
     } catch (err: any) {
-       
-        setError(err.response?.data || "Ocurrió un error al procesar la solicitud.");
-      } finally {
-        setIsSubmitting(false); // Volvemos a habilitar el botón después de procesar
-      }
-    };
+
+      setError(err.response?.data || "Ocurrió un error al procesar la solicitud.");
+    } finally {
+      setIsSubmitting(false); // Volvemos a habilitar el botón después de procesar
+    }
+  };
 
   if (loading) {
     return Loading();
@@ -54,7 +53,7 @@ export default function ResetPassword() {
         <p className="text-gray-700 mb-4 ">
           Ingresa tu correo para recibir un link para cambiar tu contraseña
         </p>
-        
+
         {error && (
           <p className="text-red-500 text-sm text-center mb-2">
             {error}
@@ -80,7 +79,7 @@ export default function ResetPassword() {
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
-            {message && <p className="text-green-500 text-sm">{message}</p>}  
+            {message && <p className="text-green-500 text-sm">{message}</p>}
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">

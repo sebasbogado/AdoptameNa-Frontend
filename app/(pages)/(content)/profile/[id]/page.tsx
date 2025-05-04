@@ -1,11 +1,10 @@
 'use client';
 
-import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 import { Section } from '@/components/section';
 import { getPosts } from '@/utils/posts.http';
 import { getPetsByUserId } from '@/utils/pets.http';
-import { getUserProfile } from '@/utils/user-profile-client';
+import { getUserProfile } from '@/utils/user-profile.http';
 import { MediaDTO, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
@@ -17,7 +16,7 @@ import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
-import { getUser } from '@/utils/user-client';
+import { getUser } from '@/utils/user.http';
 import MenuButton from '@/components/buttons/menu-button';
 import HeaderImage from '@/components/image-header';
 import PostLocationMap from '@/components/post/post-location-map';
@@ -235,7 +234,7 @@ export default function ProfilePage() {
                     {/* Mostrar el mapa si las coordenadas están disponibles */}
                     {userProfile?.addressCoordinates && (
                         <div className='w-[40vw] mt-[-70px] '>
-                            <PostLocationMap location={userProfile?.addressCoordinates} />
+                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization}/>
                         </div>
                     )}
 
