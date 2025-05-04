@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
@@ -16,11 +16,14 @@ import dynamic from "next/dynamic";
 import { ImagePlus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema, PostFormValues } from "@/validations/post-schema";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
 import { Tags } from "@/types/tags";
 import NewBanner from "@/components/newBanner";
+import { getTags } from "@/utils/tags";
+import { POST_TYPEID } from "@/types/constants";
+import { MultiSelect } from "@/components/multi-select";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -32,6 +35,8 @@ export default function Page() {
         register,
         handleSubmit,
         setValue,
+        watch,
+        control,
         formState: { errors, isSubmitting }
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
@@ -59,6 +64,11 @@ export default function Page() {
     const [position, setPosition] = useState<[number, number] | null>(null);
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
+    const [tags, setTags] = useState<Tags[]>([]);
+    const watchedPostTypeId = useWatch({
+        control,
+        name: "postTypeId", // El nombre del campo en tu formulario
+    });
 
     const handlePositionChange = (newPosition: [number, number]) => {
         setPosition(newPosition); // Actualiza el estado local
@@ -107,12 +117,12 @@ export default function Page() {
     const fetchInitialData = async () => {
         try {
             setLoading(true);
-            const [postTypeData] = await Promise.all([
+            const [postTypeData, tagsData] = await Promise.all([
                 getPostsType(),
-                //getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.BLOG, POST_TYPEID.VOLUNTEERING] })
+                getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.BLOG, POST_TYPEID.VOLUNTEERING] })
             ]);
             setPostTypes(postTypeData.data);
-            //setTags(tagsData.data);
+            setTags(tagsData.data);
         } catch (error: any) {
             console.log(error.message);
         } finally {
@@ -123,6 +133,39 @@ export default function Page() {
     useEffect(() => {
         fetchInitialData();
     }, []);
+
+    const filteredTags = useMemo(() => {
+        if (!tags || tags.length === 0) {
+            return [];
+        }
+
+        // Siempre incluye los tags generales (postTypeId === 0)
+        const generalTags = tags.filter(tag => tag.postTypeId === null);
+
+        // Incluye tags específicos si se selecciona un tipo (1 o 2)
+        let specificTags: Tags[] = [];
+        if (watchedPostTypeId === POST_TYPEID.BLOG || watchedPostTypeId === POST_TYPEID.VOLUNTEERING) {
+            specificTags = tags.filter(tag => tag.postTypeId === watchedPostTypeId);
+        }
+
+        return [...generalTags, ...specificTags];
+
+    }, [tags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
+
+    useEffect(() => {
+        // Cuando las opciones filtradas cambian, debemos asegurarnos
+        // de que los tags seleccionados actualmente todavía están en la lista de opciones válidas.
+        const validSelectedTags = selectedTags.filter(selectedTag =>
+            filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
+        );
+
+        // Si la lista de seleccionados válidos es diferente a la actual, actualiza
+        if (validSelectedTags.length !== selectedTags.length) {
+            setSelectedTags(validSelectedTags);
+            setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
+        }
+        // Queremos que esto se ejecute solo cuando las *opciones* filtradas cambien.
+    }, [filteredTags, setValue]);
 
     // Abre el modal cuando el formulario es válido
     const openConfirmationModal = (data: PostFormValues) => {
@@ -313,20 +356,35 @@ export default function Page() {
                 <label className="block text-sm font-medium">Tipo de publicación <span className="text-red-500">*</span></label>
                 <select
                     {...register("postTypeId", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
+                    className={`w-full p-2 border rounded mb-4 
+                        ${errors.postTypeId ? 'border-red-500' : ''} 
+                        ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
                 >
-                    {/* Opción por defecto explícita si postTypeId 0 no es una opción seleccionable */}
-                    <option value={0}>Seleccione un tipo</option>
+                    <option disabled value={0}>Seleccione un tipo</option>
                     {postTypes.map((type) => (
                         <option key={type.id} value={type.id}>{type.name}</option>
                     ))}
                 </select>
                 {errors.postTypeId && <p className="text-red-500">{errors.postTypeId.message}</p>}
 
+                {/* Tags (MultiSelect) */}
+                <label className="block text-sm font-medium">Tags</label>
+                <MultiSelect
+                    options={filteredTags} // <-- Usa los tags filtrados
+                    selected={selectedTags}
+                    onChange={(selected) => {
+                        setSelectedTags(selected);
+                        setValue("tagIds", selected.map((animal) => animal.id));
+                    }}
+                    placeholder="Seleccionar tags"
+                />
+                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
+
                 {/* Título */}
                 <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
                 <input
                     type="text"
+                    placeholder="Titulo"
                     {...register("title")}
                     className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
                 />
@@ -336,6 +394,7 @@ export default function Page() {
                 <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
                 <textarea
                     {...register("content")}
+                    placeholder="Descripción"
                     className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
                 />
                 {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
@@ -344,6 +403,7 @@ export default function Page() {
                 <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
                 <input
                     type="text"
+                    placeholder="0000123456"
                     {...register("contactNumber")}
                     className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
                 />

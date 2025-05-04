@@ -7,20 +7,24 @@ import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { ImagePlus } from "lucide-react";
 import { Media } from "@/types/media";
+import { getTags } from "@/utils/tags";
+import { POST_TYPEID } from "@/types/constants";
+import { Tags } from "@/types/tags";
+import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
@@ -44,7 +48,6 @@ export default function Page() {
         handleSubmit,  // Renombramos el handleSubmit de useForm
         setValue,
         reset,
-        getValues,
         control,
         formState: { errors, isSubmitting }
     } = useForm<PostFormValues>({
@@ -67,6 +70,12 @@ export default function Page() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
+    const [allTags, setAllTags] = useState<Tags[]>([]);
+    const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
+    const watchedPostTypeId = useWatch({
+        control,
+        name: "postTypeId", // El nombre del campo en tu formulario
+    });
 
     const handlePositionChange = useCallback((newPosition: [number, number]) => {
         setPosition(newPosition);
@@ -82,30 +91,43 @@ export default function Page() {
 
     // --- Carga de Datos Iniciales (Post, Tipos, Tags) ---
     useEffect(() => {
+        if (!post || !user?.id) return;
+        if ((postError !== null) || (String(post.userId) !== String(user.id))) {
+            router.push("/");
+        }
+    }, [post, user?.id]);
+
+    // --- Carga de Datos Iniciales (Post, Tipos, Tags) ---
+    useEffect(() => {
         const fetchInitialData = async () => {
             if (authLoading || !authToken || !user?.id || !postId) return;
             setLoading(true);
             setPostError(null);
             try {
                 // Fetch en paralelo
-                const [postData, postTypeData /*, tagsDataResult (si usas tags) */] = await Promise.all([
+                const [postDataResult, postTypeData, tagsData] = await Promise.all([
                     getPost(String(postId)),
                     getPostsType(),
-                    // getTags() // (si usas tags - Asegúrate que traiga postTypeId)
+                    getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.BLOG, POST_TYPEID.VOLUNTEERING] })
                 ]);
 
+                // Procesa Tipos
                 setPostTypes(postTypeData.data);
-                // setTags(tagsData.data);
+
+                // Procesa Tags (si usas tags)
+                setAllTags(tagsData.data);
+
+                // Procesa Post
+                const postData = postDataResult; // getPost devuelve el Post directamente
                 setPost(postData);
 
                 // --- Validar propietario ---
                 if (String(postData.userId) !== String(user.id)) {
                     setPostError("No tienes permiso para editar esta publicación.");
-                    // router.push("/"); // O a una página de error/dashboard
+                    router.push("/"); // O a una página de error/dashboard
                     setLoading(false);
                     return; // Detiene la ejecución adicional si no es propietario
                 }
-
 
                 // --- Poblar el Formulario ---
                 let initialCoords: [number, number] = [0, 0];
@@ -132,7 +154,7 @@ export default function Page() {
                 setSelectedImages(postData.media || []);
 
                 // Poblar estado local de tags seleccionados (si usas tags)
-                // setSelectedTags(postData.tags || []);
+                setSelectedTags(postData.tags || []);
 
             } catch (err: any) {
                 console.error("Error al cargar datos iniciales:", err);
@@ -149,6 +171,24 @@ export default function Page() {
         fetchInitialData();
     }, [authToken, authLoading, user?.id, postId, router, reset]); // reset añadido como dependencia
 
+    const filteredTags = useMemo(() => {
+        if (!allTags || allTags.length === 0) {
+            return [];
+        }
+
+        // Siempre incluye los tags generales (postTypeId === 0)
+        const generalTags = allTags.filter(tag => tag.postTypeId === null);
+
+        // Incluye tags específicos si se selecciona un tipo (1 o 2)
+        let specificTags: Tags[] = [];
+        if (watchedPostTypeId === POST_TYPEID.BLOG || watchedPostTypeId === POST_TYPEID.VOLUNTEERING) {
+            specificTags = allTags.filter(tag => tag.postTypeId === watchedPostTypeId);
+        }
+
+        return [...generalTags, ...specificTags];
+
+    }, [allTags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
+
     useEffect(() => {
         if (!post || !user?.id) return;
         if ((postError !== null) || (String(post.userId) !== String(user.id))) {
@@ -160,44 +200,32 @@ export default function Page() {
     if (loading) return Loading();
     if (!post) return NotFound();
 
-    const onSubmit = (data: PostFormValues) => {
-        // 'data' aquí ya está validado por Zod
-        openConfirmationModalEdit(data); // Pasa los datos validados al modal/handler
-    };
-
     const openConfirmationModalEdit = (data: PostFormValues) => {
         setValidatedData(data); // Guardamos los datos validados
         setIsEditModalOpen(true);
     };
 
+    const onSubmit = (data: PostFormValues) => {
+        // 'data' aquí ya está validado por Zod
+        openConfirmationModalEdit(data); // Pasa los datos validados al modal/handler
+    };
+
     const confirmSubmit = async () => {
-        if (!validatedData || !post || !authToken || !user?.id) return;
-
         setIsEditModalOpen(false);
-        setLoading(true);
-        setErrorMessage(null);
-        setSuccessMessage(null);
+        if (!post || !authToken || !validatedData) return;
 
-        // Construye el payload para la API
-        const updatePayload: UpdatePost = {
-            userId: user.id,
-            title: validatedData.title,
-            content: validatedData.content,
-            postTypeId: validatedData.postTypeId,
-            contactNumber: validatedData.contactNumber,
-            locationCoordinates: validatedData.locationCoordinates.join(','), // Unir coordenadas
-            mediaIds: validatedData.mediaIds || [], // Asegurar que es un array
-            tagIds: validatedData.tagIds || [], // Si usas tags
-            // No incluyas userId aquí si la API lo infiere del token o no permite cambiarlo
+        const updatedFormData = {
+            ...validatedData,
+            userId: Number(user?.id),
+            locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
         };
 
+        setLoading(true);
         try {
-            await updatePost(String(post.id), updatePayload, authToken);
+            await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
             setTimeout(() => {
                 router.push(`/posts/${post.id}`); // Redirige a la vista del post
-                // Opcional: podrías querer refrescar los datos en la página destino
-                // router.refresh();
             }, 1500);
         } catch (error) {
             console.error('Error al actualizar la publicación', error);
@@ -288,8 +316,9 @@ export default function Page() {
                 if (response) {
                     const newSelectedImages = [...selectedImages, response];
                     setSelectedImages(newSelectedImages);
-                    // Actualiza RHF con TODOS los IDs actuales
-                    setValue("mediaIds", newSelectedImages.map(img => img.id), { shouldValidate: true, shouldDirty: true });
+                    // Actualiza react-hook-form con TODOS los IDs actuales
+                    const updatedMediaIds = newSelectedImages.map(img => img.id);
+                    setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
                     setSuccessMessage("Imagen subida.");
                     setTimeout(() => setSuccessMessage(null), 2000);
                 }
@@ -433,6 +462,19 @@ export default function Page() {
                     className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
                 />
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+
+                {/* Tags (MultiSelect) */}
+                <label className="block text-sm font-medium">Tags</label>
+                <MultiSelect
+                    options={filteredTags} // <-- Usa los tags filtrados
+                    selected={selectedTags}
+                    onChange={(selected) => {
+                        setSelectedTags(selected);
+                        setValue("tagIds", selected.map((animal) => animal.id));
+                    }}
+                    placeholder="Seleccionar tags"
+                />
+                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
 
                 {/* Descripción */}
                 <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
