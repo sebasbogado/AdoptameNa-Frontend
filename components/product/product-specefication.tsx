@@ -15,8 +15,8 @@ export const ProductSpecification = ({ product }: ProductSpecificationProps) => 
       <ProductImageCarousel media={product?.media as any} className="col-span-4" />
       <div className="col-span-1 pl-12">
         {/**Precio */}
-        <ProductTag label={product?.price.toString() as string} isPrice/>
-        
+        <ProductTag label={product?.price.toString() as string} isPrice />
+
         {/*Estado */}
         <h2 className="text-2xl">Estado</h2>
         <ProductTag label={product?.condition as string} />
@@ -29,9 +29,11 @@ export const ProductSpecification = ({ product }: ProductSpecificationProps) => 
         {product?.animals && product?.animals.length > 0 && (
           <>
             <h2 className="text-2xl">Disponible para:</h2>
-            {product.animals.map((animal) => (
-              <ProductTag key={animal.id} label={animal.name} />
-            ))}
+            <div className="grid grid-cols-2 gap-2">
+              {product.animals.map((animal) => (
+                <ProductTag key={animal.id} label={animal.name} />
+              ))}
+            </div>
           </>
         )}
       </div>

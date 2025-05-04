@@ -41,8 +41,8 @@ const ProductPage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const protucts = await getProducts({ size: 5, page: 0 });
-      setProducts(protucts.data);
+      const products = await getProducts({ size: 4, page: 0 });
+      setProducts(products.data);
     }
     fetchProducts();
   }, [])
@@ -52,7 +52,7 @@ const ProductPage = () => {
       <div className="mt-6 ">
         <ProductHeader product={product as Product} />
         <ProductSpecification product={product as Product} />
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2 mb-2">
           <ProductDetail product={product as Product} />
           <ProductSidebar products={products} />
         </div>
