@@ -7,21 +7,19 @@ import { Check, X, Trash } from 'lucide-react';
 import { getAllSponsors, approveSponsorRequest, deleteSponsor, rejectSponsorRequest } from '@/utils/sponsor.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
+import { isAxiosError } from 'axios';
 
-import { Sponsor } from '@/types/sponsor';
+import { Sponsor, SponsorStatus, FilterStatus } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
-    status?: string | null;
 }
 
-type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado' | 'Rechazado';
-
 export default function AdminSponsorsPage() {
-    const [filterStatus, setFilterStatus] = useState<FilterStatus>('Todos');
+    const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -30,12 +28,17 @@ export default function AdminSponsorsPage() {
     const { authToken } = useAuth();
     const [isDefinitiveDelete, setIsDefinitiveDelete] = useState(false);
 
-    // Mapeo de filtro frontend a backend
     const getBackendStatus = (status: FilterStatus) => {
-        if (status === 'Pendiente') return 'PENDING';
-        if (status === 'Aprobado') return 'ACTIVE';
-        if (status === 'Rechazado') return 'INACTIVE';
-        return undefined; // Para 'Todos'
+        switch (status) {
+            case FilterStatus.PENDING:
+                return SponsorStatus.PENDING;
+            case FilterStatus.APPROVED:
+                return SponsorStatus.ACTIVE;
+            case FilterStatus.REJECTED:
+                return SponsorStatus.INACTIVE;
+            default:
+                return undefined;
+        }
     };
 
     const {
@@ -55,11 +58,10 @@ export default function AdminSponsorsPage() {
         initialPageSize: 10
     });
 
-    // Actualizar filtros cuando cambia el estado del filtro
     useEffect(() => {
-        updateFilters({ status: filterStatus });
-        handlePageChange(1); // Volver a la primera página al cambiar el filtro
-    }, [filterStatus, updateFilters]);
+        updateFilters({ status: selectedStatus });
+        handlePageChange(1);
+    }, [selectedStatus, updateFilters]);
 
     useEffect(() => {
         if (alertInfo) {
@@ -77,18 +79,26 @@ export default function AdminSponsorsPage() {
         if (!authToken || sponsorToApproveId === null) return;
         try {
             await approveSponsorRequest(authToken, sponsorToApproveId);
-            updateFilters({ status: filterStatus });
+            updateFilters({ status: selectedStatus });
             setAlertInfo({ open: true, color: "green", message: `Solicitud aprobada.` });
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Error approving application:", error);
+
+            // Si es una instancia de Error (error común de JS)
             if (error instanceof Error) {
                 setAlertInfo({ open: true, color: "red", message: error.message });
-            } else if (typeof error === 'object' && error !== null && 'response' in error) {
-                // @ts-ignore
-                setAlertInfo({ open: true, color: "red", message: JSON.stringify(error.response?.data) });
-                // @ts-ignore
+            }
+            // Si es un error de Axios
+            else if (isAxiosError(error)) {
+                setAlertInfo({
+                    open: true,
+                    color: "red",
+                    message: error.response?.data?.message || 'Error del servidor',
+                });
                 console.error('Backend error response:', error.response);
-            } else {
+            }
+            // Otro tipo de error desconocido
+            else {
                 setAlertInfo({ open: true, color: "red", message: 'Error al aprobar (desconocido).' });
             }
         } finally {
@@ -115,17 +125,21 @@ export default function AdminSponsorsPage() {
             } else {
                 await rejectSponsorRequest(authToken, sponsorToDeleteId);
             }
-            updateFilters({ status: filterStatus });
+            updateFilters({ status: selectedStatus });
             setAlertInfo({ open: true, color: "green", message: isDefinitiveDelete ? `Solicitud eliminada definitivamente.` : `Solicitud rechazada.` });
-        } catch (error) {
-            console.error("Error rejecting application:", error);
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 setAlertInfo({ open: true, color: "red", message: error.message });
-            } else if (typeof error === 'object' && error !== null && 'response' in error) {
-                // @ts-ignore
-                setAlertInfo({ open: true, color: "red", message: JSON.stringify(error.response?.data) });
-                // @ts-ignore
-                console.error('Backend error response:', error.response);
+            } else if (isAxiosError(error)) {
+                const status = error.response?.status;
+                const message = error.response?.data?.message || error.message;
+                if (status === 401) {
+                    setAlertInfo({ open: true, color: "red", message: "No autorizado para rechazar la solicitud" });
+                } else if (status === 404) {
+                    setAlertInfo({ open: true, color: "red", message: "Solicitud no encontrada" });
+                } else {
+                    setAlertInfo({ open: true, color: "red", message: `Error ${status}: ${message}` });
+                }
             } else {
                 setAlertInfo({ open: true, color: "red", message: 'Error al rechazar (desconocido).' });
             }
@@ -162,16 +176,16 @@ export default function AdminSponsorsPage() {
 
             <div className="mb-6 w-full sm:w-72">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <Select
-                    value={filterStatus}
-                    onChange={(val) => setFilterStatus(val as FilterStatus || 'Todos')}
-                    placeholder="Filtrar por estado"
+                <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value as FilterStatus)}
+                    className="w-full p-2 border rounded"
                 >
-                    <Option value="Todos">Todos</Option>
-                    <Option value="Pendiente">Pendiente</Option>
-                    <Option value="Aprobado">Aprobado</Option>
-                    <Option value="Rechazado">Rechazado</Option>
-                </Select>
+                    <option value={FilterStatus.ALL}>{FilterStatus.ALL}</option>
+                    <option value={FilterStatus.PENDING}>{FilterStatus.PENDING}</option>
+                    <option value={FilterStatus.APPROVED}>{FilterStatus.APPROVED}</option>
+                    <option value={FilterStatus.REJECTED}>{FilterStatus.REJECTED}</option>
+                </select>
             </div>
 
             {loading ? (
@@ -197,7 +211,7 @@ export default function AdminSponsorsPage() {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {filterStatus !== 'Todos' ? `en estado ${filterStatus.toLowerCase()}` : ''}.</p>
+                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {selectedStatus !== FilterStatus.ALL ? `en estado ${selectedStatus.toLowerCase()}` : ''}.</p>
                     )}
 
                     <Pagination

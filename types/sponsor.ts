@@ -1,3 +1,16 @@
+export enum SponsorStatus {
+    PENDING = 'PENDING',
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE'
+}
+
+export enum FilterStatus {
+    ALL = 'Todos',
+    PENDING = 'Pendiente',
+    APPROVED = 'Aprobado',
+    REJECTED = 'Rechazado'
+}
+
 export type Sponsor = {
   id: number;
   idUser: number;
@@ -8,6 +21,7 @@ export type Sponsor = {
   logoId: number | null; // Hacer opcional/nullable
   bannerId: number | null; // Hacer opcional/nullable
   isActive: boolean;
+  status: SponsorStatus;
 };
 
 // Nuevo tipo para sponsors activos

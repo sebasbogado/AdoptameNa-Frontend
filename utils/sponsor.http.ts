@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "@/types/pagination";
-import { Sponsor, ActiveSponsor, CreateSponsorRequest } from "@/types/sponsor";
+import { Sponsor, ActiveSponsor, CreateSponsorRequest, SponsorStatus } from "@/types/sponsor";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/sponsors`;
@@ -72,7 +72,7 @@ export const createSponsor = async (
 export const updateSponsorStatus = async (
   token: string,
   sponsor: Sponsor,
-  status: 'ACTIVE' | 'INACTIVE' | 'PENDING'
+  status: SponsorStatus
 ): Promise<Sponsor> => {
   try {
     const updatedSponsor = { ...sponsor, status };
@@ -86,7 +86,7 @@ export const updateSponsorStatus = async (
         },
       }
     );
-    return response.data; // Devuelve el sponsor actualizado
+    return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status;
