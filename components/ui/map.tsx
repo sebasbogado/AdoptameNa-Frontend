@@ -1,16 +1,62 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import { Icon, LeafletMouseEvent } from 'leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, GeoJSON } from 'react-leaflet';
+import { Icon, LeafletMouseEvent, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useAppContext } from '@/contexts/app-context';
+import { useEffect, useRef, memo } from 'react';
 
 import { MapProps } from '@/types/map-props';
+
+function MapBoundary() {
+    const map = useMap();
+
+    useEffect(() => {
+        const paraguayBounds = new LatLngBounds(
+            new LatLng(-27.608738, -62.647076),
+            new LatLng(-19.294041, -54.259796) 
+        );
+
+        map.setMaxBounds(paraguayBounds);
+        map.on('drag', () => {
+            map.panInsideBounds(paraguayBounds, { animate: false });
+        });
+
+        return () => {
+            map.off('drag');
+        };
+    }, [map]);
+
+    return null;
+}
+
+const GeoJSONLayer = memo(({ data }: { data: GeoJSON.GeoJSON }) => {
+    const geoJsonKey = JSON.stringify(data);
+
+    return <GeoJSON key={geoJsonKey} data={data} />;
+});
+GeoJSONLayer.displayName = 'GeoJSONLayer';
+
+function MapController({ center, zoom }: { center?: [number, number], zoom?: number }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (center) {
+            const timer = setTimeout(() => {
+                map.setView(center, zoom || map.getZoom());
+                map.invalidateSize();
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [center, zoom, map]);
+
+    return null;
+}
+
 function MapMarker({ position, setPosition }: MapProps) {
     useMapEvents({
         click(e: LeafletMouseEvent) {
-            setPosition([e.latlng.lat, e.latlng.lng]); // Actualiza el estado en el padre
+            setPosition([e.latlng.lat, e.latlng.lng]);
         },
     });
 
@@ -28,38 +74,28 @@ function MapMarker({ position, setPosition }: MapProps) {
     return <Marker position={position} icon={customIcon} />;
 }
 
+export default function Map({ position, setPosition, geoJSON, center, zoom }: MapProps) {
+    const defaultCenter: [number, number] = center || [-25.2637, -57.5759]; // Asunción, Paraguay as default
+    const defaultZoom: number = zoom || 6;
 
-export default function Map({ position, setPosition }: MapProps) {
-    const defaultCenter: [number, number] = [-27.307215, -55.887404];
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="mb-4 bg-white dark:bg-card rounded-lg border shadow-sm">
-                <div className="px-6 pt-6 pb-3">
-                    <h3 className="text-lg font-semibold">Seleccione su ubicación</h3>
-                </div>
-                <div className="px-6 pb-6 pt-2">
-                    {position ? (
-                        <div className="p-3 bg-secondary rounded-md">
-                            <p className="text-sm font-mono">Latitud: {position[0].toFixed(6)}</p>
-                            <p className="text-sm font-mono">Longitud: {position[1].toFixed(6)}</p>
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground">Aún no has seleccionado ningún punto</p>
-                    )}
-                </div>
-            </div>
 
-            {/* Mapa */}
-            <div className="flex-grow h-[60vh] rounded-lg overflow-hidden border">
-                <MapContainer center={defaultCenter} zoom={6} style={{ height: "100%", width: "100%" }}>
-                    <TileLayer
-                        attribution='&copy; OpenStreetMap contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <MapMarker position={position} setPosition={setPosition} />
-                </MapContainer>
-            </div>
-        </div>
+        <div className="flex-grow h-[60vh] rounded-lg border">
+            <MapContainer
+                center={defaultCenter}
+                zoom={defaultZoom}
+                style={{ height: "100%", width: "100%" }}
+            >
+                <TileLayer
+                    attribution='&copy; OpenStreetMap contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <MapMarker position={position} setPosition={setPosition} />
+                <MapController center={center} zoom={zoom} />
+                <MapBoundary />
+                {geoJSON && <GeoJSONLayer data={geoJSON} />}
+            </MapContainer>
+        </div >
     );
 }
