@@ -13,7 +13,7 @@ export const postAdoption = async (params: AdoptionRequest) => {
       return response.data;
   } catch (error: any) {
     throw new Error(
-      error.response?.data?.message || "Error al crear la solicitud de adopcion."
+      error.response?.data?.message || "Error al crear la solicitud de adopción."
     );
   }
 };
