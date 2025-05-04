@@ -13,8 +13,8 @@ export const ProductTag = ({ label, isPrice = false }: ProductTagProps) => {
   return (
     <>
       {isPrice ? (
-        <Button variant="tertiary" size="sm" className="mb-3 border-2 border-[#9747FF] cursor-default">
-          <span className="text-2xl font-bold">{formatNumber(parseInt(label))}</span>
+        <Button variant="tertiary" size="md" className="mb-3 border-2 border-[#9747FF] cursor-default">
+          <span className="text-xl font-bold">Gs. {formatNumber(parseInt(label))}</span>
         </Button>
       ) : (
         <div

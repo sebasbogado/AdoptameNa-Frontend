@@ -32,9 +32,11 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
         </p>
       </div>
       <div className="gap-3 flex justify-end">
-        <Button variant="cta" size="md" className="mt-4" onClick={() => handleWhatsAppClick(product?.contactNumber as string)}>
-          Contactar
-        </Button>
+        {!isOwner && (
+          <Button variant="cta" size="md" className="mt-4" onClick={() => handleWhatsAppClick(product?.contactNumber as string)}>
+            Contactar
+          </Button>
+        )}
         <ReportButton size="md" className="mt-4" />
         {isOwner && (
           <EditButton size="md" isEditing={false} className="mt-4" />
