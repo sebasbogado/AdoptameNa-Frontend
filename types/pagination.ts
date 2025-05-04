@@ -86,12 +86,17 @@ export function buildQueryParams(params?: Record<string, any>): URLSearchParams 
     for (const key in params) {
       const typedKey = key as keyof typeof params;
       const value = params[typedKey];
-      if (Array.isArray(value)) {
-        value.forEach(val => searchParams.append(key, String(val)));
-      } else {
-        searchParams.append(key, value as string);
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach(val => {
+            if (val !== null && val !== undefined) {
+              searchParams.append(key, String(val));
+            }
+          });
+        } else {
+          searchParams.append(key, String(value));
+        }
       }
-      
     }
   }
   return searchParams;

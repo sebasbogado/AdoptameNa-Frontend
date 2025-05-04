@@ -123,28 +123,6 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
   }
 }
 
-export const getPetSMissing = async (
-  queryParams?: petQueryParams): Promise<PaginatedResponse<Pet>> => {
-  try {
-    const params = buildQueryParams(queryParams);
-    const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets?petStatusId=1`;
-
-    const response = await axios.get(API_URL, {
-      params: params,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    return response.data;
-  } catch (error: any) {
-    if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
-    }
-    throw new Error(error.message || "Error al obtener Pets");
-  }
-};
-
 export async function deletePet(id: string, token: string) {
   try {
     const response = await axios.delete(`${API_URL}/${id}`, {

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
-import { getPetSMissing } from "@/utils/pets.http";
+import { getPets } from "@/utils/pets.http";
 import { PET_STATUS } from "@/types/constants";
 import PetCard from "@/components/petCard/pet-card";
 import { Loader2 } from "lucide-react";
@@ -39,7 +39,7 @@ export default function Page() {
     handlePageChange
   } = usePagination({
     fetchFunction: async (page, size, filters) => {
-      return await getPetSMissing({
+      return await getPets({
         page,
         size,
         sort,
@@ -76,7 +76,7 @@ export default function Page() {
 
   const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
     setLocationFilters(filters);
-    setFilterChanged(prev => !prev); // Alternamos este valor para forzar una actualización
+    setFilterChanged(prev => !prev);
   }, []);
 
   useEffect(() => {

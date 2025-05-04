@@ -21,9 +21,6 @@ export default function Page() {
     const { user } = useAuth();
     const pageSize = 10;
     const sort = "id,desc";
-    const [animals, setAnimals] = useState<Animal[]>([]);
-    const [selectedAnimal, setSelectedAnimal] = useState("");
-    const [animalList, setAnimalList] = useState<string[]>([]);
     const [tags, setTags] = useState<Tags[]>([]);
     const [tagsList, setTagsList] = useState<string[]>([]);
     const [selectedTag, setSelectedTag] = useState("");
@@ -54,9 +51,6 @@ export default function Page() {
 
     const fetchData = async () => {
         try {
-            const animals = await getAnimals();
-            setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
-            setAnimals(animals.data);
 
             const tagsData = await getTags({ postTypeIds: [POST_TYPEID.ALL, POST_TYPEID.VOLUNTEERING] });
             setTags(tagsData.data);
@@ -77,15 +71,7 @@ export default function Page() {
 
     useEffect(() => {
         let filters: any = {};
-        
-        if (selectedAnimal && selectedAnimal !== "Todos") {
-            const selectedAnimalObj = animals.find(
-                (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
-            );
-            if (selectedAnimalObj) {
-                filters.animalId = selectedAnimalObj.id;
-            }
-        }
+
         
         if (selectedTag && selectedTag !== "Todos") {
             const selectedTagObj = tags.find(
@@ -102,12 +88,12 @@ export default function Page() {
         };
 
         updateFilters(filters);
-    }, [selectedAnimal, selectedTag, locationFilters, filterChanged]);
+    }, [ selectedTag, locationFilters, filterChanged]);
 
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <LocationFilter 
                         user={user} 
                         onFilterChange={handleLocationFilterChange} 
@@ -117,12 +103,6 @@ export default function Page() {
                         options={tagsList}
                         selected={selectedTag}
                         setSelected={setSelectedTag}
-                    />
-                    <LabeledSelect
-                        label="Tipo de mascota"
-                        options={animalList}
-                        selected={selectedAnimal}
-                        setSelected={setSelectedAnimal}
                     />
                 </div>
             </div>
