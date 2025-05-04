@@ -3,6 +3,7 @@
 import { Product } from "@/types/product";
 import ProductImageCarousel from "./product-image-carousel";
 import { ProductTag } from "./product-tag";
+import LabeledInput from "../inputs/labeled-input";
 
 interface ProductSpecificationProps {
   product?: Product
@@ -14,7 +15,7 @@ export const ProductSpecification = ({ product }: ProductSpecificationProps) => 
       <ProductImageCarousel media={product?.media as any} className="col-span-4" />
       <div className="col-span-1 pl-12">
         {/**Precio */}
-        <ProductTag label={product?.price.toString() as string} isPrice={true}/>
+        <ProductTag label={product?.price.toString() as string} isPrice/>
         
         {/*Estado */}
         <h2 className="text-2xl">Estado</h2>

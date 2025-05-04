@@ -21,9 +21,9 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
           Publicado por <Link className="text-[#4781FF]" href={`/profile/${product?.userId}`}>{product?.userFullName}</Link>
         </p>
       </div>
-      <div className="gap-3 flex justify-end h-16">
+      <div className="gap-3 flex justify-end">
         {/**Falta link para redirigir a wha y que sea campo obligatorio en el formulario */}
-        <Button variant="cta" size="lg" onClick={() =>  console.log("Comprar")}>
+        <Button variant="cta" size="md" className="mt-4" onClick={() =>  console.log("Comprar")}>
           Contactar
         </Button>
         <ReportButton size="md" className="mt-4" />
