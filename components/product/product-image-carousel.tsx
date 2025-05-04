@@ -15,13 +15,12 @@ interface ProductImageCarouselProps {
 
 export default function ProductImageCarousel({ media, className = "" }: ProductImageCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isImageLoaded, setIsImageLoaded] = useState(false)
   const hasImages = media && media.length > 0
   const [images, setImages] = useState<{ url: string; isVertical: boolean; id: number }[]>([]);
   const showArrows = images.length > 1
 
   const checkOrientation = async (mediaItems: Media[]) => {
-    if(!mediaItems || mediaItems.length === 0) return;
+    if (!mediaItems || mediaItems.length === 0) return;
     const promises = mediaItems.map(
       (media) =>
         new Promise<{ id: number; url: string; isVertical: boolean }>(
@@ -54,17 +53,14 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
 
   // Función para cambiar la imagen activa
   const handleThumbnailClick = (index: number) => {
-    console.log("Thumbnail clicked:", index)
     setActiveIndex(index)
   }
 
   // Reiniciar el estado cuando cambian las imágenes
   useEffect(() => {
     setActiveIndex(0)
-    setIsImageLoaded(false)
     checkOrientation(media)
   }, [media])
-  useEffect(() => console.log(showArrows), [showArrows])
 
   if (!hasImages) {
     return (
@@ -144,8 +140,7 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
                 alt={`Product-image ${index + 1}`}
                 width={600}
                 height={600}
-                className={`h-full w-full object-contain transition-opacity duration-300 ${isImageLoaded ? "opacity-100" : "opacity-0"}`}
-                onLoad={() => setIsImageLoaded(true)}
+                className={`h-full w-full object-contain transition-opacity duration-300`}
                 priority={index === 0}
               />
             </div>
