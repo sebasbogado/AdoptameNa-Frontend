@@ -5,12 +5,22 @@ import Button from "@/components/buttons/button";
 import ReportButton from "../buttons/report-button";
 import EditButton from "../buttons/edit-button";
 import Link from "next/link";
+import { useAuth } from "@/contexts/auth-context";
 
 interface ProductHeaderProps {
   product?: Product
 }
-{/**FALTA: logica de botones */}
+
+const handleWhatsAppClick = (phoneNumber: string) => {
+  console.log("WhatsApp clicked");
+  const message = "Hola, estoy interesado en tu producto";
+  const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank");
+}
+
 export const ProductHeader = ({ product }: ProductHeaderProps) => {
+  const { user } = useAuth();
+  const isOwner = user?.id === product?.userId;
   return (
     <div className="flex justify-between align-items-center flex-column px-12">
       <div>
@@ -22,12 +32,13 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
         </p>
       </div>
       <div className="gap-3 flex justify-end">
-        {/**Falta link para redirigir a wha y que sea campo obligatorio en el formulario */}
-        <Button variant="cta" size="md" className="mt-4" onClick={() =>  console.log("Comprar")}>
+        <Button variant="cta" size="md" className="mt-4" onClick={() => handleWhatsAppClick(product?.contactNumber as string)}>
           Contactar
         </Button>
         <ReportButton size="md" className="mt-4" />
-        <EditButton size="md" isEditing={false} className="mt-4" />
+        {isOwner && (
+          <EditButton size="md" isEditing={false} className="mt-4" />
+        )}
       </div>
     </div >
   );
