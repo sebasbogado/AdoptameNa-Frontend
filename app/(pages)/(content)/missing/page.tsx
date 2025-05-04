@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
 import { getPetSMissing } from "@/utils/pets.http";
@@ -12,19 +12,22 @@ import { Animal } from "@/types/animal";
 import { getAnimals } from "@/utils/animals.http";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
+import { useAuth } from "@/contexts/auth-context";
+import LocationFilter from "@/components/filters/LocationFilter";
+import { LocationFilters } from "@/types/location-filter";
 
 export default function Page() {
+  const { user } = useAuth();
   const pageSize = 10;
   const sort = "id,desc";
-  const [animals, setAnimals] = useState<Animal[]>([]); //para obtener de la api
-  const [selectedAnimal, setSelectedAnimal] = useState(""); //para selected y setSelected del filtro
-  const [animalList, setAnimalList] = useState<string[]>([]); //para options del filtro
-  const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]); //para obtener de la api
-  const [petStatusesList, setPetStatusesList] = useState<string[]>([]); //para options del filtro
-  const [selectedPetStatus, setSelectedPetStatus] = useState(""); //para selected y setSelected del filtro
-  //temp
-  const distancias = ["A menos de 1 Km", "1 a 3 Km", "Mas de 3 Km", "Cualquier distancia"];
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [selectedAnimal, setSelectedAnimal] = useState("");
+  const [animalList, setAnimalList] = useState<string[]>([]);
+  const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]);
+  const [petStatusesList, setPetStatusesList] = useState<string[]>([]);
+  const [selectedPetStatus, setSelectedPetStatus] = useState("");
+  const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
+  const [filterChanged, setFilterChanged] = useState(false);
 
   const {
     data: pets,
@@ -69,34 +72,51 @@ export default function Page() {
 
   useEffect(() => {
     fetchData();
+  }, [user]);
+
+  const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
+    setLocationFilters(filters);
+    setFilterChanged(prev => !prev); // Alternamos este valor para forzar una actualización
   }, []);
 
-
   useEffect(() => {
-    if (!selectedAnimal && !selectedPetStatus) return;
-    const selectedAnimalObj = animals.find(
-      (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
-    );
-    const selectedStatusObj = petStatuses.find(
-      (status) => status.name.toLowerCase() === selectedPetStatus.toLowerCase()
-    );
+    let filters: any = {};
+    
+    if (selectedAnimal && selectedAnimal !== "Todos") {
+      const selectedAnimalObj = animals.find(
+        (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
+      );
+      if (selectedAnimalObj) {
+        filters.animalId = selectedAnimalObj.id;
+      }
+    }
+    
+    if (selectedPetStatus && selectedPetStatus !== "Todos") {
+      const selectedStatusObj = petStatuses.find(
+        (status) => status.name.toLowerCase() === selectedPetStatus.toLowerCase()
+      );
+      if (selectedStatusObj) {
+        filters.petStatusId = selectedStatusObj.id;
+      }
+    } else {
+      filters.petStatusId = [PET_STATUS.MISSING, PET_STATUS.FOUND];
+    }
+    
+    filters = {
+      ...filters,
+      ...locationFilters
+    };
 
-    updateFilters({
-      animalId: selectedAnimalObj?.id,
-      petStatusId: selectedStatusObj ? selectedStatusObj.id : [PET_STATUS.MISSING, PET_STATUS.FOUND],
-    });
-  }, [selectedAnimal, selectedPetStatus]);
+    updateFilters(filters);
+  }, [selectedAnimal, selectedPetStatus, locationFilters, filterChanged]);
 
   return (
     <div className="flex flex-col gap-5">
       <div className="w-full max-w-4xl mx-auto p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/*Falta por ubicacion*/}
-          <LabeledSelect
-            label="Distancia"
-            options={distancias}
-            selected={selectedLocation}
-            setSelected={setSelectedLocation}
+          <LocationFilter 
+            user={user} 
+            onFilterChange={handleLocationFilterChange} 
           />
           <LabeledSelect
             label="Estado"
