@@ -16,6 +16,10 @@ import {
 import CrowdfundingModal from "@/components/crowfunding-modal";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
 import ConfirmationModal from "@/components/confirm-modal";
+import { DonationFormData } from "@/types/schemas/donation-schema";
+import DonationModal from "../donation-modal";
+import UpdateAmountModal from "@/components/update-amount-modal";
+
 
 interface InputProps {
   user: User;
@@ -42,6 +46,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<ResponseCrowdfundingDTO | null>(null);
   const [isConfirmFinishOpen, setIsConfirmFinishOpen] = useState(false);
+  const [openDonationModal, setOpenDonationModal] = useState(false);
+  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
 
 
   useEffect(() => {
@@ -73,6 +80,40 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     fetchCrowdfunding();
   }, [authToken, userAuth?.id, isOrganization]);
 
+  const handleDonationclick = () => {
+    setOpenDonationModal(true);
+  };
+
+  const handleConfirmDonation = (data: DonationFormData) => {
+    const { amount, name } = data;
+
+    const dName = name || "Donador Anónimo";
+    const rName = userProfile?.fullName || "Receptor";
+    let rawPhone = userProfile?.phoneNumber || "";
+
+    // Limpia el número (quitar espacios, guiones, etc.)
+    rawPhone = rawPhone.replace(/\D/g, "");
+
+    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    if (!rawPhone || rawPhone.length < 8) {
+      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      return;
+    }
+
+    // Convierte a formato internacional si empieza con 0
+    if (rawPhone.startsWith("0")) {
+      rawPhone = "595" + rawPhone.slice(1); // Paraguay
+    }
+
+    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${amount?.toLocaleString("es-PY")}, soy ${dName}.`;
+
+    const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
+    setOpenDonationModal(false);
+  };
+
   const handleUpdateCrowdfunding = async () => {
     if (!authToken || !crowdfunding) return;
     try {
@@ -103,33 +144,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   };
 
 
-  const handleDonate = async () => {
-    if (!authToken || !crowdfunding) return;
-
-    const donationAmount = prompt("¿Cuánto deseas donar?", "50000");
-    const parsedAmount = parseInt(donationAmount || "0");
-
-    if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      alert("Monto inválido");
-      return;
-    }
-
-    try {
-      const updated = await donateToCrowdfunding(authToken, crowdfunding.id, parsedAmount);
-      setCrowdfunding(updated);
-      setSuccessMessage("¡Donación realizada con éxito!");
-    } catch (error) {
-      console.error("Error al donar:", error);
-      setErrorMessage("No se pudo realizar la donación.");
-    }
-  };
-
-
-
   const renderCrowdfunding = () => {
     if (!isOrganization || loadingCrowd) return null;
 
-    console.log("testeo de renderizado")
 
     const isActive = crowdfunding?.status === "ACTIVE";
     const isVisible = crowdfunding !== null;
@@ -138,6 +155,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     const porcentaje = crowdfunding?.goal
       ? Math.min(100, (crowdfunding.currentAmount / crowdfunding.goal) * 100)
       : 0;
+
 
     //Fase 1: Organizacion sin colecta Activa
     if (isVisible && isOwner && !isActive) {
@@ -204,11 +222,15 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
                 <button
                   type="button"
-                  className="bg-[#F2AA0F] hover:bg-[#e09900] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
-                  onClick={handleDonate}
+                  className="bg-[#4781ff] hover:bg-[#3569e6] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
+                  onClick={() => {
+                    setSelectedForAmountUpdate(crowdfunding);
+                    setIsUpdateAmountOpen(true);
+                  }}
                 >
                   Actualizar
                 </button>
+
               </div>
             )}
           </div>
@@ -238,6 +260,15 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               ¡Monto alcanzado! Gracias por tu contribución 💚
             </p>
           )}
+
+          {/* Botones visibles solo para el Visitante */}
+          {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
+            <div className="flex gap-4">
+              <button type="button" onClick={handleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                Donar
+              </button>
+            </div>
+          )}
         </div>
       );
     }
@@ -257,7 +288,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           disabled={isDisable}
           value={displayName}
           className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
-          onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
         />
         {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
 
@@ -274,7 +305,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           }
           className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
             } focus:outline-none w-full resize-none`}
-          onChange={(e) => handleInputChange("description", e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
         {/* Teléfono */}
@@ -290,7 +321,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             value={userProfile?.phoneNumber ?? ""}
             className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
           />
           {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
 
@@ -307,7 +338,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             value={userProfile?.address ?? ""}
             className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
-            onChange={(e) => handleInputChange("address", e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
           />
           {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
         </div>
@@ -320,7 +351,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         open={isModalOpen}
         setOpen={setIsModalOpen}
         selectedCrowdfunding={crowdfundingToEdit}
-        onSaved={(updated) => {
+        onSaved={(updated: ResponseCrowdfundingDTO) => {
           setCrowdfunding(updated);
           setIsModalOpen(false);
           setCrowdfundingToEdit(null);
@@ -345,6 +376,29 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         message="¿Estás seguro que deseas finalizar esta colecta? Esta acción no se puede deshacer."
       />
 
+      {openDonationModal && (
+        <DonationModal
+          isOpen={openDonationModal}
+          title={`Donación para ${crowdfunding?.title}`}
+          onClose={() => setOpenDonationModal(false)}
+          onConfirm={handleConfirmDonation}
+          user={{ name: userAuth?.fullName || "Donador Anónimo" }}
+        />
+      )}
+
+      {isUpdateAmountOpen && selectedForAmountUpdate && (
+        <UpdateAmountModal
+          open={isUpdateAmountOpen}
+          setOpen={setIsUpdateAmountOpen}
+          selectedCrowdfunding={selectedForAmountUpdate}
+          onUpdated={(updated: ResponseCrowdfundingDTO) => {
+            setCrowdfunding(updated);
+            setIsUpdateAmountOpen(false);
+          }}
+          setSuccessMessage={(msg) => console.log("✅", msg)}
+          setErrorMessage={(msg) => console.error("❌", msg)}
+        />
+      )}
     </div>
   );
 };

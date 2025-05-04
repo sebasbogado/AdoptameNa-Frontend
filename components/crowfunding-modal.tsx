@@ -8,6 +8,7 @@ import {
     createCrowdfunding,
     updateCrowdfunding,
     deleteCrowdfunding,
+    donateToCrowdfunding,
 } from "@/utils/crowfunding.http";
 import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
@@ -60,6 +61,7 @@ export default function CrowdfundingModal({
     const { authToken } = useAuth();
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [donationAmount, setDonationAmount] = useState<number>(0);
 
     const {
         register,
@@ -127,7 +129,6 @@ export default function CrowdfundingModal({
             setIsLoading(false);
         }
     };
-
 
     const confirmDelete = async () => {
         if (selectedCrowdfunding && authToken) {
