@@ -53,3 +53,7 @@ export interface UpdatePet {
   //healthStateId: number;
   petStatusId: number;
 }
+
+export interface RestorePet {
+  isDeleted: boolean;
+}

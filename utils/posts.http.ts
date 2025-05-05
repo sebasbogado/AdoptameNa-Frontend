@@ -1,6 +1,6 @@
 import page from "@/app/(pages)/(content)/administration/settings/page";
 import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
-import { CreatePost, Post, UpdatePost } from "@/types/post";
+import { CreatePost, Post, RestorePost, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
@@ -95,6 +95,28 @@ export const createPost = async (data: CreatePost, token: string) => {
 export async function updatePost(
   id: string,
   postData: UpdatePost,
+  token: string
+) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, postData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al editar Post");
+  }
+}
+
+export async function restorePost(
+  id: string,
+  postData: RestorePost,
   token: string
 ) {
   try {

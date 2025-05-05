@@ -1,5 +1,5 @@
 import { myPetsQueryParams, petQueryParams, PaginatedResponse } from "@/types/pagination";
-import { CreatePet, Pet, UpdatePet } from "@/types/pet";
+import { CreatePet, Pet, RestorePet, UpdatePet } from "@/types/pet";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
@@ -128,6 +128,24 @@ export const getPetsDashboard = async (
 };
 
 export async function updatePet(id: string, petData: UpdatePet, token: string) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, petData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("Mascota no encontrada");
+    }
+    throw new Error(error.message || "Error al actualizar mascota");
+  }
+}
+
+export async function restorePet(id: string, petData: RestorePet, token: string) {
   try {
     const response = await axios.put(`${API_URL}/${id}`, petData, {
       headers: {
