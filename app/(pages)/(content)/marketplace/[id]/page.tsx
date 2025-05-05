@@ -6,7 +6,7 @@ import { Product } from "@/types/product";
 import { getProduct, getProducts } from "@/utils/product.http";
 import { PostHeader } from "@/components/post/post-header";
 import { ProductHeader } from "@/components/product/product-header";
-import { ProductSpecification } from "@/components/product/product-specefication";
+import { ProductSpecification } from "@/components/product/product-specification";
 import { ProductDetail } from "@/components/product/product-detail";
 import PostSidebar from "@/components/post/post-sidebar";
 import { ProductSidebar } from "@/components/product/product-sidebar";
