@@ -20,11 +20,11 @@ export const postAdoption = async (params: AdoptionRequest) => {
   }
 };
 
-export const getAdoptionsResponse = async ( token: string,
+export const getReceivedAdoptionsRequest = async ( token: string,
   queryParams?: adoptionsResponseQueryParams
 ): Promise<PaginatedResponse<AdoptionResponse>> => {
   try {
-    const response = await axios.get(API_URL, {
+    const response = await axios.get(`${API_URL}/my-requests`, {
       params: {
         page: queryParams?.page || 0,
         size: queryParams?.size || 10,
@@ -34,8 +34,6 @@ export const getAdoptionsResponse = async ( token: string,
         "Content-Type": "application/json",
       },
     });
-    console.log("Mis solicitudes adopcion recibidas.", response);
-    console.log("paginationresponse", response.data.pagination)
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
@@ -45,23 +43,22 @@ export const getAdoptionsResponse = async ( token: string,
   }
 };
 
-export const getMyAdoptionRequests = async (token: string,
+export const getSentAdoptionRequests = async (token: string,
   queryParams?:adoptionsResponseQueryParams
 ): Promise<PaginatedResponse<AdoptionResponse>> => {
   try{
-    const response = await axios.get(`${API_URL}/my-requests`, {
+    const response = await axios.get(`${API_URL}`, {
       params: {
         page: queryParams?.page || 0,
         size: queryParams?.size || 10,
-        sort: queryParams?.sort
+        sort: queryParams?.sort,
+        userId: queryParams?.userId,
       },
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-    });
-    console.log("Mis solicitudes adopcion enviadas.", response);
-    console.log("pagination request", response.data.pagination)
+    });       
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {

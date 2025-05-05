@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { getMyAdoptionRequests } from "@/utils/adoptions.http";
+import { getSentAdoptionRequests } from "@/utils/adoptions.http";
 import { getPet } from "@/utils/pets.http";
 import { useAuth } from "@/contexts/auth-context";
 import { usePagination } from "@/hooks/use-pagination";
@@ -11,7 +11,7 @@ import AdoptionRequestCard from "@/components/profile/received-request/adoption-
 import Pagination from "@/components/pagination";
 
 export default function SentRequests() {
-  const { authToken } = useAuth();
+  const { authToken, user } = useAuth();
   const [petMap, setPetMap] = useState<Record<number, Pet>>({});
   
   // Llamada a la API usando el hook usePagination
@@ -22,7 +22,7 @@ export default function SentRequests() {
     totalPages,
     handlePageChange
   } = usePagination<AdoptionResponse>({
-    fetchFunction: async (page, size) => await getMyAdoptionRequests(authToken!, { page, size }),
+    fetchFunction: async (page, size) => await getSentAdoptionRequests(authToken!, { page, size, userId: user?.id }),
     initialPage: 1,
     initialPageSize: 10
   });
@@ -45,9 +45,10 @@ export default function SentRequests() {
     }
   }, [sentRequests]);
 
-  const visibleRequests = sentRequests.filter(request => request.isAccepted !== false);
+  const visibleRequests = sentRequests.filter(request => request.isAccepted !== undefined);
 
   return (
+    <div className="flex flex-col gap-5">
     <div className="p-8 flex flex-wrap gap-6">
       {loading ? (
         <p className="text-center">Cargando solicitudes...</p>
@@ -68,6 +69,7 @@ export default function SentRequests() {
           ) : null;
         })
       )}
+      </div>
       {visibleRequests.length > 0 &&
         <Pagination
           totalPages={totalPages}

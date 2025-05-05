@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import { acceptAdoptionRequest, getAdoptionsResponse, rejectAdoptionRequest } from "@/utils/adoptions.http";
+import { acceptAdoptionRequest, getReceivedAdoptionsRequest, rejectAdoptionRequest } from "@/utils/adoptions.http";
 import { getPet } from "@/utils/pets.http";
 import { useAuth } from "@/contexts/auth-context";
 import { usePagination } from "@/hooks/use-pagination";
@@ -22,12 +22,10 @@ export default function ReceivedRequests() {
     totalPages,
     handlePageChange
   } = usePagination<AdoptionResponse>({
-    fetchFunction: async (page, size) => await getAdoptionsResponse(authToken!, { page, size }),
+    fetchFunction: async (page, size) => await getReceivedAdoptionsRequest(authToken!, { page, size }),
     initialPage: 1,
     initialPageSize: 10
   });
-
-  console.log("hola esto es solicitudes recibidas",paginatedRequests);
 
   useEffect(() => {
     if (paginatedRequests && paginatedRequests.length > 0) {
@@ -74,6 +72,7 @@ export default function ReceivedRequests() {
   });
 
   return (
+    <div className="flex flex-col gap-5">
     <div className="p-8 flex flex-wrap gap-6">
       {loading ? (
         <p className="text-center">Cargando solicitudes...</p>
@@ -99,6 +98,7 @@ export default function ReceivedRequests() {
           ) : null;
         })
       )}
+      </div>
       {visibleRequests.length > 0 && (
         <Pagination
           totalPages={totalPages}
