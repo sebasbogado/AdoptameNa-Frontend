@@ -8,6 +8,10 @@ export type Sponsor = {
   logoId: number | null; // Hacer opcional/nullable
   bannerId: number | null; // Hacer opcional/nullable
   isActive: boolean;
+  // Propiedades opcionales para detalles y visualización
+  logoUrl?: string;
+  bannerUrl?: string;
+  status?: string;
 };
 
 // Nuevo tipo para sponsors activos

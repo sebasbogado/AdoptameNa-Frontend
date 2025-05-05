@@ -12,6 +12,7 @@ import { Sponsor } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
+import { useRouter } from 'next/navigation';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
@@ -30,6 +31,7 @@ export default function AdminSponsorsPage() {
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const [sponsorToApproveId, setSponsorToApproveId] = useState<number | null>(null);
     const { authToken } = useAuth();
+    const router = useRouter();
 
     const {
         currentPage,
@@ -233,13 +235,25 @@ interface SponsorCardProps {
 
 function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
     const [hasLogoError, setHasLogoError] = useState(false);
+    const router = useRouter();
 
     const handleLogoError = () => {
         setHasLogoError(true);
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Evitar la navegación si se hace clic en los botones de acción
+        if ((e.target as HTMLElement).closest('button')) {
+            return;
+        }
+        router.push(`/administration/sponsors/${application.id}`);
+    };
+
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
+        <div 
+            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={handleCardClick}
+        >
             <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
                 {application.logoUrl && !hasLogoError ? (
                     <Image
@@ -270,14 +284,20 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                 {!application.isActive ? (
                     <>
                         <button
-                            onClick={() => onReject(application.id)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onReject(application.id);
+                            }}
                             className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Rechazar (Eliminar)"
                         >
                             <X size={20} />
                         </button>
                         <button
-                            onClick={() => onApprove(application.id)}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onApprove(application.id);
+                            }}
                             className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Aprobar"
                         >
