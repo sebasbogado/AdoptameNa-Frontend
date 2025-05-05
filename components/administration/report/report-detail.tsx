@@ -9,10 +9,11 @@ import ReportList from './report-list';
 import Button from "@/components/buttons/button";
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
+import { Product } from '@/types/product';
 
 
 interface Props<T> {
-  entity: Post | Pet;
+  entity: Post | Pet | Product;
   reports: Report[];
   onBack: () => void;
   onBlock: () => void;
