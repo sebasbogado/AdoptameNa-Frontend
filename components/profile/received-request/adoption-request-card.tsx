@@ -2,13 +2,14 @@
 import React from "react";
 import clsx from "clsx";
 import Button from "@/components/buttons/button";
-import { CheckIcon, XIcon } from "lucide-react";
+import { CheckCircle, CheckIcon, Hourglass, XIcon } from "lucide-react";
 import { Media } from "@/types/media";
 import CardImage from "@/components/petCard/card-image";
 
 type AdoptionRequestCardProps = {
   petImage: Media;
   petName: string;
+  owner?: string;
   requesterName?: string;
   requesterPhone?: string;
   requesterEmail?: string;
@@ -17,14 +18,19 @@ type AdoptionRequestCardProps = {
   status?: boolean;
   className?: string;
   requestId?: number;
+  requesterBreed?: string;
+  requesterPetType?: string;
 };
 
 export default function AdoptionRequestCard({
   petImage,
   petName,
+  owner,
   requesterName,
   requesterPhone,
   requesterEmail,
+  requesterBreed,
+  requesterPetType,
   onAccept,
   onReject,
   status,
@@ -39,6 +45,9 @@ export default function AdoptionRequestCard({
 
       <div className="p-4 space-y-2 text-sm">
         <p><strong>Mascota:</strong> {petName}</p>
+        {requesterPetType && <p><strong>Animal:</strong> {requesterPetType}</p>}
+        {requesterBreed && <p><strong>Raza:</strong> {requesterBreed}</p>}
+        {owner && <p><strong>Publicado por:</strong> {owner}</p>}
         {requesterName && <p><strong>Solicitante:</strong> {requesterName}</p>}
         {requesterPhone && <p><strong>Teléfono:</strong> {requesterPhone}</p>}
         {requesterEmail && <p><strong>Correo:</strong> {requesterEmail}</p>}
@@ -64,10 +73,18 @@ export default function AdoptionRequestCard({
       )}
 
       {status !== undefined && (
-        <div className="px-4 pb-4">
-          <p className={`text-sm font-semibold ${status ? 'text-green-600' : 'text-red-500'}`}>
-            {status ? '✅ Solicitud aceptada' : '⌛ Pendiente'}
-          </p>
+        <div className="px-4 pb-4 flex items-center gap-2">
+          {status ? (
+            <>
+              <CheckCircle className="text-green-600 w-4 h-4" />
+              <p className="text-sm font-semibold text-green-600">Solicitud aceptada</p>
+            </>
+          ) : (
+            <>
+              <Hourglass className="text-red-500 w-4 h-4 animate-pulse" />
+              <p className="text-sm font-semibold text-red-500">Pendiente</p>
+            </>
+          )}
         </div>
       )}
     </div>

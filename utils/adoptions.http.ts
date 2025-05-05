@@ -28,6 +28,7 @@ export const getReceivedAdoptionsRequest = async ( token: string,
       params: {
         page: queryParams?.page || 0,
         size: queryParams?.size || 10,
+        sort: queryParams?.sort
       },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -53,6 +54,7 @@ export const getSentAdoptionRequests = async (token: string,
         size: queryParams?.size || 10,
         sort: queryParams?.sort,
         userId: queryParams?.userId,
+        isAccepted: queryParams?.isAccepted
       },
       headers: {
         Authorization: `Bearer ${token}`,

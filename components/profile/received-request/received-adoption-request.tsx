@@ -22,7 +22,7 @@ export default function ReceivedRequests() {
     totalPages,
     handlePageChange
   } = usePagination<AdoptionResponse>({
-    fetchFunction: async (page, size) => await getReceivedAdoptionsRequest(authToken!, { page, size }),
+    fetchFunction: async (page, size) => await getReceivedAdoptionsRequest(authToken!, { page, size, sort: "id,desc" }),
     initialPage: 1,
     initialPageSize: 10
   });
@@ -49,7 +49,7 @@ export default function ReceivedRequests() {
       await acceptAdoptionRequest(id, authToken!);
       // Actualizar el estado de la solicitud después de aceptarla
       setPetMap({});
-      handlePageChange(currentPage);
+      handlePageChange(1);
     } catch (error) {
       console.error("Error al aceptar solicitud", error);
     }
@@ -60,7 +60,7 @@ export default function ReceivedRequests() {
       await rejectAdoptionRequest(id, authToken!);
       // Eliminar la solicitud rechazada del estado
       setPetMap({});
-      handlePageChange(currentPage);
+      handlePageChange(1);
     } catch (error) {
       console.error("Error al rechazar solicitud", error);
     }
