@@ -122,6 +122,22 @@ export const deleteReportsByPetId = async (id: number, token: string) => {
   }
 };
 
+export const deleteReportsByProductId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byProductId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
 //obtener reportes de un post/pet por id
 export const getReportsById = async (token: string, queryParams?: reportQueryParams) => {
   try {
@@ -200,5 +216,23 @@ export const banPet = async (id: number, token: string) => {
     });
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Error al bloquear post")
+  }
+}
+
+export const getReportedProducts = async (token: string, queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-products`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener pets reportados");
   }
 }
