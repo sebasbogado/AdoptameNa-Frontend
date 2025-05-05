@@ -8,6 +8,7 @@ import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
 import { getDeletedPets } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -104,7 +105,8 @@ export default function Page() {
                 </div>
             </div>
             <DeletedListPage
-                posts={pets}
+                items={pets}
+                itemType={ITEM_TYPE.PET}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}

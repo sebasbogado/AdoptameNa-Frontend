@@ -8,6 +8,7 @@ import { usePagination } from "@/hooks/use-pagination";
 import { Post } from "@/types/post";
 import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -103,13 +104,13 @@ export default function Page() {
                 </div>
             </div>
             <DeletedListPage
-                posts={posts}
+                items={posts}
+                itemType={ITEM_TYPE.POST}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
-                isPost={true}
             />
         </div>
     )
