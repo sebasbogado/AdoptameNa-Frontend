@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { useEffect } from "react";
 import NavbarReceivedRequest from "@/components/navbar-received-request";
+import { AdoptionModeProvider } from "@/contexts/adoption-mode-context";
 const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 
@@ -40,11 +41,12 @@ export default function ProfileLayout({ children }: RootLayoutProps) {
     return (
         <>
 
-
+        <AdoptionModeProvider>
             <div className="flex align-items-center justify-center">
                 <NavbarReceivedRequest />
             </div>
             {children}
+        </AdoptionModeProvider>
         </>
 
     );
