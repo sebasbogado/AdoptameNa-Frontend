@@ -5,25 +5,13 @@ import Image from 'next/image';
 import { Alert } from '@material-tailwind/react';
 import { postMedia } from '@/utils/media.http';
 import { Upload, ImageIcon, X, Loader2, Plus } from 'lucide-react';
-import { z } from "zod";
+import { fileSchema } from '@/utils/file-schema';
 
 interface ImageUploadProps {
     onImageUploaded: (imageData: { id: number; url: string }) => void;
     initialImage?: string;
     token: string;
 }
-
-const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-const maxFileSize = 5 * 1024 * 1024; // 5MB
-
-const fileSchema = z
-  .instanceof(File)
-  .refine(file => allowedTypes.includes(file.type), {
-    message: "El archivo debe ser una imagen (PNG, JPEG o WEBP)",
-  })
-  .refine(file => file.size <= maxFileSize, {
-    message: "El tamaño de la imagen debe ser menor a 5MB",
-  });
 
 export default function BannerImage({ onImageUploaded, initialImage, token }: ImageUploadProps) {
     const [image, setImage] = useState<string | null>(initialImage || null);

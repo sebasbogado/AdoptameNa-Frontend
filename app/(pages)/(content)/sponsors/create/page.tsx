@@ -10,7 +10,7 @@ import Modal from "@/components/modal";
 import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
 import BannerImage from '@/components/banner/banner-image';
-import { z } from "zod";
+import { fileSchema } from '@/utils/file-schema';
 
 interface SponsorFormData {
     responsibleName: string;
@@ -30,15 +30,6 @@ const initialFormState: SponsorFormData = {
 
 const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 const maxFileSize = 5 * 1024 * 1024; // 5MB
-
-const fileSchema = z
-  .instanceof(File)
-  .refine(file => allowedTypes.includes(file.type), {
-    message: "El archivo debe ser una imagen (PNG, JPEG o WEBP)",
-  })
-  .refine(file => file.size <= maxFileSize, {
-    message: "El tamaño de la imagen debe ser menor a 5MB",
-  });
 
 export default function SponsorFormPage() {
     const [formData, setFormData] = useState<SponsorFormData>(initialFormState);
