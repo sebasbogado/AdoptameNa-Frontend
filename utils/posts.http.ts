@@ -153,3 +153,31 @@ export async function sharePost(id: string, token: string) {
     throw new Error(error.message || "Error al compartir Post");
   }
 }
+
+export const getDeletedPosts = async (
+  token: string,
+  queryParams?: postQueryParams
+): Promise<PaginatedResponse<Post>> => {
+  try {
+    const response = await axios.get(`${API_URL}/deleted`, {
+      params: {
+        page: queryParams?.page || 0,
+        size: queryParams?.size || 10,
+        userId: queryParams?.userId,
+        postTypeId: queryParams?.postTypeId,
+        tagIds: queryParams?.tagIds,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts");
+  }
+};

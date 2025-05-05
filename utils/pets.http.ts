@@ -182,3 +182,33 @@ export async function deletePet(id: string, token: string) {
     throw new Error(error.message || "Error al eliminar publicación de mascota");
   }
 }
+
+export const getDeletedPets = async (
+  token: string,
+  queryParams: myPetsQueryParams
+): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const response = await axios.get(`${API_URL}/deleted`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      params: {
+        page: queryParams.page || 0,
+        size: queryParams.size || 10,
+        sort: queryParams.sort || "id,desc",
+        userId: queryParams.userId,
+        animalId: queryParams.animalId,
+        minAge: queryParams.minAge,
+        maxAge: queryParams.maxAge,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+};
