@@ -185,7 +185,7 @@ export async function deletePet(id: string, token: string) {
 
 export const getDeletedPets = async (
   token: string,
-  queryParams: myPetsQueryParams
+  queryParams?: myPetsQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
     const response = await axios.get(`${API_URL}/deleted`, {
@@ -194,13 +194,14 @@ export const getDeletedPets = async (
         "Content-Type": "application/json",
       },
       params: {
-        page: queryParams.page || 0,
-        size: queryParams.size || 10,
-        sort: queryParams.sort || "id,desc",
-        userId: queryParams.userId,
-        animalId: queryParams.animalId,
-        minAge: queryParams.minAge,
-        maxAge: queryParams.maxAge,
+        page: queryParams?.page || 0,
+        size: queryParams?.size || 10,
+        sort: queryParams?.sort || "id,desc",
+        userId: queryParams?.userId,
+        animalId: queryParams?.animalId,
+        minAge: queryParams?.minAge,
+        maxAge: queryParams?.maxAge,
+        petStatusId: queryParams?.petStatusId
       },
     });
 
