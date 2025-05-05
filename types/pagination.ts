@@ -17,17 +17,17 @@ export type queryParams = {
   sort?: string;
 };
 
-export type postQueryParams = queryParams & {
+export type postQueryParams = queryParams & locationQueryParams  & {
   postTypeId?: number;
   userId?: number;
   tagIds?: number[];
 };
 
-export type petQueryParams = queryParams & {
+export type petQueryParams = queryParams & locationQueryParams  & {
   petStatusId?: number;
 };
 
-export type productQueryParams = queryParams & {
+export type productQueryParams = queryParams & locationQueryParams & {
   categoryId?: number;
   condition?: string;
   price?: number;
@@ -79,4 +79,14 @@ export type adoptionsResponseQueryParams = queryParams & {
   email?: string;
   phone?: string;
   isAccepted?: boolean
+};
+export type locationQueryParams = queryParams & {
+  departmentId?: string;
+  districtId?: string;
+  neighborhoodId?: string;
+  coordinates?: [
+    number,
+    number,
+    number, 
+  ]
 };

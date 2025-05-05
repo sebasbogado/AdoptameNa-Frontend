@@ -51,7 +51,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
   const handleDonationclick = () => {
     setOpenDonationModal(true);
-  }; 
+  };
 
   const handleConfirmDonation = (data: DonationFormData) => {
     const { amount, name } = data;
@@ -80,25 +80,26 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
     window.open(url, "_blank");
 
-    setOpenDonationModal(false); 
+    setOpenDonationModal(false);
   };
 
   return (
-    <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
-      <form>
-        {/* Nombre Completo */}
-        <input
-          type="text"
-          disabled={isDisable}
-          value={displayName}
-          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
-          onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
-        />
-        {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
+    <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-70px] w-[45vw] h-auto">
+      <form className="flex flex-col gap-2">
+        <div className="flex flex-col gap-0 mb-4">
+          {/* Nombre Completo */}
+          <input
+            type="text"
+            disabled={isDisable}
+            value={displayName}
+            className={`text-4xl text-text-primary font-bold bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+            onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
+          />
+          {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
 
-        {/* Cantidad de publicaciones */}
-        <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-
+          {/* Cantidad de publicaciones */}
+          <p className="text-text-secondary text-lg ml-1">{`${posts.length} Publicaciones`}</p>
+        </div>
         {/* Descripción */}
         <textarea
           disabled={isDisable}
@@ -107,40 +108,40 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+          className={`text-text-secondary text-2xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
             } focus:outline-none w-full resize-none`}
           onChange={(e) => handleInputChange("description", e.target.value)}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
         {/* Teléfono */}
         {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+          <label className="text-text-secondary font-medium text-sm block">Teléfono</label>
         )}
 
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <PhoneIcon className="text-gray-500" />}
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full ${!userProfile?.phoneNumber && isDisable ? 'hidden' : ''}`}>
+          {isDisable && userProfile?.phoneNumber && <PhoneIcon className="text-text-secondary" />}
           <input
             type="text"
             disabled={isDisable}
             value={userProfile?.phoneNumber ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            className={` text-foreground  text-text-secondary text-xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
             onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
           />
           {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
-
         </div>
+
         {/* Direccion */}
         {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+          <label className="text-text-secondary font-medium text-sm block">Dirección</label>
         )}
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <MapPin className="text-gray-500" />}
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full ${!userProfile?.address && isDisable ? 'hidden' : ''}`}>
+          {isDisable && userProfile?.address && <MapPin className="text-text-secondary" />}
           <input
             type="text"
             disabled={isDisable}
             value={userProfile?.address ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            className={` text-foreground  text-text-secondary text-xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
             onChange={(e) => handleInputChange("address", e.target.value)}
           />
@@ -254,7 +255,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                       title={`Donación para ${fundraisingTitle}`}
                       onClose={() => setOpenDonationModal(false)}
                       onConfirm={handleConfirmDonation}
-                      user={{ name: userAuth?.fullName || "Donador Anónimo"}}
+                      user={{ name: userAuth?.fullName || "Donador Anónimo" }}
                     />
                   )}
                 </div>

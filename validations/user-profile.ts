@@ -85,6 +85,7 @@ export const profileSchema = z.object({
   departmentId: z.string().optional(),
   districtId: z.string().optional(),
   neighborhoodId: z.string().optional(),
+
 });
 
 export type ProfileValues = z.infer<typeof profileSchema>;
