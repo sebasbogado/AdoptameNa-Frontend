@@ -50,3 +50,20 @@ export const createProduct = async (product: CreateProduct, authToken: string) =
     throw new Error(error.message || "Error al crear el producto");
   }
 }
+
+export const getProduct = async (id: string): Promise<Product> => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Post");
+  }
+};
