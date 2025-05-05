@@ -22,7 +22,7 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
   const { user } = useAuth();
   const isOwner = user?.id === product?.userId;
   return (
-    <div className="flex justify-between align-items-center flex-column px-12 mb-2">
+    <div className="flex justify-between items-center px-12 mb-2">
       <div>
         <h1 className={`text-5xl font-black bg-transparent border-2 border-transparent focus:outline-none w-full`}>
           {product?.title}
