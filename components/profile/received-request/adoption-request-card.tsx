@@ -55,7 +55,7 @@ export default function AdoptionRequestCard({
           </Button>
           <Button variant="danger" size="sm" onClick={(event) => {
             event.preventDefault();
-            onAccept?.(requestId!);
+            onReject?.(requestId!);
           }} className="flex items-center justify-center">
             <XIcon className="w-3 h-3  mr-2 text-white" strokeWidth={4} />
             Denegar
@@ -64,9 +64,11 @@ export default function AdoptionRequestCard({
       )}
 
       {status !== undefined && (
-        <p className={`text-sm mt-2 ${status ? 'text-green-600' : 'text-yellow-500'}`}>
-          {status ? 'Solicitud aceptada' : 'Pendiente'}
-        </p>  
+        <div className="px-4 pb-4">
+          <p className={`text-sm font-semibold ${status ? 'text-green-600' : 'text-red-500'}`}>
+            {status ? '✅ Solicitud aceptada' : '⌛ Pendiente'}
+          </p>
+        </div>
       )}
     </div>
   );

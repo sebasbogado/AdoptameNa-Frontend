@@ -45,7 +45,7 @@ export default function SentRequests() {
     }
   }, [sentRequests]);
 
-  const visibleRequests = sentRequests.filter(request => request.isAccepted !== undefined);
+  const visibleRequests = sentRequests.filter(request => request.isAccepted !== false);
 
   return (
     <div className="p-8 flex flex-wrap gap-6">

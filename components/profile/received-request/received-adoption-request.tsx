@@ -27,7 +27,7 @@ export default function ReceivedRequests() {
     initialPageSize: 10
   });
 
-  console.log("hola esto es",paginatedRequests);
+  console.log("hola esto es solicitudes recibidas",paginatedRequests);
 
   useEffect(() => {
     if (paginatedRequests && paginatedRequests.length > 0) {
