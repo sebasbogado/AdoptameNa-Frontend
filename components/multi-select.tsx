@@ -42,15 +42,15 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onC
                 className="bg-light-blue-50 px-3 py-1 rounded-full text-sm font-medium text-blue flex items-center gap-1 hover:bg-ligth-blue-300 transition-colors"
               >
                 {s.name}
-                <button
+                <span
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleOption(s);
                   }}
-                  className="hover:text-blue-800"
+                  className="cursor-pointer hover:text-blue-800"
                 >
                   ×
-                </button>
+                </span>
               </span>
             ))
           ) : (
