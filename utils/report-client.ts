@@ -6,6 +6,7 @@ const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/postReports`;
 const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
 const API_URL_BAN_POST = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/`;
 const API_URL_BAN_PET = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
+const API_URL_BAN_PRODUCT = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
 
 export const getReportById = async (id: string) => {
   try {
@@ -234,5 +235,18 @@ export const getReportedProducts = async (token: string, queryParams?: reportQue
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener pets reportados");
+  }
+}
+
+export const banProduct = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_PRODUCT}${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
   }
 }
