@@ -77,7 +77,7 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
           {media.map((item, index) => (
             <button
               key={item.id}
-              // onClick={() => handleThumbnailClick(index)}
+              
               className={`relative min-w-[80px] md:min-w-0 md:w-full h-20 border-2 rounded-md overflow-hidden transition-all ${activeIndex === index ? "border-blue-500 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
             >
               <Image
