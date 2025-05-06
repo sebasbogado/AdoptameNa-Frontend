@@ -45,7 +45,6 @@ export default function UserReportListPage<T extends { petId?: number | null; po
   
     const fetchDetails = async () => {
       const seenIds = new Set(); 
-      const enriched: EnrichedReport<T>[] = [];
   
       const fetchPromises = data.map(async (item) => {
         const id = item.petId ?? item.postId;
@@ -68,10 +67,9 @@ export default function UserReportListPage<T extends { petId?: number | null; po
       });
   
       const results = await Promise.all(fetchPromises);
-      const enriched = results.filter((item) => item !== null) as EnrichedReport<T>[];
-      setEnrichedData(enriched);
+      const enrichedData = results.filter((item) => item !== null) as EnrichedReport<T>[];
+      setEnrichedData(enrichedData);
   
-      setEnrichedData(enriched);
     };
   
     fetchDetails();
