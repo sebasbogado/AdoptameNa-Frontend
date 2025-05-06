@@ -34,7 +34,15 @@ export default function UserReportCardButtons({
       <PetCard post={post} isPost={isPost} />
 
       {!isDetailPage && (
-        <div className="m-4 flex justify-center">
+        <div className="m-4 flex justify-between items-center ">
+          {/* Estado a la izquierda */}
+          {"isBanned" in post && (
+            <span className={clsx("text-sm font-semibold", post.isBanned ? "text-red-600" : "text-green-600")}>
+              {post.isBanned ? "Bloqueada" : "No Bloqueada"}
+            </span>
+          )}
+
+          {/* Botón a la derecha */}
           <Link
             href={
               isPost
