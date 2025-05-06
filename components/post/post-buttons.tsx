@@ -226,7 +226,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 )}
             </div>
 
-            <ReportButton size="lg" />
+            <ReportButton size="lg" idEntity={postId} isPet={isPet}/>
 
             <div className="relative">
                 {!isPet && (
