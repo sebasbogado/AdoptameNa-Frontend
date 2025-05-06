@@ -1,71 +1,55 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Select, Option, Spinner } from "@material-tailwind/react";
 import { Check, X } from "lucide-react";
-import { getAllSponsors, approveSponsorRequest, deleteSponsor } from "@/utils/sponsor.http";
+import { getAllSponsors } from "@/utils/sponsor.http";
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
-import { PaginatedResponse } from "@/types/pagination";
-import { Sponsor } from "@/types/sponsor";
-import { ConfirmationModal } from "@/components/form/modal";
+import { Sponsor, SponsorStatus, FilterStatus } from "@/types/sponsor";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
 
 export default function UserSponsorsPage() {
-    const [applications, setApplications] = useState<Sponsor[]>([]);
-    const [filteredApplications, setFilteredApplications] = useState<Sponsor[]>([]);
-    const [filterStatus, setFilterStatus] = useState<string>('Todos');
+    const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
-    const [loading, setLoading] = useState(true);
     const { authToken, user } = useAuth();
 
+    const getBackendStatus = (status: FilterStatus) => {
+        switch (status) {
+            case FilterStatus.PENDING:
+                return SponsorStatus.PENDING;
+            case FilterStatus.APPROVED:
+                return SponsorStatus.ACTIVE;
+            case FilterStatus.REJECTED:
+                return SponsorStatus.INACTIVE;
+            default:
+                return undefined;
+        }
+    };
+
     const {
+        data: applications,
+        loading,
         currentPage,
         totalPages,
         handlePageChange,
         updateFilters
     } = usePagination<Sponsor>({
-        fetchFunction: async (page, size) => {
+        fetchFunction: async (page, size, filters) => {
             if (!authToken || !user) throw new Error("No autorizado");
-            return await getAllSponsors(authToken, page, size, user.id);
+            const status = getBackendStatus(filters?.status);
+            return await getAllSponsors(authToken, page, size, user.id, status);
         },
         initialPage: 1,
         initialPageSize: 10
     });
 
-    const fetchSponsorApplications = async () => {
-        if (!authToken || !user) return;
-        setLoading(true);
-        try {
-            const response: PaginatedResponse<Sponsor> = await getAllSponsors(authToken, currentPage - 1, 10, user.id);
-            setApplications(response.data);
-        } catch (error) {
-            console.error('Error fetching sponsor applications:', error);
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Error al cargar las solicitudes de auspicio"
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchSponsorApplications();
-    }, [authToken, user, currentPage]);
-
-    useEffect(() => {
-        let filtered = applications;
-        if (filterStatus === 'Pendiente') {
-            filtered = applications.filter(app => !app.isActive);
-        } else if (filterStatus === 'Aprobado') {
-            filtered = applications.filter(app => app.isActive);
-        }
-        setFilteredApplications(filtered);
-    }, [filterStatus, applications]);
+        updateFilters({ status: selectedStatus });
+        handlePageChange(1);
+    }, [selectedStatus, updateFilters]);
 
     useEffect(() => {
         if (alertInfo) {
@@ -93,17 +77,20 @@ export default function UserSponsorsPage() {
                 </Alert>
             )}
 
-            <div className="mb-6 w-full sm:w-72">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <Select
-                    value={filterStatus}
-                    onChange={(val) => setFilterStatus(val as string || 'Todos')}
-                    placeholder="Filtrar por estado"
-                >
-                    <Option value="Todos">Todos</Option>
-                    <Option value="Pendiente">Pendiente</Option>
-                    <Option value="Aprobado">Aprobado</Option>
-                </Select>
+            <div className="mb-10 flex justify-center w-full">
+                <div className="w-full sm:w-72">
+                    <label className="block text-sm font-medium text-gray-700 mb-1 text-center">Estado</label>
+                    <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value as FilterStatus)}
+                        className="w-full p-2 border rounded text-center"
+                    >
+                        <option value={FilterStatus.ALL}>{FilterStatus.ALL}</option>
+                        <option value={FilterStatus.PENDING}>{FilterStatus.PENDING}</option>
+                        <option value={FilterStatus.APPROVED}>{FilterStatus.APPROVED}</option>
+                        <option value={FilterStatus.REJECTED}>{FilterStatus.REJECTED}</option>
+                    </select>
+                </div>
             </div>
 
             {loading ? (
@@ -112,9 +99,9 @@ export default function UserSponsorsPage() {
                 </div>
             ) : (
                 <>
-                    {filteredApplications.length > 0 ? (
+                    {applications.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredApplications.map((application) => (
+                            {applications.map((application) => (
                                 <SponsorCard
                                     key={application.id}
                                     application={application}
@@ -122,7 +109,7 @@ export default function UserSponsorsPage() {
                             ))}
                         </div>
                     ) : (
-                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {filterStatus !== 'Todos' ? `en estado ${filterStatus.toLowerCase()}` : ''}.</p>
+                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {selectedStatus !== FilterStatus.ALL ? `en estado ${selectedStatus.toLowerCase()}` : ''}.</p>
                     )}
 
                     <Pagination
@@ -156,8 +143,7 @@ function SponsorCard({ application }: SponsorCardProps) {
                         src={application.logoUrl}
                         alt={`Logo Solicitud ${application.id}`}
                         fill
-                        className="object-contain p-4"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover w-full h-full"
                         onError={handleLogoError}
                     />
                 ) : (
@@ -168,22 +154,23 @@ function SponsorCard({ application }: SponsorCardProps) {
             </div>
             <div className="p-4 flex-grow">
                 <h3 className="text-lg font-semibold mb-1">{application.organizationName || application.fullName}</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                    <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
-                </p>
                 <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
-                <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <p className="text-sm text-gray-700 p-2 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
                     {application.reason || 'No especificada'}
                 </p>
             </div>
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
-                {application.isActive ? (
-                    <span className="text-sm font-medium text-green-600 flex items-center">
+                {application.status === 'ACTIVE' ? (
+                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-green-400 bg-green-50 text-green-700">
                         <Check size={16} className="mr-1"/> Aprobado
                     </span>
-                ) : (
-                    <span className="text-sm font-medium text-yellow-600 flex items-center">
+                ) : application.status === 'PENDING' ? (
+                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-yellow-400 bg-yellow-50 text-yellow-700">
                         <X size={16} className="mr-1"/> Pendiente
+                    </span>
+                ) : (
+                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-red-400 bg-red-50 text-red-700">
+                        <X size={16} className="mr-1"/> Rechazado
                     </span>
                 )}
             </div>
