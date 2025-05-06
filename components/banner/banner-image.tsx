@@ -11,9 +11,10 @@ interface ImageUploadProps {
     onImageUploaded: (imageData: { id: number; url: string }) => void;
     initialImage?: string;
     token: string;
+    resetKey?: string | number;
 }
 
-export default function BannerImage({ onImageUploaded, initialImage, token }: ImageUploadProps) {
+export default function BannerImage({ onImageUploaded, initialImage, token, resetKey }: ImageUploadProps) {
     const [image, setImage] = useState<string | null>(initialImage || null);
     const [uploading, setUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
@@ -32,6 +33,10 @@ export default function BannerImage({ onImageUploaded, initialImage, token }: Im
             return () => clearTimeout(timer);
         }
     }, [alertInfo]);
+
+    useEffect(() => {
+        setImage(null);
+    }, [resetKey]);
 
     const handleImageUpload = async (file: File) => {
         if (!file) return;

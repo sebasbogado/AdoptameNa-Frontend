@@ -8,6 +8,7 @@ import { getAllSponsors, approveSponsorRequest, deleteSponsor, rejectSponsorRequ
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
 import { isAxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 
 import { Sponsor, SponsorStatus, FilterStatus } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
@@ -19,14 +20,21 @@ interface SponsorApplication extends Sponsor {
 }
 
 export default function AdminSponsorsPage() {
+    const router = useRouter();
+    const { authToken, user } = useAuth();
     const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const [sponsorToApproveId, setSponsorToApproveId] = useState<number | null>(null);
-    const { authToken } = useAuth();
     const [isDefinitiveDelete, setIsDefinitiveDelete] = useState(false);
+
+    useEffect(() => {
+        if (user?.role !== 'admin') {
+            router.push('/dashboard');
+        }
+    }, [user, router]);
 
     const getBackendStatus = (status: FilterStatus) => {
         switch (status) {
@@ -36,6 +44,8 @@ export default function AdminSponsorsPage() {
                 return SponsorStatus.ACTIVE;
             case FilterStatus.REJECTED:
                 return SponsorStatus.INACTIVE;
+            case FilterStatus.ALL:
+                return undefined;
             default:
                 return undefined;
         }
@@ -47,16 +57,27 @@ export default function AdminSponsorsPage() {
         currentPage,
         totalPages,
         handlePageChange,
-        updateFilters
+        updateFilters,
+        error: fetchError
     } = usePagination<SponsorApplication>({
         fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("No autorizado");
             const status = getBackendStatus(filters?.status);
-            return await getAllSponsors(authToken, page, size, status);
+            return await getAllSponsors(authToken, page, size, undefined, status);
         },
         initialPage: 1,
         initialPageSize: 10
     });
+
+    useEffect(() => {
+        if (fetchError) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: fetchError.message || "Error al cargar las solicitudes"
+            });
+        }
+    }, [fetchError]);
 
     useEffect(() => {
         updateFilters({ status: selectedStatus });
@@ -84,21 +105,16 @@ export default function AdminSponsorsPage() {
         } catch (error: unknown) {
             console.error("Error approving application:", error);
 
-            // Si es una instancia de Error (error común de JS)
             if (error instanceof Error) {
                 setAlertInfo({ open: true, color: "red", message: error.message });
-            }
-            // Si es un error de Axios
-            else if (isAxiosError(error)) {
+            } else if (isAxiosError(error)) {
                 setAlertInfo({
                     open: true,
                     color: "red",
                     message: error.response?.data?.message || 'Error del servidor',
                 });
                 console.error('Backend error response:', error.response);
-            }
-            // Otro tipo de error desconocido
-            else {
+            } else {
                 setAlertInfo({ open: true, color: "red", message: 'Error al aprobar (desconocido).' });
             }
         } finally {
@@ -153,6 +169,10 @@ export default function AdminSponsorsPage() {
     const closeModal = () => {
         setIsConfirmModalOpen(false);
         setSponsorToDeleteId(null);
+    }
+
+    if (user?.role !== 'admin') {
+        return null;
     }
 
     return (
@@ -284,7 +304,7 @@ function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCard
                     <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
                 </p>
                 <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
-                <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <p className="text-sm text-gray-700 p-2 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
                     {application.reason || 'No especificada'}
                 </p>
             </div>
@@ -297,7 +317,7 @@ function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCard
                     <Trash size={20} />
                 </button>
                 <div className="flex gap-3 items-center">
-                    {application.status === null || application.status === 'PENDING' ? (
+                    {application.status === 'PENDING' ? (
                         <>
                             <button
                                 onClick={() => onReject(application.id)}
