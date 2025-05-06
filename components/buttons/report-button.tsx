@@ -10,11 +10,11 @@ interface ReportButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
-  //temp hasta que se tenga el endpoint para reportar pets
+  idEntity?: string;
+  isPet:  boolean;
 }
 
-//props para idUser, idPost
-const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, ...props }) => {
+const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idEntity, isPet, ...props }) => {
   const [modal, setModal] = useState(false);
   const [modalError, setModalError] = useState(false);
   const { authToken } = useAuth();
@@ -46,7 +46,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, ...
         <Ban className="w-6 h-6 " strokeWidth={2} />
       </button>
       <Modal isOpen={modal} onClose={() => setModal(false)} title="Reportar contenido">
-        <ReportForm handleClose={() => setModal(false)} />
+        <ReportForm handleClose={() => setModal(false)} idEntity={idEntity} isPet={isPet} />
       </Modal>
       <Modal isOpen={modalError} onClose={() => setModalError(false)} title="Debe tener una cuenta para reportar contenido">
         <div className="mt-5">
