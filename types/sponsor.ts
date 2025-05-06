@@ -38,6 +38,6 @@ export type ActiveSponsor = {
 export type CreateSponsorRequest = {
   contact: string;
   reason: string;
-  logoId: number;
+  logoId?: number;
   bannerId?: number;
 };

@@ -10,31 +10,34 @@ import { Alert } from "@material-tailwind/react";
 import Modal from "@/components/modal";
 import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
-import { ALLOWED_IMAGE_TYPES, MAX_FILE_SIZE } from '@/constants/media';
+import BannerImage from '@/components/banner/banner-image';
+import { fileSchema } from '@/utils/file-schema';
 
 interface SponsorFormData {
     responsibleName: string;
     email: string;
     reason: string;
-    wantsLogo: boolean;
-    wantsBanner: boolean;
     logoId: number | null;
+    bannerId: number | null;
 }
 
 const initialFormState: SponsorFormData = {
     responsibleName: '',
     email: '',
     reason: '',
-    wantsLogo: true,
-    wantsBanner: false,
-    logoId: null
+    logoId: null,
+    bannerId: null
 };
+
+const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+const maxFileSize = 5 * 1024 * 1024; // 5MB
 
 export default function SponsorFormPage() {
     const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SponsorFormData>({
         defaultValues: initialFormState
     });
     const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+    const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
     const [alertInfo, setAlertInfo] = useState<{
         open: boolean;
         color: "green" | "red" | "blue";
@@ -60,20 +63,13 @@ export default function SponsorFormPage() {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
 
-        if (!ALLOWED_IMAGE_TYPES.includes(file.type as any)) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP."
-            });
-            return;
-        }
+        const result = fileSchema.safeParse(file);
 
-        if (file.size > MAX_FILE_SIZE) {
+        if (!result.success) {
             setAlertInfo({
                 open: true,
                 color: "red",
-                message: "El archivo es demasiado grande. Tamaño máximo: 5MB."
+                message: result.error.errors[0].message
             });
             return;
         }
@@ -86,13 +82,13 @@ export default function SponsorFormPage() {
             setValue('logoId', response.id);
             setLogoPreviewUrl(response.url);
             setShowLogoError(false);
-            setAlertInfo({
-                open: true,
-                color: "green",
-                message: "Logo subido exitosamente"
-            });
         } catch (error) {
             console.error("Error al subir logo", error);
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
+            });
             setAlertInfo({
                 open: true,
                 color: "red",
@@ -101,9 +97,19 @@ export default function SponsorFormPage() {
         }
     };
 
+    const handleBannerUpload = (imageData: { id: number; url: string }) => {
+        setFormData(prev => ({ ...prev, bannerId: imageData.id }));
+        setBannerPreviewUrl(imageData.url);
+    };
+
     const handleRemoveLogo = () => {
         setValue('logoId', null);
         setLogoPreviewUrl(null);
+    };
+
+    const handleRemoveBanner = () => {
+        setFormData(prev => ({ ...prev, bannerId: null }));
+        setBannerPreviewUrl(null);
     };
 
     const onSubmit = async (data: SponsorFormData) => {
@@ -129,9 +135,11 @@ export default function SponsorFormPage() {
                 logoId: data.logoId
             };
 
+
             await createSponsor(authToken, sponsorData);
             setShowSuccessModal(true);
             setLogoPreviewUrl(null);
+            setBannerPreviewUrl(null);
             setShowLogoError(false);
 
         } catch (error) {
@@ -233,7 +241,7 @@ export default function SponsorFormPage() {
                                 Logo de tu organización
                             </label>
                             <p className={`text-sm ${showLogoError ? 'text-red-600' : 'text-blue-600'} italic mb-2 text-center`}>
-                                Para continuar debes subir el logo de tu organización haciendo click en el cuadro de abajo
+                                Sube el logo de tu organización haciendo click en el cuadro de abajo
                             </p>
                             <div className="w-64 h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center mx-auto relative">
                                 {logoPreviewUrl ? (
@@ -274,29 +282,21 @@ export default function SponsorFormPage() {
                                 )}
                             </div>
                         </div>
-                    </div>
 
-                    <label className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            {...register('wantsBanner')}
-                        />
-                        <span>Quiero publicar un banner publicitario</span>
-                    </label>
-
-                    {watch('wantsBanner') && (
-                        <div className="h-64 text-blue text-2xl rounded-xl border-2 border-blue-300 flex flex-col items-center justify-center">
-                            <label className="cursor-pointer block">
-                                + Añadir banner
-                                <input
-                                    type="file"
-                                    accept={ALLOWED_IMAGE_TYPES.join(',')}
-                                    className="hidden"
-                                />
+                        <div>
+                            <label className="block mb-1">
+                                Banner publicitario
                             </label>
-                            <p className="text-sm text-gray-500 mt-2">Tamaño sugerido: 900x300 píxeles</p>
+                            <p className="text-sm text-blue-600 italic mb-2 text-center">
+                                Tamaño recomendado: 900x300 píxeles
+                            </p>
+                            <BannerImage
+                                onImageUploaded={handleBannerUpload}
+                                initialImage={bannerPreviewUrl || undefined}
+                                token={authToken || ''}
+                            />
                         </div>
-                    )}
+                    </div>
 
                     <div className="flex flex-col justify-center gap-4 mt-6">
                         <Button
