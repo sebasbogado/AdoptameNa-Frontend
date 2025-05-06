@@ -23,7 +23,8 @@ export default function Page() {
 
   return (
     <div className="p-6">
-      <ReportListPage
+      Comentarios reportados
+      {/* <ReportListPage
         type={ITEM_TYPE.COMMENT}
         fetchFunction={async (page, size) => {
           if (!authToken) {
@@ -34,7 +35,7 @@ export default function Page() {
         }
         pageSize={pageSize}
         isPost={false}
-      />
+      /> */}
     </div>
   )
 }
