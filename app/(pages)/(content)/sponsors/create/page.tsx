@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useAuth } from "@/contexts/auth-context";
 import { createSponsor } from "@/utils/sponsor.http";
 import { postMedia } from "@/utils/media.http";
@@ -28,11 +29,12 @@ const initialFormState: SponsorFormData = {
     bannerId: null
 };
 
-const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-const maxFileSize = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
 export default function SponsorFormPage() {
-    const [formData, setFormData] = useState<SponsorFormData>(initialFormState);
+    const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SponsorFormData>({
+        defaultValues: initialFormState
+    });
     const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
     const [bannerPreviewUrl, setBannerPreviewUrl] = useState<string | null>(null);
     const [alertInfo, setAlertInfo] = useState<{
@@ -56,15 +58,9 @@ export default function SponsorFormPage() {
         }
     }, [alertInfo]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
-
         const result = fileSchema.safeParse(file);
 
         if (!result.success) {
@@ -81,7 +77,7 @@ export default function SponsorFormPage() {
 
         try {
             const response = await postMedia(formData, authToken);
-            setFormData(prev => ({ ...prev, logoId: response.id }));
+            setValue('logoId', response.id);
             setLogoPreviewUrl(response.url);
             setShowLogoError(false);
         } catch (error) {
@@ -95,22 +91,21 @@ export default function SponsorFormPage() {
     };
 
     const handleBannerUpload = (imageData: { id: number; url: string }) => {
-        setFormData(prev => ({ ...prev, bannerId: imageData.id }));
+        setValue('bannerId', imageData.id);
         setBannerPreviewUrl(imageData.url);
     };
 
     const handleRemoveLogo = () => {
-        setFormData(prev => ({ ...prev, logoId: null }));
+        setValue('logoId', null);
         setLogoPreviewUrl(null);
     };
 
     const handleRemoveBanner = () => {
-        setFormData(prev => ({ ...prev, bannerId: null }));
+        setValue('bannerId', null);
         setBannerPreviewUrl(null);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: SponsorFormData) => {
         if (!authToken) {
             setAlertInfo({
                 open: true,
@@ -120,7 +115,7 @@ export default function SponsorFormPage() {
             return;
         }
 
-        if (!formData.logoId) {
+        if (!data.logoId) {
             setAlertInfo({
                 open: true,
                 color: "red",
@@ -133,16 +128,14 @@ export default function SponsorFormPage() {
         setIsSubmitting(true);
         try {
             const sponsorData = {
-                contact: formData.email,
-                reason: formData.reason,
-                logoId: formData.logoId,
-                bannerId: formData.bannerId || undefined
+                contact: data.email,
+                reason: data.reason,
+                logoId: data.logoId,
+                bannerId: data.bannerId || undefined
             };
-
 
             await createSponsor(authToken, sponsorData);
             setShowSuccessModal(true);
-            setFormData(initialFormState);
             setLogoPreviewUrl(null);
             setBannerPreviewUrl(null);
             setShowLogoError(false);
@@ -178,7 +171,7 @@ export default function SponsorFormPage() {
                 </Alert>
             )}
             
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <img src="/logo.png" alt="Adoptamena" className="mx-auto w-40 mb-4" />
                 <p className="text-center text-sm text-gray-700">
                     Estás a un paso de convertirte en un <br />
@@ -190,42 +183,54 @@ export default function SponsorFormPage() {
                         <label className="block mb-1">Nombre del responsable</label>
                         <input
                             type="text"
-                            name="responsibleName"
-                            value={formData.responsibleName}
-                            onChange={handleInputChange}
-                            className="w-full p-2 rounded-md border-2 border-blue-500"
+                            {...register('responsibleName', { required: 'El nombre es requerido' })}
+                            className={`w-full p-2 rounded-md border-2 ${
+                                errors.responsibleName ? 'border-red-500' : 'border-blue-500'
+                            }`}
                             maxLength={100}
-                            required
                         />
+                        {errors.responsibleName && (
+                            <p className="text-red-500 text-sm mt-1">{errors.responsibleName.message}</p>
+                        )}
                     </div>
 
                     <div>
                         <label className="block mb-1">Correo</label>
                         <input
                             type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            className="w-full p-2 rounded-md border-2 border-blue-500"
+                            {...register('email', { 
+                                required: 'El correo es requerido',
+                                pattern: {
+                                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                    message: 'Correo electrónico inválido'
+                                }
+                            })}
+                            className={`w-full p-2 rounded-md border-2 ${
+                                errors.email ? 'border-red-500' : 'border-blue-500'
+                            }`}
                             maxLength={100}
-                            required
                         />
+                        {errors.email && (
+                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                        )}
                     </div>
 
                     <div>
                         <label className="block mb-1">Razón por la cual quiere ser Auspiciante:</label>
                         <textarea
-                            name="reason"
-                            value={formData.reason}
-                            onChange={handleInputChange}
-                            className="w-full p-2 rounded-md border-2 border-blue-500 min-h-[100px] resize-y"
+                            {...register('reason', { required: 'La razón es requerida' })}
+                            className={`w-full p-2 rounded-md border-2 ${
+                                errors.reason ? 'border-red-500' : 'border-blue-500'
+                            } min-h-[100px] resize-y`}
                             maxLength={255}
-                            required
                             placeholder="Escribe aquí tu razón para ser auspiciante..."
                         />
                         <div className="text-sm text-gray-500 text-right">
-                            {formData.reason.length}/255 caracteres
+                            {watch('reason')?.length || 0}/255 caracteres
                         </div>
+                        {errors.reason && (
+                            <p className="text-red-500 text-sm mt-1">{errors.reason.message}</p>
+                        )}
                     </div>
 
                     <div className="space-y-4">
@@ -267,7 +272,7 @@ export default function SponsorFormPage() {
                                         </p>
                                         <input
                                             type="file"
-                                            accept="image/*"
+                                            accept={ALLOWED_IMAGE_TYPES.join(',')}
                                             onChange={handleLogoUpload}
                                             className="hidden"
                                         />
