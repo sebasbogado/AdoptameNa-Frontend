@@ -61,7 +61,6 @@ export default function SponsorFormPage() {
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !authToken) return;
-
         const result = fileSchema.safeParse(file);
 
         if (!result.success) {
