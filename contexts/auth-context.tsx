@@ -3,7 +3,9 @@ import { createContext, useContext, useState, useEffect, FC, ReactNode } from 'r
 import { useRouter } from 'next/navigation';
 import { User, AuthContextType, LoginCredentials } from '../types/auth';
 import * as authServices from '@/utils/auth.http';
+import { getFullUser } from '@/utils/user-profile.http';
 import Cookies from 'js-cookie';
+import { UserProfile } from '@/types/user-profile';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_COOKIE_NAME = 'authToken';
@@ -18,6 +20,17 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
+  
+  const createLocationFromUserData = (userData: UserProfile) => ({
+    lat: userData.latitude || null,
+    lon: userData.longitude || null,
+    neighborhoodId: userData.neighborhoodId || null,
+    districtId: userData.districtId || null,
+    departmentId: userData.departmentId || null,
+    neighborhoodName: userData.neighborhoodName || null,
+    districtName: userData.districtName || null,
+    departmentName: userData.departmentName || null,
+  });
 
   const updateUserProfileCompletion = (isCompleted: boolean): void => {
     if (user) {
@@ -34,11 +47,23 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         userData.isProfileCompleted = false;
       }
 
+      try {
+        const fullUserData = await getFullUser(userData.id.toString());
+        const enhancedUserData = {
+          ...userData,
+          location: createLocationFromUserData(fullUserData),
+        };
+        
+        setUser(enhancedUserData);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(userData);
+      }
+
       if (userData.isProfileCompleted === false) {
         router.push('/auth/create-profile');
       }
 
-      setUser(userData);
       setAuthToken(token);
     } catch (error) {
       console.error("Error verificando token:", error);
@@ -70,7 +95,18 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        const fullUserData = await getFullUser(user.id.toString());
+        const enhancedUser = {
+          ...user,
+          location: createLocationFromUserData(fullUserData),
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user);
+      }
+      
       setAuthToken(token);
 
       return true;
@@ -88,7 +124,18 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        const fullUserData = await getFullUser(user.id.toString());
+        const enhancedUser = {
+          ...user,
+          location: createLocationFromUserData(fullUserData),
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user); 
+      }
+      
       setAuthToken(token);
       router.push('/dashboard');
     } catch (error) {
@@ -106,7 +153,16 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion, isProfileCompleted: user?.isProfileCompleted ?? false }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      loading, 
+      authToken, 
+      loginWithGoogle, 
+      updateUserProfileCompletion, 
+      isProfileCompleted: user?.isProfileCompleted ?? false 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -92,7 +92,7 @@ export const getAllFullUserProfile = async (
   }
 };
 
-export const getFullUser = async (id: string) => {
+export const getFullUser = async (id: string): Promise<UserProfile> => {
   try {
     const response = await axios.get(`${API_URL}/${id}/fullUser`, {
       headers: {

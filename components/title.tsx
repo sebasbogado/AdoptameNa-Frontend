@@ -17,8 +17,8 @@ const Title: React.FC<TitleProps> = ({ title, postType, path }) => {
 
     return (
         <Link href={path}>
-            <div className="flex items-center px-10">
-                <h1 className={clsx(colorClass, "font-bold text-lg")}>{text}</h1>
+            <div className="flex items-center ">
+                <h1 className={clsx(colorClass, "font-bold text-lg lg:text-xl xl:text-2xl ")}>{text}</h1>
                 <ChevronRight className={clsx(colorClass, "w-5 h-5")} strokeWidth={2} />
                
             </div>
