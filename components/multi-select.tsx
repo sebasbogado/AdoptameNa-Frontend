@@ -39,9 +39,18 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onC
             selected.map((s) => (
               <span
                 key={s.id}
-                className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm"
+                className="bg-light-blue-50 px-3 py-1 rounded-full text-sm font-medium text-blue flex items-center gap-1 hover:bg-ligth-blue-300 transition-colors"
               >
                 {s.name}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOption(s);
+                  }}
+                  className="hover:text-blue-800"
+                >
+                  ×
+                </button>
               </span>
             ))
           ) : (
