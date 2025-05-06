@@ -29,8 +29,7 @@ const initialFormState: SponsorFormData = {
     bannerId: null
 };
 
-const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-const maxFileSize = 5 * 1024 * 1024; // 5MB
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
 export default function SponsorFormPage() {
     const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SponsorFormData>({
@@ -89,16 +88,11 @@ export default function SponsorFormPage() {
                 color: "red",
                 message: "Error al subir el logo. Por favor, inténtalo de nuevo."
             });
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Error al subir el logo. Por favor, inténtalo de nuevo."
-            });
         }
     };
 
     const handleBannerUpload = (imageData: { id: number; url: string }) => {
-        setFormData(prev => ({ ...prev, bannerId: imageData.id }));
+        setValue('bannerId', imageData.id);
         setBannerPreviewUrl(imageData.url);
     };
 
@@ -108,7 +102,7 @@ export default function SponsorFormPage() {
     };
 
     const handleRemoveBanner = () => {
-        setFormData(prev => ({ ...prev, bannerId: null }));
+        setValue('bannerId', null);
         setBannerPreviewUrl(null);
     };
 
@@ -123,6 +117,11 @@ export default function SponsorFormPage() {
         }
 
         if (!data.logoId) {
+            setAlertInfo({
+                open: true,
+                color: "red",
+                message: "Debes subir el logo de tu organización para continuar"
+            });
             setShowLogoError(true);
             return;
         }
@@ -132,9 +131,9 @@ export default function SponsorFormPage() {
             const sponsorData = {
                 contact: data.email,
                 reason: data.reason,
-                logoId: data.logoId
+                logoId: data.logoId,
+                bannerId: data.bannerId || undefined
             };
-
 
             await createSponsor(authToken, sponsorData);
             setShowSuccessModal(true);
