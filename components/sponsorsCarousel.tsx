@@ -14,7 +14,7 @@ export default function SponsorsCarousel({
   images,
   className,
   scrollStep = 1,
-  delay = 15
+  delay = 10
 }: Props) {
   const carouselRef = useRef<HTMLDivElement>(null);
 
