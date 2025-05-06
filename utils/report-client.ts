@@ -241,7 +241,7 @@ export const getReportedProducts = async (token: string, queryParams?: reportQue
 
 export const banProduct = async (id: number, token: string) => {
   try {
-    await axios.patch(`${API_URL_BAN_PRODUCT}${id}/ban`, null, {
+    await axios.patch(`${API_URL_BAN_PRODUCT}/${id}/ban`, null, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ export const getReportedComments = async (token: string, queryParams?: reportQue
 
 export const banComment = async (id: number, token: string) => {
   try {
-    await axios.patch(`${API_URL_BAN_COMMENT}${id}/ban`, null, {
+    await axios.patch(`${API_URL_BAN_COMMENT}/${id}/ban`, null, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
