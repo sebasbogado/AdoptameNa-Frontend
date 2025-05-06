@@ -103,7 +103,7 @@ export default function Page() {
 
   const handleCancel = () => {
     if (!pet) return
-    router.push(`/posts/${pet.id}`);
+    router.push(`/pets/${pet.id}`);
   };
 
   const getFromData = async () => {

@@ -11,9 +11,6 @@ export interface UserProfile {
   organizationName?: string;
   fullName: string;
   address?: string | null;
-  neighborhoodId?: string | null;
-  districtId?: string | null;
-  departmentId?: string | null;
   description?: string;
   gender?: string | null;
   birthdate?: string | null;
@@ -26,6 +23,15 @@ export interface UserProfile {
   creationDate?: string;
   media?: MediaDTO[];
   mediaIds?: number[];
+  latitude?: number | null;
+  longitude?: number | null;
+  neighborhoodName?: string | null;
+  districtName?: string | null;
+  departmentName?: string | null;
+  neighborhoodId?: string | null;
+  districtId?: string | null;
+  departmentId?: string | null;
+  showLocation?: boolean;
 }
 export type UpdateUserProfile = Omit<UserProfile, "id">;
 
