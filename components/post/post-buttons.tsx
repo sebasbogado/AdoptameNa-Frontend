@@ -19,6 +19,7 @@ import { getPetsByUserId } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { useParams } from "next/navigation";
 import { AdoptionFormData } from "@/types/schemas/adoption-schema";
+import ChangeStatusModal from "@/components/change-status-modal";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -46,29 +47,32 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     const params = useParams();
     const [petName, setPetName] = useState("");
 
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
+
 
     useEffect(() => {
         const checkIfPetIsMine = async () => {
-          if (!user?.id || !params.id) return;
-    
-          try {
-            const response = await getPetsByUserId({ userId: user.id });
-            const myPets: Pet[] = response.data;
-    
-            const found = myPets.find(pet => String(pet.id) === String(params.id));
+            if (!user?.id || !params.id) return;
+
+            try {
+                const response = await getPetsByUserId({ userId: user.id });
+                const myPets: Pet[] = response.data;
+
+                const found = myPets.find(pet => String(pet.id) === String(params.id));
                 if (found) {
                     setIsMyPet(true);
                     setPetName(found.name);
                 } else {
                     setIsMyPet(false);
                 }
-          } catch (error) {
-            console.error("Error al obtener mascotas del usuario", error);
-          }
+            } catch (error) {
+                console.error("Error al obtener mascotas del usuario", error);
+            }
         };
-    
+
         checkIfPetIsMine();
-      }, [user?.id, params.id]);
+    }, [user?.id, params.id]);
 
     const getUserProfileData = async (userId: string) => {
         try {
@@ -79,7 +83,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             console.error("Error al cargar el perfil:", err);
         }
     };
-    
+
 
     useEffect(() => {
         if (user?.id) {
@@ -92,26 +96,26 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     };
 
     const handleConfirmAdoption = async (data: AdoptionFormData) => {
-      
+
         const requestData: AdoptionRequest = {
-          petId: Number(postId),
-          fullName: data.fullname,
-          email: data.currentEmail,
-          phone: data.phone,
+            petId: Number(postId),
+            fullName: data.fullname,
+            email: data.currentEmail,
+            phone: data.phone,
         };
-      
+
         try {
-          const result = await postAdoption(requestData);
-          console.log("Solicitud de adopción enviada:", result);
-          setSuccessMessage("¡Solicitud enviada correctamente!");
+            const result = await postAdoption(requestData);
+            console.log("Solicitud de adopción enviada:", result);
+            setSuccessMessage("¡Solicitud enviada correctamente!");
         } catch (error: any) {
-          console.error("Error al enviar solicitud:", error.message);
-          setErrorMessage(error.message);
+            console.error("Error al enviar solicitud:", error.message);
+            setErrorMessage(error.message);
         }
-      
+
         setOpenAdoptionModal(false);
-      };
-    
+    };
+
 
     const handleShare = async () => {
         if (!postId) return;
@@ -154,29 +158,69 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
     };
     return (
         <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
-            {isPet && !isMyPets && <Button variant="cta" size="lg" onClick={handleAdoptionClick} >Adoptar</Button>}
-            {isEditing && (
-                <Link href={isPet ? `\/edit-pets/${postId}` : `\/edit-post/${postId}`}>
-                    <EditButton size="lg" isEditing={false} />
-                </Link>
+            {isPet && !isMyPets && (
+                <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
+                    Adoptar
+                </Button>
             )}
-            
+
+            {isEditing && (
+                <div className="relative inline-block text-left">
+                    <EditButton
+                        size="lg"
+                        isEditing={false}
+                        id="edit-button"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    />
+
+                    {menuOpen && (
+                        <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                            <div className="py-1">
+                                {/* Opción 1: Editar Mascota */}
+                                <Link
+                                    href={isPet ? `/edit-pets/${postId}` : `/edit-post/${postId}`}
+                                    className="block px-4 py-2 text-sm hover:bg-gray-100"
+                                    onClick={() => setMenuOpen(false)}
+                                >
+                                    Editar Mascota
+                                </Link>
+                                {/* Opción 2: Cambiar Estado */}
+                                <button
+                                    type="button"
+                                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        setOpenChangeStatusModal(true);
+                                    }}
+                                >
+                                    Cambiar Estado
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Adoption Modal */}
             {openAdoptionModal && (
                 <AdoptionModal
-                isOpen={openAdoptionModal}
-                title={`Solicitud para adoptar a ${petName}`}
-                onClose={() => setOpenAdoptionModal(false)}
-                onConfirm={handleConfirmAdoption}
-                currentUser={userProfile?.fullName}
-                email={user?.email ?? ""}
-                telefono={userProfile?.phoneNumber ?? undefined}
-              />
+                    isOpen={openAdoptionModal}
+                    title={`Solicitud para adoptar a ${petName}`}
+                    onClose={() => setOpenAdoptionModal(false)}
+                    onConfirm={handleConfirmAdoption}
+                    currentUser={userProfile?.fullName}
+                    email={user?.email ?? ""}
+                    telefono={userProfile?.phoneNumber ?? undefined}
+                />
             )}
 
             <div className="relative">
                 <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (
-                    <Alert color="gray" className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2">
+                    <Alert
+                        color="gray"
+                        className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2"
+                    >
                         ¡Enlace copiado al portapapeles!
                     </Alert>
                 )}
@@ -185,9 +229,14 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             <ReportButton size="lg" idEntity={postId} isPet={isPet}/>
 
             <div className="relative">
-                {!isPet &&
-                    <FavoriteButton variant={isFavorite ? "active" : "desactivated"} size="xl" className="relative top-[-60px] shadow-md left-[40px]" onClick={handleFavoriteClick} />
-                }
+                {!isPet && (
+                    <FavoriteButton
+                        variant={isFavorite ? "active" : "desactivated"}
+                        size="xl"
+                        className="relative top-[-60px] shadow-md left-[40px]"
+                        onClick={handleFavoriteClick}
+                    />
+                )}
                 {successMessage && (
                     <Alert
                         color="green"
@@ -207,6 +256,15 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                     </Alert>
                 )}
             </div>
+
+            {/* Change Status Modal */}
+            {openChangeStatusModal && (
+                <ChangeStatusModal
+                    isOpen={openChangeStatusModal}
+                    onClose={() => setOpenChangeStatusModal(false)}
+                    petId={Number(postId)}
+                />
+            )}
         </div>
     );
 };
