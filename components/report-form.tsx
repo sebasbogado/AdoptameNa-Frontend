@@ -28,7 +28,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntit
     defaultValues: {
       idPost: idEntity && !isPet ? idEntity : "",
       idPet: idEntity && isPet ? idEntity : "",
-      idUser: user?.id ? parseInt(user?.id.toString()) : 0,
+      idUser: user?.id ? Number(user?.id.toString()) : 0,
       idComment: idComment ? idComment : undefined,
     }
   });
