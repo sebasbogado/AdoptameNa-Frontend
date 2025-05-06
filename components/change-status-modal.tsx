@@ -57,18 +57,11 @@ export default function ChangeStatusModal({
 
             // 2) Reconstruir el objeto UpdatePet con todos los campos
             const payload: UpdatePet = {
-                name: petObj.name,
-                description: petObj.description,
-                birthdate: petObj.birthdate,
-                gender: petObj.gender,
+                ...petObj,
                 mediaIds: petObj.media.map((m) => m.id),
-                isSterilized: petObj.isSterilized,
-                isVaccinated: petObj.isVaccinated,
-                addressCoordinates: petObj.addressCoordinates,
-                userId: petObj.userId,
+                petStatusId: selectedId,
                 animalId: petObj.animal.id,
                 breedId: petObj.breed.id,
-                petStatusId: selectedId,
             };
 
             // 3) Llamar al PUT /pets/{id}
