@@ -44,7 +44,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 )}
             </div>
 
-            <Link href={`/marketplace`}>
+            <Link href={`/marketplace/${product.id}`}>
                 <CardImage media={product.media[0]} />
                 <CardText post={product} />
             </Link>
