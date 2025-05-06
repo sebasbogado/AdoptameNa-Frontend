@@ -47,23 +47,29 @@ export default function UserReportListPage<T extends { petId?: number | null; po
       const seenIds = new Set(); 
       const enriched: EnrichedReport<T>[] = [];
   
-      for (const item of data) {
+      const fetchPromises = data.map(async (item) => {
         const id = item.petId ?? item.postId;
-        if (!id || seenIds.has(id)) continue; 
+        if (!id || seenIds.has(id)) return null; 
   
         try {
           if (item.petId) {
             const pet = await getPet(String(item.petId));
-            enriched.push({ ...item, pet });
+            seenIds.add(id);
+            return { ...item, pet };
           } else if (item.postId) {
             const post = await getPost(String(item.postId));
-            enriched.push({ ...item, post });
+            seenIds.add(id);
+            return { ...item, post };
           }
-          seenIds.add(id);
         } catch (err) {
           console.error("Error al enriquecer reporte", err);
+          return null;
         }
-      }
+      });
+  
+      const results = await Promise.all(fetchPromises);
+      const enriched = results.filter((item) => item !== null) as EnrichedReport<T>[];
+      setEnrichedData(enriched);
   
       setEnrichedData(enriched);
     };
