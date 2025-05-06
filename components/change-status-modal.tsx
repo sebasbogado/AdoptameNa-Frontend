@@ -5,6 +5,8 @@ import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
+import type { UpdatePet, Pet } from "@/types/pet"
+import { getPet, updatePet } from "@/utils/pets.http";
 
 interface ChangeStatusModalProps {
     isOpen: boolean;
@@ -22,7 +24,9 @@ export default function ChangeStatusModal({
     const [selectedId, setSelectedId] = useState<number | "">("");
     const [description, setDescription] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string>();
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [error, setError] = useState<string | null>(null);
 
     // 1) Carga los posibles estados
     useEffect(() => {
@@ -39,65 +43,46 @@ export default function ChangeStatusModal({
 
     const handleConfirm = async () => {
         if (!authToken) {
-            setError("Debes iniciar sesión para cambiar el estado.");
+            setErrorMessage("Debes iniciar sesión para cambiar el estado.");
             return;
         }
         if (!selectedId) return;
 
         setIsLoading(true);
-        setError(undefined);
+        setErrorMessage("");
 
         try {
-            // 2) Traer la mascota completa
-            const resp = await axios.get(
-                `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets/${petId}`,
-                { headers: { Authorization: `Bearer ${authToken}` } }
-            );
-            const raw = resp.data;
-            const pet = raw.data ?? raw;  // soporta envoltorio { data: {...} } o directamente {...}
+            // 1) Traer el Pet completo
+            const petObj: Pet = await getPet(String(petId));
 
-            // 3) Extraer IDs anidados
-            const userId = pet.userId ?? pet.user?.id;
-            const animalId = pet.animalId ?? pet.animal?.id;
-            const breedId = pet.breedId ?? pet.breed?.id;
-
-            // 4) Preservar media: si el objeto tiene mediaIds, úsalos; si no, extrae pet.media[].id
-            const mediaIds: number[] = Array.isArray(pet.mediaIds)
-                ? pet.mediaIds
-                : Array.isArray(pet.media)
-                    ? pet.media.map((m: any) => m.id)
-                    : [];
-
-            // 5) Reconstruir el payload con TODOs los campos originales,
-            const payload = {
-                name: pet.name,
-                description: pet.description,
-                birthdate: pet.birthdate,
-                gender: pet.gender,
-                mediaIds,
-                isSterilized: pet.isSterilized ?? false,
-                isVaccinated: pet.isVaccinated ?? false,
-                addressCoordinates: pet.addressCoordinates ?? "",
-                userId,
-                animalId,
-                breedId,
+            // 2) Reconstruir el objeto UpdatePet con todos los campos
+            const payload: UpdatePet = {
+                name: petObj.name,
+                description: petObj.description,
+                birthdate: petObj.birthdate,
+                gender: petObj.gender,
+                mediaIds: petObj.media.map((m) => m.id),
+                isSterilized: petObj.isSterilized,
+                isVaccinated: petObj.isVaccinated,
+                addressCoordinates: petObj.addressCoordinates,
+                userId: petObj.userId,
+                animalId: petObj.animal.id,
+                breedId: petObj.breed.id,
                 petStatusId: selectedId,
             };
 
-            // 6) Enviar la actualización
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets/${petId}`,
-                payload,
-                { headers: { Authorization: `Bearer ${authToken}` } }
-            );
+            // 3) Llamar al PUT /pets/{id}
+            const result = await updatePet(String(petId), payload, authToken);
+            console.log("Mascota actualizada:", result);
+            setSuccessMessage("¡Estado actualizado correctamente!");
 
-            onClose();
             window.location.reload();
-        } catch (err: any) {
-            console.error("Error en PUT /pets:", err.response?.data);
-            setError(err.response?.data?.message || "Error al actualizar estado");
+        } catch (error: any) {
+            console.error("Error actualizando estado:", error);
+            setErrorMessage(error.message || "Error al actualizar estado");
         } finally {
             setIsLoading(false);
+            onClose();
         }
     };
 
@@ -156,3 +141,5 @@ export default function ChangeStatusModal({
         </div>
     );
 }
+
+
