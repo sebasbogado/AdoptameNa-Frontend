@@ -452,8 +452,8 @@ export default function Page() {
                         <Button
                             type="submit"
                             variant="cta"
-                            className="rounded hover:bg-purple-700"
-                            disabled={loading}
+                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            disabled={loading || selectedTags.length >= MAX_IMAGES}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
                         </Button>
