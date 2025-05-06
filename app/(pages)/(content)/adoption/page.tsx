@@ -31,7 +31,7 @@ export default function Page() {
         handlePageChange
     } = usePagination<Pet>({
         fetchFunction: async (page, size) => {
-            return await getPets({ page, size, sort, petStatusId: PET_STATUS.ADOPTION });
+            return await getPets({ page, size, sort, petStatusId: [PET_STATUS.ADOPTION] });
         },
         initialPage: 1,
         initialPageSize: pageSize
