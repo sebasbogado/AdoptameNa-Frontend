@@ -11,9 +11,9 @@ import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { Product } from '@/types/product';
 
-
 interface Props<T> {
   entity: Post | Pet | Product;
+  type: string;
   reports: Report[];
   onBack: () => void;
   onBlock: () => void;
@@ -23,6 +23,7 @@ interface Props<T> {
 
 export default function ReportDetailPage<T>({
   entity,
+  type,
   reports,
   onBack,
   onBlock,
@@ -41,7 +42,7 @@ export default function ReportDetailPage<T>({
 
       <div className="flex justify-around">
         <ReportList reports={reports} handleDeleteReport={handleDeleteReport} />
-        <CardReport post={entity} isReportedPage={true} handleAprove={onKeep} handleDesaprove={onBlock} />
+        <CardReport post={entity} type={type} isReportedPage={true} handleAprove={onKeep} handleDesaprove={onBlock} />
       </div>
     </div>
   );

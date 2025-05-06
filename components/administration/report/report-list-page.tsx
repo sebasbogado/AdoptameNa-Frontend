@@ -12,12 +12,14 @@ interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
   pageSize?: number;
   isPost?: boolean;
+  type: string;
 }
 
 export default function ReportListPage<T>({
   fetchFunction,
   pageSize = 20,
   isPost = true,
+  type,
 }: Props<T>) {
   const {
     data,
@@ -49,7 +51,7 @@ export default function ReportListPage<T>({
       ) : data.length !== 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
           {data.map((item, index) => (
-            <CardReport key={index} post={item} isPost={isPost}/>
+            <CardReport key={index} type={type} post={item} isPost={isPost}/>
           ))}
         </div>
       ) : (

@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getReportsById, deleteReport, banPost, deleteReportsByProductId } from "@/utils/report-client";
+import { getReportsById, deleteReport, banPost, deleteReportsByProductId, banProduct } from "@/utils/report-client";
 import ReportDetailPage from "@/components/administration/report/report-detail";
 import { Report } from "@/types/report";
 import NotFound from "@/app/not-found";
@@ -11,6 +11,7 @@ import Loading from "@/app/loading";
 import { Alert } from "@material-tailwind/react";
 import { getProduct } from "@/utils/product.http";
 import { Product } from "@/types/product";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function ReportsPost() {
   const { authToken } = useAuth();
@@ -63,7 +64,7 @@ export default function ReportsPost() {
   const handleDesaprove = async () => {
     if (!authToken || !product) return;
     try {
-      await banPost(product.id, authToken);
+      await banProduct(product.id, authToken);
       setSuccessMessage("El post ha sido bloqueado con éxito.");
       setTimeout(() => router.push("/administration/report/products"), 5000);
     } catch {
@@ -97,6 +98,7 @@ export default function ReportsPost() {
     <div className="p-6">
       <ReportDetailPage
         entity={product}
+        type={ITEM_TYPE.PRODUCT}
         reports={reports}
         onBack={() => router.push("/administration/report/products")}
         onBlock={handleDesaprove}

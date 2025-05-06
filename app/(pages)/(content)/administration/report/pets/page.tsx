@@ -10,6 +10,7 @@ import { usePagination } from '@/hooks/use-pagination';
 import Pagination from "@/components/pagination";
 import { Loader2 } from 'lucide-react';
 import ReportListPage from "@/components/administration/report/report-list-page";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
@@ -28,6 +29,7 @@ export default function Page() {
   return (
     <div className="p-6">
       <ReportListPage
+        type={ITEM_TYPE.PET}
         fetchFunction={async (page, size) => {
           if (!authToken) {
             throw new Error("No se ha encontrado el token de autenticación");

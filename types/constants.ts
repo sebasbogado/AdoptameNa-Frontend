@@ -9,3 +9,9 @@ export const PET_STATUS = {
     VOLUNTEERING: 1,
     BLOG: 2,
   };
+
+  export const ITEM_TYPE = {
+    POST: 'post',
+    PET: 'pet',
+    PRODUCT: 'product',
+  };

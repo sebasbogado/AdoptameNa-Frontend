@@ -16,7 +16,8 @@ import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
 
-
+// Define el tipo de item que puede ser
+export type ItemType = 'post' | 'pet' | 'product';
 
 type PetCardProps = {
     post: any;
@@ -24,13 +25,27 @@ type PetCardProps = {
     isReportedPage?: boolean
     handleAprove?: () => void;
     handleDesaprove?: () => void;
-    isPost?: boolean
+    type: string;
+    isPost?: boolean;
 };
 
 
 
-export default function CardButtons({ post, className, isReportedPage, handleAprove, handleDesaprove, isPost = true }: PetCardProps) {
+export default function CardButtons({ post, className, isReportedPage, handleAprove, handleDesaprove, type, isPost = true}: PetCardProps) {
     const router = useRouter()
+
+    const getReportLinkHref = () => {
+        switch (type) {
+            case 'pet':
+                return `/administration/report/pets/${post.id}`;
+            case 'product':
+                return `/administration/report/products/${post.id}`;
+            case 'post':
+            default: // Por defecto o si es 'post'
+                return `/administration/report/posts/${post.id}`;
+        }
+    };
+
     return (
         <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
             {isReportedPage ?
@@ -52,7 +67,7 @@ export default function CardButtons({ post, className, isReportedPage, handleApr
                 </div>
                 :
                 <div className="m-4 flex justify-center">
-                    <Link href={isPost ? `/administration/report/posts/${post.id}` : `/administration/report/pets/${post.id}`} >
+                    <Link href={getReportLinkHref()}>
                         <Button size="sm" className="flex items-center justify-center">
                             <EyeIcon className="w-5 h-5 mr-2 text-white" strokeWidth={3} />
                             Ver razones
