@@ -415,7 +415,7 @@ export default function Page() {
                         type="text"
                         placeholder="0000123456"
                         {...register("contactNumber")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+                        className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
                     />
                 </div>
                 {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
