@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Alert } from '@material-tailwind/react';
 import { postMedia } from '@/utils/media.http';
 import { Upload, ImageIcon, X, Loader2, Plus } from 'lucide-react';
+import { fileSchema } from '@/utils/file-schema';
 
 interface ImageUploadProps {
     onImageUploaded: (imageData: { id: number; url: string }) => void;
@@ -35,20 +36,13 @@ export default function BannerImage({ onImageUploaded, initialImage, token }: Im
     const handleImageUpload = async (file: File) => {
         if (!file) return;
 
-        if (!file.type.startsWith('image/')) {
-            setAlertInfo({
-                open: true,
-                color: "red",
-                message: "Por favor, selecciona un archivo de imagen"
-            });
-            return;
-        }
+        const result = fileSchema.safeParse(file);
 
-        if (file.size > 5 * 1024 * 1024) {
+        if (!result.success) {
             setAlertInfo({
                 open: true,
                 color: "red",
-                message: "El tamaño de la imagen debe ser menor a 5MB"
+                message: result.error.errors[0].message
             });
             return;
         }
