@@ -15,12 +15,12 @@ export interface User {
   role: string
   isVerified: boolean
 }
-
 export interface ReportPost {
   id: number
   idUser: number
   idPost?: string
   idPet?: string
+  idComment?: string
   idReportReason: number
   description: string
   reportDate: string

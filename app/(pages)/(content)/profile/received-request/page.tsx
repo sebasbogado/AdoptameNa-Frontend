@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ReceivedRequestsPage() {
-    const { authToken, loading: authLoading } = useAuth();
+    const { authToken, loading: authLoading, user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -24,15 +24,17 @@ export default function ReceivedRequestsPage() {
         <div className="p-8">
             <h1 className="text-2xl font-bold mb-8">Mis solicitudes</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Link href="/profile/requests/sponsors">
-                    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
-                        <div className="bg-yellow-100 p-4 rounded-full mb-4">
-                            <Medal size={48} className="text-yellow-600" />
+                {(user?.role === 'admin' || user?.role === 'organization') && (
+                    <Link href="/profile/received-request/sponsors">
+                        <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+                            <div className="bg-yellow-100 p-4 rounded-full mb-4">
+                                <Medal size={48} className="text-yellow-600" />
+                            </div>
+                            <h2 className="text-xl font-semibold mb-2">Auspiciantes</h2>
+                            <p className="text-gray-600 text-center">Ver y gestionar tus solicitudes de auspicio</p>
                         </div>
-                        <h2 className="text-xl font-semibold mb-2">Auspiciantes</h2>
-                        <p className="text-gray-600 text-center">Ver y gestionar tus solicitudes de auspicio</p>
-                    </div>
-                </Link>
+                    </Link>
+                )}
                 <Link href="/profile/requests/adoption-sent">
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className="bg-blue-100 p-4 rounded-full mb-4">
