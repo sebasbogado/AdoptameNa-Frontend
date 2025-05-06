@@ -55,6 +55,9 @@
   --color-secondary-brand-color: #F2AA0F;
   --color-found-tag: #73B263;
   --color-missing-tag: #FF5050;
+  /*Text colors*/
+  --color-text-primary: #333333;
+  --color-text-secondary: #636363;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -103,4 +106,13 @@ body {
 .container {
   padding-left: 4rem;
   padding-right: 4rem;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE y Edge */
+  scrollbar-width: none;     /* Firefox */
 }

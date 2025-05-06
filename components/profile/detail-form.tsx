@@ -6,6 +6,8 @@ import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
 import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import DonationModal from "../donation-modal";
+import { DonationFormData } from "@/types/schemas/donation-schema";
 
 interface InputProps {
   user: User;
@@ -35,6 +37,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const { user: userAuth } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
 
+  const [openDonationModal, setOpenDonationModal] = useState(false);
+
   useEffect(() => {
     if (userAuth && userProfile?.id) {
       if (String(userAuth.id) === String(userProfile.id)) {
@@ -45,22 +49,57 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     }
   }, [userAuth, userProfile]);
 
+  const handleDonationclick = () => {
+    setOpenDonationModal(true);
+  };
+
+  const handleConfirmDonation = (data: DonationFormData) => {
+    const { amount, name } = data;
+
+    const dName = name || "Donador Anónimo";
+    const rName = userProfile?.fullName || "Receptor";
+    let rawPhone = userProfile?.phoneNumber || "";
+
+    // Limpia el número (quitar espacios, guiones, etc.)
+    rawPhone = rawPhone.replace(/\D/g, "");
+
+    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    if (!rawPhone || rawPhone.length < 8) {
+      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      return;
+    }
+
+    // Convierte a formato internacional si empieza con 0
+    if (rawPhone.startsWith("0")) {
+      rawPhone = "595" + rawPhone.slice(1); // Paraguay
+    }
+
+    const message = `Hola ${rName}, deseo realizar una donación de Gs. ${amount?.toLocaleString("es-PY")}, soy ${dName}.`;
+
+    const url = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
+
+    window.open(url, "_blank");
+
+    setOpenDonationModal(false);
+  };
+
   return (
-    <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
-      <form>
-        {/* Nombre Completo */}
-        <input
-          type="text"
-          disabled={isDisable}
-          value={displayName}
-          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
-          onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
-        />
-        {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
+    <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-70px] w-[45vw] h-auto">
+      <form className="flex flex-col gap-2">
+        <div className="flex flex-col gap-0 mb-4">
+          {/* Nombre Completo */}
+          <input
+            type="text"
+            disabled={isDisable}
+            value={displayName}
+            className={`text-4xl text-text-primary font-bold bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+            onChange={(e) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
+          />
+          {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
 
-        {/* Cantidad de publicaciones */}
-        <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
-
+          {/* Cantidad de publicaciones */}
+          <p className="text-text-secondary text-lg ml-1">{`${posts.length} Publicaciones`}</p>
+        </div>
         {/* Descripción */}
         <textarea
           disabled={isDisable}
@@ -69,40 +108,40 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+          className={`text-text-secondary text-2xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
             } focus:outline-none w-full resize-none`}
           onChange={(e) => handleInputChange("description", e.target.value)}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
         {/* Teléfono */}
         {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+          <label className="text-text-secondary font-medium text-sm block">Teléfono</label>
         )}
 
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <PhoneIcon className="text-gray-500" />}
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full ${!userProfile?.phoneNumber && isDisable ? 'hidden' : ''}`}>
+          {isDisable && userProfile?.phoneNumber && <PhoneIcon className="text-text-secondary" />}
           <input
             type="text"
             disabled={isDisable}
             value={userProfile?.phoneNumber ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            className={` text-foreground  text-text-secondary text-xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
             onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
           />
           {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
-
         </div>
+
         {/* Direccion */}
         {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+          <label className="text-text-secondary font-medium text-sm block">Dirección</label>
         )}
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <MapPin className="text-gray-500" />}
+        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full ${!userProfile?.address && isDisable ? 'hidden' : ''}`}>
+          {isDisable && userProfile?.address && <MapPin className="text-text-secondary" />}
           <input
             type="text"
             disabled={isDisable}
             value={userProfile?.address ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            className={` text-foreground  text-text-secondary text-xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
               } focus:outline-none w-full`}
             onChange={(e) => handleInputChange("address", e.target.value)}
           />
@@ -206,9 +245,19 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               {/* Botones visibles solo para el Visitante */}
               {!isNaN(Number(user?.id)) && Number(user?.id) === userProfile?.id && (
                 <div className="flex gap-4">
-                  <button className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
+                  <button type="button" onClick={handleDonationclick} className="bg-[#F2AA0F] hover:bg-[#F2AA0F] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg mt-4">
                     Donar
                   </button>
+
+                  {openDonationModal && (
+                    <DonationModal
+                      isOpen={openDonationModal}
+                      title={`Donación para ${fundraisingTitle}`}
+                      onClose={() => setOpenDonationModal(false)}
+                      onConfirm={handleConfirmDonation}
+                      user={{ name: userAuth?.fullName || "Donador Anónimo" }}
+                    />
+                  )}
                 </div>
               )}
             </div>

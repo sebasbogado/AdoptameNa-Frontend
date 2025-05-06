@@ -7,6 +7,12 @@ export interface User {
   location?: {
     lat: number | null;
     lon: number | null;
+    neighborhoodId?: string | null;
+    districtId?: string | null;
+    departmentId?: string | null;
+    neighborhoodName?: string | null;
+    districtName?: string | null;
+    departmentName?: string | null;
   };
 }
 
