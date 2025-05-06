@@ -15,10 +15,6 @@ import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
-
-// Define el tipo de item que puede ser
-export type ItemType = 'post' | 'pet' | 'product';
-
 type PetCardProps = {
     post: any;
     className?: string
