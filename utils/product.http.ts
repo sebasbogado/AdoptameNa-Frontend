@@ -61,7 +61,7 @@ export const getProduct = async (id: string): Promise<Product> => {
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
+      throw new Error(`Producto con ID ${id} no encontrado`);
     }
     throw new Error(error.message || "Error al obtener producto");
   }
