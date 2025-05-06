@@ -1,4 +1,4 @@
-import { PaginatedResponse, productQueryParams,  } from "@/types/pagination";
+import { PaginatedResponse, productQueryParams, } from "@/types/pagination";
 import { CreateProduct, Product } from "@/types/product";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
@@ -58,12 +58,11 @@ export const getProduct = async (id: string): Promise<Product> => {
         "Content-Type": "application/json",
       },
     });
-
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
-      throw new Error("No encontrada");
+      throw new Error(`Producto con ID ${id} no encontrado`);
     }
-    throw new Error(error.message || "Error al obtener Post");
+    throw new Error(error.message || "Error al obtener producto");
   }
-};
+}
