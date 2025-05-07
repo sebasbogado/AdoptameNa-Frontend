@@ -111,6 +111,7 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                disabled={true}
             />
         </div>
     )
