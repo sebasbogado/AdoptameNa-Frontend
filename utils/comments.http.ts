@@ -148,3 +148,19 @@ export const getPetComments = async (
   );
   return response.data;
 };
+
+export const getCommentById = async (id: string): Promise<Comment> => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error(`Producto con ID ${id} no encontrado`);
+    }
+    throw new Error(error.message || "Error al obtener producto");
+  }
+}
