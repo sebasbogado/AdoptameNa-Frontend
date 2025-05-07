@@ -38,8 +38,11 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
         )}
         <ReportButton size="md" idProduct={product?.id.toString()} className="mt-4" />
         {isOwner && (
-          <EditButton size="md" isEditing={false} className="mt-4" />
+          <Link href={`\/edit-product/${product?.id}`}>
+            <EditButton size="md" isEditing={false} className="mt-4" />
+          </Link>
         )}
+
       </div>
     </div >
   );
