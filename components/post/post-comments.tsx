@@ -10,14 +10,15 @@ import {
     createComment,
     likeComment,
     deleteComment,
-    getCommentReplies
+    getCommentReplies,
+    getProductComments
 } from "@/utils/comments.http";
 import ReportForm from "../report-form";
 
 interface PostCommentsProps {
     user: User | null;
     userLoading: boolean;
-    referenceType: "POST" | "PET";
+    referenceType: "POST" | "PET" | "PRODUCT";
     referenceId: number;
     authToken?: string;
 }
@@ -53,8 +54,16 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                     5,
                     authToken
                 );
-            } else {
+            } else if (referenceType === "PET") {
                 response = await getPetComments(
+                    referenceId,
+                    cursor,
+                    20,
+                    5,
+                    authToken
+                );
+            } else {
+                response = await getProductComments(
                     referenceId,
                     cursor,
                     20,
