@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Car, Loader2 } from 'lucide-react';
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
 import { PaginatedResponse } from '@/types/pagination';
@@ -8,6 +8,8 @@ import React from 'react';
 import SectionAdmin from '../section';
 import CardReport from "@/components/administration/report/card-button";
 import { ITEM_TYPE } from '@/types/constants';
+import ReportCommentCard from './report-comment-card';
+import { Comment } from '@/types/comment';
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
@@ -51,9 +53,17 @@ export default function ReportListPage<T>({
         </div>
       ) : data.length !== 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-          {data.map((item, index) => (
-            <CardReport key={index} type={type} post={item} isPost={isPost}/>
-          ))}
+          {type === ITEM_TYPE.COMMENT ? (
+            // Rama para comentarios
+            data.map((item, index) => (
+              <ReportCommentCard key={index} comment={item as Comment} /* otras props para comentario */ />
+            ))
+          ) : (
+            // Rama para otros tipos
+            data.map((item, index) => (
+              <CardReport key={index} type={type} post={item} /* otras props para post */ />
+            ))
+          )}
         </div>
       ) : (
         <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
