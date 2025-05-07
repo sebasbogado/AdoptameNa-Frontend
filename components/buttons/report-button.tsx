@@ -11,10 +11,11 @@ interface ReportButtonProps
   size?: "sm" | "md" | "lg";
   onClick?: () => void;
   idEntity?: string;
-  isPet:  boolean;
+  idProduct?: string;
+  isPet?: boolean;
 }
 
-const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idEntity, isPet, ...props }) => {
+const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idEntity, isPet = false,idProduct, ...props }) => {
   const [modal, setModal] = useState(false);
   const [modalError, setModalError] = useState(false);
   const { authToken } = useAuth();
@@ -46,14 +47,14 @@ const ReportButton: React.FC<ReportButtonProps> = ({ size = "md", className, idE
         <Ban className="w-6 h-6 " strokeWidth={2} />
       </button>
       <Modal isOpen={modal} onClose={() => setModal(false)} title="Reportar contenido">
-        <ReportForm handleClose={() => setModal(false)} idEntity={idEntity} isPet={isPet} />
+        <ReportForm handleClose={() => setModal(false)} idEntity={idEntity} idProduct={idProduct} isPet={isPet} />
       </Modal>
       <Modal isOpen={modalError} onClose={() => setModalError(false)} title="Debe tener una cuenta para reportar contenido">
         <div className="mt-5">
           <p>Por favor inicie sesion o registrese para realizar esta accion</p>
           <div className="flex justify-center space-x-2 mt-2">
 
-            <Button variant="secondary" onClick={()=>setModalError(false)}>Cancelar</Button>
+            <Button variant="secondary" onClick={() => setModalError(false)}>Cancelar</Button>
             <Button variant="cta" onClick={navigateToLogin}>Iniciar sesion</Button>
           </div>
         </div>
