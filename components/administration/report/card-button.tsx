@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/buttons/button";
 import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
+import { ITEM_TYPE } from "@/types/constants";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -21,7 +22,7 @@ type PetCardProps = {
     isReportedPage?: boolean
     handleAprove?: () => void;
     handleDesaprove?: () => void;
-    type: string;
+    type: ITEM_TYPE;
     isPost?: boolean;
 };
 

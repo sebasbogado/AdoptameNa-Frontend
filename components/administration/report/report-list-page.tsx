@@ -7,12 +7,13 @@ import { PaginatedResponse } from '@/types/pagination';
 import React from 'react';
 import SectionAdmin from '../section';
 import CardReport from "@/components/administration/report/card-button";
+import { ITEM_TYPE } from '@/types/constants';
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
   pageSize?: number;
   isPost?: boolean;
-  type: string;
+  type: ITEM_TYPE;
 }
 
 export default function ReportListPage<T>({
