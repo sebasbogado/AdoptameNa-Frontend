@@ -20,8 +20,9 @@ export default function Navbar() {
     const { user } = useAuth();
     const pathname = usePathname(); // Obtener la ruta actual
 
-    // Condición para ocultar los enlaces de navegación en la página de administración
+    // Condición para ocultar los enlaces de navegación en la página de administración y solicitudes.
     const isAdminPage = pathname.includes("/administration");
+    const isReceivedPage = pathname.includes("/profile/received-request");
 
     return (
         <header className="w-full border-b">
@@ -38,7 +39,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* Solo renderizar los enlaces de navegación si no estamos en la página de administración */}
-                {!isAdminPage && (
+                {!isAdminPage && !isReceivedPage && (
                     <div className="hidden items-center gap-12 md:flex">
                         {navbarItems.map(({ name, path }) => (
                             <Link

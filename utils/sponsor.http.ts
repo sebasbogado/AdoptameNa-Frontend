@@ -1,5 +1,5 @@
 import { PaginatedResponse } from "@/types/pagination";
-import { Sponsor, ActiveSponsor, CreateSponsorRequest } from "@/types/sponsor";
+import { Sponsor, ActiveSponsor, CreateSponsorRequest, SponsorStatus } from "@/types/sponsor";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/sponsors`;
@@ -18,7 +18,9 @@ export const getActiveSponsors = async (): Promise<
 export const getAllSponsors = async (
   token: string,
   page: number = 0,
-  size: number = 10
+  size: number = 10,
+  userId?: number,
+  status?: string
 ): Promise<PaginatedResponse<Sponsor>> => {
   try {
     const response = await axios.get(API_URL, {
@@ -28,6 +30,8 @@ export const getAllSponsors = async (
       params: {
         page,
         size,
+        ...(userId && { userId }),
+        ...(status && { status })
       },
     });
     return response.data;
@@ -69,14 +73,14 @@ export const createSponsor = async (
 
 export const updateSponsorStatus = async (
   token: string,
-  sponsorId: number,
-  isActive: boolean
+  sponsor: Sponsor,
+  status: SponsorStatus
 ): Promise<Sponsor> => {
   try {
-
-    const response = await axios.patch(
-      `${API_URL}/${sponsorId}`,
-      { isActive }, 
+    const updatedSponsor = { ...sponsor, status };
+    const response = await axios.put(
+      `${API_URL}/${sponsor.id}`,
+      updatedSponsor,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +88,7 @@ export const updateSponsorStatus = async (
         },
       }
     );
-    return response.data; // Devuelve el sponsor actualizado
+    return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status;
@@ -105,24 +109,21 @@ export const updateSponsorStatus = async (
 export const approveSponsorRequest = async (
   token: string,
   sponsorId: number
-): Promise<Sponsor> => { 
+): Promise<Sponsor> => {
   if (!token) {
     throw new Error("Token de autenticación requerido para aprobar.");
   }
   try {
     const response = await axios.put(
       `${API_URL}/accept/${sponsorId}`,
-      null, 
+      null,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-         
         },
       }
     );
-    console.log(response.data);
-    return response.data; // Devuelve el sponsor actualizado/aprobado
-    
+    return response.data;
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
         const status = error.response?.status;
@@ -133,14 +134,43 @@ export const approveSponsorRequest = async (
         if (status === 404) {
             throw new Error("Solicitud de sponsor no encontrada.");
         }
-        
-        if (status === 500) {
-             console.error("Backend error during sponsor approval:", error.response?.data);
-             throw new Error("Error interno del servidor al aprobar la solicitud.");
-        }
         throw new Error(`Error ${status} al aprobar: ${message}`);
     }
     throw new Error("Error inesperado al aprobar el sponsor");
+  }
+};
+
+export const rejectSponsorRequest = async (
+  token: string,
+  sponsorId: number
+): Promise<Sponsor> => {
+  if (!token) {
+    throw new Error("Token de autenticación requerido para rechazar.");
+  }
+  try {
+    const response = await axios.put(
+      `${API_URL}/reject/${sponsorId}`,
+      null,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+        if (status === 401) {
+            throw new Error("No autorizado para rechazar el sponsor.");
+        }
+        if (status === 404) {
+            throw new Error("Solicitud de sponsor no encontrada.");
+        }
+        throw new Error(`Error ${status} al rechazar: ${message}`);
+    }
+    throw new Error("Error inesperado al rechazar el sponsor");
   }
 };
 

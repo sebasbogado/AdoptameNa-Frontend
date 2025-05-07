@@ -1,3 +1,5 @@
+import { ReportType } from "./report";
+
 export type Pagination = {
   page: number;
   size: number;
@@ -15,6 +17,7 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
+
 };
 
 export type postQueryParams = queryParams & locationQueryParams  & {
@@ -24,7 +27,7 @@ export type postQueryParams = queryParams & locationQueryParams  & {
 };
 
 export type petQueryParams = queryParams & locationQueryParams  & {
-  petStatusId?: number;
+  petStatusId?: number[];
 };
 
 export type productQueryParams = queryParams & locationQueryParams & {
@@ -46,6 +49,7 @@ export type myPetsQueryParams = queryParams & {
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+  reportType?: ReportType;
 };
 
 export type bannerQueryParams = queryParams & {
@@ -72,13 +76,39 @@ export type profileQueryParams = queryParams & {
   role?: string;
 };
 
+export type adoptionsResponseQueryParams = queryParams & {
+  petId?: number;
+  userId?: number;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  isAccepted?: boolean
+};
 export type locationQueryParams = queryParams & {
   departmentId?: string;
   districtId?: string;
   neighborhoodId?: string;
-  coordinates?: [
-    number,
-    number,
-    number, 
-  ]
+  coordinates?: number[];
 };
+
+export function buildQueryParams(params?: Record<string, any>): URLSearchParams {
+  const searchParams = new URLSearchParams();
+  if (params) {
+    for (const key in params) {
+      const typedKey = key as keyof typeof params;
+      const value = params[typedKey];
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach(val => {
+            if (val !== null && val !== undefined) {
+              searchParams.append(key, String(val));
+            }
+          });
+        } else {
+          searchParams.append(key, String(value));
+        }
+      }
+    }
+  }
+  return searchParams;
+}

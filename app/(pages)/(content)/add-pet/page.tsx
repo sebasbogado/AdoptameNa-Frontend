@@ -283,14 +283,14 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
       <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
         <NewBanner
           medias={selectedImages}
         />
         <button
           onClick={toggleFullScreen}
-          className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+          className="absolute top-2 right-24 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
         >
           <Maximize size={20} />
         </button>
@@ -369,10 +369,10 @@ export default function Page() {
       )}
 
       {/* Wrapped Card Component */}
-      <Card>
-        <CardContent className="p-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="w-full mb-2">
+      <section className="p-8">
+        <CardContent >
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+            <div className="w-fit mb-2">
               <label className="block mb-1">Estado de la mascota</label>
               <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
                 <option value="0">Seleccione el estado del animal</option>
@@ -384,7 +384,7 @@ export default function Page() {
             </div>
 
                 {/* Tipo de Animal */}
-                <div className="w-full mb-2">
+                <div className="w-fit mb-2">
                   <label className="block mb-1">Tipo de Animal</label>
                   <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
                     <option value="0">Seleccione el tipo de animal</option>
@@ -396,7 +396,7 @@ export default function Page() {
                 </div>
 
             {/* breedId */}
-            <div className="w-full mb-2f">
+            <div className="w-fit mb-2">
               <label className="block mb-1">Raza</label>
               <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
                 <option value="0">Seleccione la raza</option>
@@ -410,8 +410,8 @@ export default function Page() {
 
             {/* Título */}
             <div className="mb-2">
-              <label className="block mb-1">Título</label>
-              <input className="w-full p-2 border rounded" placeholder="Título" {...register("name")} maxLength={200} />
+              <label className="block mb-1">Nombre</label>
+              <input className="w-2/4 p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
               {errors.name && <p className="text-red-500">{errors.name.message}</p>}
             </div>
 
@@ -425,29 +425,33 @@ export default function Page() {
             {/* Fecha de cumpleanhos */}
             <div className="mb-2">
               <label className="block mb-1">Fecha de cumpleaños</label>
-              <input type="date" className="w-full p-2 border rounded" {...register("birthdate")} />
+              <input type="date" className="w-1/3 p-2 border rounded" {...register("birthdate")} />
               {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
             </div>
 
             {/* Género */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Macho</label>
+            <div className="flex gap-4 items-center mb-2">
+              <div className="flex gap-2">
               <input type="radio" value="MALE" {...register("gender")} />
-              <label>Hembra</label>
+              <label>Macho</label>
+              </div>
+              <div className="flex gap-2">
               <input type="radio" value="FEMALE" {...register("gender")} />
+              <label>Hembra</label>
+              </div>
             </div>
 
                 {/* isVaccinated */}
                 <div className="flex gap-2 items-center mb-2">
+                <input type="checkbox" {...register("isVaccinated")} />
                   <label>Está desparasitado</label>
-                  <input type="checkbox" {...register("isVaccinated")} />
                   {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
                 </div>
 
                 {/* isSterilized */}
                 <div className="flex gap-2 items-center mb-2">
-                  <label>Está esterilizado</label>
                   <input type="checkbox" {...register("isSterilized")} />
+                  <label>Está esterilizado</label>
                   {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
                 </div>
 
@@ -484,7 +488,7 @@ export default function Page() {
             </div>
           </form>
         </CardContent>
-      </Card>
+      </section>
       <ConfirmationModal
         isOpen={isModalOpen}
         title="Confirmar creación"

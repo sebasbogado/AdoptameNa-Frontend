@@ -11,6 +11,7 @@ interface LabeledInputProps {
   min?: number;
   maxLength?: number; // controla cuántos dígitos queremos mostrar bien
   debounceDelay?: number; // Controla el tiempo de debounce
+  className?: string; // Nueva prop para clases CSS personalizadas
 }
 
 const formatNumber = (num: number) => {
@@ -31,6 +32,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   min = 0,
   maxLength = 15, //numeros visibles + puntos separadores.
   debounceDelay = 500, // Valor por defecto de 500ms de debounce
+  className = '', // Valor por defecto vacío
 }) => {
   const [inputValue, setInputValue] = useState(value !== null ? formatNumber(value) : ''); 
   const debouncedOnChange = useDebounce((val: number | null) => {
@@ -68,11 +70,11 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   }, [value]); // Cuando `value` cambie, se ejecuta este efecto
 
   return (
-    <div className="flex flex-col col-span-1 w-full">
+    <div className={`flex flex-col col-span-1 ${className}`}>
       {label && (
         <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
       )}
-      <div className="relative w-full flex items-center">
+      <div className="relative flex items-center">
         {/* Icono ₲ */}
         <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
           ₲
