@@ -8,6 +8,7 @@ import Button from "@/components/buttons/button";
 import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
 import { Post } from "@/types/post";
 import { Comment } from "@/types/comment";
+import { ITEM_TYPE } from "@/types/constants";
 
 type CardButtonProps = {
     post?: any;
@@ -16,7 +17,7 @@ type CardButtonProps = {
     isReportedPage?: boolean;
     handleAprove?: () => void;
     handleDesaprove?: () => void;
-    type: string; // 'post', 'pet', 'product', or 'comment'
+    type: ITEM_TYPE;
     isPost?: boolean;
 };
 
