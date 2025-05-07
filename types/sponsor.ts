@@ -21,6 +21,7 @@ export type Sponsor = {
   logoId: number | null; // Hacer opcional/nullable
   bannerId: number | null; // Hacer opcional/nullable
   isActive: boolean;
+  logoUrl?: string;
   status: SponsorStatus;
 };
 

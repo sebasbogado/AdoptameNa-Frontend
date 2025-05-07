@@ -8,11 +8,10 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 
 interface ProductHeaderProps {
-  product?: Product
+  product: Product
 }
 
 const handleWhatsAppClick = (phoneNumber: string) => {
-  console.log("WhatsApp clicked");
   const message = "Hola, estoy interesado en tu producto";
   const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
   window.open(url, "_blank");
@@ -37,10 +36,13 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
             Contactar
           </Button>
         )}
-        <ReportButton size="md" className="mt-4" />
+        <ReportButton size="md" idProduct={product?.id.toString()} className="mt-4" />
         {isOwner && (
-          <EditButton size="md" isEditing={false} className="mt-4" />
+          <Link href={`\/edit-product/${product?.id}`}>
+            <EditButton size="md" isEditing={false} className="mt-4" />
+          </Link>
         )}
+
       </div>
     </div >
   );

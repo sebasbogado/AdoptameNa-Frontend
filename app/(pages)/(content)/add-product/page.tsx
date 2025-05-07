@@ -158,11 +158,11 @@ export default function Page() {
         // Redirige AHORA usando el ID de la RESPUESTA
         //router.push(`/product/${response.id}`);
         router.push("/marketplace");
-    } else {
+      } else {
         // Si no hay ID en la respuesta
         console.warn("Producto creado, pero no se recibió ID en la respuesta. Redirigiendo al dashboard.");
         router.push("/dashboard"); // O a donde sea apropiado como fallback
-    }
+      }
       setValidatedData(null);
     } catch (error) {
       console.error("Error creating product:", error);
@@ -181,6 +181,12 @@ export default function Page() {
 
       if (!authToken) {
         throw new Error("El token de autenticación es requerido");
+      }
+
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        return;
       }
 
       // Verifica la cantidad de imagens que se pueden subir
@@ -255,7 +261,7 @@ export default function Page() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
       {errorMessage && (
         <div>
           <Alert
@@ -326,90 +332,113 @@ export default function Page() {
           <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
         </label>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <label className="block text-sm font-medium">Título</label>
-        <input
-          type="text"
-          {...register("title")}
-          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
+      <form className="flex flex-col gap-6 p-8" onSubmit={handleSubmit(onSubmit)}>
+        {/* Título */}
+        <div className="flex flex-col gap-2">
+          <label className="block">Título</label>
+          <input
+            type="text"
+            {...register("title")}
+            className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
+        </div>
         {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
-        <label className="block text-sm font-medium">Descripción</label>
-        <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-        />
+        {/* Descripción */}
+        <div className="flex flex-col gap-2">
+          <label className="block">Descripción</label>
+          <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+          />
+        </div>
         {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-        <label className="block text-sm font-medium">Tipo de animal</label>
-        <MultiSelect
-          options={animals}
-          selected={selectedAnimals}
-          onChange={(selected) => {
-            setSelectedAnimals(selected);
-            setValue("animalsId", selected.map((animal) => animal.id));
-          }}
-          placeholder="Seleccionar animales"
-        />
+
+        {/* Tipo de animal */}
+        <div className="flex flex-col gap-2">
+          <label className="block">Tipo de animal</label>
+          <MultiSelect
+            options={animals}
+            selected={selectedAnimals}
+            onChange={(selected) => {
+              setSelectedAnimals(selected);
+              setValue("animalsId", selected.map((animal) => animal.id))
+            }}
+            placeholder="Seleccionar animales"
+          />
+        </div>
         {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
 
+        {/* Estado */}
+        <div className="flex flex-col gap-2">
+          <label className="block">Estado</label>
+          <select {...register("condition")} className={`w-1/4 p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
+            {Object.values(ProductCondition).map(cond => (
+              <option key={cond} value={cond}>{capitalize(cond)}</option>
+            ))}
+          </select>
+          {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+        </div>
 
-        <label className="block text-sm font-medium">Estado</label>
-        <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
-          {Object.values(ProductCondition).map(cond => (
-            <option key={cond} value={cond}>{capitalize(cond)}</option>
-          ))}
-        </select>
-        {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+        {/* Categoría */}
+        <div className="flex flex-col gap-2">
+          <label className="block">Categoría</label>
+          <select {...register("categoryId", { valueAsNumber: true })} className={`w-fit p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
+            <option value={0}>Seleccionar categoría</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+          {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+        </div>
 
-        <label className="block text-sm font-medium">Categoría</label>
-        <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
-          <option value={0}>Seleccionar categoría</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-        {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
-
-        <label className="text-sm font-medium">Contacto</label>
-        <input
-          {...register("contactNumber")}
-          className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-          onKeyDown={(e) => {
-            if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
-              e.preventDefault();
+        {/* Contacto */}
+        <div className="flex flex-col gap-2">
+          <label>Contacto</label>
+          <input
+            {...register("contactNumber")}
+            className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+            onKeyDown={(e) => {
+              if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                e.preventDefault();
+              }
             }
-          }
-          }
-        />
+            }
+          />
+        </div>
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
         {/*--- Input de Precio --- */}
-        <Controller
-          name="price" // El nombre del campo en tu schema/formValues
-          control={control}
-          render={({ field, fieldState }) => (
-            // field: { onChange, onBlur, value, name, ref }
-            // fieldState: { invalid, isTouched, isDirty, error }
-            <div> {/* Envuelve para posicionar el error correctamente */}
-              <LabeledInput
-                label="Precio" // Pasas la etiqueta como prop
-                value={field.value} // Conectas el valor de RHF al componente
-                onChange={field.onChange} // Conectas el onChange de RHF al componente
-                placeholder="0"
-              />
-              {/* Muestras el error asociado a este campo desde RHF */}
-              {fieldState.error && (
-                <p className="text-red-500 text-sm mt-1">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </div>
-          )}
-        />
+        <div className="flex flex-col gap-2">
+          <Controller
+            name="price" // El nombre del campo en tu schema/formValues
+            control={control}
+            render={({ field, fieldState }) => (
+              // field: { onChange, onBlur, value, name, ref }
+              // fieldState: { invalid, isTouched, isDirty, error }
+              <div> {/* Envuelve para posicionar el error correctamente */}
+                <LabeledInput
+                  label="Precio" // Pasas la etiqueta como prop
+                  value={field.value} // Conectas el valor de RHF al componente
+                  onChange={field.onChange} // Conectas el onChange de RHF al componente
+                  placeholder="0"
+                  className="w-1/4" // Hacemos el input más pequeño
+                />
+                {/* Muestras el error asociado a este campo desde RHF */}
+                {fieldState.error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+        </div>
 
         {/*Mapa */}
-        <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-          <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+        <div className="flex flex-col gap-2">
+          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+            <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+          </div>
+          {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
         </div>
-        {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
         {/*Buttons */}
         <div className="flex justify-end items-center mt-6 gap-10">

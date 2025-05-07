@@ -92,18 +92,26 @@ export default function Page() {
 
     return (
         <div className="flex flex-col gap-5">
-            <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <LocationFilter 
-                        user={user} 
-                        onFilterChange={handleLocationFilterChange} 
-                    />
-                    <LabeledSelect
-                        label="Etiquetas"
-                        options={tagsList}
-                        selected={selectedTag}
-                        setSelected={setSelectedTag}
-                    />
+            <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2 lg:gap-3">
+                    {user?.location ? (
+                        <div className="w-full md:w-64 lg:w-1/2 flex-shrink-0">
+                            <LocationFilter 
+                                user={user} 
+                                onFilterChange={handleLocationFilterChange} 
+                            />
+                        </div>
+                    ) : (
+                        <div className="hidden lg:block lg:w-1/2 flex-shrink-0"></div>
+                    )}
+                    <div className="w-full md:w-64 lg:w-1/2 flex-shrink-0">
+                        <LabeledSelect
+                            label="Etiquetas"
+                            options={tagsList}
+                            selected={selectedTag}
+                            setSelected={setSelectedTag}
+                        />
+                    </div>
                 </div>
             </div>
 

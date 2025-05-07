@@ -19,6 +19,7 @@ export const getAllSponsors = async (
   token: string,
   page: number = 0,
   size: number = 10,
+  userId?: number,
   status?: string
 ): Promise<PaginatedResponse<Sponsor>> => {
   try {
@@ -29,6 +30,7 @@ export const getAllSponsors = async (
       params: {
         page,
         size,
+        ...(userId && { userId }),
         ...(status && { status })
       },
     });

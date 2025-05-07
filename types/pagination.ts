@@ -1,3 +1,5 @@
+import { ReportType } from "./report";
+
 export type Pagination = {
   page: number;
   size: number;
@@ -25,6 +27,13 @@ export type postQueryParams = queryParams & locationQueryParams  & {
 };
 
 export type petQueryParams = queryParams & locationQueryParams  & {
+  userId?: number;
+  breedId?: number;
+  minAge?: number;
+  maxAge?: number;
+  isSterilized?: boolean;
+  isVaccinated?: boolean;
+  gender?: string;
   petStatusId?: number[];
 };
 
@@ -49,6 +58,7 @@ export type reportQueryParams = queryParams & {
   idPet?: number;
   idProduct?: number;
   idComment?: number;
+  reportType?: ReportType;
 };
 
 export type bannerQueryParams = queryParams & {
