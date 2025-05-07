@@ -49,7 +49,7 @@ const DonationModal: React.FC<DonationModalProps> = ({
     setLoading(true);
     onConfirm(data);
     setLoading(false);
-    reset(); 
+    reset();
     onClose();
   };
 
@@ -68,23 +68,23 @@ const DonationModal: React.FC<DonationModalProps> = ({
       </div>
 
       <div className="m-2 p-2">
-  <LabeledInput
-    label="¿Cuánto desea donar?"
-    placeholder="0"
-    value={getValues("amount") || null} 
-    onChange={(value: number | null) => {
-      if (value !== null && value !== undefined && value > 0) {
-        setValue("amount", value);
-        clearErrors("amount");
-      }
-    }}
-  />
-  {errors.amount && (
-    <p className="text-red-500 text-sm mt-1">
-      {errors.amount.message}
-    </p>
-  )}
-</div>
+        <LabeledInput
+          label="¿Cuánto desea donar?"
+          placeholder="0"
+          value={getValues("amount") || null}
+          onChange={(value: number | null) => {
+            if (value !== null && value !== undefined && value > 0) {
+              setValue("amount", value);
+              clearErrors("amount");
+            }
+          }}
+        />
+        {errors.amount && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.amount.message}
+          </p>
+        )}
+      </div>
 
 
       <div className="mt-4 flex justify-end space-x-2">

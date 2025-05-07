@@ -1,5 +1,5 @@
 import { PaginatedResponse, productQueryParams, } from "@/types/pagination";
-import { CreateProduct, Product } from "@/types/product";
+import { CreateProduct, Product, UpdateProduct } from "@/types/product";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
 
@@ -64,5 +64,45 @@ export const getProduct = async (id: string): Promise<Product> => {
       throw new Error(`Producto con ID ${id} no encontrado`);
     }
     throw new Error(error.message || "Error al obtener producto");
+  }
+}
+
+export async function updateProduct(
+  id: string,
+  productData: UpdateProduct,
+  token: string
+) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, productData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al editar Producto");
+  }
+}
+
+export async function deleteProduct(id: string, token: string) {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al eliminar Producto");
   }
 }
