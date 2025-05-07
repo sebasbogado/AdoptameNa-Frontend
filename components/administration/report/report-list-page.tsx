@@ -53,17 +53,9 @@ export default function ReportListPage<T>({
         </div>
       ) : data.length !== 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-          {type === ITEM_TYPE.COMMENT ? (
-            // Rama para comentarios
-            data.map((item, index) => (
-              <ReportCommentCard key={index} comment={item as Comment} /* otras props para comentario */ />
-            ))
-          ) : (
-            // Rama para otros tipos
-            data.map((item, index) => (
-              <CardReport key={index} type={type} post={item} /* otras props para post */ />
-            ))
-          )}
+          {data.map((item, index) => (
+            <CardReport key={index} type={type} post={item} isPost={isPost} />
+          ))}
         </div>
       ) : (
         <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
