@@ -31,3 +31,16 @@ export interface CreateProduct {
   mediaIds: number[];
   userId: number;
 }
+
+export interface UpdateProduct {
+  title: string;
+  content: string;
+  locationCoordinates: string;
+  contactNumber: string;
+  price: number;
+  categoryId: number;
+  condition: ProductCondition;
+  animalIds: number[];
+  mediaIds: number[];
+  userId: number;
+}
