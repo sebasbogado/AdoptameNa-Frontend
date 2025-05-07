@@ -30,7 +30,7 @@ export default function ReceivedRequestsPage() {
                             <PawPrint size={48} className="text-black" />
                         </div>
                         <h2 className="text-xl font-semibold mb-2">Mascotas</h2>
-                        <p className="text-gray-600 text-center">Ver y gestionar tus reportes de mascotas</p>
+                        <p className="text-gray-600 text-center">Ver tus reportes de mascotas</p>
                     </div>
                 </Link>
                 <Link href="/profile/report/posts">
@@ -39,7 +39,7 @@ export default function ReceivedRequestsPage() {
                             <FileX size={48} className="text-black" />
                         </div>
                         <h2 className="text-xl font-semibold mb-2">Publicaciones</h2>
-                        <p className="text-gray-600 text-center">Ver y gestionar tus reportes de publicaciones</p>
+                        <p className="text-gray-600 text-center">Ver tus reportes de publicaciones</p>
                     </div>
                 </Link>
                 <Link href="/profile/report">
@@ -48,7 +48,7 @@ export default function ReceivedRequestsPage() {
                             <MessageCircleX size={48} className="text-black" />
                         </div>
                         <h2 className="text-xl font-semibold mb-2">Comentarios</h2>
-                        <p className="text-gray-600 text-center">Ver y gestionar tus reportes de comentarios</p>
+                        <p className="text-gray-600 text-center">Ver tus reportes de comentarios</p>
                     </div>
                 </Link>
             </div>
