@@ -34,8 +34,7 @@ export default function ReportsPost() {
     const fetchData = async () => {
       try {
         const [commentData, reportData] = await Promise.all([
-            //AQUI NO TRAE TODO LA INFORMACION NECESARIA PAR COMMENTS
-          getCommentById(commentId.toString()),
+          getCommentById(authToken, commentId.toString()),
           getReportsById(authToken, { idComment: commentId })
         ]);
 

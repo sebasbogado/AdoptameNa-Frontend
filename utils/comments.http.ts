@@ -149,10 +149,11 @@ export const getPetComments = async (
   return response.data;
 };
 
-export const getCommentById = async (id: string): Promise<Comment> => {
+export const getCommentById = async (token: string, id: string): Promise<Comment> => {
   try {
     const response = await axios.get(`${API_URL}/${id}`, {
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
