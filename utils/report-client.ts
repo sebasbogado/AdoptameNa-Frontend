@@ -282,3 +282,19 @@ export const banComment = async (id: number, token: string) => {
     throw new Error(error.response?.data?.message || "Error al bloquear post")
   }
 }
+
+export const deleteReportsByCommentId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byCommentId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
