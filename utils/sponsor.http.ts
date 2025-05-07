@@ -200,3 +200,67 @@ export const deleteSponsor = async (
     throw new Error("Error inesperado al eliminar el sponsor");
   }
 };
+
+export const getSponsorById = async (
+  token: string,
+  sponsorId: number
+): Promise<Sponsor> => {
+  try {
+    const response = await axios.get(`${API_URL}/${sponsorId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Accept': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 401) {
+        throw new Error('No autorizado para ver el sponsor.');
+      }
+      if (status === 404) {
+        throw new Error('Sponsor no encontrado.');
+      }
+      throw new Error(error.response?.data?.message || error.message);
+    }
+    throw new Error('Error inesperado al obtener el sponsor');
+  }
+};
+
+export const updateSponsor = async (
+  token: string,
+  sponsorId: number,
+  data: {
+    reason: string;
+    contact: string;
+    logoId: number;
+    bannerId?: number;
+  }
+): Promise<Sponsor> => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/${sponsorId}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 401) {
+        throw new Error('No autorizado para editar el sponsor.');
+      }
+      if (status === 404) {
+        throw new Error('Sponsor no encontrado.');
+      }
+      throw new Error(error.response?.data?.message || error.message);
+    }
+    throw new Error('Error inesperado al editar el sponsor');
+  }
+};
