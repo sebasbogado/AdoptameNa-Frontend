@@ -3,7 +3,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getReportsById, deleteReport, deleteReportsByProductId, banProduct, banComment } from "@/utils/report-client";
+import { getReportsById, deleteReport, banComment, deleteReportsByCommentId } from "@/utils/report-client";
 import ReportDetailPage from "@/components/administration/report/report-detail";
 import { Report } from "@/types/report";
 import NotFound from "@/app/not-found";
@@ -34,10 +34,11 @@ export default function ReportsPost() {
     const fetchData = async () => {
       try {
         const [commentData, reportData] = await Promise.all([
-            //AQUI NO TRAE TODO LA INFORMACION NECESARIA PARA COMMENTS
+            //AQUI NO TRAE TODO LA INFORMACION NECESARIA PAR COMMENTS
           getCommentById(commentId.toString()),
-          getReportsById(authToken, { idProduct: commentId })
+          getReportsById(authToken, { idComment: commentId })
         ]);
+
         setComment(commentData);
         setReports(reportData.data);
       } catch (err) {
@@ -53,7 +54,7 @@ export default function ReportsPost() {
   const handleAprove = async () => {
     if (!authToken || !comment) return;
     try {
-      await deleteReportsByProductId(comment.id, authToken);
+      await deleteReportsByCommentId(comment.id, authToken);
       setReports([]);
       setSuccessMessage("Comentario aprobado exitosamente");
       setTimeout(() => router.push("/administration/report/comments"), 5000);
