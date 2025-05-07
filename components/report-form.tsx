@@ -15,9 +15,10 @@ interface ReportFormProps {
   handleClose: () => void;
   idComment?: string;
   idEntity?: string; //id for post or pet
+  idProduct?: string;
   isPet?: boolean;
 }
-const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntity, isPet}) => {
+const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntity, idProduct, isPet}) => {
   const { authToken, user } = useAuth();
   const params = useParams();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -28,6 +29,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntit
     defaultValues: {
       idPost: idEntity && !isPet ? idEntity : "",
       idPet: idEntity && isPet ? idEntity : "",
+      idProduct: idProduct ? idProduct : "",
       idUser: user?.id ? user?.id : 0,
       idComment: idComment ? idComment : undefined,
     }
