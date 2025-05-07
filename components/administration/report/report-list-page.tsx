@@ -1,6 +1,6 @@
 'use client';
 
-import { Car, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
 import { PaginatedResponse } from '@/types/pagination';
@@ -8,8 +8,6 @@ import React from 'react';
 import SectionAdmin from '../section';
 import CardReport from "@/components/administration/report/card-button";
 import { ITEM_TYPE } from '@/types/constants';
-import ReportCommentCard from './report-comment-card';
-import { Comment } from '@/types/comment';
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
