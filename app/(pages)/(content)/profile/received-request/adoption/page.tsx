@@ -16,9 +16,7 @@ export default function AdoptionRequestsPage() {
   useEffect(() => {
     if (!authLoading && !authToken) {
       router.push("/auth/login");
-    } else if (user && user.role !== "admin") {
-      router.push("/dashboard");
-    }
+    } 
   }, [authLoading, authToken, user]);
 
   return (
