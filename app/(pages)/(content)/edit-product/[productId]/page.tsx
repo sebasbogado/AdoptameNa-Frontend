@@ -190,7 +190,7 @@ export default function Page() {
             await updateProduct(String(product.id), updatedFormData as UpdateProduct, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
             setTimeout(() => {
-                router.push(`/products/${product.id}`); // Redirige a la vista del post
+                router.push(`/marketplace/${product.id}`); // Redirige a la vista del post
             }, 1500);
         } catch (error) {
             console.error('Error al actualizar el producto', error);
@@ -237,7 +237,7 @@ export default function Page() {
         if (!product?.id) {
             router.push("/dashboard"); // Fallback si no hay ID
         } else {
-            router.push(`/products/${product.id}`);
+            router.push(`/marketplace/${product.id}`);
         }
     };
 
