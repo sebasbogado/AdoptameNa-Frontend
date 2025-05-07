@@ -25,3 +25,10 @@ export interface ReportPost {
   description: string
   reportDate: string
 }
+
+export enum ReportType {
+    POST = 'POST',
+    PET = 'PET',
+    PRODUCT = 'PRODUCT',
+    COMMENT = 'COMMENT'
+}
