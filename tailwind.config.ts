@@ -48,6 +48,9 @@ module.exports = withMT({
         //Brand colors
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
+        //Text colors
+        "text-primary": "var(--color-text-primary)",
+        "text-secondary": "var(--color-text-secondary)",
       },
       fontFamily: {
         roboto: "var( --font-family)",

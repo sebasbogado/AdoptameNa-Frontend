@@ -1,6 +1,6 @@
 import page from "@/app/(pages)/(content)/administration/settings/page";
-import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
-import { CreatePost, Post, RestorePost, UpdatePost } from "@/types/post";
+import { buildQueryParams, PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
+import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts`;
@@ -8,14 +8,9 @@ export const getPosts = async (
   queryParams?: postQueryParams
 ): Promise<PaginatedResponse<Post>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(API_URL, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        userId: queryParams?.userId,
-        postTypeId: queryParams?.postTypeId,
-        tagIds: queryParams?.tagIds,
-      },
+      params: params, 
       headers: {
         "Content-Type": "application/json",
       },

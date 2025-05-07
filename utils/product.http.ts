@@ -1,4 +1,4 @@
-import { PaginatedResponse, productQueryParams,  } from "@/types/pagination";
+import { PaginatedResponse, productQueryParams, } from "@/types/pagination";
 import { CreateProduct, Product } from "@/types/product";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
@@ -48,6 +48,22 @@ export const createProduct = async (product: CreateProduct, authToken: string) =
       throw new Error("Error al crear el producto");
     }
     throw new Error(error.message || "Error al crear el producto");
+  }
+}
+
+export const getProduct = async (id: string): Promise<Product> => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error(`Producto con ID ${id} no encontrado`);
+    }
+    throw new Error(error.message || "Error al obtener producto");
   }
 }
 

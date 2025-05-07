@@ -276,7 +276,7 @@ export default function Page() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
             <NewBanner
                 medias={selectedImages}
             />
@@ -351,62 +351,73 @@ export default function Page() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 p-8">
                 {/* Tipo de publicación */}
-                <label className="block text-sm font-medium">Tipo de publicación <span className="text-red-500">*</span></label>
-                <select
-                    {...register("postTypeId", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 
+                <div className="flex flex-col gap-2">
+                    <label className="block">Tipo de publicación <span className="text-red-500">*</span></label>
+                    <select 
+                        {...register("postTypeId", { valueAsNumber: true })}
+                        className={`w-fit p-2 border rounded mb-4 
                         ${errors.postTypeId ? 'border-red-500' : ''} 
                         ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
-                >
-                    <option disabled value={0}>Seleccione un tipo</option>
-                    {postTypes.map((type) => (
-                        <option key={type.id} value={type.id}>{type.name}</option>
-                    ))}
-                </select>
+                    >
+
+                        <option disabled value={0}>Seleccione un tipo</option>
+                        {postTypes.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                </div>
                 {errors.postTypeId && <p className="text-red-500">{errors.postTypeId.message}</p>}
 
                 {/* Tags (MultiSelect) */}
-                <label className="block text-sm font-medium">Tags</label>
-                <MultiSelect
-                    options={filteredTags} // <-- Usa los tags filtrados
-                    selected={selectedTags}
-                    onChange={(selected) => {
-                        setSelectedTags(selected);
-                        setValue("tagIds", selected.map((animal) => animal.id));
-                    }}
-                    placeholder="Seleccionar tags"
-                />
+                <div className="flex flex-col gap-2">
+                    <label className="block">Tags</label>
+                    <MultiSelect
+                        options={filteredTags} // <-- Usa los tags filtrados
+                        selected={selectedTags}
+                        onChange={(selected) => {
+                            setSelectedTags(selected);
+                            setValue("tagIds", selected.map((animal) => animal.id));
+                        }}
+                        placeholder="Seleccionar tags"
+                    />
+                </div>
                 {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
 
                 {/* Título */}
-                <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    placeholder="Titulo"
-                    {...register("title")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
-                />
+                <div className="flex flex-col gap-2">
+                    <label className="block">Título <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        placeholder="Titulo"
+                        {...register("title")}
+                        className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
+                    />
+                </div>
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
                 {/* Descripción */}
-                <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
-                <textarea
-                    {...register("content")}
-                    placeholder="Descripción"
-                    className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                />
+                <div className="flex flex-col gap-2">
+                    <label className="block">Descripción <span className="text-red-500">*</span></label>
+                    <textarea
+                        {...register("content")}
+                        placeholder="Descripción"
+                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+                    />
+                </div>
                 {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
 
                 {/* Contacto */}
-                <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    placeholder="0000123456"
-                    {...register("contactNumber")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                />
+                <div className="flex flex-col gap-2">
+                    <label className="block">Número de contacto <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        placeholder="0000123456"
+                        {...register("contactNumber")}
+                        className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+                    />
+                </div>
                 {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                 {/* Mapa */}
@@ -441,8 +452,8 @@ export default function Page() {
                         <Button
                             type="submit"
                             variant="cta"
-                            className="rounded hover:bg-purple-700"
-                            disabled={loading}
+                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            disabled={loading || selectedTags.length >= MAX_IMAGES}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
                         </Button>
