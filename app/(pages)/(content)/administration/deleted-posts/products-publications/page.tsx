@@ -14,9 +14,9 @@ export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
-    const [authorOptions, setAuthorOptions] = useState<string[]>([]);
-    const [allAuthorMap, setAllAuthorMap] = useState<Record<string, number>>({});
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+    const [allCategoryMap, setAllCategoryMap] = useState<Record<string, number>>({});
 
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
@@ -34,7 +34,7 @@ export default function Page() {
             return await getDeletedProducts(authToken, {
                 page,
                 size,
-                userId: filters?.userId ?? undefined,
+                categoryId: filters?.categoryId,
             });
         },
         initialPage: 1,
@@ -57,17 +57,17 @@ export default function Page() {
                     authToken ? getDeletedProducts(authToken) : Promise.reject(new Error("Authentication token is missing"))
                 ]);
 
-                const authorMap: Record<string, number> = {};
+                const categoryMap: Record<string, number> = {};
                 productsResponse.data.forEach(product => {
-                    if (product.userFullName) {
-                        authorMap[product.userFullName] = product.id;
+                    if (product.category.name) {
+                        categoryMap[product.category.name] = product.category.id;
                     }
                 });
 
-                const uniqueAuthor = Object.keys(authorMap).sort();
+                const uniqueCategory = Object.keys(categoryMap).sort();
 
-                setAuthorOptions(uniqueAuthor);
-                setAllAuthorMap(authorMap);
+                setCategoryOptions(uniqueCategory);
+                setAllCategoryMap(categoryMap);
                 setPageSize(productsResponse.pagination.size);
             } catch (err) {
                 setPostError("Error al obtener las publicaciones")
@@ -78,26 +78,26 @@ export default function Page() {
     }, []);
 
     const resetFilters = () => {
-        setSelectedAuthor(null);
+        setSelectedCategory(null);
         updateFilters({});
     };
 
     useEffect(() => {
-        const authorId = selectedAuthor && selectedAuthor !== "Todos" ? allAuthorMap[selectedAuthor] : undefined;
+        const categoryId = selectedCategory && selectedCategory !== "Todos" ? allCategoryMap[selectedCategory] : undefined;
 
-        updateFilters({ authorId });
+        updateFilters({ categoryId });
         handlePageChange(1);
-    }, [selectedAuthor]);
+    }, [selectedCategory]);
 
     return (
         <div className="p-6">
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
-                        label="Autor"
-                        options={["Todos", ...authorOptions]}
-                        selected={selectedAuthor}
-                        setSelected={setSelectedAuthor}
+                        label="Categoria    "
+                        options={["Todos", ...categoryOptions]}
+                        selected={selectedCategory}
+                        setSelected={setSelectedCategory}
                     />
 
                     <ResetFiltersButton onClick={resetFilters} />
