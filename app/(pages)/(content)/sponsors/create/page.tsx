@@ -32,7 +32,7 @@ const initialFormState: SponsorFormData = {
 const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
 export default function SponsorFormPage() {
-    const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<SponsorFormData>({
+    const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<SponsorFormData>({
         defaultValues: initialFormState
     });
     const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
@@ -45,6 +45,7 @@ export default function SponsorFormPage() {
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showLogoError, setShowLogoError] = useState(false);
+    const [bannerResetKey, setBannerResetKey] = useState(0);
     
     const { authToken } = useAuth();
     const router = useRouter();
@@ -139,6 +140,8 @@ export default function SponsorFormPage() {
             setLogoPreviewUrl(null);
             setBannerPreviewUrl(null);
             setShowLogoError(false);
+            reset();
+            setBannerResetKey(prev => prev + 1);
 
         } catch (error) {
             console.error("Error al enviar solicitud:", error);
@@ -292,6 +295,7 @@ export default function SponsorFormPage() {
                                 onImageUploaded={handleBannerUpload}
                                 initialImage={bannerPreviewUrl || undefined}
                                 token={authToken || ''}
+                                resetKey={bannerResetKey}
                             />
                         </div>
                     </div>

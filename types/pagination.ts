@@ -1,3 +1,5 @@
+import { ReportType } from "./report";
+
 export type Pagination = {
   page: number;
   size: number;
@@ -47,6 +49,7 @@ export type myPetsQueryParams = queryParams & {
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+  reportType?: ReportType;
 };
 
 export type bannerQueryParams = queryParams & {

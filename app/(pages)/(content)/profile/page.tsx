@@ -259,7 +259,7 @@ export default function ProfilePage() {
                     onClose={() => setIsOpen(false)}
                     onConfirm={handleConfirmSave}
                 />}
-            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
+            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50">
                 <div className="grid grid-cols-1 gap-4 p-6">
 
                     {/* User Info */}
@@ -274,7 +274,8 @@ export default function ProfilePage() {
                     />
 
                     {/* Action Buttons */}
-                    <div className="absolute top-0 right-5 mr-10 mt-4 z-10 flex justify-end gap-2 items-center">
+                    <div className="relative top-[-25vh] right-5 mr-10 mt-12 z-50 flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
+
                         <EditButton
                             size="lg"
                             isEditing={isEditing}
