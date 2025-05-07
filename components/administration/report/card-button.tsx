@@ -23,7 +23,6 @@ type CardButtonProps = {
 
 export default function CardButtons({
     post,
-    comment,
     className,
     isReportedPage,
     handleAprove,
@@ -40,7 +39,7 @@ export default function CardButtons({
             case "post":
                 return `/administration/report/posts/${post?.id}`;
             case "comment":
-                return `/administration/report/comments/${comment?.id}`;
+                return `/administration/report/comments/${post?.id}`;
             default:
                 return "#";
         }
@@ -48,9 +47,9 @@ export default function CardButtons({
 
     return (
         <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            {type === "comment" && comment ? (
+            {type === "comment" ? (
                 <div onClick={(e) => e.stopPropagation()}>
-                    <ReportCommentCard comment={comment} />
+                    <ReportCommentCard comment={post} />
                 </div>
             ) : (
                 post && (
