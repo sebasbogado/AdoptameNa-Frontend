@@ -27,6 +27,13 @@ export type postQueryParams = queryParams & locationQueryParams  & {
 };
 
 export type petQueryParams = queryParams & locationQueryParams  & {
+  userId?: number;
+  breedId?: number;
+  minAge?: number;
+  maxAge?: number;
+  isSterilized?: boolean;
+  isVaccinated?: boolean;
+  gender?: string;
   petStatusId?: number[];
 };
 
