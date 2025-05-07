@@ -5,19 +5,20 @@ import PetCard from "@/components/petCard/pet-card";
 import { useRouter } from "next/navigation";;
 import Button from "@/components/buttons/button";
 import { ArchiveRestore } from "lucide-react";
+import { ITEM_TYPE } from "@/types/constants";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
-type ItemType = 'post' | 'pet' | 'product';
 
 type PetCardProps = {
     item: any;
-    itemType: string;
+    itemType: ITEM_TYPE;
     className?: string;
     onRestore: (id: string | number, type: string) => void;
+    disabled?: boolean;
 };
 
-export default function CardDeleted({ item, itemType, className, onRestore }: PetCardProps) {
+export default function CardDeleted({ item, itemType, className, onRestore, disabled }: PetCardProps) {
 
     const handleRestoreClick = () => {
         // Llama a onRestore pasando tanto el ID como el TIPO
@@ -26,7 +27,7 @@ export default function CardDeleted({ item, itemType, className, onRestore }: Pe
 
     return (
         <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            <PetCard post={item} />
+            <PetCard post={item} disabled={disabled}/>
             <div className="m-4 flex justify-center">
                 <Button
                     onClick={handleRestoreClick}

@@ -9,8 +9,9 @@ import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { Product } from '@/types/product';
 import { restorePost } from '@/utils/posts.http';
-import { restorePet } from '@/utils/pets.http';
+// import { restorePet } from '@/utils/pets.http';
 import { useAuth } from '@/contexts/auth-context';
+import { ITEM_TYPE } from '@/types/constants';
 
 interface Props<T> {
   items: T[];
@@ -19,7 +20,8 @@ interface Props<T> {
   currentPage: number;
   totalPages: number;
   handlePageChange: (page: number) => void;
-  itemType: string;
+  itemType: ITEM_TYPE;
+  disabled?: boolean;
 }
 
 export default function DeletedListPage<T extends Post | Pet | Product>({
@@ -30,14 +32,13 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
   totalPages,
   handlePageChange,
   itemType,
+  disabled = false,
 }: Props<T>) {
 
   const { authToken } = useAuth();
 
   const handleRestore = async (id: string, type: string) => {
-    if (!authToken) { /* ... manejo de error ... */ return; }
-
-    console.log(`Recibido para restaurar - ID: ${id}, Tipo: ${type}`); // Ahora sabes el tipo!
+    if (!authToken) { return; }
 
     try {
       const payload = { isDeleted: false };
@@ -45,10 +46,10 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
       // Usa el tipo para llamar a la API correcta
       switch (type) {
         case 'post':
-          await restorePost(id, payload, authToken);
+          // await restorePost(id, payload, authToken);
           break;
         case 'pet':
-          await restorePet(id, payload, authToken);
+          // await restorePet(id, payload, authToken);
           break;
         case 'product':
           //await updateProduct(id, payload, authToken);
@@ -57,13 +58,7 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
           console.error(`Tipo desconocido: ${type}`);
           throw new Error("Tipo de item no soportado");
       }
-
-      // Actualiza el estado local para quitar el item de la lista
-      // setData(prevData => prevData.filter(item => item.id !== id)); // Ajusta según tu estado
-      handlePageChange(currentPage); // O refresca datos como lo hacías antes
-
-      // Notificación de éxito
-      console.log(`Éxito: ${type} con ID ${id} restaurado.`);
+      // handlePageChange(currentPage); // O refresca datos como lo hacías antes
 
     } catch (error) {
       console.error(`Error restaurando ${type} ID ${id}:`, error);
@@ -95,6 +90,7 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
               item={item}
               itemType={itemType}
               onRestore={() => handleRestore(String(item.id), itemType)}
+              disabled={disabled}
             />
           ))}
         </div>
