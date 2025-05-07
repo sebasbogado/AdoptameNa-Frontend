@@ -26,24 +26,26 @@ export default function ReportCommentCard({ comment, className }: ReportCommentC
 
     return (
         <div className={clsx("flex gap-3 p-4 bg-white rounded-lg shadow-md", className)}>
-             <UserAvatar user={comment.user} />
-          
+            {/* <UserAvatar user={comment.user} /> */}
 
             {/* Contenido del comentario */}
             <div className="flex-1  w-full md:w-[1rem]">
                 <div className="flex flex-col">
-                  <div className="flex justify-between align-center ">
-                    {/* Nombre del usuario */}
-                    <div className="font-medium text-gray-800">{comment.user.fullName}</div>
-                    {/* Fecha del comentario */}
-                    <div className="text-sm flex   text-gray-500">
-                      <div className="flex  items-center">
-                        {getTimeAgo(comment.createdAt)}
-                      </div>
-                      
-                      </div>
+                    <div className="flex justify-between align-center ">
+                        {/* Nombre del usuario */}
+                        {/* <div className="font-medium text-gray-800">{comment.user.fullName}</div> */}
+                        <div className="font-medium text-gray-800">
+                            {comment?.user?.fullName || "User"}
+                        </div>
+                        {/* Fecha del comentario */}
+                        <div className="text-sm flex   text-gray-500">
+                            <div className="flex  items-center">
+                                {getTimeAgo(comment.createdAt)}
+                            </div>
 
-                  </div>
+                        </div>
+
+                    </div>
 
                     {/* Contenido del comentario */}
                     <p className="mt-1 text-gray-600 break-words whitespace-pre-wrap">
