@@ -5,11 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { User } from "@/types/auth";
 import { Comment } from "@/types/comment";
-import CardButtons from "@/components/administration/report/card-button";
+import { ITEM_TYPE } from "@/types/constants";
+import ReportListPage from "@/components/administration/report/report-list-page";
+import { getReportedComments } from "@/utils/report-client";
 
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const pageSize = 20;
 
   const exampleUser: User = {
     id: 1,
@@ -68,7 +71,25 @@ export default function Page() {
   }, [authToken, authLoading, router]);
 
   return (
-    <div className="p-6 flex flex-col gap-11">
+    <div className="p-6">
+      <ReportListPage
+        type={ITEM_TYPE.COMMENT}
+        fetchFunction={async (page, size) => {
+          if (!authToken) {
+            throw new Error("No se ha encontrado el token de autenticación");
+          }
+          return await getReportedComments(authToken, { page, size });
+        }
+        }
+        pageSize={pageSize}
+        isPost={false}
+      />
+    </div>
+    
+  );
+}
+
+{/* <div className="p-6 flex flex-col gap-11">
       <h1 className="text-xl font-bold mb-4">Comentarios reportados</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {exampleComments.map((comment) => (
@@ -93,7 +114,4 @@ export default function Page() {
             handleDesaprove={() => console.log(`Desaprobado comentario ID: ${comment.id}`)}
           />
         ))}
-      </div>
-    </div>
-  );
-}
+      </div> */}
