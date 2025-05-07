@@ -11,11 +11,15 @@ import AdoptionRequestCard from "@/components/profile/received-request/adoption-
 import Pagination from "@/components/pagination";
 import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
+import Button from "@/components/buttons/button";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SentRequests() {
   const { authToken, user } = useAuth();
   const [petMap, setPetMap] = useState<Record<number, Pet>>({});
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const router = useRouter();
   
   // Llamada a la API usando el hook usePagination
   const {
@@ -81,9 +85,13 @@ export default function SentRequests() {
   return (
     <div className="flex flex-col gap-5">
       <div className="w-full max-w-7xl mx-auto p-4">
+
         {visibleRequests.length > 0 &&
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-
+          <Button size="md" onClick={() => router.push("/profile/received-request")} className="mb-6 mr-12 bg-white flex justify-between items-center shadow -md text-gray-800">
+        <ArrowLeft className="text-gray-800 pr-1 " size={20} />
+        Volver
+      </Button>
           <LabeledSelect
             label="Estados"
             options={["Todos", "Pendientes", "Aceptados"]}
