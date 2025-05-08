@@ -1,4 +1,4 @@
-import { PaginatedResponse, productQueryParams, } from "@/types/pagination";
+import { buildQueryParams, PaginatedResponse, productQueryParams, } from "@/types/pagination";
 import { CreateProduct, Product, UpdateProduct } from "@/types/product";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
@@ -112,18 +112,9 @@ export const getDeletedProducts = async (
   queryParams?: productQueryParams
 ): Promise<PaginatedResponse<Product>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(`${API_URL}/deleted`, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        sort: queryParams?.sort || "id,desc",
-        categoryId: queryParams?.categoryId,
-        condition: queryParams?.condition,
-        price: queryParams?.price,
-        minPrice: queryParams?.minPrice,
-        maxPrice: queryParams?.maxPrice,
-        userId: queryParams?.userId
-      },
+      params: params,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

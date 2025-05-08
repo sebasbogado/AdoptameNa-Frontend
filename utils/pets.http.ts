@@ -166,21 +166,14 @@ export const getDeletedPets = async (
   queryParams?: myPetsQueryParams
 ): Promise<PaginatedResponse<Pet>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(`${API_URL}/deleted`, {
+      params: params,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-      },
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        sort: queryParams?.sort || "id,desc",
-        userId: queryParams?.userId,
-        animalId: queryParams?.animalId,
-        minAge: queryParams?.minAge,
-        maxAge: queryParams?.maxAge,
-        petStatusId: queryParams?.petStatusId
-      },
+      }
+      
     });
 
     return response.data;

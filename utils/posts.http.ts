@@ -176,14 +176,9 @@ export const getDeletedPosts = async (
   queryParams?: postQueryParams
 ): Promise<PaginatedResponse<Post>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(`${API_URL}/deleted`, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        userId: queryParams?.userId,
-        postTypeId: queryParams?.postTypeId,
-        tagIds: queryParams?.tagIds,
-      },
+      params: params,
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
