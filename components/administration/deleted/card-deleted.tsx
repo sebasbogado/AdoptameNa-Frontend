@@ -31,7 +31,7 @@ export default function CardDeleted({ item, itemType, className, onRestore, disa
             <div className="m-4 flex justify-center">
                 <Button
                     onClick={handleRestoreClick}
-                    size="sm"
+                    size="md"
                     className="flex items-center justify-center bg-white text-btn-secondary-text"
                 >
                     <ArchiveRestore className="w-5 h-5 mr-2 text-btn-secondary-text" strokeWidth={3} />
