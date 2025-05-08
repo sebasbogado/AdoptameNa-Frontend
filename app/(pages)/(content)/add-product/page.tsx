@@ -183,6 +183,12 @@ export default function Page() {
         throw new Error("El token de autenticación es requerido");
       }
 
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        return;
+      }
+
       // Verifica la cantidad de imagens que se pueden subir
       if (selectedImages.length >= 5) {
         setPrecautionMessage("Solo puedes subir hasta 5 imagenes.");
@@ -329,112 +335,112 @@ export default function Page() {
       <form className="flex flex-col gap-6 p-8" onSubmit={handleSubmit(onSubmit)}>
         {/* Título */}
         <div className="flex flex-col gap-2">
-        <label className="block">Título</label>
-        <input
-          type="text"
-          {...register("title")}
-          className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
+          <label className="block">Título</label>
+          <input
+            type="text"
+            {...register("title")}
+            className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
         </div>
         {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
         {/* Descripción */}
         <div className="flex flex-col gap-2">
-        <label className="block">Descripción</label>
-        <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-        />
+          <label className="block">Descripción</label>
+          <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+          />
         </div>
         {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-       
+
         {/* Tipo de animal */}
         <div className="flex flex-col gap-2">
-        <label className="block">Tipo de animal</label>
-        <MultiSelect
-          options={animals}
-          selected={selectedAnimals}
-          onChange={(selected) => {
-            setSelectedAnimals(selected);
-            setValue("animalsId", selected.map((animal) => animal.id))
-          }}
-          placeholder="Seleccionar animales"
-        />
+          <label className="block">Tipo de animal</label>
+          <MultiSelect
+            options={animals}
+            selected={selectedAnimals}
+            onChange={(selected) => {
+              setSelectedAnimals(selected);
+              setValue("animalsId", selected.map((animal) => animal.id))
+            }}
+            placeholder="Seleccionar animales"
+          />
         </div>
         {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
 
         {/* Estado */}
         <div className="flex flex-col gap-2">
-        <label className="block">Estado</label>
-        <select {...register("condition")} className={`w-1/4 p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
-          {Object.values(ProductCondition).map(cond => (
-            <option key={cond} value={cond}>{capitalize(cond)}</option>
-          ))}
-        </select>
-        {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+          <label className="block">Estado</label>
+          <select {...register("condition")} className={`w-1/4 p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
+            {Object.values(ProductCondition).map(cond => (
+              <option key={cond} value={cond}>{capitalize(cond)}</option>
+            ))}
+          </select>
+          {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
         </div>
 
         {/* Categoría */}
         <div className="flex flex-col gap-2">
-        <label className="block">Categoría</label>
-        <select {...register("categoryId", { valueAsNumber: true })} className={`w-fit p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
-          <option value={0}>Seleccionar categoría</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
-        {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+          <label className="block">Categoría</label>
+          <select {...register("categoryId", { valueAsNumber: true })} className={`w-fit p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
+            <option value={0}>Seleccionar categoría</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+          {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
         </div>
 
         {/* Contacto */}
-        <div className="flex flex-col gap-2">     
-        <label>Contacto</label>
-        <input
-          {...register("contactNumber")}
-          className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-          onKeyDown={(e) => {
-            if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
-              e.preventDefault();
+        <div className="flex flex-col gap-2">
+          <label>Contacto</label>
+          <input
+            {...register("contactNumber")}
+            className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+            onKeyDown={(e) => {
+              if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                e.preventDefault();
+              }
             }
-          }
-          }
-        />
+            }
+          />
         </div>
         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
         {/*--- Input de Precio --- */}
         <div className="flex flex-col gap-2">
-        <Controller
-          name="price" // El nombre del campo en tu schema/formValues
-          control={control}
-          render={({ field, fieldState }) => (
-            // field: { onChange, onBlur, value, name, ref }
-            // fieldState: { invalid, isTouched, isDirty, error }
-            <div> {/* Envuelve para posicionar el error correctamente */}
-              <LabeledInput
-                label="Precio" // Pasas la etiqueta como prop
-                value={field.value} // Conectas el valor de RHF al componente
-                onChange={field.onChange} // Conectas el onChange de RHF al componente
-                placeholder="0"
-                className="w-1/4" // Hacemos el input más pequeño
-              />
-              {/* Muestras el error asociado a este campo desde RHF */}
-              {fieldState.error && (
-                <p className="text-red-500 text-sm mt-1">
-                  {fieldState.error.message}
-                </p>
-              )}
-            </div>
-          )}
-        />
+          <Controller
+            name="price" // El nombre del campo en tu schema/formValues
+            control={control}
+            render={({ field, fieldState }) => (
+              // field: { onChange, onBlur, value, name, ref }
+              // fieldState: { invalid, isTouched, isDirty, error }
+              <div> {/* Envuelve para posicionar el error correctamente */}
+                <LabeledInput
+                  label="Precio" // Pasas la etiqueta como prop
+                  value={field.value} // Conectas el valor de RHF al componente
+                  onChange={field.onChange} // Conectas el onChange de RHF al componente
+                  placeholder="0"
+                  className="w-1/4" // Hacemos el input más pequeño
+                />
+                {/* Muestras el error asociado a este campo desde RHF */}
+                {fieldState.error && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            )}
+          />
         </div>
 
         {/*Mapa */}
         <div className="flex flex-col gap-2">
-        <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-          <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-        </div>
-        {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+            <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+          </div>
+          {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
         </div>
 
-        {/*Buttons */}    
+        {/*Buttons */}
         <div className="flex justify-end items-center mt-6 gap-10">
           <div className="flex gap-4">
             <Button
