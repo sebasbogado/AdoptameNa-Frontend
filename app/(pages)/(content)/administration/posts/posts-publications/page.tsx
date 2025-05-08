@@ -8,7 +8,7 @@ import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
 import { getPosts } from "@/utils/posts.http";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
-// import { ITEM_TYPE } from "@/types/constants";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -105,7 +105,7 @@ export default function Page() {
             </div>
             <AllPostListPage
                 items={posts}
-                itemType={"post"}
+                itemType={ITEM_TYPE.POST}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}

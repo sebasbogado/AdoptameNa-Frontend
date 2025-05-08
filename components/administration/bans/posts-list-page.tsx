@@ -6,7 +6,7 @@ import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { Product } from '@/types/product';
 import { useAuth } from '@/contexts/auth-context';
-// import { ITEM_TYPE } from '@/types/constants';
+import { ITEM_TYPE } from '@/types/constants';
 import CardBanned from './card-banned';
 import { banPet, banPost, banProduct } from '@/utils/report-client';
 import { Alert } from '@material-tailwind/react';
@@ -21,7 +21,7 @@ interface Props<T> {
     currentPage: number;
     totalPages: number;
     handlePageChange: (page: number) => void;
-    itemType: /*ITEM_TYPE*/ string;
+    itemType: ITEM_TYPE;
     disabled?: boolean;
 }
 

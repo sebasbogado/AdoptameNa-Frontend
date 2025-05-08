@@ -9,3 +9,10 @@ export const PET_STATUS = {
     VOLUNTEERING: 1,
     BLOG: 2,
   };
+
+  export enum ITEM_TYPE  {
+    POST = 'post',
+    PET = 'pet',
+    PRODUCT = 'product',
+    COMMENT ='comment',
+  };

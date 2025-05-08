@@ -7,7 +7,7 @@ import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
 import { getPets } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
-// import { ITEM_TYPE } from "@/types/constants";
+import { ITEM_TYPE } from "@/types/constants";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
 
 export default function Page() {
@@ -105,7 +105,7 @@ export default function Page() {
             </div>
             <AllPostListPage
                 items={pets}
-                itemType={"pet"}
+                itemType={ITEM_TYPE.PET}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}

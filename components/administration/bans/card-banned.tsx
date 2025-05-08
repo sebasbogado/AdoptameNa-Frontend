@@ -5,14 +5,14 @@ import PetCard from "@/components/petCard/pet-card";
 import Button from "@/components/buttons/button";
 import { Ban } from "lucide-react";
 import ProductCard from "@/components/product-Card/product-card";
-// import { ITEM_TYPE } from "@/types/constants";
+import { ITEM_TYPE } from "@/types/constants";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
 
 type PetCardProps = {
     item: any;
-    itemType: /*ITEM_TYPE*/ string;
+    itemType: ITEM_TYPE;
     className?: string;
     onBan: (id: string | number, type: string) => void;
     disabled?: boolean;

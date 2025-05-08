@@ -9,7 +9,7 @@ import ResetFiltersButton from "@/components/reset-filters-button";
 import { Product } from "@/types/product";
 import { getProducts } from "@/utils/product.http";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
-// import { ITEM_TYPE } from "@/types/constants";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -105,7 +105,7 @@ export default function Page() {
             </div>
             <AllPostListPage
                 items={products}
-                itemType={"product"}
+                itemType={ITEM_TYPE.PRODUCT}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}
