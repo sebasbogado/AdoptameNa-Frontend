@@ -192,12 +192,6 @@ export default function Page() {
     try {
       await deletePet(String(petId), authToken);
 
-      if (pet.media.length > 0) {
-        // Eliminar las imágenes asociadas a la publicación
-        const mediaIds = pet.media.map(media => media.id);
-        await Promise.all(mediaIds.map(mediaId => deleteMedia(mediaId, authToken)));
-      }
-
       setSuccessMessage('Publicación eliminada con éxito');
       setTimeout(() => router.push('/dashboard'), 1500);
 
