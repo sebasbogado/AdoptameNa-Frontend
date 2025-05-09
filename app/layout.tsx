@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
 import { FavoritesProvider } from "@/contexts/favorites-context";
+import { NotificationProvider } from "@/contexts/notification-context";
 import Script from "next/script";
 import { headers } from 'next/headers'
 
@@ -29,9 +30,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <body className={roboto.className}>
 
         <AuthProvider>
-          <FavoritesProvider>
-            {children}
-          </FavoritesProvider>
+          <NotificationProvider>
+            <FavoritesProvider>
+              {children}
+            </FavoritesProvider>
+          </NotificationProvider>
         </AuthProvider>
         <Script
           nonce={nonce}
