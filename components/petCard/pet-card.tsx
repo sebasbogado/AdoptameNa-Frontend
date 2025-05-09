@@ -20,9 +20,10 @@ type PetCardProps = {
     post: any;
     className?: string
     isPost?: boolean;
+    disabled?: boolean;
 };
 
-export default function PetCard({ post, className, isPost }: PetCardProps) {
+export default function PetCard({ post, className, isPost, disabled = false }: PetCardProps) {
     const { favorites, fetchFavorites } = useFavorites(); // Usamos el contexto
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -98,14 +99,26 @@ export default function PetCard({ post, className, isPost }: PetCardProps) {
                 <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
             }
-            <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
-                <MissingTags
-                    parentClassName="absolute z-10"
-                    postType={(post as Pet).petStatus?.name}
-                />
-                <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
-                <CardText post={post} />
-            </Link>
+            {disabled ? (
+                <>
+                    <MissingTags
+                        parentClassName="absolute z-10"
+                        postType={(post as Pet).petStatus?.name}
+                    />
+                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
+                    <CardText post={post} />
+                </>
+            ) : (
+                <Link href={isPost ? `/posts/${(post as Post).id}` : `/pets/${(post as Pet).id}`}>
+                    <MissingTags
+                        parentClassName="absolute z-10"
+                        postType={(post as Pet).petStatus?.name}
+                    />
+                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
+                    <CardText post={post} />
+                </Link>
+            )}
+
         </div>
     );
 }

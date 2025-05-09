@@ -14,5 +14,5 @@ export const PET_STATUS = {
     POST = 'post',
     PET = 'pet',
     PRODUCT = 'product',
-    COMMENT ='comment',
+    COMMENT ='comment'
   };

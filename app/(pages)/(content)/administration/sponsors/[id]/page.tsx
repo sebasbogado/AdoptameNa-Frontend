@@ -118,14 +118,16 @@ export default function SponsorDetailPage() {
 
                     {sponsor?.bannerUrl && (
                         <>
-                            <div className="font-medium mb-2 text-center">Banner publicitario</div>
+                            <div className="font-medium mb-2 mt-4 text-center">Banner publicitario</div>
                             <div className="flex justify-center">
-                                <div className="relative w-full max-w-3xl h-56 border-2 border-blue-200 rounded-xl overflow-hidden bg-blue-50">
+                                <div className="relative bg-blue-50 rounded-xl flex items-center justify-center" style={{ width: 400, height: 133, maxWidth: '100%' }}>
                                     <Image
                                         src={sponsor.bannerUrl}
                                         alt="Banner publicitario"
-                                        fill
-                                        className="object-contain"
+                                        width={400}
+                                        height={133}
+                                        className="object-contain rounded-xl"
+                                        style={{ maxWidth: '100%', maxHeight: '100%' }}
                                     />
                                 </div>
                             </div>
