@@ -24,7 +24,7 @@ export const getReceivedAdoptionsRequest = async ( token: string,
   queryParams?: adoptionsResponseQueryParams
 ): Promise<PaginatedResponse<AdoptionResponse>> => {
   try {
-    const response = await axios.get(`${API_URL}/my-requests`, {
+    const response = await axios.get(`${API_URL}`, {
       params: {
         page: queryParams?.page || 0,
         size: queryParams?.size || 10,

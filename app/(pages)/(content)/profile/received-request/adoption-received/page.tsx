@@ -28,7 +28,7 @@ export default function ReceivedRequests() {
   } = usePagination<AdoptionResponse>({
     fetchFunction: async (page, size) => await getReceivedAdoptionsRequest(authToken!, { page, size, sort: "id,desc" }),
     initialPage: 1,
-    initialPageSize: 10
+    initialPageSize: 1000
   });
 
   useEffect(() => {
