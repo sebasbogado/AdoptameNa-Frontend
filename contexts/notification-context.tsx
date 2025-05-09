@@ -17,6 +17,7 @@ import {
   getMyNotifications,
   markNotificationAsRead as apiMarkAsRead,
 } from "@/utils/notifications.http";
+import { USER_ROLE } from "@/types/constants";
 
 interface NotificationContextType {
   bellNotifications: Notification[];
@@ -142,7 +143,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             subscribeTo("/topic/global-notifications");
 
             if (user.role) {
-              const roleId = user.role === "admin" ? "1" : "2";
+              const roleId = user.role === "admin" ? USER_ROLE.ADMIN : user.role == "user" ? USER_ROLE.USER : USER_ROLE.ORGANIZATION;
               subscribeTo(`/topic/role-${roleId}`);
             }
           },
