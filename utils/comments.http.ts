@@ -40,7 +40,7 @@ export const deleteComment = async (
 export const createComment = async (
   content: string,
   referenceId: number,
-  referenceType: "PET" | "POST",
+  referenceType: "PET" | "POST" | "PRODUCT",
   parentId: number | null,
   token: string
 ): Promise<Comment> => {
@@ -144,6 +144,33 @@ export const getPetComments = async (
 
   const response = await axios.get(
     `${API_URL}/pet/${petId}?${params.toString()}`,
+    config
+  );
+  return response.data;
+};
+
+// Get comments for a product
+export const getProductComments = async (
+  productId: number,
+  cursor?: number,
+  size: number = 20,
+  repliesPerComment: number = 5,
+  token?: string
+): Promise<CommentResponse> => {
+  const params = new URLSearchParams();
+  if (cursor) params.append("cursor", cursor.toString());
+  params.append("size", size.toString());
+  params.append("repliesPerComment", repliesPerComment.toString());
+
+  const config: any = {};
+  if (token) {
+    config.headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  }
+
+  const response = await axios.get(
+    `${API_URL}/product/${productId}?${params.toString()}`,
     config
   );
   return response.data;
