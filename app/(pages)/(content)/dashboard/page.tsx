@@ -39,7 +39,7 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
     };
 
     try {
-        const petAdoptionData = await getPets({ ...queryParams, petStatusId: PET_STATUS.ADOPTION });
+        const petAdoptionData = await getPets({ ...queryParams, petStatusId: [PET_STATUS.ADOPTION] });
         const petMissingData = await getPetsDashboard({ ...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND] });
         const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING });
         const postBlogData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.BLOG });
