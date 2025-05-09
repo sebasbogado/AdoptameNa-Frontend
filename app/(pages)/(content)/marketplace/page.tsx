@@ -14,6 +14,10 @@ import { X } from 'lucide-react';
 import { getAnimals } from "@/utils/animals.http";
 import LabeledInput from "@/components/inputs/labeled-input";
 import Link from "next/link";
+import SearchBar from "@/components/search-bar";
+import { useDebounce } from '@/hooks/use-debounce';
+
+
 
 export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
@@ -32,6 +36,9 @@ export default function Page() {
     const [selectedAnimal, setSelectedAnimal] = useState<string | null>(null);
     const [availableAnimals, setAvailableAnimals] = useState<{ id: number; name: string }[]>([]);
 
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [inputValue, setInputValue] = useState<string>("");
+
     const selectedAnimalId = useMemo(() => {
         const found = availableAnimals.find(a => a.name === selectedAnimal);
         return found ? found.id : null;
@@ -41,6 +48,22 @@ export default function Page() {
         return Object.fromEntries(
             Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
         );
+    };
+
+    const debouncedSearch = useDebounce((value: string) => {
+        if (value.length >= 3 || value === "") {
+            setSearchQuery(value);
+        }
+    }, 500);
+
+    const handleSearch = (query: string) => {
+        setInputValue(query);
+        debouncedSearch(query);
+    };
+
+    const handleClearSearch = () => {
+        setInputValue("");
+        setSearchQuery("");
     };
 
     useEffect(() => {
@@ -118,6 +141,7 @@ export default function Page() {
                 minPrice: filters?.minPrice || undefined,
                 maxPrice: filters?.maxPrice || undefined,
                 animalIds: selectedAnimalId ? selectedAnimalId : undefined,
+                search: filters?.name || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -134,10 +158,12 @@ export default function Page() {
     }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
 
     useEffect(() => {
-        if (priceError) return;
+        const filters = {
+            name: searchQuery || undefined,
+        };
+        updateFilters(filters);
+    }, [searchQuery, updateFilters]);
 
-        updateFilters(cleanedFilters);
-    }, [cleanedFilters, updateFilters, priceError]);
 
     const resetFilters = () => {
         setSelectedCategory(null);
@@ -146,13 +172,24 @@ export default function Page() {
         setMinPrice(null);
         setMaxPrice(null);
         updateFilters({});
+        setInputValue("");
+        setSearchQuery("");
     };
 
+
+
     if (!pageSize) return <Loading />;
+
 
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="mx-80 mb-4">
+                    <div className="flex flex-col col-span-1">
+                        <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                        <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <LabeledSelect
                         label="Categorías"
@@ -188,7 +225,6 @@ export default function Page() {
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
                     />
-
                     <div className="flex items-end justify-start">
                         <button
                             onClick={resetFilters}
