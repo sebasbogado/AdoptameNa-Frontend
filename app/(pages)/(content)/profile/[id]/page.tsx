@@ -48,7 +48,11 @@ const getPostsData = async (
 ) => {
     try {
         // Cargar posts del usuario
-        const postParams = { userId: Number(userId) }; // Usamos el ID del usuario actual
+        const postParams = {
+            userId: Number(userId),
+            page: 0,
+            size: 5,
+            sort: "id,desc" }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
