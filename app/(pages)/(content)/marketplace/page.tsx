@@ -141,7 +141,7 @@ export default function Page() {
                 minPrice: filters?.minPrice || undefined,
                 maxPrice: filters?.maxPrice || undefined,
                 animalIds: selectedAnimalId ? selectedAnimalId : undefined,
-                search: filters?.name || undefined,
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -149,25 +149,21 @@ export default function Page() {
 
     const cleanedFilters = useMemo(() => {
         return cleanFilters({
+            search: searchQuery || undefined,
             categoryId: selectedCategoryId,
             condition: selectedCondition === "Todos" ? null : selectedCondition,
             minPrice,
             maxPrice,
             animalIds: selectedAnimalId ? [selectedAnimalId] : null,
         });
-    }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
+    }, [searchQuery, selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
 
     useEffect(() => {
-        const filters = {
-            name: searchQuery || undefined,
-        };
-        updateFilters(filters);
-    }, [searchQuery, updateFilters]);
+        if (priceError) return;
+        updateFilters(cleanedFilters);
+    }, [searchQuery, selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId, priceError, updateFilters, cleanedFilters]);
 
-    useEffect(() => {
-        if(priceError) return;
-        updateFilters(cleanedFilters)
-    }, [cleanedFilters, updateFilters, priceError]);
+
 
 
     const resetFilters = () => {
