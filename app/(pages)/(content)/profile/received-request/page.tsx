@@ -35,7 +35,7 @@ export default function ReceivedRequestsPage() {
                         </div>
                     </Link>
                 )}
-                <Link href="/profile/requests/adoption-sent">
+                <Link href="/profile/received-request/adoption-sent">
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className="bg-blue-100 p-4 rounded-full mb-4">
                             <Send size={48} className="text-blue-600" />
@@ -44,7 +44,7 @@ export default function ReceivedRequestsPage() {
                         <p className="text-gray-600 text-center">Solicitudes de adopción que enviaste</p>
                     </div>
                 </Link>
-                <Link href="/profile/requests/adoption-received">
+                <Link href="/profile/received-request/adoption-received">
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className="bg-purple-100 p-4 rounded-full mb-4">
                             <Inbox size={48} className="text-purple-600" />
