@@ -123,7 +123,7 @@ export default function NavbarAdmin() {
     <nav className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 w-full md:pb-0 md:justify-center">
       {navbarAdminItems.map((item, index) =>
         item.isDropdown ? (
-          <div key={index} className="relative">
+          <div key={item.path} className="relative">
             <button
               ref={el => { buttonRefs.current[index] = el; }}
               onClick={() => toggleDropdown(index)}
