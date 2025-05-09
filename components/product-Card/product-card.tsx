@@ -20,8 +20,10 @@ export default function ProductCard({ product, className }: ProductCardProps) {
     const { authToken } = useAuth(); // Hook de autenticación
 
     return (
-        <div className={clsx("w-64 h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
-            <div className="relative">
+ <div className={clsx(
+            "snap-start shrink-0 w-[16rem]  h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+            className
+        )}>              <div className="relative">
                 {successMessage && (
                     <Alert
                         color="green"
@@ -42,7 +44,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 )}
             </div>
 
-            <Link href={`/marketplace`}>
+            <Link href={`/marketplace/${product.id}`}>
                 <CardImage media={product.media[0]} />
                 <CardText post={product} />
             </Link>

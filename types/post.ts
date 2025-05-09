@@ -21,7 +21,7 @@ export interface Post {
 export interface CreatePost {
   title: string;
   content: string;
-  tagsIds: number[];
+  tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
   contactNumber: string;
@@ -32,10 +32,15 @@ export interface CreatePost {
 export interface UpdatePost {
   title: string;
   content: string;
-  tagsIds: number[];
+  tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
   contactNumber: string;
   userId: number;
   mediaIds: number[];
 }
+
+export interface RestorePost {
+  isDeleted: boolean;
+}
+

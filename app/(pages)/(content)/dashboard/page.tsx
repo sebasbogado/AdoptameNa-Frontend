@@ -39,7 +39,7 @@ const fetchContentData = async ({ setAdoptionPets, setMissingPets, setVolunteeri
     };
 
     try {
-        const petAdoptionData = await getPets({ ...queryParams, petStatusId: PET_STATUS.ADOPTION });
+        const petAdoptionData = await getPets({ ...queryParams, petStatusId: [PET_STATUS.ADOPTION] });
         const petMissingData = await getPetsDashboard({ ...queryParams, petStatusId: [PET_STATUS.MISSING, PET_STATUS.FOUND] });
         const postVolunteeringData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.VOLUNTEERING });
         const postBlogData = await getPosts({ ...queryParams, postTypeId: POST_TYPEID.BLOG });
@@ -71,7 +71,7 @@ export default function Page() {
     }, []);
 
     return (
-        <div className='flex flex-col gap-3'>
+        <div className='flex flex-col mt-5 gap-3'>
             <Section
                 title='En adopción'
                 path='adoption'
@@ -127,7 +127,7 @@ export default function Page() {
             </Section>
 
             <Link href="/add-post">
-                <div className="fixed bottom-5 right-5">
+                <div className="fixed bottom-5 right-5 z-10">
                     <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
                         <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
                         <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>

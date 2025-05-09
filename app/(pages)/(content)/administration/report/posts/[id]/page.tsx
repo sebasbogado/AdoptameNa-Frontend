@@ -11,6 +11,7 @@ import { Post } from "@/types/post";
 import NotFound from "@/app/not-found";
 import Loading from "@/app/loading";
 import { Alert } from "@material-tailwind/react";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function ReportsPost() {
   const { authToken } = useAuth();
@@ -97,6 +98,7 @@ export default function ReportsPost() {
     <div className="p-6">
       <ReportDetailPage
         entity={post}
+        type={ITEM_TYPE.POST}
         reports={reports}
         onBack={() => router.push("/administration/report/posts")}
         onBlock={handleDesaprove}

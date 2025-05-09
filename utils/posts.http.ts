@@ -1,5 +1,5 @@
 import page from "@/app/(pages)/(content)/administration/settings/page";
-import { PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
+import { buildQueryParams, PaginatedResponse, postQueryParams, queryParams } from "@/types/pagination";
 import { CreatePost, Post, UpdatePost } from "@/types/post";
 import axios from "axios";
 
@@ -8,14 +8,9 @@ export const getPosts = async (
   queryParams?: postQueryParams
 ): Promise<PaginatedResponse<Post>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(API_URL, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        userId: queryParams?.userId,
-        postTypeId: queryParams?.postTypeId,
-        tagIds: queryParams?.tagIds,
-      },
+      params: params, 
       headers: {
         "Content-Type": "application/json",
       },
@@ -114,6 +109,28 @@ export async function updatePost(
   }
 }
 
+export async function restorePost(
+  id: string,
+  postData: RestorePost,
+  token: string
+) {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, postData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al editar Post");
+  }
+}
+
 export async function deletePost(id: string, token: string) {
   try {
     const response = await axios.delete(`${API_URL}/${id}`, {
@@ -153,3 +170,26 @@ export async function sharePost(id: string, token: string) {
     throw new Error(error.message || "Error al compartir Post");
   }
 }
+
+export const getDeletedPosts = async (
+  token: string,
+  queryParams?: postQueryParams
+): Promise<PaginatedResponse<Post>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/deleted`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts");
+  }
+};

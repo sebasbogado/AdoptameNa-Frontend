@@ -2,19 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { Comments } from "@/components/comments/comments";
 import { Comment, CommentResponse } from "@/types/comment";
 import { User } from "@/types/auth";
+import Modal from "@/components/modal";
+
 import {
     getPostComments,
     getPetComments,
     createComment,
     likeComment,
     deleteComment,
-    getCommentReplies
+    getCommentReplies,
+    getProductComments
 } from "@/utils/comments.http";
+import ReportForm from "../report-form";
 
 interface PostCommentsProps {
     user: User | null;
     userLoading: boolean;
-    referenceType: "POST" | "PET";
+    referenceType: "POST" | "PET" | "PRODUCT";
     referenceId: number;
     authToken?: string;
 }
@@ -29,6 +33,8 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
     const [isAddingComment, setIsAddingComment] = useState<boolean>(false);
     const [loadingMoreComments, setLoadingMoreComments] = useState<boolean>(false);
     const observerRef = useRef<HTMLDivElement>(null);
+    const [modalReport, setModalReport] = useState(false);
+    const [commentId, setCommentId] = useState<number | null>(null);
 
     const fetchComments = async (cursor?: number) => {
         try {
@@ -48,8 +54,16 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                     5,
                     authToken
                 );
-            } else {
+            } else if (referenceType === "PET") {
                 response = await getPetComments(
+                    referenceId,
+                    cursor,
+                    20,
+                    5,
+                    authToken
+                );
+            } else {
+                response = await getProductComments(
                     referenceId,
                     cursor,
                     20,
@@ -277,8 +291,15 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
         }
     };
 
+    const handleReport = (commentId: number) => {
+        setModalReport(true);
+        setCommentId(commentId);
+    }
     return (
         <>
+            <Modal isOpen={modalReport} onClose={() => setModalReport(false)} title="Reportar comentario">
+                <ReportForm idComment={commentId?.toString()} handleClose={() => setModalReport(false)} />
+            </Modal>
             {commentsLoading && comments.length === 0 ? (
                 <div className="max-w-2xl mx-auto py-8 px-4 flex items-center justify-center min-h-[300px]">
                     <div className="text-center">
@@ -293,6 +314,7 @@ const PostComments = ({ user, userLoading, referenceType, referenceId, authToken
                         onAddComment={handleAddComment}
                         onLike={handleLike}
                         onDelete={handleDelete}
+                        onReport={(id) => { handleReport(id)}}
                         onReply={handleReply}
                         onLoadMoreReplies={handleLoadMoreReplies}
                         loadingReplies={loadingReplies}

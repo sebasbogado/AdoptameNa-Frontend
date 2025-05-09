@@ -11,9 +11,10 @@ const MapWithNoSSR = dynamic(
 
 interface PostLocationMapProps {
     location?: string;
+    isPreciseLocation?: boolean;
 }
 
-const PostLocationMap = ({ location }: PostLocationMapProps) => {
+const PostLocationMap = ({ location, isPreciseLocation: precisedLocation = false }: PostLocationMapProps) => {
     const coordinates = location?.split(',').map(coord => parseFloat(coord.trim())) ?? [];
 
     const validCoordinates = coordinates.length === 2 &&
@@ -26,7 +27,7 @@ const PostLocationMap = ({ location }: PostLocationMapProps) => {
                 Ubicación
             </h2>
             {validCoordinates ?
-                <MapWithNoSSR location={[coordinates[0], coordinates[1]] as [number, number]} /> :
+                <MapWithNoSSR location={[coordinates[0], coordinates[1]] as [number, number]} precisionMarker={precisedLocation} /> :
                 <p className="text-2xl text-gray-700 mt-8">
                     No se ha proporcionado una ubicación.
                 </p>}

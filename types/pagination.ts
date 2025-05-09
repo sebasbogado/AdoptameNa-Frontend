@@ -1,3 +1,6 @@
+import { ReportType } from "./report";
+import { NotificationType } from "./notification";
+
 export type Pagination = {
   page: number;
   size: number;
@@ -15,25 +18,44 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
+
 };
 
-export type postQueryParams = queryParams & {
+export type postQueryParams = queryParams & locationQueryParams  & {
   postTypeId?: number;
   userId?: number;
   tagIds?: number[];
 };
 
-export type petQueryParams = queryParams & {
-  petStatusId?: number;
+export type notificationQueryParams = queryParams & {
+  userId?: number;
+  isRead?: boolean;
+  type?: NotificationType;
+  roleIds?: number[];
+  dateMin?: Date;
+  dateMax?: Date;
 };
 
-export type productQueryParams = queryParams & {
+export type petQueryParams = queryParams & locationQueryParams  & {
+  userId?: number;
+  breedId?: number;
+  minAge?: number;
+  maxAge?: number;
+  isSterilized?: boolean;
+  isVaccinated?: boolean;
+  gender?: string;
+  petStatusId?: number[];
+};
+
+export type productQueryParams = queryParams & locationQueryParams & {
   categoryId?: number;
   condition?: string;
   price?: number;
   minPrice?: number;
   maxPrice?: number;
   animalIds?: number;
+  userId?: number;
+  search?: string;
 };
 
 export type myPetsQueryParams = queryParams & {
@@ -41,11 +63,15 @@ export type myPetsQueryParams = queryParams & {
   minAge?: number;
   maxAge?: number;
   userId?: number;
+  petStatusId?: number;
 };
 
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+  idProduct?: number;
+  idComment?: number;
+  reportType?: ReportType;
 };
 
 export type bannerQueryParams = queryParams & {
@@ -71,3 +97,40 @@ export type profileQueryParams = queryParams & {
   name?: string;
   role?: string;
 };
+
+export type adoptionsResponseQueryParams = queryParams & {
+  petId?: number;
+  userId?: number;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  isAccepted?: boolean
+};
+export type locationQueryParams = queryParams & {
+  departmentId?: string;
+  districtId?: string;
+  neighborhoodId?: string;
+  coordinates?: number[];
+};
+
+export function buildQueryParams(params?: Record<string, any>): URLSearchParams {
+  const searchParams = new URLSearchParams();
+  if (params) {
+    for (const key in params) {
+      const typedKey = key as keyof typeof params;
+      const value = params[typedKey];
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach(val => {
+            if (val !== null && val !== undefined) {
+              searchParams.append(key, String(val));
+            }
+          });
+        } else {
+          searchParams.append(key, String(value));
+        }
+      }
+    }
+  }
+  return searchParams;
+}

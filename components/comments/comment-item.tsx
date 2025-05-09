@@ -7,6 +7,7 @@ import { UserAvatar } from "../ui/user-avatar";
 import { Comment } from "@/types/comment";
 import { Alert } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
+import { formatTimeAgo } from "@/utils/date-format";
 
 interface CommentItemProps {
     comment: Comment;
@@ -46,19 +47,6 @@ export function CommentItem({
         }
     };
 
-    const getTimeAgo = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-        if (diffInSeconds < 60) return `${diffInSeconds} seg`;
-        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min`;
-        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h`;
-        if (diffInSeconds < 86400 * 3) return `${Math.floor(diffInSeconds / 86400)} días`;
-
-        return date.toLocaleDateString();
-    };
-
     const handleAction = (action: () => void) => {
         if (showAlert) return;
         if (currentUser) {
@@ -93,7 +81,7 @@ export function CommentItem({
                         </p>
 
                         <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 flex-wrap">
-                            <span>{getTimeAgo(comment.createdAt)}</span>
+                            <span>{formatTimeAgo(comment.createdAt)}</span>
 
                             {onLike && (
                                 <button

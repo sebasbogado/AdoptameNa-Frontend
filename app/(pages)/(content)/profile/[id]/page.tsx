@@ -1,11 +1,10 @@
 'use client';
 
-import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
 import { Section } from '@/components/section';
 import { getPosts } from '@/utils/posts.http';
 import { getPetsByUserId } from '@/utils/pets.http';
-import { getUserProfile } from '@/utils/user-profile-client';
+import { getUserProfile } from '@/utils/user-profile.http';
 import { MediaDTO, UserProfile } from '@/types/user-profile';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
@@ -17,7 +16,7 @@ import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import ReportButton from '@/components/buttons/report-button';
 import NotFound from '@/app/not-found';
 import { User } from '@/types/auth';
-import { getUser } from '@/utils/user-client';
+import { getUser } from '@/utils/user.http';
 import MenuButton from '@/components/buttons/menu-button';
 import HeaderImage from '@/components/image-header';
 import PostLocationMap from '@/components/post/post-location-map';
@@ -49,9 +48,13 @@ const getPostsData = async (
 ) => {
     try {
         // Cargar posts del usuario
-        const postParams = { user: userId }; // Usamos el ID del usuario actual
+        const postParams = {
+            userId: Number(userId),
+            page: 0,
+            size: 5,
+            sort: "id,desc" }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
-        setPosts(Array.isArray(postData) ? postData : []);
+        setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, posts: true }));
@@ -67,8 +70,14 @@ const getPetsData = async (
     userId: string,
 ) => {
     try {
-        const petData = await getPetsByUserId(userId);
-        setPets(Array.isArray(petData) ? petData : []);
+        const petParams = {
+            userId: Number(userId),
+            page: 0,
+            size: 5,
+            sort: "id,desc"
+        };
+        const petData = await getPetsByUserId(petParams);
+        setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, pets: true }));
@@ -205,7 +214,7 @@ export default function ProfilePage() {
                 medias={medias}
                 setMedias={setMedias}
             />
-            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
+            <div className="bg-white rounded-t-[60px] -mt-12 relative z-50">
                 <div className="grid grid-cols-1 gap-4 p-6">
                     <Detail
                         posts={posts}
@@ -235,7 +244,7 @@ export default function ProfilePage() {
                     {/* Mostrar el mapa si las coordenadas están disponibles */}
                     {userProfile?.addressCoordinates && (
                         <div className='w-[40vw] mt-[-70px] '>
-                            <PostLocationMap location={userProfile?.addressCoordinates} />
+                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization} />
                         </div>
                     )}
 
@@ -247,7 +256,6 @@ export default function ProfilePage() {
                         items={pets}
                         loading={loading}
                         error={errors.pets}
-                        filterByType={false}
                     />
 
                     <Section
@@ -258,7 +266,6 @@ export default function ProfilePage() {
                         items={posts}
                         loading={loading}
                         error={errors.posts}
-                        filterByType={false}
                     />
 
                 </div>

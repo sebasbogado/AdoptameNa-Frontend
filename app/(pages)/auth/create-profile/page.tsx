@@ -5,17 +5,13 @@ import { CreateProfile } from "@/components/profile/create-form";
 import { WelcomeUser } from "@/components/profile/welcome-user";
 import { useAuth } from "@/contexts/auth-context";
 import { UpdateUserProfile } from "@/types/user-profile";
-import { updateUserProfile } from "@/utils/user-profile-client";
+import { updateUserProfile } from "@/utils/user-profile.http";
 import { profileSchema, ProfileValues } from "@/validations/user-profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
-import { use } from "chai";
-import { Loader2Icon } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 export default function CreateProfilePage() {
   const [error, setError] = useState("");
@@ -26,7 +22,10 @@ export default function CreateProfilePage() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting }, reset,
+    formState: { errors, isSubmitting }, 
+    reset,
+    getValues,
+    trigger,
   } = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -37,7 +36,8 @@ export default function CreateProfilePage() {
       birthdate: null,
       addressCoordinates: undefined,
       description: "",
-    }
+    },
+    mode: "onSubmit" 
   });
   useEffect(() => {
     if (user) {
@@ -51,58 +51,70 @@ export default function CreateProfilePage() {
         description: "",
       });
     }
-  }, [user, reset, setValue]);
+  }, [user, reset]);
 
-  const onSubmit = (data: ProfileValues) => {
-    setError("");
-
-    const formattedBirthdate = data.birthdate
-      ? data.birthdate.toISOString().split("T")[0]
-      : null;
-
-    console.log("Datos del formulario:", data); // Verificar aquí
-    console.log("Coordenadas formateadas:", data.addressCoordinates?.join(","));
-    updateProfile({
-      ...data,
-      addressCoordinates: data.addressCoordinates?.join(",") ?? "",
-      birthdate: formattedBirthdate,
-      description: data.description || "",
-      organizationName: "",
-      document: "",
-      earnedPoints: 0,
-      media: [],
-      email: user?.email || "",
-      isProfileCompleted: true,
-    });
-  };
-  const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log(user.isProfileCompleted)
-    setError("");
+  const onSubmit = async (data: ProfileValues) => {
     try {
-      console.log("Actualizando perfil con:", profileToUpdate); // Verificar aquí
-      const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
-      updateUserProfileCompletion(true);  // Actualiza el estado de finalización del perfil
-      console.log("Perfil actualizado:", updatedProfile);
-      router.push("/profile");
+      setError("");
 
+      const profileToUpdate: UpdateUserProfile = {
+        fullName: data.fullName,
+        description: data.description || "",
+        gender: data.gender,
+        birthdate: data.birthdate ? data.birthdate.toISOString().split("T")[0] : null,
+        phoneNumber: data.phoneNumber,
+        address: data.address,
+        addressCoordinates: data.addressCoordinates ? data.addressCoordinates.join(",") : null,
+        departmentId: data.departmentId || null,
+        districtId: data.districtId || null,
+        neighborhoodId: data.neighborhoodId || null,
+        organizationName: "",
+        document: "",
+        earnedPoints: 0,
+        email: user?.email || "",
+        isProfileCompleted: true,
+        longitude: data.addressCoordinates ? data.addressCoordinates[1] : null,
+        latitude: data.addressCoordinates ? data.addressCoordinates[0] : null,
+      };
+
+   
+      await updateProfile(profileToUpdate);
     } catch (err) {
-      console.error("Error al actualizar el perfil:", err);
-      setError("Error al crear el perfil. Por favor intenta nuevamente.");
-
+      setError("Error al procesar el formulario. Por favor intenta nuevamente.");
     }
   };
+
+  const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
+    if (authLoading || !authToken || !user?.id) {
+      setError("Error de autenticación. Por favor inicia sesión nuevamente.");
+      return;
+    }
+    
+    setError("");
+    try {
+      const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
+      updateUserProfileCompletion(true); 
+      router.push("/profile");
+    } catch (err: any) {
+      if (err.message && err.message.includes("401")) {
+        setError("Sesión expirada. Por favor inicia sesión nuevamente.");
+      } else {
+        setError("Error al crear el perfil. Por favor intenta nuevamente.");
+      }
+    }
+  };
+
   useEffect(() => {
     if (!user) {
       router.push("/auth/login");
     }
 
     if (user?.isProfileCompleted) {
-      setLoading(false);  // Termina el loading si el perfil ya está completo
+      setLoading(false);
 
       router.push("/profile");
     } else {
-      setLoading(false);  // Mantiene el loading mientras verificamos
+      setLoading(false);
     }
   }, [user, router]);
   if (authLoading || loading) {

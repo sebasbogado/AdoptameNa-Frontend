@@ -10,41 +10,39 @@ const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/users`;
 
 export const getUserProfile = async (id: string) => {
   try {
-    const response = await fetch(`${API_URL}/${id}/profile`, {
-      method: "GET",
+    const response = await axios.get(`${API_URL}/${id}/profile`, {
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    if (response.status === 404) {
-      throw new Error("perfil no encontrado");
-    }
-
-    if (!response.ok) {
-      throw new Error("Error al obtener el perfil");
-    }
-
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Error("perfil no encontrado");
+      }
+    }
     throw new Error(error.message || "Error al obtener el perfil");
   }
 };
 
 export const updateUserProfile = async (
-  id: string,
+  id: number,
   updatedProfile: UpdateUserProfile | null,
   token: string
 ) => {
   try {
-
-    const response = await axios.put(`${API_URL}/${id}/profile`, updatedProfile, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.put(
+      `${API_URL}/${id}/profile`,
+      updatedProfile,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     return response.data;
   } catch (error: any) {
@@ -94,7 +92,7 @@ export const getAllFullUserProfile = async (
   }
 };
 
-export const getFullUser = async (id: string) => {
+export const getFullUser = async (id: string): Promise<UserProfile> => {
   try {
     const response = await axios.get(`${API_URL}/${id}/fullUser`, {
       headers: {
@@ -105,5 +103,4 @@ export const getFullUser = async (id: string) => {
   } catch (error: any) {
     throw new Error(error.message || "Error al obtener el perfil");
   }
-}
-
+};

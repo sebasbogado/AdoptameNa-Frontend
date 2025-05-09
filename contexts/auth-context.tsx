@@ -2,9 +2,14 @@
 import { createContext, useContext, useState, useEffect, FC, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, AuthContextType, LoginCredentials } from '../types/auth';
-import authClient from '@/utils/auth-client';
+import * as authServices from '@/utils/auth.http';
+import { getFullUser } from '@/utils/user-profile.http';
+import Cookies from 'js-cookie';
+import { UserProfile } from '@/types/user-profile';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const TOKEN_COOKIE_NAME = 'authToken';
+const COOKIE_EXPIRATION_DAYS = 7;
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -15,61 +20,95 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const router = useRouter();
+  
+  const createLocationFromUserData = (userData: UserProfile) => ({
+    lat: userData.latitude || null,
+    lon: userData.longitude || null,
+    neighborhoodId: userData.neighborhoodId || null,
+    districtId: userData.districtId || null,
+    departmentId: userData.departmentId || null,
+    neighborhoodName: userData.neighborhoodName || null,
+    districtName: userData.districtName || null,
+    departmentName: userData.departmentName || null,
+  });
+
   const updateUserProfileCompletion = (isCompleted: boolean): void => {
     if (user) {
       const updatedUser = { ...user, isProfileCompleted: isCompleted };
       setUser(updatedUser);
-  
-      // Guardar el usuario actualizado en localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('userData', JSON.stringify(updatedUser));  // Esto debe guardar correctamente el nuevo estado
+    }
+  };
+
+  const fetchUserData = async (token: string) => {
+    try {
+      const userData = await authServices.checkToken(token);
+
+      if (userData.isProfileCompleted === undefined) {
+        userData.isProfileCompleted = false;
       }
+
+      try {
+        const fullUserData = await getFullUser(userData.id.toString());
+        const enhancedUserData = {
+          ...userData,
+          location: createLocationFromUserData(fullUserData),
+        };
+        
+        setUser(enhancedUserData);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(userData);
+      }
+
+      if (userData.isProfileCompleted === false) {
+        router.push('/auth/create-profile');
+      }
+
+      setAuthToken(token);
+    } catch (error) {
+      console.error("Error verificando token:", error);
+      Cookies.remove(TOKEN_COOKIE_NAME);
+      setUser(null);
+      setAuthToken(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('authToken');
-      const userData = localStorage.getItem('userData');
-  
-      if (token && userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-  
-          if (parsedUser.isProfileCompleted === undefined) {
-            parsedUser.isProfileCompleted = false;
-          }
-          if(parsedUser.isProfileCompleted === false) {
-            router.push('/auth/create-profile');
-          }
-  
-          setUser(parsedUser);
-          setAuthToken(token);
-        } catch (e) {
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('userData');
-        }
-      }
+    const token = Cookies.get(TOKEN_COOKIE_NAME);
+
+    if (token) {
+      fetchUserData(token);
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      const data = await authClient.login(credentials);
+      const data = await authServices.login(credentials);
 
       if (!data) throw new Error('Error de autenticación');
 
       const { token, user } = data;
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userData', JSON.stringify(user));
-      }
+      Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        const fullUserData = await getFullUser(user.id.toString());
+        const enhancedUser = {
+          ...user,
+          location: createLocationFromUserData(fullUserData),
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user);
+      }
+      
       setAuthToken(token);
- 
+
       return true;
     } catch (error) {
       console.error('Error de login:', error);
@@ -79,16 +118,24 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   const loginWithGoogle = async (code: string): Promise<void> => {
     try {
-      const { token, user } = await authClient.loginWithGoogle(code);
+      const { token, user } = await authServices.loginWithGoogle(code);
 
       if (!token || !user) throw new Error('Error de autenticación con Google');
 
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userData', JSON.stringify(user));
-      }
+      Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
 
-      setUser(user);
+      try {
+        const fullUserData = await getFullUser(user.id.toString());
+        const enhancedUser = {
+          ...user,
+          location: createLocationFromUserData(fullUserData),
+        };
+        setUser(enhancedUser);
+      } catch (error) {
+        console.error("Error obteniendo datos completos del usuario:", error);
+        setUser(user); 
+      }
+      
       setAuthToken(token);
       router.push('/dashboard');
     } catch (error) {
@@ -98,17 +145,24 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
   }
 
   const logout = (): void => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-    }
+    Cookies.remove(TOKEN_COOKIE_NAME);
+
     setUser(null);
     setAuthToken(null);
     router.push('/auth/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, authToken, loginWithGoogle, updateUserProfileCompletion,  isProfileCompleted: user?.isProfileCompleted ?? false  }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      loading, 
+      authToken, 
+      loginWithGoogle, 
+      updateUserProfileCompletion, 
+      isProfileCompleted: user?.isProfileCompleted ?? false 
+    }}>
       {children}
     </AuthContext.Provider>
   );

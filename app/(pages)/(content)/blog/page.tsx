@@ -4,7 +4,6 @@ import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
 import PetCard from "@/components/petCard/pet-card";
-import ResetFiltersButton from "@/components/reset-filters-button";
 import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
@@ -25,14 +24,22 @@ export default function Page() {
 
     const [pageSize, setPageSize] = useState<number>();
 
-
     useEffect(() => {
-        const userId = selectedAutor && selectedAutor !== "Todos" ? allAuthorsMap[selectedAutor] : undefined;
-        const tagId = selectedTag && selectedTag !== "Todos" ? allTagsMap[selectedTag] : undefined;
-
-        updateFilters({ userId, tagId });
-        handlePageChange(1);
-    }, [selectedAutor, selectedTag]);
+        if (Object.keys(allAuthorsMap).length > 0 || Object.keys(allTagsMap).length > 0) {
+            const filters: Record<string, number> = {} ;
+            
+            if (selectedAutor && selectedAutor !== "Todos") {
+                filters["userId"] = allAuthorsMap[selectedAutor];
+            }
+            
+            if (selectedTag && selectedTag !== "Todos") {
+                filters["tagId"] = allTagsMap[selectedTag];
+            }
+            
+            updateFilters(filters);
+            handlePageChange(1);
+        }
+    }, [selectedAutor, selectedTag, allAuthorsMap, allTagsMap]);
 
     useEffect(() => {
         const fetchAuthorsAndTags = async () => {
@@ -92,8 +99,8 @@ export default function Page() {
                 page,
                 size,
                 postTypeId: POST_TYPEID.BLOG,
-                userId: filters?.userId ?? undefined,
-                tagIds: filters?.tagId ?? undefined
+                userId: filters?.userId,
+                tagIds: filters?.tagId
             });
         },
         initialPage: 1,
@@ -102,9 +109,8 @@ export default function Page() {
 
     return (
         <div className="flex flex-col gap-5">
-
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <LabeledSelect
                         label="Autor"
                         options={["Todos", ...authorOptions]}
@@ -119,7 +125,6 @@ export default function Page() {
                         setSelected={setSelectedTag}
                     />
 
-                    <ResetFiltersButton onClick={resetFilters} />
                 </div>
             </div>
 

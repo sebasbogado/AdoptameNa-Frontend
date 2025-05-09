@@ -20,6 +20,7 @@ export const getProducts = async (
         minPrice: queryParams.minPrice,
         maxPrice: queryParams.maxPrice,
         animalIds: queryParams.animalIds,
+        search: queryParams.search,
       },
       headers: {
         "Content-Type": "application/json",

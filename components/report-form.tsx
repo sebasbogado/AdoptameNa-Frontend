@@ -13,21 +13,25 @@ import { Alert } from '@material-tailwind/react';
 
 interface ReportFormProps {
   handleClose: () => void;
+  idComment?: string;
+  idEntity?: string; //id for post or pet
+  idProduct?: string;
+  isPet?: boolean;
 }
-const ReportForm: React.FC<ReportFormProps> = ({ handleClose }) => {
+const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntity, idProduct, isPet}) => {
   const { authToken, user } = useAuth();
   const params = useParams();
-  const pathname = window.location.pathname;
-  const idParam = params.id as string;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     resolver: zodResolver(reportSchema),
     defaultValues: {
-      idPost: pathname.startsWith('/posts/') ? idParam : "",
-      idPet: pathname.startsWith('/pets/') ? idParam : "",
-      idUser: user?.id ? parseInt(user?.id) : 0,
+      idPost: idEntity && !isPet ? idEntity : "",
+      idPet: idEntity && isPet ? idEntity : "",
+      idProduct: idProduct ? idProduct : "",
+      idUser: user?.id ? user?.id : 0,
+      idComment: idComment ? idComment : undefined,
     }
   });
   const [reportReasons, setReportReasons] = useState([]);

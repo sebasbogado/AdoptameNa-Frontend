@@ -3,12 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Select, Option, Spinner } from "@material-tailwind/react";
-import { Check, X } from 'lucide-react';
-import { getAllSponsors, approveSponsorRequest, deleteSponsor } from '@/utils/sponsor.http';
+import { Check, X, Trash } from 'lucide-react';
+import { getAllSponsors, approveSponsorRequest, deleteSponsor, rejectSponsorRequest } from '@/utils/sponsor.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";
-import { PaginatedResponse } from '@/types/pagination';
-import { Sponsor } from '@/types/sponsor';
+import { isAxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
+
+import { Sponsor, SponsorStatus, FilterStatus } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
@@ -17,65 +19,70 @@ interface SponsorApplication extends Sponsor {
     logoUrl?: string;
 }
 
-type FilterStatus = 'Todos' | 'Pendiente' | 'Aprobado';
-
 export default function AdminSponsorsPage() {
-    const [applications, setApplications] = useState<SponsorApplication[]>([]);
-    const [filteredApplications, setFilteredApplications] = useState<SponsorApplication[]>([]);
-    const [filterStatus, setFilterStatus] = useState<FilterStatus>('Todos');
+    const router = useRouter();
+    const { authToken, user } = useAuth();
+    const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
-    const [loading, setLoading] = useState(true);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
     const [sponsorToDeleteId, setSponsorToDeleteId] = useState<number | null>(null);
     const [sponsorToApproveId, setSponsorToApproveId] = useState<number | null>(null);
-    const { authToken } = useAuth();
+    const [isDefinitiveDelete, setIsDefinitiveDelete] = useState(false);
+
+    useEffect(() => {
+        if (user?.role !== 'admin') {
+            router.push('/dashboard');
+        }
+    }, [user, router]);
+
+    const getBackendStatus = (status: FilterStatus) => {
+        switch (status) {
+            case FilterStatus.PENDING:
+                return SponsorStatus.PENDING;
+            case FilterStatus.APPROVED:
+                return SponsorStatus.ACTIVE;
+            case FilterStatus.REJECTED:
+                return SponsorStatus.INACTIVE;
+            case FilterStatus.ALL:
+                return undefined;
+            default:
+                return undefined;
+        }
+    };
 
     const {
+        data: applications,
+        loading,
         currentPage,
         totalPages,
         handlePageChange,
-        updateFilters
-    } = usePagination<Sponsor>({
-        fetchFunction: async (page, size) => {
+        updateFilters,
+        error: fetchError
+    } = usePagination<SponsorApplication>({
+        fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("No autorizado");
-            return await getAllSponsors(authToken, page, size);
+            const status = getBackendStatus(filters?.status);
+            return await getAllSponsors(authToken, page, size, undefined, status);
         },
         initialPage: 1,
         initialPageSize: 10
     });
 
-    const fetchSponsorApplications = async () => {
-        if (!authToken) return;
-        setLoading(true);
-        try {
-            const response: PaginatedResponse<Sponsor> = await getAllSponsors(authToken, currentPage - 1, 10);
-            setApplications(response.data);
-        } catch (error) {
-            console.error('Error fetching sponsor applications:', error);
+    useEffect(() => {
+        if (fetchError) {
             setAlertInfo({
                 open: true,
                 color: "red",
-                message: "Error al cargar las solicitudes de auspicio"
+                message: fetchError.message || "Error al cargar las solicitudes"
             });
-        } finally {
-            setLoading(false);
         }
-    };
+    }, [fetchError]);
 
     useEffect(() => {
-        fetchSponsorApplications();
-    }, [authToken, currentPage]);
-
-    useEffect(() => {
-        let filtered = applications;
-        if (filterStatus === 'Pendiente') {
-            filtered = applications.filter(app => !app.isActive);
-        } else if (filterStatus === 'Aprobado') {
-            filtered = applications.filter(app => app.isActive);
-        }
-        setFilteredApplications(filtered);
-    }, [filterStatus, applications]);
+        updateFilters({ status: selectedStatus });
+        handlePageChange(1);
+    }, [selectedStatus, updateFilters]);
 
     useEffect(() => {
         if (alertInfo) {
@@ -91,17 +98,25 @@ export default function AdminSponsorsPage() {
 
     const confirmApprove = async () => {
         if (!authToken || sponsorToApproveId === null) return;
-        
         try {
             await approveSponsorRequest(authToken, sponsorToApproveId);
-            setApplications(prev => prev.map(app => 
-                app.id === sponsorToApproveId ? { ...app, isActive: true } : app
-            ));
+            updateFilters({ status: selectedStatus });
             setAlertInfo({ open: true, color: "green", message: `Solicitud aprobada.` });
-        } catch (error) {
+        } catch (error: unknown) {
             console.error("Error approving application:", error);
-            const errorMessage = error instanceof Error ? error.message : "Error al aprobar.";
-            setAlertInfo({ open: true, color: "red", message: errorMessage });
+
+            if (error instanceof Error) {
+                setAlertInfo({ open: true, color: "red", message: error.message });
+            } else if (isAxiosError(error)) {
+                setAlertInfo({
+                    open: true,
+                    color: "red",
+                    message: error.response?.data?.message || 'Error del servidor',
+                });
+                console.error('Backend error response:', error.response);
+            } else {
+                setAlertInfo({ open: true, color: "red", message: 'Error al aprobar (desconocido).' });
+            }
         } finally {
             setIsApproveModalOpen(false);
             setSponsorToApproveId(null);
@@ -120,24 +135,44 @@ export default function AdminSponsorsPage() {
 
     const confirmReject = async () => {
         if (!authToken || sponsorToDeleteId === null) return;
-        
         try {
-            await deleteSponsor(authToken, sponsorToDeleteId);
-            setApplications(prev => prev.filter(app => app.id !== sponsorToDeleteId));
-            setAlertInfo({ open: true, color: "green", message: `Solicitud rechazada.` });
-        } catch (error) {
-            console.error("Error rejecting application:", error);
-            const errorMessage = error instanceof Error ? error.message : "Error al rechazar.";
-            setAlertInfo({ open: true, color: "red", message: errorMessage });
+            if (isDefinitiveDelete) {
+                await deleteSponsor(authToken, sponsorToDeleteId);
+            } else {
+                await rejectSponsorRequest(authToken, sponsorToDeleteId);
+            }
+            updateFilters({ status: selectedStatus });
+            setAlertInfo({ open: true, color: "green", message: isDefinitiveDelete ? `Solicitud eliminada definitivamente.` : `Solicitud rechazada.` });
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setAlertInfo({ open: true, color: "red", message: error.message });
+            } else if (isAxiosError(error)) {
+                const status = error.response?.status;
+                const message = error.response?.data?.message || error.message;
+                if (status === 401) {
+                    setAlertInfo({ open: true, color: "red", message: "No autorizado para rechazar la solicitud" });
+                } else if (status === 404) {
+                    setAlertInfo({ open: true, color: "red", message: "Solicitud no encontrada" });
+                } else {
+                    setAlertInfo({ open: true, color: "red", message: `Error ${status}: ${message}` });
+                }
+            } else {
+                setAlertInfo({ open: true, color: "red", message: 'Error al rechazar (desconocido).' });
+            }
         } finally {
             setIsConfirmModalOpen(false);
             setSponsorToDeleteId(null);
+            setIsDefinitiveDelete(false);
         }
     };
 
     const closeModal = () => {
         setIsConfirmModalOpen(false);
         setSponsorToDeleteId(null);
+    }
+
+    if (user?.role !== 'admin') {
+        return null;
     }
 
     return (
@@ -161,15 +196,16 @@ export default function AdminSponsorsPage() {
 
             <div className="mb-6 w-full sm:w-72">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                <Select
-                    value={filterStatus}
-                    onChange={(val) => setFilterStatus(val as FilterStatus || 'Todos')}
-                    placeholder="Filtrar por estado"
+                <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value as FilterStatus)}
+                    className="w-full p-2 border rounded"
                 >
-                    <Option value="Todos">Todos</Option>
-                    <Option value="Pendiente">Pendiente</Option>
-                    <Option value="Aprobado">Aprobado</Option>
-                </Select>
+                    <option value={FilterStatus.ALL}>{FilterStatus.ALL}</option>
+                    <option value={FilterStatus.PENDING}>{FilterStatus.PENDING}</option>
+                    <option value={FilterStatus.APPROVED}>{FilterStatus.APPROVED}</option>
+                    <option value={FilterStatus.REJECTED}>{FilterStatus.REJECTED}</option>
+                </select>
             </div>
 
             {loading ? (
@@ -178,19 +214,24 @@ export default function AdminSponsorsPage() {
                 </div>
             ) : (
                 <>
-                    {filteredApplications.length > 0 ? (
+                    {applications.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredApplications.map((application) => (
+                            {applications.map((application) => (
                                 <SponsorCard
                                     key={application.id}
                                     application={application}
                                     onApprove={handleApprove}
                                     onReject={handleReject}
+                                    onDelete={async (id) => {
+                                        setSponsorToDeleteId(id);
+                                        setIsConfirmModalOpen(true);
+                                        setIsDefinitiveDelete(true);
+                                    }}
                                 />
                             ))}
                         </div>
                     ) : (
-                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {filterStatus !== 'Todos' ? `en estado ${filterStatus.toLowerCase()}` : ''}.</p>
+                        <p className="text-center text-gray-500 mt-10">No se encontraron solicitudes {selectedStatus !== FilterStatus.ALL ? `en estado ${selectedStatus.toLowerCase()}` : ''}.</p>
                     )}
 
                     <Pagination
@@ -204,10 +245,10 @@ export default function AdminSponsorsPage() {
 
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
-                title="Confirmar Rechazo"
-                message="¿Estás seguro de que deseas rechazar (eliminar) esta solicitud?"
-                textConfirm="Rechazar"
-                confirmVariant="danger"
+                title={isDefinitiveDelete ? "Eliminar Solicitud" : "Confirmar Rechazo"}
+                message={isDefinitiveDelete ? "¿Estás seguro de que deseas eliminar definitivamente esta solicitud?" : "¿Estás seguro de que deseas rechazar (eliminar) esta solicitud?"}
+                textConfirm={isDefinitiveDelete ? "Eliminar" : "Rechazar"}
+                confirmVariant={isDefinitiveDelete ? "danger" : "danger"}
                 onClose={closeModal}
                 onConfirm={confirmReject}
             />
@@ -229,17 +270,30 @@ interface SponsorCardProps {
     application: SponsorApplication;
     onApprove: (applicationId: number) => void;
     onReject: (applicationId: number) => void;
+    onDelete: (applicationId: number) => void;
 }
 
-function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
+function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCardProps) {
     const [hasLogoError, setHasLogoError] = useState(false);
+    const router = useRouter();
 
     const handleLogoError = () => {
         setHasLogoError(true);
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Evitar la navegación si se hace clic en los botones de acción
+        if ((e.target as HTMLElement).closest('button')) {
+            return;
+        }
+        router.push(`/administration/sponsors/${application.id}`);
+    };
+
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
+        <div 
+            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={handleCardClick}
+        >
             <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
                 {application.logoUrl && !hasLogoError ? (
                     <Image
@@ -262,33 +316,46 @@ function SponsorCard({ application, onApprove, onReject }: SponsorCardProps) {
                     <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
                 </p>
                 <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
-                <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded border max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+                <p className="text-sm text-gray-700 p-2 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
                     {application.reason || 'No especificada'}
                 </p>
             </div>
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
-                {!application.isActive ? (
-                    <>
-                        <button
-                            onClick={() => onReject(application.id)}
-                            className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Rechazar (Eliminar)"
-                        >
-                            <X size={20} />
-                        </button>
-                        <button
-                            onClick={() => onApprove(application.id)}
-                            className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Aprobar"
-                        >
-                            <Check size={20} />
-                        </button>
-                    </>
-                ) : (
-                    <span className="text-sm font-medium text-green-600 flex items-center">
-                        <Check size={16} className="mr-1"/> Aprobado
-                    </span>
-                )}
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
+                <button
+                    onClick={() => onDelete(application.id)}
+                    className="p-2 rounded-full text-gray-500 hover:bg-red-200 transition-colors"
+                    title="Eliminar definitivamente"
+                >
+                    <Trash size={20} />
+                </button>
+                <div className="flex gap-3 items-center">
+                    {application.status === 'PENDING' ? (
+                        <>
+                            <button
+                                onClick={() => onReject(application.id)}
+                                className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Rechazar (Eliminar)"
+                            >
+                                <X size={20} />
+                            </button>
+                            <button
+                                onClick={() => onApprove(application.id)}
+                                className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Aprobar"
+                            >
+                                <Check size={20} />
+                            </button>
+                        </>
+                    ) : application.status === 'ACTIVE' ? (
+                        <span className="text-sm font-medium text-green-600 flex items-center">
+                            <Check size={16} className="mr-1"/> Aprobado
+                        </span>
+                    ) : application.status === 'INACTIVE' ? (
+                        <span className="text-sm font-medium text-red-500 flex items-center">
+                            <X size={16} className="mr-1"/> Rechazado
+                        </span>
+                    ) : null}
+                </div>
             </div>
         </div>
     );
