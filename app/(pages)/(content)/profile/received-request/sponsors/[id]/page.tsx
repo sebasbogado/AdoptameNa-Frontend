@@ -12,7 +12,7 @@ import { User, Mail, X } from 'lucide-react';
 import EditButton from "@/components/buttons/edit-button";
 import Button from "@/components/buttons/button";
 import BannerImage from '@/components/banner/banner-image';
-import { postMedia } from '@/utils/media.http';
+import { postMedia, deleteMedia } from '@/utils/media.http';
 import { fileSchema } from '@/utils/file-schema';
 import { ConfirmationModal } from '@/components/form/modal';
 
@@ -126,8 +126,6 @@ export default function SponsorDetailPage() {
         if (!editReason.trim()) errors.reason = 'La razón es obligatoria';
         if (!editContact.trim()) errors.contact = 'El contacto es obligatorio';
         if (!logoPreviewUrl) errors.logo = 'El logo es obligatorio';
-        // Solo validar el banner si ya existía uno previamente
-        if (bannerWasLoaded && !bannerPreviewUrl) errors.banner = 'El banner es obligatorio';
         setFormErrors(errors);
         if (Object.keys(errors).length > 0) return;
         setShowSaveModal(true);
@@ -146,6 +144,7 @@ export default function SponsorDetailPage() {
             setSponsor(updatedSponsor);
             setLogoPreviewUrl(updatedSponsor.logoUrl || null);
             setBannerPreviewUrl(updatedSponsor.bannerUrl || null);
+            setBannerWasLoaded(!!updatedSponsor.bannerUrl);
             setAlertInfo({ open: true, color: 'green', message: 'Solicitud actualizada correctamente.' });
         } catch (error) {
             setAlertInfo({ open: true, color: 'red', message: 'Error al actualizar la solicitud.' });
@@ -178,12 +177,40 @@ export default function SponsorDetailPage() {
         setBannerWasLoaded(true);
     };
 
-    const handleRemoveBanner = () => {
-        if (sponsor) {
-            setSponsor({ ...sponsor, bannerId: null });
+    const handleRemoveBanner = async () => {
+        if (sponsor && sponsor.bannerId && authToken) {
+            try {
+                await deleteMedia(sponsor.bannerId, authToken);
+                const updatedSponsor = {
+                    ...sponsor,
+                    bannerId: null,
+                    bannerUrl: undefined
+                };
+                setSponsor(updatedSponsor);
+                setBannerPreviewUrl(null);
+                setBannerWasLoaded(false);
+                setBannerResetKey(prev => prev + 1);
+            } catch (error) {
+                console.error("Error al eliminar el banner:", error);
+                setAlertInfo({
+                    open: true,
+                    color: "red",
+                    message: "Error al eliminar el banner. Por favor, inténtalo de nuevo."
+                });
+            }
+        } else {
+            if (sponsor) {
+                const updatedSponsor = {
+                    ...sponsor,
+                    bannerId: null,
+                    bannerUrl: undefined
+                };
+                setSponsor(updatedSponsor);
+            }
+            setBannerPreviewUrl(null);
+            setBannerWasLoaded(false);
+            setBannerResetKey(prev => prev + 1);
         }
-        setBannerPreviewUrl(null);
-        setBannerResetKey(prev => prev + 1);
     };
 
     if (loading) return <Loading />;
@@ -303,44 +330,39 @@ export default function SponsorDetailPage() {
                             </div>
 
                             <div className="w-full max-w-xs mx-auto">
-                                {bannerWasLoaded && (
-                                    <>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Banner publicitario
-                                        </label>
-                                        <p className="text-sm text-blue-600 italic mb-2 text-center">
-                                            Tamaño recomendado: 900x300 píxeles
-                                        </p>
-                                        {bannerPreviewUrl ? (
-                                            <div className="flex justify-center mb-4">
-                                                <div className={`relative bg-blue-50 border-2 rounded-xl flex items-center justify-center ${formErrors.banner ? 'border-red-500' : 'border-blue-300'}`} style={{ width: 400, height: 133, maxWidth: '100%' }}>
-                                                    <Image
-                                                        src={bannerPreviewUrl}
-                                                        alt="Banner publicitario"
-                                                        width={400}
-                                                        height={133}
-                                                        className="object-contain rounded-xl"
-                                                        style={{ maxWidth: '100%', maxHeight: '100%' }}
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleRemoveBanner}
-                                                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                                                    >
-                                                        <X className="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <BannerImage
-                                                onImageUploaded={handleBannerUpload}
-                                                initialImage={bannerPreviewUrl || undefined}
-                                                token={authToken || ''}
-                                                resetKey={bannerResetKey}
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Banner publicitario
+                                </label>
+                                <p className="text-sm text-blue-600 italic mb-2 text-center">
+                                    Tamaño recomendado: 900x300 píxeles
+                                </p>
+                                {bannerPreviewUrl ? (
+                                    <div className="flex justify-center mb-4">
+                                        <div className="relative bg-blue-50 border-2 rounded-xl flex items-center justify-center border-blue-300" style={{ width: 400, height: 133, maxWidth: '100%' }}>
+                                            <Image
+                                                src={bannerPreviewUrl}
+                                                alt="Banner publicitario"
+                                                width={400}
+                                                height={133}
+                                                className="object-contain rounded-xl"
+                                                style={{ maxWidth: '100%', maxHeight: '100%' }}
                                             />
-                                        )}
-                                        {formErrors.banner && <p className="text-red-600 text-sm mt-1 text-center">{formErrors.banner}</p>}
-                                    </>
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveBanner}
+                                                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                            >
+                                                <X className="h-5 w-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <BannerImage
+                                        onImageUploaded={handleBannerUpload}
+                                        initialImage={bannerPreviewUrl || undefined}
+                                        token={authToken || ''}
+                                        resetKey={bannerResetKey}
+                                    />
                                 )}
                             </div>
 
