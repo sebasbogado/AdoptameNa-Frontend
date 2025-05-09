@@ -25,30 +25,28 @@ export default function ReportCommentCard({ comment, className }: ReportCommentC
     };
 
     return (
-        <div className={clsx("flex gap-3 p-4 bg-white rounded-lg shadow-md", className)}>
+        <div
+            className={clsx(
+                "flex gap-3 p-4 bg-white rounded-lg shadow-md w-full min-h-[160px] max-h-[100px] overflow-hidden",
+                className
+            )}
+        >
             <UserAvatar user={comment.user} />
 
-            {/* Contenido del comentario */}
-            <div className="flex-1  w-full md:w-[1rem]">
-                <div className="flex flex-col">
-                    <div className="flex justify-between align-center ">
-                        {/* Nombre del usuario */}
-                        <div className="font-medium text-gray-800">{comment.user.fullName}</div>
-                        {/* Fecha del comentario */}
-                        <div className="text-sm flex   text-gray-500">
-                            <div className="flex  items-center">
-                                {getTimeAgo(comment.createdAt)}
-                            </div>
-
+            <div className="flex-1 overflow-hidden">
+                <div className="flex flex-col overflow-hidden">
+                    <div className="flex justify-between items-center">
+                        <div className="font-medium text-gray-800">
+                            {comment.user.fullName}
                         </div>
-
+                        <div className="text-sm text-gray-500">
+                            {getTimeAgo(comment.createdAt)}
+                        </div>
                     </div>
 
-                    {/* Contenido del comentario */}
-                    <p className="mt-1 text-gray-600 break-words whitespace-pre-wrap">
+                    <p className="mt-1 text-gray-600 max-w-[800px] break-words whitespace-pre-wrap overflow-hidden text-ellipsis">
                         {comment.content}
                     </p>
-
                 </div>
             </div>
         </div>
