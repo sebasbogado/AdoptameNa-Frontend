@@ -2,9 +2,8 @@
 
 import { Roboto } from "next/font/google";
 import "@/styles/globals.css";
-import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import {  useAuth } from "@/contexts/auth-context";
 import NavbarAdmin from "@/components/navbar-admin";
-import Footer from "@/components/footer";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { useEffect } from "react";
@@ -42,9 +41,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <>
 
 
-            <div className="flex align-items-center justify-center">
                 <NavbarAdmin />
-            </div>
+
             {children}
         </>
 
