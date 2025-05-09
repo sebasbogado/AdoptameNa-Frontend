@@ -10,7 +10,7 @@ import { getReportedComments } from "@/utils/report-client";
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const pageSize = 20;
+  const pageSize = 6;
 
   useEffect(() => {
     if (!authLoading && !authToken) {
@@ -29,12 +29,12 @@ export default function Page() {
             throw new Error("No se ha encontrado el token de autenticación");
           }
           return await getReportedComments(authToken, { page, size });
-        }
-        }
+        }}
+
         pageSize={pageSize}
         isPost={false}
       />
     </div>
-    
+
   );
 }
