@@ -66,7 +66,12 @@ const getPetsData = async (
     userId: string,
 ) => {
     try {
-        const petParams = { userId: Number(userId) };
+        const petParams = {
+            userId: Number(userId),
+            page: 0,
+            size: 5,
+            sort: "id,desc"
+        };
         const petData = await getPetsByUserId(petParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
