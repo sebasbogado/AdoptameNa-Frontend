@@ -14,7 +14,7 @@ import { Comment } from '@/types/comment';
 import { ITEM_TYPE } from '@/types/constants';
 
 interface Props<T> {
-  entity: Post | Pet | Product | Comment;
+  entity: any;
   type: ITEM_TYPE;
   reports: Report[];
   onBack: () => void;
@@ -36,14 +36,12 @@ export default function ReportDetailPage<T>({
 
   const getEntityUserName = (): string => {
     if (type === ITEM_TYPE.COMMENT) {
-      // Si es un comentario, no hay userFullName, devolvemos string vacío
-      return '';
+      const entityWithUser = entity as Comment;
+      return entityWithUser.user.fullName;
     }
-    // Si no es un comentario, entonces entity es Post, Pet, o Product.
-    // Todos ellos tienen userFullName.
-    // Usamos una aserción de tipo para que TypeScript lo sepa.
+
     const entityWithUser = entity as Post | Pet | Product;
-    return entityWithUser.userFullName || ''; // Usamos || '' por si userFullName fuera null o undefined
+    return entityWithUser.userFullName; 
   };
 
   return (
@@ -60,7 +58,7 @@ export default function ReportDetailPage<T>({
 
       <div className="flex justify-around">
         <ReportList reports={reports} handleDeleteReport={handleDeleteReport} />
-        <CardReport post={entity} type={type} isReportedPage={true} handleAprove={onKeep} handleDesaprove={onBlock} />
+        <CardReport post={entity} type={type} isReportedPage={true} width='w-64' handleAprove={onKeep} handleDesaprove={onBlock} />
       </div>
     </div>
   );
