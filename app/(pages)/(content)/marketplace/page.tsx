@@ -164,6 +164,11 @@ export default function Page() {
         updateFilters(filters);
     }, [searchQuery, updateFilters]);
 
+    useEffect(() => {
+        if(priceError) return;
+        updateFilters(cleanedFilters)
+    }, [cleanedFilters, updateFilters, priceError]);
+
 
     const resetFilters = () => {
         setSelectedCategory(null);
