@@ -8,11 +8,11 @@ import NotFound from "@/app/not-found";
 import { Sponsor } from '@/types/sponsor';
 import { getSponsorById, updateSponsor, deleteSponsor } from '@/utils/sponsor.http';
 import Image from 'next/image';
-import { User, Mail } from 'lucide-react';
+import { User, Mail, X } from 'lucide-react';
 import EditButton from "@/components/buttons/edit-button";
 import Button from "@/components/buttons/button";
 import BannerImage from '@/components/banner/banner-image';
-import { postMedia } from '@/utils/media.http';
+import { postMedia, deleteMedia } from '@/utils/media.http';
 import { fileSchema } from '@/utils/file-schema';
 import { ConfirmationModal } from '@/components/form/modal';
 
@@ -126,7 +126,6 @@ export default function SponsorDetailPage() {
         if (!editReason.trim()) errors.reason = 'La razón es obligatoria';
         if (!editContact.trim()) errors.contact = 'El contacto es obligatorio';
         if (!logoPreviewUrl) errors.logo = 'El logo es obligatorio';
-        if (bannerWasLoaded && !bannerPreviewUrl) errors.banner = 'El banner es obligatorio';
         setFormErrors(errors);
         if (Object.keys(errors).length > 0) return;
         setShowSaveModal(true);
@@ -145,6 +144,7 @@ export default function SponsorDetailPage() {
             setSponsor(updatedSponsor);
             setLogoPreviewUrl(updatedSponsor.logoUrl || null);
             setBannerPreviewUrl(updatedSponsor.bannerUrl || null);
+            setBannerWasLoaded(!!updatedSponsor.bannerUrl);
             setAlertInfo({ open: true, color: 'green', message: 'Solicitud actualizada correctamente.' });
         } catch (error) {
             setAlertInfo({ open: true, color: 'red', message: 'Error al actualizar la solicitud.' });
@@ -177,12 +177,40 @@ export default function SponsorDetailPage() {
         setBannerWasLoaded(true);
     };
 
-    const handleRemoveBanner = () => {
-        if (sponsor) {
-            setSponsor({ ...sponsor, bannerId: null });
+    const handleRemoveBanner = async () => {
+        if (sponsor && sponsor.bannerId && authToken) {
+            try {
+                await deleteMedia(sponsor.bannerId, authToken);
+                const updatedSponsor = {
+                    ...sponsor,
+                    bannerId: null,
+                    bannerUrl: undefined
+                };
+                setSponsor(updatedSponsor);
+                setBannerPreviewUrl(null);
+                setBannerWasLoaded(false);
+                setBannerResetKey(prev => prev + 1);
+            } catch (error) {
+                console.error("Error al eliminar el banner:", error);
+                setAlertInfo({
+                    open: true,
+                    color: "red",
+                    message: "Error al eliminar el banner. Por favor, inténtalo de nuevo."
+                });
+            }
+        } else {
+            if (sponsor) {
+                const updatedSponsor = {
+                    ...sponsor,
+                    bannerId: null,
+                    bannerUrl: undefined
+                };
+                setSponsor(updatedSponsor);
+            }
+            setBannerPreviewUrl(null);
+            setBannerWasLoaded(false);
+            setBannerResetKey(prev => prev + 1);
         }
-        setBannerPreviewUrl(null);
-        setBannerResetKey(prev => prev + 1);
     };
 
     if (loading) return <Loading />;
@@ -278,9 +306,7 @@ export default function SponsorDetailPage() {
                                                 onClick={handleRemoveLogo}
                                                 className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                </svg>
+                                                <X className="h-5 w-5" />
                                             </button>
                                         </>
                                     ) : (
@@ -312,7 +338,7 @@ export default function SponsorDetailPage() {
                                 </p>
                                 {bannerPreviewUrl ? (
                                     <div className="flex justify-center mb-4">
-                                        <div className={`relative bg-blue-50 border-2 rounded-xl flex items-center justify-center ${formErrors.banner ? 'border-red-500' : 'border-blue-300'}`} style={{ width: 400, height: 133, maxWidth: '100%' }}>
+                                        <div className="relative bg-blue-50 border-2 rounded-xl flex items-center justify-center border-blue-300" style={{ width: 400, height: 133, maxWidth: '100%' }}>
                                             <Image
                                                 src={bannerPreviewUrl}
                                                 alt="Banner publicitario"
@@ -326,9 +352,7 @@ export default function SponsorDetailPage() {
                                                 onClick={handleRemoveBanner}
                                                 className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                                </svg>
+                                                <X className="h-5 w-5" />
                                             </button>
                                         </div>
                                     </div>
@@ -340,7 +364,6 @@ export default function SponsorDetailPage() {
                                         resetKey={bannerResetKey}
                                     />
                                 )}
-                                {formErrors.banner && <p className="text-red-600 text-sm mt-1 text-center">{formErrors.banner}</p>}
                             </div>
 
                             <div className="flex flex-row justify-center gap-6 mt-8">
