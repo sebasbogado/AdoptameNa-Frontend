@@ -19,6 +19,7 @@ type CardButtonProps = {
     handleDesaprove?: () => void;
     type: ITEM_TYPE;
     isPost?: boolean;
+    width?: string;
 };
 
 export default function CardButtons({
@@ -29,6 +30,7 @@ export default function CardButtons({
     handleDesaprove,
     type,
     isPost = true,
+    width = "w-full",
 }: CardButtonProps) {
     const getReportLinkHref = () => {
         switch (type) {
@@ -46,7 +48,9 @@ export default function CardButtons({
     };
 
     return (
-        <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative", className)}>
+        <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+            type === "comment" ? width : "w-64",
+            className)}>
             {type === "comment" ? (
                 <div onClick={(e) => e.stopPropagation()}>
                     <ReportCommentCard comment={post} />
