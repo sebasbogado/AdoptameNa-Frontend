@@ -9,10 +9,14 @@ import { AdoptionResponse } from "@/types/adoption-response";
 import { Pet } from "@/types/pet";
 import AdoptionRequestCard from "@/components/profile/received-request/adoption-request-card";
 import Pagination from "@/components/pagination";
+import Button from "@/components/buttons/button";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ReceivedRequests() {
   const { authToken, user } = useAuth();
   const [petMap, setPetMap] = useState<Record<number, Pet>>({});
+  const router = useRouter();
   
   // Llamada a la API usando el hook usePagination
   const {
@@ -73,6 +77,18 @@ export default function ReceivedRequests() {
 
   return (
     <div className="flex flex-col gap-5">
+        <div className="p-6">
+            <div className="flex justify-start mb-4">
+                <Button
+                    size="md"
+                    onClick={() => router.push("/profile/received-request")}
+                    className="bg-white flex items-center shadow-md text-gray-800"
+                >
+                    <ArrowLeft className="text-gray-800 mr-2" size={20} />
+                        Volver
+                </Button>
+            </div>
+        </div>
     <div className="p-8 flex flex-wrap gap-6">
       {loading ? (
         <p className="text-center">Cargando solicitudes...</p>

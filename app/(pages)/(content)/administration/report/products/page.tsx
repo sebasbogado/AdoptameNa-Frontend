@@ -1,15 +1,10 @@
 'use client'
-import CardReport from "@/components/administration/report/card-button";
-import SectionAdmin from "@/components/administration/section";
+
 import { useAuth } from "@/contexts/auth-context";
-import { Pet } from "@/types/pet";
-import { getReportedPets } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { usePagination } from '@/hooks/use-pagination';
-import Pagination from "@/components/pagination";
-import { Loader2 } from 'lucide-react';
 import ReportListPage from "@/components/administration/report/report-list-page";
+import { getReportedProducts } from "@/utils/report-client";
 import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
@@ -29,12 +24,12 @@ export default function Page() {
   return (
     <div className="p-6">
       <ReportListPage
-        type={ITEM_TYPE.PET}
+        type={ITEM_TYPE.PRODUCT}
         fetchFunction={async (page, size) => {
           if (!authToken) {
             throw new Error("No se ha encontrado el token de autenticación");
           }
-          return await getReportedPets(authToken, { page, size });
+          return await getReportedProducts(authToken, { page, size });
         }
         }
         pageSize={pageSize}

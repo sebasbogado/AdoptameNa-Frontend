@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter, usePathname } from "next/navigation";
 import Loading from "@/app/loading";
 import { useEffect, useState, useCallback } from "react";
-import { AdoptionModeProvider } from "@/contexts/adoption-mode-context";
 import Banners from "@/components/banners";
 import { getPublicBanners } from "@/utils/banner.http";
 
@@ -48,10 +47,10 @@ export default function ProfileLayout({ children }: RootLayoutProps) {
     const showBanner = pathname === "/profile/received-request/sponsors";
 
     return (
-        <AdoptionModeProvider>
+        <>
             {showBanner && bannerImages.length > 0 && <Banners images={bannerImages} />}
             {children}
             {showBanner}
-        </AdoptionModeProvider>
+        </>
     );
 }

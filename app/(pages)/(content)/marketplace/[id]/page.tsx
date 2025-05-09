@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Product } from "@/types/product";
 import { getProduct, getProducts } from "@/utils/product.http";
-import { PostHeader } from "@/components/post/post-header";
 import { ProductHeader } from "@/components/product/product-header";
 import { ProductSpecification } from "@/components/product/product-specification";
 import { ProductDetail } from "@/components/product/product-detail";
-import PostSidebar from "@/components/post/post-sidebar";
 import { ProductSidebar } from "@/components/product/product-sidebar";
+import PostComments from "@/components/post/post-comments";
+import { useAuth } from "@/contexts/auth-context";
+import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 
 const fetchProduct = async (id: string, setProduct: React.Dispatch<React.SetStateAction<Product | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -25,6 +26,7 @@ const fetchProduct = async (id: string, setProduct: React.Dispatch<React.SetStat
 }
 
 const ProductPage = () => {
+  const { user, loading: userLoading, authToken } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -47,24 +49,36 @@ const ProductPage = () => {
     }
     fetchProducts();
   }, [])
+  
+  if (loading) {
+    return <Loading />;
+  }
 
-  if(error){
+  if (error) {
     return <NotFound />;
   }
 
   return (
     <div>
-      <div className="mt-6 ">
+      <div className="mt-6">
         <ProductHeader product={product as Product} />
         <ProductSpecification product={product as Product} />
         <div className="grid grid-cols-2 mb-2">
-          <ProductDetail product={product as Product} />
+          <div>
+            <ProductDetail product={product as Product} />
+            <PostComments 
+              user={user} 
+              userLoading={userLoading} 
+              referenceId={product?.id as number} 
+              referenceType="PRODUCT"
+              authToken={authToken ?? undefined}
+            />
+          </div>
           <ProductSidebar products={products} />
         </div>
       </div>
     </div>
   );
-
 }
 
 export default ProductPage;

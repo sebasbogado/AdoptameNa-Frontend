@@ -10,11 +10,13 @@ import { Alert } from "@material-tailwind/react";
 import { Sponsor, SponsorStatus, FilterStatus } from "@/types/sponsor";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
+import { useRouter } from "next/navigation";
 
 export default function UserSponsorsPage() {
     const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
     const [alertInfo, setAlertInfo] = useState<{ open: boolean; color: string; message: string } | null>(null);
     const { authToken, user } = useAuth();
+    const router = useRouter();
 
     const getBackendStatus = (status: FilterStatus) => {
         switch (status) {
@@ -130,13 +132,25 @@ interface SponsorCardProps {
 
 function SponsorCard({ application }: SponsorCardProps) {
     const [hasLogoError, setHasLogoError] = useState(false);
+    const router = useRouter();
 
     const handleLogoError = () => {
         setHasLogoError(true);
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Evitar la navegación si se hace clic en los botones de acción
+        if ((e.target as HTMLElement).closest('button')) {
+            return;
+        }
+        router.push(`/profile/received-request/sponsors/${application.id}`);
+    };
+
     return (
-        <div className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col">
+        <div 
+            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={handleCardClick}
+        >
             <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
                 {application.logoUrl && !hasLogoError ? (
                     <Image

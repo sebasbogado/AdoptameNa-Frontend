@@ -5,6 +5,7 @@ export const reportSchema = z.object({
   idPost: z.string().optional(),
   idPet: z.string().optional(),
   idComment: z.string().optional(),
+  idProduct: z.string().optional(),
   idReportReason: z
     .number({ invalid_type_error: "Debes seleccionar un motivo del reporte" })
     .min(1, "Debes seleccionar un motivo del reporte"),
@@ -13,10 +14,10 @@ export const reportSchema = z.object({
     .min(1, "La descripción es obligatoria")
     .max(255, "La descripción no puede tener más de 255 caracteres"),
 }).refine((data) => {
-  const provided = [data.idPost, data.idPet, data.idComment].filter(Boolean).length;
+  const provided = [data.idPost, data.idPet, data.idComment, data.idProduct].filter(Boolean).length;
   return provided <= 1;
 }, {
   message: "Se debe proporcionar solo uno de los siguientes campos: idPost, idPet o idComment",
-  path: ["idPost", "idPet", "idComment"],
+  path: ["idPost", "idPet", "idComment", "idProduct"],
 }
 )

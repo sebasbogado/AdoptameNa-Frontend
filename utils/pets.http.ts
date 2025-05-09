@@ -123,6 +123,26 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
   }
 }
 
+export const getPetSMissing = async (
+  queryParams?: Record<string, any>): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const queryString = queryParams ? buildQueryString(queryParams) : "";
+    const url = `${API_URL}${queryString && `?${queryString}`}`;
+    const response = await axios.get(url, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+};
+
 export async function deletePet(id: string, token: string) {
   try {
     const response = await axios.delete(`${API_URL}/${id}`, {
@@ -140,3 +160,27 @@ export async function deletePet(id: string, token: string) {
     throw new Error(error.message || "Error al eliminar publicación de mascota");
   }
 }
+
+export const getDeletedPets = async (
+  token: string,
+  queryParams?: myPetsQueryParams
+): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/deleted`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+      
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets");
+  }
+};

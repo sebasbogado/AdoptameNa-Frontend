@@ -11,6 +11,7 @@ import { Report } from "@/types/report";
 import {getReportsById, deleteReport, banPet, deleteReportsByPetId} from "@/utils/report-client";
 import { getPet } from "@/utils/pets.http";
 import ReportDetailPage from "@/components/administration/report/report-detail";
+import { ITEM_TYPE } from "@/types/constants";
 
 export default function ReportsPet() {
   const { authToken } = useAuth();
@@ -97,6 +98,7 @@ export default function ReportsPet() {
     <div className="p-6">
       <ReportDetailPage
         entity={pet}
+        type={ITEM_TYPE.PET}
         reports={reports}
         onBack={() => router.push("/administration/report/pets")}
         onBlock={handleDesaprove}

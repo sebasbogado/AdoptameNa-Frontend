@@ -1,4 +1,4 @@
-import { PaginatedResponse, productQueryParams, } from "@/types/pagination";
+import { buildQueryParams, PaginatedResponse, productQueryParams, } from "@/types/pagination";
 import { CreateProduct, Product, UpdateProduct } from "@/types/product";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
@@ -106,3 +106,26 @@ export async function deleteProduct(id: string, token: string) {
     throw new Error(error.message || "Error al eliminar Producto");
   }
 }
+
+export const getDeletedProducts = async (
+  token: string,
+  queryParams?: productQueryParams
+): Promise<PaginatedResponse<Product>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/deleted`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Productos");
+  }
+};

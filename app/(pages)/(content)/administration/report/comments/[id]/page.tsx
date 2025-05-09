@@ -3,41 +3,42 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getPost } from "@/utils/posts.http";
-import { getReportsById, deleteReportsByPostId, deleteReport, banPost } from "@/utils/report-client";
+import { getReportsById, deleteReport, banComment, deleteReportsByCommentId } from "@/utils/report-client";
 import ReportDetailPage from "@/components/administration/report/report-detail";
 import { Report } from "@/types/report";
-import { Post } from "@/types/post";
 import NotFound from "@/app/not-found";
 import Loading from "@/app/loading";
 import { Alert } from "@material-tailwind/react";
 import { ITEM_TYPE } from "@/types/constants";
+import { getCommentById } from "@/utils/comments.http";
+import { Comment } from "@/types/comment";
 
 export default function ReportsPost() {
   const { authToken } = useAuth();
   const params = useParams();
   const router = useRouter();
-  const [post, setPost] = useState<Post | null>(null);
+  const [comment, setComment] = useState<Comment | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const postId = parseInt(params.id as string, 10);
+  const commentId = parseInt(params.id as string, 10);
 
   useEffect(() => {
-    if (!authToken || isNaN(postId)) {
+    if (!authToken || isNaN(commentId)) {
       setError(true);
       return;
     }
 
     const fetchData = async () => {
       try {
-        const [postData, reportData] = await Promise.all([
-          getPost(postId.toString()),
-          getReportsById(authToken, { idPost: postId })
+        const [commentData, reportData] = await Promise.all([
+          getCommentById(authToken, commentId.toString()),
+          getReportsById(authToken, { idComment: commentId })
         ]);
-        setPost(postData);
+
+        setComment(commentData);
         setReports(reportData.data);
       } catch (err) {
         setError(true);
@@ -47,38 +48,38 @@ export default function ReportsPost() {
     };
 
     fetchData();
-  }, [authToken, postId]);
+  }, [authToken, commentId]);
 
   const handleAprove = async () => {
-    if (!authToken || !post) return;
+    if (!authToken || !comment) return;
     try {
-      await deleteReportsByPostId(post.id, authToken);
+      await deleteReportsByCommentId(comment.id, authToken);
       setReports([]);
-      setSuccessMessage("Post aprobado exitosamente");
-      setTimeout(() => router.push("/administration/report/posts"), 5000);
+      setSuccessMessage("Comentario aprobado exitosamente");
+      setTimeout(() => router.push("/administration/report/comments"), 5000);
     } catch {
       setErrorMessage("Hubo un error al aprobar el post.");
     }
   };
 
   const handleDesaprove = async () => {
-    if (!authToken || !post) return;
+    if (!authToken || !comment) return;
     try {
-      await banPost(post.id, authToken);
-      setSuccessMessage("El post ha sido bloqueado con éxito.");
-      setTimeout(() => router.push("/administration/report/posts"), 5000);
+      await banComment(comment.id, authToken);
+      setSuccessMessage("El comentario ha sido bloqueado con éxito.");
+      setTimeout(() => router.push("/administration/report/comments"), 5000);
     } catch {
-      setErrorMessage("Hubo un error al bloquear el post.");
+      setErrorMessage("Hubo un error al bloquear el commentario.");
     }
   };
 
   const handleDeleteReport = async (reportId: number) => {
-    if (!authToken || !post) return;
+    if (!authToken || !comment) return;
     try {
       await deleteReport(reportId, authToken);
       setReports((prev) => prev.filter((r) => r.id !== reportId));
     } catch {
-      setErrorMessage("Error al eliminar el reporte.");
+      setErrorMessage("Error al eliminar el comentario.");
     }
   };
 
@@ -92,15 +93,15 @@ export default function ReportsPost() {
   }, [successMessage, errorMessage]);
 
   if (loading) return <Loading />;
-  if (error || !post) return <NotFound />;
+  if (error || !comment) return <NotFound />;
 
   return (
     <div className="p-6">
       <ReportDetailPage
-        entity={post}
-        type={ITEM_TYPE.POST}
+        entity={comment}
+        type={ITEM_TYPE.COMMENT}
         reports={reports}
-        onBack={() => router.push("/administration/report/posts")}
+        onBack={() => router.push("/administration/report/comments")}
         onBlock={handleDesaprove}
         onKeep={handleAprove}
         handleDeleteReport={handleDeleteReport}
