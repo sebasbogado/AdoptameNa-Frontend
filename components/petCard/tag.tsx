@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
 
-const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1'
+const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1 text-adoption border-adoption'
 import { DogIcon, VenusIcon, MarsIcon, SyringeIcon, CakeIcon, ScissorsIcon, MapPinIcon } from "lucide-react";
 interface TagProps {
     postType: string; 
@@ -10,8 +10,9 @@ interface TagProps {
 }
 
 const postColors: Record<string, string> = {
-    adoption: "text-adoption border-adoption",
-    missing: "text-missing border-missing",
+    Blog: "text-adoption border-adoption",
+    Voluntariado: "text-adoption border-adoption",
+    // Voluntariado: "text-missing border-missing",
     volunteering: "text-volunteering border-volunteering",
 };
 
