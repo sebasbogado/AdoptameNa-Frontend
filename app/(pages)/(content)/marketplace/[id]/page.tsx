@@ -10,6 +10,7 @@ import { ProductSpecification } from "@/components/product/product-specification
 import { ProductDetail } from "@/components/product/product-detail";
 import PostSidebar from "@/components/post/post-sidebar";
 import { ProductSidebar } from "@/components/product/product-sidebar";
+import NotFound from "@/app/not-found";
 
 const fetchProduct = async (id: string, setProduct: React.Dispatch<React.SetStateAction<Product | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
@@ -46,6 +47,10 @@ const ProductPage = () => {
     }
     fetchProducts();
   }, [])
+
+  if(error){
+    return <NotFound />;
+  }
 
   return (
     <div>
