@@ -14,8 +14,9 @@ import { X } from 'lucide-react';
 import { getAnimals } from "@/utils/animals.http";
 import LabeledInput from "@/components/inputs/labeled-input";
 import Link from "next/link";
-import { useDebounce } from "@/hooks/use-debounce";
 import SearchBar from "@/components/search-bar";
+import { useDebounce } from '@/hooks/use-debounce';
+
 
 
 export default function Page() {
@@ -36,7 +37,8 @@ export default function Page() {
     const [availableAnimals, setAvailableAnimals] = useState<{ id: number; name: string }[]>([]);
 
     const [searchQuery, setSearchQuery] = useState<string>("");
-    // const debouncedSearch = useDebounce(searchQuery, 300);
+    const [inputValue, setInputValue] = useState<string>("");
+
     const selectedAnimalId = useMemo(() => {
         const found = availableAnimals.find(a => a.name === selectedAnimal);
         return found ? found.id : null;
@@ -52,15 +54,15 @@ export default function Page() {
         if (value.length >= 3 || value === "") {
             setSearchQuery(value);
         }
-    }, 300);
+    }, 500);
 
     const handleSearch = (query: string) => {
-        // setInputValue(query); //no se para que se usaba
+        setInputValue(query);
         debouncedSearch(query);
     };
 
     const handleClearSearch = () => {
-        // setInputValue("");
+        setInputValue("");
         setSearchQuery("");
     };
 
@@ -139,6 +141,7 @@ export default function Page() {
                 minPrice: filters?.minPrice || undefined,
                 maxPrice: filters?.maxPrice || undefined,
                 animalIds: selectedAnimalId ? selectedAnimalId : undefined,
+                search: filters?.name || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -155,16 +158,11 @@ export default function Page() {
     }, [selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
 
     useEffect(() => {
-        if (priceError) return;
-
         const filters = {
-            //confirmar nombre del filtro cuando haya api
             name: searchQuery || undefined,
-        }
-
-        updateFilters(cleanedFilters);
-        // updateFilters(filters || cleanFilters); //confirmar que funcione
-    }, [cleanedFilters, updateFilters, priceError]);
+        };
+        updateFilters(filters);
+    }, [searchQuery, updateFilters]);
 
 
     const resetFilters = () => {
@@ -174,12 +172,11 @@ export default function Page() {
         setMinPrice(null);
         setMaxPrice(null);
         updateFilters({});
+        setInputValue("");
+        setSearchQuery("");
     };
 
-    const handleSearchChange = (value: string) => {
-        console.log(value);
-        setSearchQuery(value);
-    }
+
 
     if (!pageSize) return <Loading />;
 
@@ -187,6 +184,12 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="mx-80 mb-4">
+                    <div className="flex flex-col col-span-1">
+                        <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                        <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
+                    </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <LabeledSelect
                         label="Categorías"
@@ -222,11 +225,6 @@ export default function Page() {
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
                     />
-                    {/**Search */}
-                    <div className="flex flex-col col-span-1">
-                        <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
-                        <SearchBar value={searchQuery} onChange={handleSearch} onClear={handleClearSearch} />
-                    </div>
                     <div className="flex items-end justify-start">
                         <button
                             onClick={resetFilters}
