@@ -39,3 +39,8 @@ export interface UpdatePost {
   userId: number;
   mediaIds: number[];
 }
+
+export interface RestorePost {
+  isDeleted: boolean;
+}
+

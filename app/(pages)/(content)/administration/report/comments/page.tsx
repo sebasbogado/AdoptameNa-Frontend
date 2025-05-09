@@ -1,21 +1,16 @@
 'use client'
-import CardReport from "@/components/administration/report/card-button";
-import SectionAdmin from "@/components/administration/section";
+
 import { useAuth } from "@/contexts/auth-context";
-import { Pet } from "@/types/pet";
-import { getReportedPets } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { usePagination } from '@/hooks/use-pagination';
-import Pagination from "@/components/pagination";
-import { Loader2 } from 'lucide-react';
-import ReportListPage from "@/components/administration/report/report-list-page";
 import { ITEM_TYPE } from "@/types/constants";
+import ReportListPage from "@/components/administration/report/report-list-page";
+import { getReportedComments } from "@/utils/report-client";
 
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const pageSize = 20;
+  const pageSize = 6;
 
   useEffect(() => {
     if (!authLoading && !authToken) {
@@ -23,23 +18,23 @@ export default function Page() {
     } else if (user && user.role !== "admin") {
       router.push("/dashboard");
     }
-
   }, [authToken, authLoading, router]);
 
   return (
     <div className="p-6">
       <ReportListPage
-        type={ITEM_TYPE.PET}
+        type={ITEM_TYPE.COMMENT}
         fetchFunction={async (page, size) => {
           if (!authToken) {
             throw new Error("No se ha encontrado el token de autenticación");
           }
-          return await getReportedPets(authToken, { page, size });
-        }
-        }
+          return await getReportedComments(authToken, { page, size });
+        }}
+
         pageSize={pageSize}
         isPost={false}
       />
     </div>
-  )
+
+  );
 }

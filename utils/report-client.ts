@@ -7,6 +7,7 @@ const NEW_API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/reports`;
 const API_URL_BAN_POST = `${process.env.NEXT_PUBLIC_BASE_API_URL}/posts/`;
 const API_URL_BAN_PET = `${process.env.NEXT_PUBLIC_BASE_API_URL}/pets`;
 const API_URL_BAN_PRODUCT = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
+const API_URL_BAN_COMMENT = `${process.env.NEXT_PUBLIC_BASE_API_URL}/comments`;
 
 export const getReportById = async (id: string) => {
   try {
@@ -123,6 +124,22 @@ export const deleteReportsByPetId = async (id: number, token: string) => {
   }
 };
 
+export const deleteReportsByProductId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byProductId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
+
 //obtener reportes de un post/pet por id
 export const getReportsById = async (token: string, queryParams?: reportQueryParams) => {
   try {
@@ -204,6 +221,24 @@ export const banPet = async (id: number, token: string) => {
   }
 }
 
+export const getReportedProducts = async (token: string, queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-products`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener pets reportados");
+  }
+}
+
 export const banProduct = async (id: number, token: string) => {
   try {
     await axios.patch(`${API_URL_BAN_PRODUCT}/${id}/ban`, null, {
@@ -216,3 +251,50 @@ export const banProduct = async (id: number, token: string) => {
     throw new Error(error.response?.data?.message || "Error al bloquear post")
   }
 }
+
+export const getReportedComments = async (token: string, queryParams?: reportQueryParams) => {
+  try {
+    const response = await axios.get(`${NEW_API_URL}/reported-comments`, {
+      params: queryParams,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener pets reportados");
+  }
+}
+
+export const banComment = async (id: number, token: string) => {
+  try {
+    await axios.patch(`${API_URL_BAN_COMMENT}/${id}/ban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al bloquear post")
+  }
+}
+
+export const deleteReportsByCommentId = async (id: number, token: string) => {
+  try {
+    const response = await axios.delete(`${NEW_API_URL}/byCommentId/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || "Error al eliminar el reporte"
+    );
+  }
+};
