@@ -48,7 +48,7 @@ const getPostsData = async (
 ) => {
     try {
         // Cargar posts del usuario
-        const postParams = { user: userId }; // Usamos el ID del usuario actual
+        const postParams = { userId: Number(userId) }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
@@ -66,7 +66,8 @@ const getPetsData = async (
     userId: string,
 ) => {
     try {
-        const petData = await getPetsByUserId(userId);
+        const petParams = { userId: Number(userId) };
+        const petData = await getPetsByUserId(petParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
@@ -234,7 +235,7 @@ export default function ProfilePage() {
                     {/* Mostrar el mapa si las coordenadas están disponibles */}
                     {userProfile?.addressCoordinates && (
                         <div className='w-[40vw] mt-[-70px] '>
-                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization}/>
+                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization} />
                         </div>
                     )}
 
