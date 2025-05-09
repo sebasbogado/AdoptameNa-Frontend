@@ -37,6 +37,7 @@ export type productQueryParams = queryParams & locationQueryParams & {
   minPrice?: number;
   maxPrice?: number;
   animalIds?: number;
+  search?: string;
 };
 
 export type myPetsQueryParams = queryParams & {
