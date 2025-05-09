@@ -3,41 +3,41 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getPost } from "@/utils/posts.http";
-import { getReportsById, deleteReportsByPostId, deleteReport, banPost } from "@/utils/report-client";
+import { getReportsById, deleteReport, banPost, deleteReportsByProductId, banProduct } from "@/utils/report-client";
 import ReportDetailPage from "@/components/administration/report/report-detail";
 import { Report } from "@/types/report";
-import { Post } from "@/types/post";
 import NotFound from "@/app/not-found";
 import Loading from "@/app/loading";
 import { Alert } from "@material-tailwind/react";
+import { getProduct } from "@/utils/product.http";
+import { Product } from "@/types/product";
 import { ITEM_TYPE } from "@/types/constants";
 
 export default function ReportsPost() {
   const { authToken } = useAuth();
   const params = useParams();
   const router = useRouter();
-  const [post, setPost] = useState<Post | null>(null);
+  const [product, setProduct] = useState<Product | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const postId = parseInt(params.id as string, 10);
+  const productId = parseInt(params.id as string, 10);
 
   useEffect(() => {
-    if (!authToken || isNaN(postId)) {
+    if (!authToken || isNaN(productId)) {
       setError(true);
       return;
     }
 
     const fetchData = async () => {
       try {
-        const [postData, reportData] = await Promise.all([
-          getPost(postId.toString()),
-          getReportsById(authToken, { idPost: postId })
+        const [productData, reportData] = await Promise.all([
+          getProduct(productId.toString()),
+          getReportsById(authToken, { idProduct: productId })
         ]);
-        setPost(postData);
+        setProduct(productData);
         setReports(reportData.data);
       } catch (err) {
         setError(true);
@@ -47,33 +47,33 @@ export default function ReportsPost() {
     };
 
     fetchData();
-  }, [authToken, postId]);
+  }, [authToken, productId]);
 
   const handleAprove = async () => {
-    if (!authToken || !post) return;
+    if (!authToken || !product) return;
     try {
-      await deleteReportsByPostId(post.id, authToken);
+      await deleteReportsByProductId(product.id, authToken);
       setReports([]);
       setSuccessMessage("Post aprobado exitosamente");
-      setTimeout(() => router.push("/administration/report/posts"), 5000);
+      setTimeout(() => router.push("/administration/report/products"), 5000);
     } catch {
       setErrorMessage("Hubo un error al aprobar el post.");
     }
   };
 
   const handleDesaprove = async () => {
-    if (!authToken || !post) return;
+    if (!authToken || !product) return;
     try {
-      await banPost(post.id, authToken);
+      await banProduct(product.id, authToken);
       setSuccessMessage("El post ha sido bloqueado con éxito.");
-      setTimeout(() => router.push("/administration/report/posts"), 5000);
+      setTimeout(() => router.push("/administration/report/products"), 5000);
     } catch {
       setErrorMessage("Hubo un error al bloquear el post.");
     }
   };
 
   const handleDeleteReport = async (reportId: number) => {
-    if (!authToken || !post) return;
+    if (!authToken || !product) return;
     try {
       await deleteReport(reportId, authToken);
       setReports((prev) => prev.filter((r) => r.id !== reportId));
@@ -92,15 +92,15 @@ export default function ReportsPost() {
   }, [successMessage, errorMessage]);
 
   if (loading) return <Loading />;
-  if (error || !post) return <NotFound />;
+  if (error || !product) return <NotFound />;
 
   return (
     <div className="p-6">
       <ReportDetailPage
-        entity={post}
-        type={ITEM_TYPE.POST}
+        entity={product}
+        type={ITEM_TYPE.PRODUCT}
         reports={reports}
-        onBack={() => router.push("/administration/report/posts")}
+        onBack={() => router.push("/administration/report/products")}
         onBlock={handleDesaprove}
         onKeep={handleAprove}
         handleDeleteReport={handleDeleteReport}

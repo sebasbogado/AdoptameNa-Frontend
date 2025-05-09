@@ -58,6 +58,8 @@ export type myPetsQueryParams = queryParams & {
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+  idProduct?: number;
+  idComment?: number;
   reportType?: ReportType;
 };
 
