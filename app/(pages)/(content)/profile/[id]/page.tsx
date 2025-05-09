@@ -50,7 +50,7 @@ const getPostsData = async (
         // Cargar posts del usuario
         const postParams = { user: userId }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
-        setPosts(Array.isArray(postData) ? postData : []);
+        setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, posts: true }));
@@ -67,7 +67,7 @@ const getPetsData = async (
 ) => {
     try {
         const petData = await getPetsByUserId(userId);
-        setPets(Array.isArray(petData) ? petData : []);
+        setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
         console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, pets: true }));
@@ -246,7 +246,6 @@ export default function ProfilePage() {
                         items={pets}
                         loading={loading}
                         error={errors.pets}
-                        filterByType={false}
                     />
 
                     <Section
@@ -257,7 +256,6 @@ export default function ProfilePage() {
                         items={posts}
                         loading={loading}
                         error={errors.posts}
-                        filterByType={false}
                     />
 
                 </div>
