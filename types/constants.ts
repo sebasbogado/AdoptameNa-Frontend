@@ -16,3 +16,9 @@ export const PET_STATUS = {
     PRODUCT = 'product',
     COMMENT ='comment',
   };
+
+  export const USER_ROLE = {
+    ADMIN: 1,
+    USER: 2,
+    ORGANIZATION: 3,
+  };
