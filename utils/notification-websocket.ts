@@ -4,10 +4,11 @@ import { useCallback } from "react";
 import { USER_ROLE } from "@/types/constants";
 import { Notification } from "@/types/notification";
 import { useWebSocket } from "../hooks/websocket-hook";
+import { User } from "@/types/auth";
 
 export function useNotificationWebSocket(
   authToken: string | null,
-  user: any | null,
+  user: User | null,
   addNewNotification: (notification: Notification) => void
 ) {
   const setupSubscriptions = useCallback(
