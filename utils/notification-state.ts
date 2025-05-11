@@ -29,7 +29,7 @@ export function useNotificationState(authToken: string | null, user: any | null)
     try {
       const queryParams: notificationQueryParams = {
         page: 0,
-        size: 5,
+        size: 10,
         sort: "createdAt,desc",
       };
 
