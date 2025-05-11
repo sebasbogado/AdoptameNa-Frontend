@@ -362,26 +362,32 @@ export default function Page() {
             <div className="flex gap-2 mt-2 justify-center items-center">
                 {selectedImages.map((src, index) => (
                     <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        {src.url && (
-                            <>
-                                <Image
-                                    src={src.url}
-                                    alt="post-image"
-                                    fill
-                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    unoptimized
-                                />
-                                {/* Botón de eliminación */}
-                                <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                    title="Eliminar imagen"
-                                >
-                                    ✕
-                                </button>
-                            </>
+                        {src.mimeType && src.mimeType.startsWith("video/") ? (
+                            <video
+                                src={src.url}
+                                className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                onClick={() => setCurrentImageIndex(index)}
+                                muted
+                                playsInline
+                            />
+                        ) : (
+                            <Image
+                                src={src.url}
+                                alt="post-image"
+                                fill
+                                className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                onClick={() => setCurrentImageIndex(index)}
+                                unoptimized
+                            />
                         )}
+                        {/* Botón de eliminación */}
+                        <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                            title="Eliminar imagen"
+                        >
+                            ✕
+                        </button>
                     </div>
                 ))}
                 <input

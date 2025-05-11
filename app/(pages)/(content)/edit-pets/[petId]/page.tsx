@@ -380,14 +380,23 @@ export default function Page() {
 
           {selectedImages.map((img, index) => (
             <div key={index} className="relative w-24 h-24 group">
-              {/* Imagen */}
-              <Image
-                src={img.url}
-                alt="Imagen de mascota"
-                fill
-                className="w-full h-full object-cover rounded-lg border"
-              />
-
+              {img.mimeType && img.mimeType.startsWith("video/") ? (
+                <video
+                  src={img.url}
+                  className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                  muted
+                  playsInline
+                />
+              ) : (
+                <Image
+                  src={img.url}
+                  alt="Imagen de mascota"
+                  fill
+                  className="w-full h-full object-cover rounded-lg border"
+                  onClick={() => setCurrentImageIndex(index)}
+                />
+              )}
               {/* Botón de eliminación */}
               <button
                 onClick={() => handleRemoveImage(index)}

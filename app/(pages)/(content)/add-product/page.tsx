@@ -298,13 +298,23 @@ export default function Page() {
       <div className="flex gap-2 mt-2 justify-center items-center">
         {selectedImages.map((src, index) => (
           <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-            <Image
-              src={src.url}
-              alt="post"
-              fill
-              className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-              onClick={() => setCurrentImageIndex(index)}
-            />
+            {src.mimeType && src.mimeType.startsWith("video/") ? (
+              <video
+                src={src.url}
+                className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                onClick={() => setCurrentImageIndex(index)}
+                muted
+                playsInline
+              />
+            ) : (
+              <Image
+                src={src.url}
+                alt="post"
+                fill
+                className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                onClick={() => setCurrentImageIndex(index)}
+              />
+            )}
             {/* Botón de eliminación */}
             <button
               onClick={() => handleRemoveImage(index)}
