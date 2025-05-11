@@ -11,13 +11,22 @@ const notFoundSrc = "/logo.png";
 const CardImage: React.FC<CardImageProps> = ({ media }) => {
     return (
         <div className="h-36 rounded-lg overflow-hidden">
-            <Image
-                className="w-full  h-auto object-cover"
-                src={media?.url || notFoundSrc}
-                alt="Imagen de mascota"
-                width={500}
-                height={500}
-            />
+            {media?.mimeType && media.mimeType.startsWith("video/") ? (
+                <video
+                    className="w-full h-full object-cover"
+                    src={media.url}
+                    muted
+                    playsInline
+                />
+            ) : (
+                <Image
+                    className="w-full  h-auto object-cover"
+                    src={media?.url || notFoundSrc}
+                    alt="Imagen de mascota"
+                    width={500}
+                    height={500}
+                />
+            )}
         </div>
     );
 };
