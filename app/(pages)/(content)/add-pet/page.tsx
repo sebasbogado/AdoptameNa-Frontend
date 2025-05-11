@@ -196,21 +196,7 @@ export default function Page() {
 
   const adjustImageSize = () => {
     if (!bannerRef.current) return;
-
-    const images = bannerRef.current.querySelectorAll("img");
-    images.forEach((img) => {
-      if (document.fullscreenElement) {
-        img.style.width = "100vw";
-        img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
-        setIsFullscreen(true);
-      } else {
-        img.style.width = "";
-        img.style.height = "";
-        img.style.objectFit = "";
-        setIsFullscreen(false);
-      }
-    });
+    setIsFullscreen(!!document.fullscreenElement);
   };
 
   const handlePositionChange = (newPosition: [number, number]) => {
@@ -284,7 +270,7 @@ export default function Page() {
 
   return (
     <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
-      <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+      <div className={`relative ${isFullscreen ? "w-screen h-screen flex justify-center items-center" : ""}`} ref={bannerRef}>
         <NewBanner
           medias={selectedImages}
         />
