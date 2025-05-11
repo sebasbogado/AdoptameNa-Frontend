@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Carousel } from "@material-tailwind/react";
 import { MediaDTO } from "@/types/user-profile"; // Keep type definition
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize } from "lucide-react";
 import Image from "next/image";
 
 const notFoundSrc = "/logo.png"; // Default image source
@@ -17,6 +17,29 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const [images, setImages] = useState<
         { url: string; isVertical: boolean; id: number }[]
     >([]);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const bannerRef = useRef<HTMLDivElement>(null);
+
+    const toggleFullScreen = () => {
+        if (!bannerRef.current) return;
+
+        if (!document.fullscreenElement) {
+            bannerRef.current.requestFullscreen()
+                .then(() => setIsFullscreen(true))
+                .catch((err) => console.error("Error al activar pantalla completa:", err));
+        } else {
+            document.exitFullscreen();
+        }
+    };
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    }, []);
 
     const checkOrientation = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
@@ -56,11 +79,21 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const showArrows = images.length > 1;
 
     return (
-        <div className="relative flex flex-col items-center w-full">
+        <div className={`relative flex flex-col items-center w-full ${isFullscreen ? "h-screen flex items-center justify-center" : ""}`} ref={bannerRef}>
             <div className="relative w-full flex justify-center">
+                <button
+                    onClick={toggleFullScreen}
+                    className={`absolute z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition ${
+                        isFullscreen 
+                            ? "top-4 right-48" 
+                            : "top-4 right-24"
+                    }`}
+                >
+                    <Maximize size={20} />
+                </button>
                 <Carousel 
                     key={images.length}
-                    className="rounded-xl overflow-hidden h-[400px] relative w-4/5"
+                    className={`rounded-xl overflow-hidden ${isFullscreen ? "h-[50vh]" : "h-[400px]"} relative w-4/5`}
                     loop={images.length > 1}
                     autoplay={images.length > 1}
                     autoplayDelay={10000}
