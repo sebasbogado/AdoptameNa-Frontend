@@ -88,7 +88,7 @@ export function useNotificationState(authToken: string | null, user: any | null)
       const exists = prev.some((n) => n.id === notification.id);
       if (exists) return prev;
       const newList = [notification, ...prev];
-      return newList.slice(0, 5);
+      return newList.slice(0, 10);
     });
 
     if (!notification.isRead) {
