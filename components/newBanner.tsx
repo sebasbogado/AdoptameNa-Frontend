@@ -5,6 +5,7 @@ import { Carousel } from "@material-tailwind/react";
 import { MediaDTO } from "@/types/user-profile"; // Keep type definition
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const notFoundSrc = "/logo.png"; // Default image source
 
@@ -18,6 +19,8 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
         { url: string; isVertical: boolean; id: number; type: 'image' | 'video' }[]
     >([]);
     const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
+    const pathname = usePathname();
+    const isEditPostPage = pathname?.includes('/edit-post/');
 
     const processMedia = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
@@ -161,7 +164,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 ) : (
                                     <video
                                         src={media.url}
-                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} [&::-webkit-media-controls-panel]:translate-y-[-24px] [&::-webkit-media-controls]:translate-y-[-24px] [&::-webkit-media-controls-timeline]:hidden [&::-webkit-media-controls-progress-bar]:hidden`}
+                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage ? "[&::-webkit-media-controls-panel]:translate-y-[-24px] [&::-webkit-media-controls]:translate-y-[-24px] [&::-webkit-media-controls-timeline]:hidden [&::-webkit-media-controls-progress-bar]:hidden" : ""}`}
                                         controls
                                         controlsList="nodownload noplaybackrate"
                                         disablePictureInPicture
