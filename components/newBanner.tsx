@@ -161,7 +161,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 ) : (
                                     <video
                                         src={media.url}
-                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"}`}
+                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} [&::-webkit-media-controls-panel]:translate-y-[-20px] [&::-webkit-media-controls]:translate-y-[-20px]`}
                                         controls
                                         controlsList="nodownload noplaybackrate"
                                         disablePictureInPicture
