@@ -168,6 +168,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                         playsInline
                                         loop
                                         autoPlay
+                                        muted
                                         onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
                                     />
                                 )}
