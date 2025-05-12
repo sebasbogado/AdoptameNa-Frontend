@@ -19,8 +19,20 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
         { url: string; isVertical: boolean; id: number; type: 'image' | 'video' }[]
     >([]);
     const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
+    const [isFullscreen, setIsFullscreen] = useState(false);
     const pathname = usePathname();
     const isEditPostPage = pathname?.includes('/edit-post/');
+
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            setIsFullscreen(document.fullscreenElement !== null);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, []);
 
     const processMedia = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
@@ -164,7 +176,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 ) : (
                                     <video
                                         src={media.url}
-                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage ? "[&::-webkit-media-controls-panel]:translate-y-[-24px] [&::-webkit-media-controls]:translate-y-[-24px] [&::-webkit-media-controls-timeline]:hidden [&::-webkit-media-controls-progress-bar]:hidden" : ""}`}
+                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage && !isFullscreen ? "[&::-webkit-media-controls-panel]:translate-y-[-24px] [&::-webkit-media-controls]:translate-y-[-24px] [&::-webkit-media-controls-timeline]:hidden [&::-webkit-media-controls-progress-bar]:hidden" : ""}`}
                                         controls
                                         controlsList="nodownload noplaybackrate"
                                         disablePictureInPicture
