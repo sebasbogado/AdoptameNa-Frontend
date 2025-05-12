@@ -17,6 +17,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const [mediaItems, setMediaItems] = useState<
         { url: string; isVertical: boolean; id: number; type: 'image' | 'video' }[]
     >([]);
+    const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
 
     const processMedia = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
@@ -59,6 +60,15 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                 type: m.mimeType.startsWith('video/') ? 'video' : 'image' 
             })));
         }
+    };
+
+    const handleVideoLoad = (event: React.SyntheticEvent<HTMLVideoElement>, url: string) => {
+        const video = event.currentTarget;
+        const isVertical = video.videoHeight >= video.videoWidth;
+        setVideoDimensions(prev => ({
+            ...prev,
+            [url]: isVertical
+        }));
     };
 
     useEffect(() => {
@@ -129,7 +139,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 key={media.id || index}
                                 className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/5"
                             >
-                                {media.type === 'image' && media.isVertical && (
+                                {(media.type === 'image' && media.isVertical) || (media.type === 'video' && videoDimensions[media.url]) && (
                                     <div
                                         className="absolute inset-0 bg-center bg-cover filter blur-lg scale-110"
                                         style={{ backgroundImage: `url(${media.url})` }}
@@ -151,12 +161,14 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 ) : (
                                     <video
                                         src={media.url}
-                                        className="relative z-10 h-full w-full object-cover"
+                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"}`}
                                         controls
+                                        controlsList="nodownload noplaybackrate"
+                                        disablePictureInPicture
                                         playsInline
                                         loop
-                                        muted
                                         autoPlay
+                                        onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
                                     />
                                 )}
                             </div>
