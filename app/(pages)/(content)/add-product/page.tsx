@@ -183,9 +183,9 @@ export default function Page() {
         throw new Error("El token de autenticación es requerido");
       }
 
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4"];
       if (!allowedTypes.includes(file.type)) {
-        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG, WEBP y MP4.");
         return;
       }
 
@@ -327,7 +327,7 @@ export default function Page() {
         ))}
         <input
           type="file"
-          accept="image/*"
+          accept="image/png, image/jpeg, image/webp, video/mp4"
           multiple
           className="hidden"
           id="fileInput"

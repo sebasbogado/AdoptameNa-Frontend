@@ -211,9 +211,9 @@ export default function Page() {
         setPrecautionMessage(`Solo puedes subir hasta 5 imágenes.`);
         return;
       }
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4"];
       if (!allowedTypes.includes(file.type)) {
-        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG, WEBP y MP4.");
         return;
       }
       // Verificar el tamaño del archivo (1MB)
@@ -409,7 +409,7 @@ export default function Page() {
 
           <input
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/webp, video/mp4"
             multiple
             className="hidden"
             id="fileInput"

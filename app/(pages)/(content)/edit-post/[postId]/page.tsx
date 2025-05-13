@@ -392,7 +392,7 @@ export default function Page() {
                 ))}
                 <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png, image/jpeg, image/webp"
                     multiple
                     className="hidden"
                     id="fileInput"
