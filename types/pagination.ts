@@ -1,4 +1,5 @@
 import { ReportType } from "./report";
+import { NotificationType } from "./notification";
 
 export type Pagination = {
   page: number;
@@ -26,6 +27,15 @@ export type postQueryParams = queryParams & locationQueryParams  & {
   tagIds?: number[];
 };
 
+export type notificationQueryParams = queryParams & {
+  userId?: number;
+  isRead?: boolean;
+  type?: NotificationType;
+  roleIds?: number[];
+  dateMin?: Date;
+  dateMax?: Date;
+};
+
 export type petQueryParams = queryParams & locationQueryParams  & {
   userId?: number;
   breedId?: number;
@@ -45,6 +55,7 @@ export type productQueryParams = queryParams & locationQueryParams & {
   maxPrice?: number;
   animalIds?: number;
   userId?: number;
+  search?: string;
 };
 
 export type myPetsQueryParams = queryParams & {
@@ -58,6 +69,8 @@ export type myPetsQueryParams = queryParams & {
 export type reportQueryParams = queryParams & {
   idPost?: number;
   idPet?: number;
+  idProduct?: number;
+  idComment?: number;
   reportType?: ReportType;
 };
 

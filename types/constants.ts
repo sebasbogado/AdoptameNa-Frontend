@@ -10,8 +10,15 @@ export const PET_STATUS = {
     BLOG: 2,
   };
 
-  export enum ITEM_TYPE {
+  export enum ITEM_TYPE  {
     POST = 'post',
-    PET ='pet',
+    PET = 'pet',
     PRODUCT = 'product',
+    COMMENT ='comment',
+  };
+
+  export const USER_ROLE = {
+    ADMIN: 1,
+    USER: 2,
+    ORGANIZATION: 3,
   };

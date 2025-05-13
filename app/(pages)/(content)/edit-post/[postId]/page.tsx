@@ -250,12 +250,6 @@ export default function Page() {
         try {
             await deletePost(String(post.id), authToken);
 
-            if (post.media.length > 0) {
-                // Eliminar las imágenes asociadas a la publicación
-                const mediaIds = post.media.map(media => media.id);
-                await Promise.all(mediaIds.map(mediaId => deleteMedia(mediaId, authToken)));
-            }
-
             setSuccessMessage('Publicación eliminada con éxito');
             setTimeout(() => router.push('/dashboard'), 1500);
 

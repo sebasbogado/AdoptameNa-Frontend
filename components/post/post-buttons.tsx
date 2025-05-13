@@ -17,7 +17,7 @@ import { AdoptionRequest } from "@/types/adoption-request";
 import { postAdoption } from "@/utils/adoptions.http";
 import { getPetsByUserId } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { AdoptionFormData } from "@/types/schemas/adoption-schema";
 import ChangeStatusModal from "@/components/change-status-modal";
 
@@ -31,6 +31,7 @@ interface PostButtonsProps {
 const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
+    const router = useRouter();
 
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -170,15 +171,21 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                         size="lg"
                         isEditing={false}
                         id="edit-button"
-                        onClick={() => setMenuOpen(!menuOpen)}
+                        onClick={() => {
+                            if (isPet) {
+                                setMenuOpen(!menuOpen);
+                            } else {
+                                router.push(`/edit-post/${postId}`);
+                            }
+                        }}
                     />
 
-                    {menuOpen && (
+                    {menuOpen && isPet && (
                         <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                             <div className="py-1">
                                 {/* Opción 1: Editar Mascota */}
                                 <Link
-                                    href={isPet ? `/edit-pets/${postId}` : `/edit-post/${postId}`}
+                                    href={`/edit-pets/${postId}`}
                                     className="block px-4 py-2 text-sm hover:bg-gray-100"
                                     onClick={() => setMenuOpen(false)}
                                 >
@@ -226,7 +233,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 )}
             </div>
 
-            <ReportButton size="lg" idEntity={postId} isPet={isPet}/>
+            <ReportButton size="lg" idEntity={postId} isPet={isPet} />
 
             <div className="relative">
                 {!isPet && (

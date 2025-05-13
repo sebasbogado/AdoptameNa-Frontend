@@ -6,20 +6,12 @@ const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/products`;
 import axios from "axios";
 
 export const getProducts = async (
-  queryParams: productQueryParams
+  queryParams?: productQueryParams
 ): Promise<PaginatedResponse<Product>> => {
   try {
+    const params = buildQueryParams(queryParams);
     const response = await axios.get(API_URL, {
-      params: {
-        page: queryParams.page || 0,
-        size: queryParams.size || 10,
-        sort: queryParams.sort || "id,desc",
-        categoryId: queryParams.categoryId,
-        condition: queryParams.condition,
-        price: queryParams.price,
-        minPrice: queryParams.minPrice,
-        maxPrice: queryParams.maxPrice
-      },
+      params: params,
       headers: {
         "Content-Type": "application/json",
       },

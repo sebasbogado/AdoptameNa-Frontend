@@ -4,15 +4,23 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { User as UserType } from "@/types/auth";
 import { useAuth } from "@/contexts/auth-context";
-import { Bell, FileCheck2, FileX2, Heart, LogOutIcon, ShieldUser, User, User2, UserCircleIcon, UserIcon } from "lucide-react";
+import { 
+  FileCheck2, 
+  FileX2, 
+  Heart, 
+  LogOutIcon, 
+  ShieldUser, 
+  UserCircleIcon, 
+  UserIcon
+} from "lucide-react";
+import NotificationBell from "./notification-bell";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
   const { logout } = useAuth();
   return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
-     <Bell className=" text-amber-500"/>
+      <NotificationBell />
       
-
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="outline-none">
