@@ -191,9 +191,6 @@ export default function ProfilePage() {
 
     const isOrganization = !!userProfile?.organizationName?.trim();
 
-    const isFundraisingActive = true;
-    const fundraisingTitle = 'Recaudacion para vacunar animales Callejeros';
-
     return (
         <div className="w-full font-roboto">
             {/* Banner */}
