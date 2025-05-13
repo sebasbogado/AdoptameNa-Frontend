@@ -213,10 +213,8 @@ export default function ProfilePage() {
                         setUserProfile={setUserProfile}
                         isDisable={true}
                         validationErrors={validationErrors}
-                        donatedAmount={1000000}
-                        goalAmount={17000000}
-                        isFundraisingActive={isFundraisingActive}
-                        fundraisingTitle={"asdfasdf"}
+                        setSuccessMessage={() => { }}
+                        setErrorMessage={() => { }}
                     />
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
@@ -234,7 +232,7 @@ export default function ProfilePage() {
                     {/* Mostrar el mapa si las coordenadas están disponibles */}
                     {userProfile?.addressCoordinates && (
                         <div className='w-[40vw] mt-[-70px] '>
-                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization}/>
+                            <PostLocationMap location={userProfile?.addressCoordinates} isPreciseLocation={isOrganization} />
                         </div>
                     )}
 
