@@ -1,22 +1,28 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 
-interface Option {
+// Asegura que T tenga al menos id y name
+interface BaseOption {
   id: number;
   name: string;
 }
 
-interface MultiSelectProps {
-  options: Option[];
-  selected: Option[];
-  onChange: (selected: Option[]) => void;
+type MultiSelectProps<T extends BaseOption> = {
+  options: T[];
+  selected: T[];
+  onChange: (selected: T[]) => void;
   placeholder?: string;
-}
+};
 
-export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onChange, placeholder = 'Selecciona opciones...', }) => {
+export function MultiSelect<T extends BaseOption>({
+  options,
+  selected,
+  onChange,
+  placeholder = "Seleccionar opciones"
+}: MultiSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleOption = (option: Option) => {
+  const toggleOption = (option: T) => {
     const alreadySelected = selected.some((s) => s.id === option.id);
     if (alreadySelected) {
       onChange(selected.filter((s) => s.id !== option.id));
@@ -25,7 +31,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onC
     }
   };
 
-  const isSelected = (option: Option) => selected.some((s) => s.id === option.id);
+  const isSelected = (option: T) => selected.some((s) => s.id === option.id);
 
   return (
     <div className="w-full relative mb-3">
@@ -39,7 +45,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onC
             selected.map((s) => (
               <span
                 key={s.id}
-                className="bg-light-blue-50 px-3 py-1 rounded-full text-sm font-medium text-blue flex items-center gap-1 hover:bg-ligth-blue-300 transition-colors"
+                className="bg-light-blue-50 px-3 py-1 rounded-full text-sm font-medium text-blue flex items-center gap-1 hover:bg-light-blue-300 transition-colors"
               >
                 {s.name}
                 <span
@@ -79,4 +85,4 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({ options, selected, onC
       )}
     </div>
   );
-};
+}
