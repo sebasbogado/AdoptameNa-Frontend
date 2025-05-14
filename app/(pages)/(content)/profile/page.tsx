@@ -29,11 +29,17 @@ import HeaderImage from '@/components/image-header';
 import { Product } from '@/types/product';
 import { getProducts } from '@/utils/product.http';
 
-
+type ErrorsType = {
+    user: boolean;
+    pets: boolean;
+    posts: boolean;
+    userProfile: boolean;
+    marketplacePosts: boolean;
+};
 const getProductsData = async (
     setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean, marketplacePosts: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -60,7 +66,7 @@ const getProductsData = async (
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean, marketplacePosts: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -79,7 +85,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean, marketplacePosts: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -105,7 +111,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean, marketplacePosts: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -140,12 +146,12 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
-    const [errors, setErrors] = useState({
+       const [errors, setErrors] = useState({
+        user: false,
         pets: false,
         posts: false,
         userProfile: false,
         marketplacePosts: false,
-        
     });
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -353,10 +359,7 @@ export default function ProfilePage() {
 
                     {/* Posts Section (Con filtrado) */}
                     <Section
-                        title={`Publicaciones de ${isOrganization
-                            ? userProfile?.organizationName
-                            : user?.fullName?.split(' ')[0]
-                            }`}
+                        title={"Mis publicaciones"}
                         itemType="post"
                         postTypeName="Adopcion"
                         path={`/profile/my-posts/${user.id}`}
@@ -365,7 +368,7 @@ export default function ProfilePage() {
                         error={errors.posts}
                     />
                        <Section
-                        title='Tienda'
+                        title='Mis productos'
                         path='marketplace'
                         itemType='product'
                         postTypeName="Marketplace"
