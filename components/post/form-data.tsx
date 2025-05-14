@@ -116,8 +116,7 @@ export const FormData = ({ handleSubmit,
                         <MapWithNoSSR position={position} setPosition={handlePositionChange} />
                     </div>
                     {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}                </div>
-                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
-
+            
                 <div className="flex justify-between items-center mt-6 gap-10">
                     <Button
                         type="button"
