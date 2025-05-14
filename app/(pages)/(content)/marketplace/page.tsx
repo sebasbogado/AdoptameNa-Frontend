@@ -18,7 +18,7 @@ import SearchBar from "@/components/search-bar";
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
-import { LocationFilters } from "@/types/location-filter";
+import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 
 export default function Page() {
     const { user } = useAuth();
@@ -41,6 +41,7 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [inputValue, setInputValue] = useState<string>("");
+const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
     const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
@@ -162,23 +163,27 @@ export default function Page() {
         updateFilters(filters);
     }, [ selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
     
-    const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
+const handleLocationFilterChange = useCallback(
+    (filters: Record<string, any>, type: LocationFilterType | null) => {
         setLocationFilters(filters);
+        setLocationType(type);
         setFilterChanged(prev => !prev);
-    }, []);
-
-    const resetFilters = () => {
-        setSelectedCategory(null);
-        setSelectedCondition(null);
-        setSelectedAnimal(null);
-        setMinPrice(null);
-        setMaxPrice(null);
-        updateFilters({});
-        setInputValue("");
-        setSearchQuery("");
-        setLocationFilters({});
-        setFilterChanged(false);
-    };
+    },
+    []
+);
+const resetFilters = () => {
+    setSelectedCategory(null);
+    setSelectedCondition(null);
+    setSelectedAnimal(null);
+    setMinPrice(null);
+    setMaxPrice(null);
+    setLocationType(null); // ← nuevo
+    setLocationFilters({});
+    updateFilters({});
+    setInputValue("");
+    setSearchQuery("");
+    setFilterChanged(false);
+};
 
 
     if (!pageSize) return <Loading />;
@@ -196,10 +201,12 @@ export default function Page() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6 items-starts px-4 md:px-0">
                     {user?.location ? (
-                        <LocationFilter
-                            user={user}
-                            onFilterChange={handleLocationFilterChange}
-                        />
+                       <LocationFilter
+        user={user}
+        locationType={locationType}
+        setLocationType={setLocationType}
+        onFilterChange={handleLocationFilterChange}
+/>
                     ) : (
                         <div className="hidden lg:block lg:w-1/2 flex-shrink-0"></div>
                     )}
