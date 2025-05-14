@@ -33,7 +33,6 @@ const getUserProfileData = async (
         setUserProfile(profile);
 
     } catch (err) {
-        console.error("Error al cargar el perfil:", err);
         setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
     } finally {
         setLoading(false);
@@ -52,11 +51,11 @@ const getPostsData = async (
             userId: Number(userId),
             page: 0,
             size: 5,
-            sort: "id,desc" }; // Usamos el ID del usuario actual
+            sort: "id,desc"
+        }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, posts: true }));
     } finally {
         setLoading(false);
@@ -79,7 +78,6 @@ const getPetsData = async (
         const petData = await getPetsByUserId(petParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, pets: true }));
     } finally {
         setLoading(false);
@@ -95,7 +93,6 @@ const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | u
         const userData = await getUser(userId);
         setUser(userData);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, user: true }));
     } finally {
         setLoading(false);
@@ -133,6 +130,12 @@ export default function ProfilePage() {
         const url = `https://wa.me/${phoneNumber}`;
         window.open(url, '_blank');  // Esto abrirá WhatsApp en una nueva pestaña
     };
+
+    useEffect(() => {
+        if (userProfile?.media?.length) {
+            setMedias(userProfile.media);
+        }
+    }, [userProfile]);
 
     useEffect(() => {
         const userId = param.id;
@@ -195,14 +198,10 @@ export default function ProfilePage() {
         return <Loading />;
     }
     if ((errors.userProfile || !user) && !loading) {
-        console.log(errors.userProfile, user, loading)
         return NotFound();
     }
 
     const isOrganization = !!userProfile?.organizationName?.trim();
-
-    const isFundraisingActive = true;
-    const fundraisingTitle = 'Recaudacion para vacunar animales Callejeros';
 
     return (
         <div className="w-full font-roboto">
@@ -223,10 +222,8 @@ export default function ProfilePage() {
                         setUserProfile={setUserProfile}
                         isDisable={true}
                         validationErrors={validationErrors}
-                        donatedAmount={1000000}
-                        goalAmount={17000000}
-                        isFundraisingActive={isFundraisingActive}
-                        fundraisingTitle={"asdfasdf"}
+                        setSuccessMessage={() => { }}
+                        setErrorMessage={() => { }}
                     />
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
