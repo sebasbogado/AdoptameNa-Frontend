@@ -93,7 +93,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                 </button>
                 <Carousel 
                     key={images.length}
-                    className={`rounded-xl overflow-hidden ${isFullscreen ? "h-[50vh]" : "h-[400px]"} relative w-4/5`}
+                    className={`rounded-xl overflow-hidden ${isFullscreen ? "h-screen" : "h-[400px]"} relative ${isFullscreen ? "w-full" : "w-4/5"}`}
                     loop={images.length > 1}
                     autoplay={images.length > 1}
                     autoplayDelay={10000}
@@ -160,8 +160,11 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 <Image
                                     src={image.url}
                                     alt={`Imagen de portada ${index + 1}`}
-                                    className={`relative z-10 h-full w-full ${image.isVertical ? "object-contain" : "object-cover"
-                                        }`}
+                                    className={`relative z-10 ${
+                                        isFullscreen 
+                                            ? "max-h-screen w-auto max-w-full h-auto" 
+                                            : "h-full w-full"
+                                    } ${image.isVertical ? "object-contain" : "object-cover"}`}
                                     width={1200}
                                     height={400}
                                     priority={index === 0}
