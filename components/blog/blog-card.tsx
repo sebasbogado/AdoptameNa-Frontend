@@ -1,13 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Post } from '@/types/post';
 import { cleanMarkdown } from '@/utils/text/clean-markdown';
 import PostsTags from '../petCard/tag';
 import CardImage from '../petCard/card-image';
 import FavoriteButton from '../buttons/favorite-button';
-import { formatLongDate, formatMediumDate, formatTimeAgo } from '@/utils/date-format';
+import { formatLongDate, formatMediumDate } from '@/utils/date-format';
 import { addFavorite, deleteFavorite } from '@/utils/favorites-posts.http';
 import { useAuth } from '@/contexts/auth-context';
 import { useFavorites } from '@/contexts/favorites-context';
@@ -19,11 +18,10 @@ interface BlogCardProps {
 }
 
 export default function BlogCard({ post, className = '' }: BlogCardProps) {
-  const previewText = cleanMarkdown(post.content || '').slice(0, 1000) + '...';
-
   const { favorites, fetchFavorites } = useFavorites();
   const { authToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [previewText, setPreviewText] = useState('');
 
   const isFavorite = favorites.some((fav: Favorites) => fav.postId === post.id);
 
@@ -47,10 +45,29 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
     }
   };
 
-    return (
+ 
+  useEffect(() => {
+    const content = cleanMarkdown(post.content || '');
+    const updatePreview = () => {
+      const width = window.innerWidth;
+      let length = 100;
+      if (width < 640) length = 80;           
+      else if (width < 768) length = 120;   
+      else if (width < 1024) length = 200;   
+      else length = 300;                      
+
+      setPreviewText(content.slice(0, length) + '...');
+    };
+
+    updatePreview();
+    window.addEventListener('resize', updatePreview);
+    return () => window.removeEventListener('resize', updatePreview);
+  }, [post.content]);
+
+ return (
     <Link
       href={`/posts/${post.id}`}
-      className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full ${className}`}
+      className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full h-96sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
     >
       <div className="absolute top-2 right-2 z-10">
         <FavoriteButton
@@ -59,42 +76,46 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
           disabled={isLoading}
         />
       </div>
-      <div className="w-full md:w-1/4 h-48 md:h-auto flex-shrink-0">
-        <CardImage media={post.media?.[0]} className="h-full w-full" />
+
+      <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
+        <CardImage media={post.media?.[0]} className="h-full w-full object-cover" />
       </div>
 
       <div className="p-4 md:p-6 flex flex-col justify-between w-full">
-          <h2 className="text-2xl font-bold text-gray-900 truncate">{post.title}</h2>
-         
+        <div className="flex flex-col gap-y-1 sm:gap-y-2">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
+            {post.title}
+          </h2>
 
-        {post.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {post.tags.map((tag, idx) => (
-              <PostsTags
-                key={tag.id || idx}
-                postType={post.postType?.name || 'Blog'}
-                iconType="race"
-                value={tag.name}
-              />
-            ))}
-          </div>
-        )}
-
-        <p className="text-sm text-gray-700 line-clamp-3 mt-2">{previewText}</p>
-        <div className='flex flex-col  md:flex-row items-center justify-between mt-4'>
-          {post.userFullName && (
-            <p className="text-xs text-gray-500">Por {post.userFullName}</p>
+          {!!post.tags?.length && (
+            <div className="flex flex-wrap gap-1">
+              {post.tags.map((tag, idx) => (
+                <PostsTags
+                  key={tag.id || idx}
+                  postType={post.postType?.name || 'Blog'}
+                  iconType="race"
+                  value={tag.name}
+                />
+              ))}
+            </div>
           )}
-           {post.publicationDate && (
+
+          <p className="text-xs sm:text-sm md:text-base text-gray-700">{previewText}</p>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center justify-between mt-3">
+          {post.userFullName && (
+            <p className="text-[10px] sm:text-xs text-gray-500">Por {post.userFullName}</p>
+          )}
+          {post.publicationDate && (
             <p
-              className="text-xs text-gray-500 self-end"
+              className="text-[10px] sm:text-xs text-gray-500 self-end"
               title={formatLongDate(post.publicationDate)}
             >
               {formatMediumDate(post.publicationDate)}
             </p>
           )}
         </div>
-      
       </div>
     </Link>
   );
