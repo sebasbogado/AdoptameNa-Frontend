@@ -11,8 +11,6 @@ import Pagination from "@/components/pagination";
 import { Loader2 } from "lucide-react";
 import { getTags } from "@/utils/tags";
 import { Tags } from "@/types/tags";
-import { getAnimals } from "@/utils/animals.http";
-import { Animal } from "@/types/animal";
 import LocationFilter from "@/components/filters/location-filter";
 import { useAuth } from "@/contexts/auth-context";
 import { LocationFilters } from "@/types/location-filter";
