@@ -24,11 +24,10 @@ import NewBanner from "@/components/newBanner";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import { MultiSelect } from "@/components/multi-select";
+import UploadImage from "@/components/post/upload-images";
+import UploadImages from "@/components/post/upload-images";
+import {FormData as FormDataPost} from "@/components/post/form-data";
 
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
 
 export default function Page() {
     const {
@@ -275,191 +274,46 @@ export default function Page() {
         }
     };
 
-    return (
-        <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
+   return (
+ <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
             <NewBanner
                 medias={selectedImages}
             />
-            <div className="flex gap-2 mt-2 justify-center items-center">
-                {selectedImages.map((src, index) => (
-                    <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        <Image
-                            src={src.url}
-                            alt="post"
-                            fill
-                            className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                            onClick={() => setCurrentImageIndex(index)}
-                        />
-                        {/* Botón de eliminación */}
-                        <button
-                            onClick={() => handleRemoveImage(index)}
-                            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                            title="Eliminar imagen"
-                        >
-                            ✕
-                        </button>
-                    </div>
-                ))}
-                <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/webp"
-                    multiple
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleImageUpload}
-                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-                />
-                <label
-                    htmlFor="fileInput"
-                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                        } bg-white`}
-                >
-                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-                </label>
-            </div>
+            <UploadImages 
+                selectedImages={selectedImages}
+                currentImageIndex={currentImageIndex}
+                setCurrentImageIndex={setCurrentImageIndex}
+                handleRemoveImage={handleRemoveImage}
+                handleImageUpload={handleImageUpload}
+                MAX_IMAGES={MAX_IMAGES}
+                errorMessage={errorMessage}
+                setErrorMessage={setErrorMessage}
+                precautionMessage={precautionMessage}
+                setPrecautionMessage={setPrecautionMessage}
+                successMessage={successMessage}
+                setSuccessMessage={setSuccessMessage}
+            />
 
-            {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setErrorMessage("")}>
-                        {errorMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {precautionMessage && (
-                <div>
-                    <Alert
-                        color="orange"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setPrecautionMessage("")}>
-                        {precautionMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 p-8">
-                {/* Tipo de publicación */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Tipo de publicación <span className="text-red-500">*</span></label>
-                    <select 
-                        {...register("postTypeId", { valueAsNumber: true })}
-                        className={`w-fit p-2 border rounded mb-4 
-                        ${errors.postTypeId ? 'border-red-500' : ''} 
-                        ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
-                    >
-
-                        <option disabled value={0}>Seleccione un tipo</option>
-                        {postTypes.map((type) => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                        ))}
-                    </select>
-                </div>
-                {errors.postTypeId && <p className="text-red-500">{errors.postTypeId.message}</p>}
-
-                {/* Tags (MultiSelect) */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Tags</label>
-                    <MultiSelect
-                        options={filteredTags} // <-- Usa los tags filtrados
-                        selected={selectedTags}
-                        onChange={(selected) => {
-                            setSelectedTags(selected);
-                            setValue("tagIds", selected.map((animal) => animal.id));
-                        }}
-                        placeholder="Seleccionar tags"
-                    />
-                </div>
-                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
-
-                {/* Título */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Título <span className="text-red-500">*</span></label>
-                    <input
-                        type="text"
-                        placeholder="Titulo"
-                        {...register("title")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
-                    />
-                </div>
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-
-                {/* Descripción */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Descripción <span className="text-red-500">*</span></label>
-                    <textarea
-                        {...register("content")}
-                        placeholder="Descripción"
-                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                    />
-                </div>
-                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-
-                {/* Contacto */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Número de contacto <span className="text-red-500">*</span></label>
-                    <input
-                        type="text"
-                        placeholder="0000123456"
-                        {...register("contactNumber")}
-                        className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                    />
-                </div>
-                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-                {/* Mapa */}
-                <div
-                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                >
-                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                </div>
-                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
-
-                <div className="flex justify-between items-center mt-6 gap-10">
-                    <Button
-                        type="button"
-                        variant="danger"
-                        size="md"
-                        className="rounded opacity-0"
-                        disabled={loading}
-                    >
-                        Eliminar publicación
-                    </Button>
-
-                    <div className="flex gap-4">
-                        <Button
-                            type="button"
-                            variant="tertiary"
-                            className="border rounded text-gray-700 hover:bg-gray-100"
-                            onClick={handleCancel}
-                            disabled={loading}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_IMAGES}
-                        >
-                            {loading ? "Creando..." : "Crear publicación"}
-                        </Button>
-                    </div>
-                </div>
-            </form>
+           <FormDataPost
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                register={register}
+                errors={errors}
+                watch={watch}
+                postTypes={postTypes}
+                filteredTags={filteredTags}
+                selectedTags={selectedTags}
+                setSelectedTags={setSelectedTags}
+                setValue={setValue}
+                isModalOpen={isModalOpen}
+                position={position}
+                loading={loading}
+                handleCancel={handleCancel}
+                handlePositionChange={handlePositionChange}
+                closeModal={closeModal}
+                confirmSubmit={confirmSubmit}
+                MAX_IMAGES={MAX_IMAGES}
+            />
 
             {isModalOpen &&
                 <ConfirmationModal
@@ -473,5 +327,6 @@ export default function Page() {
                 />
             }
         </div>
-    );
+);
+
 }
