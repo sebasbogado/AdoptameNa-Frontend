@@ -12,7 +12,7 @@ export const reportSchema = z.object({
   description: z
     .string()
     .min(1, "La descripción es obligatoria")
-    .max(255, "La descripción no puede tener más de 255 caracteres"),
+    .max(30, "La descripción no puede tener más de 30 caracteres"),
 }).refine((data) => {
   const provided = [data.idPost, data.idPet, data.idComment, data.idProduct].filter(Boolean).length;
   return provided <= 1;

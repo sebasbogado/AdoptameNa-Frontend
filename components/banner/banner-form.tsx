@@ -68,7 +68,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
                 const response = await getActiveSponsors();
                 setSponsorImages(response.data);
             } catch (error) {
-                console.error('Error fetching sponsor images:', error);
             }
         };
 
@@ -163,7 +162,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
                 router.push('/administration/settings/banner');
             }, 1500);
         } catch (error) {
-            console.error('Error al guardar el banner:', error);
             setAlertInfo({
                 open: true,
                 color: "red",
