@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import EditButton from "./buttons/edit-button";
+import EditButtonBanner from "./buttons/edit-button-banner";
 import { postMedia } from "@/utils/media.http";
 import { Alert, Carousel, Tooltip } from "@material-tailwind/react";
 import { updateUserProfile } from "@/utils/user-profile.http";
@@ -80,7 +80,6 @@ const HeaderImage = ({
                 authToken
             );
         } catch (err) {
-            console.error(err);
             setError("Hubo un error al subir las imágenes.");
         }
     };
@@ -199,7 +198,7 @@ const HeaderImage = ({
 
                 {canEdit && (
                     <>
-                        <EditButton
+                        <EditButtonBanner
                             isEditing={editionMode}
                             onClick={() => setEditionMode(!editionMode)}
                             className={clsx(
