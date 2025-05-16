@@ -4,4 +4,5 @@ export interface Crowdfunding {
     description: string;
     durationDays: number;
     goal: number;
+    userId: number;
 }
