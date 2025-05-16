@@ -205,7 +205,6 @@ export default function Page() {
                         ${user?.location ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}
                         gap-x-6 gap-y-6
                         px-4 md:px-0
-                        border 
                     `}>
                     {user?.location ? (
                         <LocationFilter
