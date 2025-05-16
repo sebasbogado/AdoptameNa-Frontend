@@ -41,7 +41,7 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [inputValue, setInputValue] = useState<string>("");
-const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
+    const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
     const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
@@ -147,9 +147,9 @@ const [locationType, setLocationType] = useState<LocationFilterType | null>(null
         }
 
         if (selectedCondition && selectedCondition !== "Todos") {
-                filters.condition = selectedCondition.toString();
+            filters.condition = selectedCondition.toString();
         }
-        
+
         filters = {
             ...filters,
             search: searchQuery || undefined,
@@ -161,29 +161,29 @@ const [locationType, setLocationType] = useState<LocationFilterType | null>(null
         console.log("filters", filters);
 
         updateFilters(filters);
-    }, [ selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
-    
-const handleLocationFilterChange = useCallback(
-    (filters: Record<string, any>, type: LocationFilterType | null) => {
-        setLocationFilters(filters);
-        setLocationType(type);
-        setFilterChanged(prev => !prev);
-    },
-    []
-);
-const resetFilters = () => {
-    setSelectedCategory(null);
-    setSelectedCondition(null);
-    setSelectedAnimal(null);
-    setMinPrice(null);
-    setMaxPrice(null);
-    setLocationType(null); // ← nuevo
-    setLocationFilters({});
-    updateFilters({});
-    setInputValue("");
-    setSearchQuery("");
-    setFilterChanged(false);
-};
+    }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
+
+    const handleLocationFilterChange = useCallback(
+        (filters: Record<string, any>, type: LocationFilterType | null) => {
+            setLocationFilters(filters);
+            setLocationType(type);
+            setFilterChanged(prev => !prev);
+        },
+        []
+    );
+    const resetFilters = () => {
+        setSelectedCategory(null);
+        setSelectedCondition(null);
+        setSelectedAnimal(null);
+        setMinPrice(null);
+        setMaxPrice(null);
+        setLocationType(null); // ← nuevo
+        setLocationFilters({});
+        updateFilters({});
+        setInputValue("");
+        setSearchQuery("");
+        setFilterChanged(false);
+    };
 
 
     if (!pageSize) return <Loading />;
@@ -199,16 +199,23 @@ const resetFilters = () => {
                     </div>
                 </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6 items-starts px-4 md:px-0">
+                <div
+                    className={`
+                        grid grid-cols-1 md:grid-cols-2
+                        ${user?.location ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}
+                        gap-x-6 gap-y-6
+                        px-4 md:px-0
+                        border 
+                    `}>
                     {user?.location ? (
-                       <LocationFilter
-        user={user}
-        locationType={locationType}
-        setLocationType={setLocationType}
-        onFilterChange={handleLocationFilterChange}
-/>
+                        <LocationFilter
+                            user={user}
+                            locationType={locationType}
+                            setLocationType={setLocationType}
+                            onFilterChange={handleLocationFilterChange}
+                        />
                     ) : (
-                        <div className="hidden lg:block lg:w-1/2 flex-shrink-0"></div>
+                        <div className="hidden lg:w-1/2 flex-shrink-0"></div>
                     )}
 
                     <LabeledSelect
