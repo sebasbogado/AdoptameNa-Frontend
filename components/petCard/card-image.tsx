@@ -3,7 +3,7 @@ import Image from "next/image";
 import React from "react";
 
 interface CardImageProps {
-    media: Media;
+    media?: Media;
 }
 
 const notFoundSrc = "/logo.png";
@@ -13,7 +13,7 @@ const CardImage: React.FC<CardImageProps> = ({ media }) => {
         <div className="h-36 rounded-lg overflow-hidden">
             <Image
                 className="w-full  h-auto object-cover"
-                src={media?.url || notFoundSrc}
+                src={(media && media.url) ? media.url : notFoundSrc}
                 alt="Imagen de mascota"
                 width={500}
                 height={500}
