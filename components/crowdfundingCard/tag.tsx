@@ -9,7 +9,7 @@ interface TagProps {
 }
 
 const tagColors: Record<string, string> = {
-    Blog: "text-blog border-blog",
+    Blog: "text-btn-cta border-btn-cta",
 };
 
 const attributeIcons: Record<string, React.ElementType> = {
