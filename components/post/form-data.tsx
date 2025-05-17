@@ -2,11 +2,6 @@ import { MultiSelect } from "@/components/multi-select";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import Button from "../buttons/button";
-import { ConfirmationModal } from "../form/modal";
-import { FieldErrors, UseFormHandleSubmit, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
-import { PostFormValues } from "@/validations/post-schema";
-import { PostType } from "@/types/post-type";
-import { Tags } from "@/types/tags";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
 
 const MapWithNoSSR = dynamic<MapProps>(

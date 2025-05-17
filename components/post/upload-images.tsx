@@ -1,7 +1,5 @@
-import { Media } from "@/types/media";
 import { ImagePlus } from "lucide-react";
 import Image from "next/image";
-import NewBanner from "@/components/newBanner";
 import { Alert } from "@material-tailwind/react";
 
 import { UploadImageProps } from "@/types/props/posts/UploadImagesProps";
