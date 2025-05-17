@@ -26,7 +26,7 @@ export const formatTimeAgo = (dateString: string): string => {
     return `Hace ${diffInDay} ${diffInDay === 1 ? 'día' : 'días'}`;
   }
 };
-export const formatRecentTimeAgo = (dateString: string): string | null => {
+export const formatRecentTimeAgo = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
 
