@@ -17,7 +17,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ label, options, selected, s
                     {selected || label}
                     <ChevronDownIcon className="w-5 h-5 text-gray-500"  />
                 </Listbox.Button>
-                <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
                     {options.map((option, index) => (
                         <Listbox.Option
                             key={index}
