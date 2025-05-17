@@ -4,7 +4,7 @@ import { LocationSelector } from "./location-selector";
 import { SubmitButton } from "./submit-button";
 import { UseFormRegister } from "react-hook-form";
 import { useAuth } from "@/contexts/auth-context";
-import { getFullUserById } from "@/utils/get-full-user-id";
+import { getFullUser } from "@/utils/user-profile.http";
 import { useEffect } from "react";
 
 
@@ -33,7 +33,7 @@ export const CreateProfile = ({
         const fetchUserProfileData = async () => {
             if (!authToken || !user?.id) return;
             try {
-                const fullUser = await getFullUserById(authToken, user?.id);
+                const fullUser = await getFullUser(user?.id.toString());
                 setValue("organizationName", fullUser.organizationName || "");
             } catch (err) {
                 console.error("No se pudo cargar el perfil completo");
@@ -43,7 +43,7 @@ export const CreateProfile = ({
         if (user?.id && user.role === "organization") {
             fetchUserProfileData();
         }
-    }, [authToken, user?.id]);
+    }, [user?.id]);
 
 
     return (
