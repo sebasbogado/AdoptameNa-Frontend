@@ -1,11 +1,14 @@
 'use client'
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import CardImage from "@/components/petCard/card-image";
 import Link from "next/link";
 import { Crowdfunding } from "@/types/crowfunding-type";
-import CardText from "../petCard/card-text";
+import CrowdfundingCardText from "./card-text";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import { getFullUser } from "@/utils/user-profile.http";
 
 type CrowdfundingCardProps = {
     item: Crowdfunding;
@@ -13,6 +16,24 @@ type CrowdfundingCardProps = {
 };
 
 export default function CrowdfundingCard({ item, className }: CrowdfundingCardProps) {
+    const { user } = useAuth();
+    const router = useRouter();
+
+    const [authorName, setAuthorName] = useState("");
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (!item.id) return;
+            try {
+                const response = await getFullUser(item.id.toString());
+                setAuthorName(response.fullName);
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            }
+        }
+        fetchUserData();
+
+    }, [user, router]);
 
     return (
         <div className={clsx(
@@ -20,9 +41,9 @@ export default function CrowdfundingCard({ item, className }: CrowdfundingCardPr
             className
         )}>
             <Link href={`/profile/${item.userId}`}>
-                    <CardImage />
-                    <CardText post={item} />
-                </Link>
+                <CardImage />
+                <CrowdfundingCardText item={item} authorName={authorName} />
+            </Link>
 
         </div>
     );
