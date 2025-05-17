@@ -156,7 +156,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       ? Math.min(100, (crowdfunding.currentAmount / crowdfunding.goal) * 100)
       : 0;
 
-    console.log(isVisible, isOwner, isActive)
 
     //Fase 1: Organizacion sin colecta Activa
     if (!isVisible && isOwner && !isActive) {
