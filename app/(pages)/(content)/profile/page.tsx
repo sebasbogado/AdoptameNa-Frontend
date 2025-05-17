@@ -274,7 +274,7 @@ export default function ProfilePage() {
                     />
 
                     {/* Action Buttons */}
-                    <div className="relative top-[-25vh] right-5 mr-10 mt-12 z-50 flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
+                    <div className="relative top-[-25vh] right-5 mr-10 mt-12  flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
 
                         <EditButton
                             size="lg"
