@@ -37,6 +37,7 @@ const CrowdfundingCardText = ({ item, className = "", authorName }: props) => {
                     {(
                         hardcodedTags.map((tag) => (
                             <OrganizationTag
+                                key={tag.value}
                                 iconType={tag.iconType}
                                 value={tag.value}
                             />
