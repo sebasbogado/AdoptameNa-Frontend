@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from "react";
 import LabeledSelect from "@/components/labeled-selected";
-import { LocationFilterProps, LocationFilterType } from "@/types/location-filter";
-
-const LocationFilter = ({ user, onFilterChange }: LocationFilterProps) => {
-  const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
+import {  LocationFilterType } from "@/types/location-filter";
+import { User } from "@/types/auth";
+export interface LocationFilterProps {
+  user: User | null;
+  locationType: LocationFilterType | null;
+  setLocationType: (type: LocationFilterType | null) => void;
+  onFilterChange: (filters: Record<string, any>, type: LocationFilterType | null) => void;
+}
+const LocationFilter = ({ user, locationType, setLocationType, onFilterChange }: LocationFilterProps) => {
 
   const locationTypeOptions: LocationFilterType[] = [
     "Sin filtro de ubicación",
@@ -17,13 +22,13 @@ const LocationFilter = ({ user, onFilterChange }: LocationFilterProps) => {
     "A 10 kilómetros"
   ];
 
-  const handleLocationTypeChange = (type: string) => {
-    if (type === "Sin filtro de ubicación") {
-      setLocationType(null);
-    } else {
-      setLocationType(type as LocationFilterType);
-    }
-  };
+const handleLocationTypeChange = (type: string) => {
+  if (type === "Sin filtro de ubicación") {
+    setLocationType(null);
+  } else {
+    setLocationType(type as LocationFilterType);
+  }
+};
 
   const isLocationTypeAvailable = (type: LocationFilterType): boolean => {
     if (!user?.location) return false;
@@ -87,13 +92,13 @@ const LocationFilter = ({ user, onFilterChange }: LocationFilterProps) => {
     }
   };
 
-  useEffect(() => {
-    if (!locationType || !user?.location) {
-      onFilterChange({});
-      return;
-    }
-    
-    let filters: Record<string, any> = {};
+useEffect(() => {
+  if (!locationType || !user?.location) {
+    onFilterChange({}, null);
+    return;
+  }
+
+  let filters: Record<string, any> = {};
     
     switch (locationType) {
       case "Por departamento":
@@ -133,8 +138,8 @@ const LocationFilter = ({ user, onFilterChange }: LocationFilterProps) => {
         break;
     }
     
-    onFilterChange(filters);
-  }, [locationType, user]);
+  onFilterChange(filters, locationType);
+}, [locationType, user]);
 
   if (!user?.location) {
     return null;
