@@ -67,7 +67,7 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
  return (
     <Link
       href={`/posts/${post.id}`}
-      className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full h-96sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
+      className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full h-96 sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
     >
       <div className="absolute top-2 right-2 z-10">
         <FavoriteButton
