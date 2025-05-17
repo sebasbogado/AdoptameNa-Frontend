@@ -156,9 +156,10 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       ? Math.min(100, (crowdfunding.currentAmount / crowdfunding.goal) * 100)
       : 0;
 
+    console.log(isVisible, isOwner, isActive)
 
     //Fase 1: Organizacion sin colecta Activa
-    if (isVisible && isOwner && !isActive) {
+    if (!isVisible && isOwner && !isActive) {
       return (
         <div className="mt-8">
           <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
