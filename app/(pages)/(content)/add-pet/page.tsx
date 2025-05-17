@@ -46,8 +46,6 @@ export default function Page() {
   const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const MAX_IMAGES = 5; //Tam max de imagenes
   const {
     register,
@@ -68,8 +66,6 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
-      //edad: 0,
-      //peso: 0,
     },
   });
 
@@ -194,46 +190,10 @@ export default function Page() {
     }
   };
 
-  const adjustImageSize = () => {
-    if (!bannerRef.current) return;
-
-    const images = bannerRef.current.querySelectorAll("img");
-    images.forEach((img) => {
-      if (document.fullscreenElement) {
-        img.style.width = "100vw";
-        img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
-        setIsFullscreen(true);
-      } else {
-        img.style.width = "";
-        img.style.height = "";
-        img.style.objectFit = "";
-        setIsFullscreen(false);
-      }
-    });
-  };
-
   const handlePositionChange = (newPosition: [number, number]) => {
-    setPosition(newPosition); // Actualiza el petStatusId local
-    setValue("addressCoordinates", newPosition); // Actualiza el formulario
+    setPosition(newPosition);
+    setValue("addressCoordinates", newPosition);
   };
-
-  const toggleFullScreen = () => {
-    if (!bannerRef.current) return;
-
-    if (!document.fullscreenElement) {
-      bannerRef.current.requestFullscreen()
-        .then(() => adjustImageSize())
-        .catch((err) => console.error("Error al activar pantalla completa:", err));
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("fullscreenchange", adjustImageSize);
-    return () => document.removeEventListener("fullscreenchange", adjustImageSize);
-  }, []);
 
   useEffect(() => {
     if (authLoading || !authToken || !user?.id) return;
@@ -284,16 +244,10 @@ export default function Page() {
 
   return (
     <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
-      <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+      <div className="relative">
         <NewBanner
           medias={selectedImages}
         />
-        <button
-          onClick={toggleFullScreen}
-          className="absolute top-2 right-24 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-        >
-          <Maximize size={20} />
-        </button>
       </div>
       <div className="flex gap-2 mt-2 justify-center items-center">
         {selectedImages.map((img, index) => (

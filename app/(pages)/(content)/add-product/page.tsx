@@ -21,11 +21,13 @@ import { createProduct } from "@/utils/product.http";
 import { getFullUser } from "@/utils/user-profile.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { Media } from "@/types/media";
+import { MediaDTO } from "@/types/user-profile";
 import Image from "next/image";
 import { Alert } from "@material-tailwind/react";
 import { ImagePlus } from "lucide-react";
 import { MultiSelect } from "@/components/multi-select";
 import LabeledInput from "@/components/inputs/labeled-input";
+import NewBanner from "@/components/newBanner";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -294,7 +296,7 @@ export default function Page() {
           </Alert>
         </div>
       )}
-      <Banners images={selectedImages.length > 0 ? selectedImages.map(img => img.url) : ["/logo.png"]} />
+      <NewBanner medias={selectedImages.length > 0 ? selectedImages as MediaDTO[] : [{ id: 0, url: "/logo.png", mimeType: "image/png", userId: 0, uploadDate: new Date().toISOString() }]} />
       <div className="flex gap-2 mt-2 justify-center items-center">
         {selectedImages.map((src, index) => (
           <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
