@@ -3,6 +3,10 @@ import { PersonalInfoForm } from "./personal-info-form";
 import { LocationSelector } from "./location-selector";
 import { SubmitButton } from "./submit-button";
 import { UseFormRegister } from "react-hook-form";
+import { useAuth } from "@/contexts/auth-context";
+import { getFullUser } from "@/utils/user-profile.http";
+import { useEffect } from "react";
+
 
 interface CreateProfileProps {
     handleSubmit: (onSubmit: (data: ProfileValues) => void) => (e?: React.BaseSyntheticEvent) => Promise<void>;
@@ -21,14 +25,32 @@ export const CreateProfile = ({
     isSubmitting,
     errors,
 }: CreateProfileProps) => {
+    const { user, authToken } = useAuth();
+    const isOrganization = user?.role === "organization";
     // Añadir efecto para monitorear el estado de envío del formulario
-    
+
+    useEffect(() => {
+        const fetchUserProfileData = async () => {
+            if (!authToken || !user?.id) return;
+            try {
+                const fullUser = await getFullUser(user?.id.toString());
+                setValue("organizationName", fullUser.organizationName || "");
+            } catch (err) {
+                console.error("No se pudo cargar el perfil completo");
+            }
+        };
+
+        if (user?.id && user.role === "organization") {
+            fetchUserProfileData();
+        }
+    }, [user?.id]);
+
 
     return (
-        <form 
+        <form
             onSubmit={(e) => {
                 return handleSubmit(onSubmit)(e);
-            }} 
+            }}
             className="space-y-4 text-left"
         >
             {/* Información personal */}
@@ -36,6 +58,7 @@ export const CreateProfile = ({
                 register={register}
                 errors={errors}
                 isSubmitting={isSubmitting}
+                showOrganizationField={isOrganization}
             />
 
             {/* Selector de ubicación y mapa */}
