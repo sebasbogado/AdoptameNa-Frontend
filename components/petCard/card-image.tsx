@@ -15,7 +15,7 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "" }) => {
     <div className={`relative h-full w-full ${className}`}>
               <Image
                 src={media?.url || notFoundSrc}
-                alt="Imagen"
+                alt={media?.alt || "Image not available"}
                 fill
                 className="object-cover"
       />
