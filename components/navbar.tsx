@@ -25,7 +25,7 @@ export default function Navbar() {
     const isReceivedPage = pathname.includes("/profile/received-request");
 
     return (
-        <header className="w-full border-b">
+        <header className="w-full border-b  bg-white">
             <nav className="w-full flex h-16 items-center justify-between px-4">
                 <Link href="/" className="flex items-center">
                     <Image
