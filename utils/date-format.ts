@@ -1,6 +1,12 @@
-export const formatTimeAgo = (dateString: string): string => {
-  const date = new Date(dateString);
+export const formatTimeAgo = (dateInput: string | Date): string => {
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
   const now = new Date();
+  
+  // Verificar si la fecha es válida
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date input:", dateInput);
+    return "Fecha inválida";
+  }
   
   const diffInMs = now.getTime() - date.getTime();
   const diffInSec = Math.floor(diffInMs / 1000);
@@ -27,8 +33,8 @@ export const formatTimeAgo = (dateString: string): string => {
   }
 };
 
-export const formatLongDate = (dateString: string): string => {
-  const date = new Date(dateString);
+export const formatLongDate = (dateString: string | Date): string => {
+  const date = dateString instanceof Date ? dateString : new Date(dateString);
   
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -43,8 +49,8 @@ export const formatLongDate = (dateString: string): string => {
 };
 
 
-export const formatShortDate = (dateString: string): string => {
-  const date = new Date(dateString);
+export const formatShortDate = (dateString: string | Date): string => {
+  const date = dateString instanceof Date ? dateString : new Date(dateString);
   
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');

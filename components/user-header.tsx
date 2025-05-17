@@ -9,18 +9,19 @@ import {
   FileX2, 
   Heart, 
   LogOutIcon, 
+  MessageCircle,
   ShieldUser, 
   UserCircleIcon, 
   UserIcon
 } from "lucide-react";
 import NotificationBell from "./notification-bell";
+import ChatBell from "./chat/chat-bell";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
-  const { logout } = useAuth();
-  return (
+  const { logout } = useAuth();  return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
       <NotificationBell />
-      
+      <ChatBell />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="outline-none">
@@ -84,6 +85,15 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
                 <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
                 <FileX2 className="w-5 h-5" strokeWidth={2}/>
                 Mis reportes
+                </DropdownMenu.Item>
+              </Link>
+            </div>           
+            {/* Mis Mensajes */}
+            <div>
+              <Link href="/chats" className="flex items-center gap-2">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <MessageCircle className="w-5 h-5" strokeWidth={2}/>
+                Mis mensajes
                 </DropdownMenu.Item>
               </Link>
             </div>
