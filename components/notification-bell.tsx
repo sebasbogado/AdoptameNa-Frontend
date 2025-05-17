@@ -10,7 +10,7 @@ import {
   Globe 
 } from "lucide-react";
 import { useNotifications } from "@/contexts/notification-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { NotificationType } from "@/types/notification";
 import { formatTimeAgo } from "@/utils/date-format";
@@ -21,28 +21,45 @@ const NotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [latestNotification, setLatestNotification] = useState<{ title: string; message: string } | null>(null);
+  const seenNotificationIds = useRef<Set<number>>(new Set());
+  const isFirstLoad = useRef<boolean>(true);
 
-  // Observar cambios en las notificaciones para mostrar el toast
   useEffect(() => {
-    if (!loading && bellNotifications.length > 0) {
-      const unreadNotifications = bellNotifications.filter(n => !n.isRead);
+    if (loading) return;
+    
+    
+    if (isFirstLoad.current && bellNotifications.length > 0) {
+      bellNotifications.forEach(notification => {
+        seenNotificationIds.current.add(notification.id);
+      });
+      isFirstLoad.current = false;
+      return;
+    }
+    
+    if (!isFirstLoad.current && bellNotifications.length > 0) {
+      const newNotification = bellNotifications.find(
+        notification => !seenNotificationIds.current.has(notification.id)
+      );
       
-      if (unreadNotifications.length > 0) {
-        // Mostrar el toast para la notificación más reciente no leída
-        const newest = unreadNotifications[0];
+      if (newNotification && !newNotification.isRead) {
         setLatestNotification({
-          title: newest.title,
-          message: newest.message
+          title: newNotification.title,
+          message: newNotification.message
         });
         setShowToast(true);
         
-        // Ocultar el toast después de 5 segundos
         const timer = setTimeout(() => {
           setShowToast(false);
         }, 5000);
         
+        seenNotificationIds.current.add(newNotification.id);
+        
         return () => clearTimeout(timer);
       }
+      
+      bellNotifications.forEach(notification => {
+        seenNotificationIds.current.add(notification.id);
+      });
     }
   }, [bellNotifications, loading]);
 
@@ -66,7 +83,6 @@ const NotificationBell = () => {
 
   return (
     <>
-      {/* Toast para nuevas notificaciones */}
       {showToast && latestNotification && (
         <Alert
           open={showToast}

@@ -15,6 +15,7 @@ import Button from "@/components/buttons/button";
 import ConfirmationModal from "@/components/confirm-modal";
 import { crowdfundingSchema } from "@/validations/crowfunding-schema";
 import { Crowdfunding } from "@/types/crowfunding-type"
+import LabeledInput from "./inputs/labeled-input";
 
 interface CrowdfundingModalProps {
     open: boolean;
@@ -44,7 +45,9 @@ export default function CrowdfundingModal({
         register,
         handleSubmit,
         setValue,
+        getValues,
         reset,
+        clearErrors,
         formState: { errors },
     } = useForm({
         resolver: zodResolver(crowdfundingSchema),
@@ -178,15 +181,22 @@ export default function CrowdfundingModal({
                         )}
 
                         <div>
-                            <label className="text-sm font-medium block">Meta (Gs)</label>
-                            <input
-                                type="number"
-                                {...register("goal", { valueAsNumber: true })}
+                            <LabeledInput
+                                label="Meta (Gs)"
+                                placeholder="1.000.000"
+                                value={getValues("goal") ?? null}
+                                onChange={(value: number | null) => {
+                                    if (value !== null && value >= 0.01) {
+                                        setValue("goal", value);
+                                        clearErrors("goal");
+                                    }
+                                }}
                                 min={0.01}
-                                step={0.01}
-                                className={`w-full border rounded-lg p-2 ${errors.goal ? "border-red-500" : ""}`}
-                                disabled={isLoading}
+                                className={errors.goal ? "border-red-500" : ""}
                             />
+                            {errors.goal && (
+                                <p className="text-red-500 text-sm mt-1">{errors.goal.message}</p>
+                            )}
                         </div>
 
                         <div className="flex gap-4 mt-4">

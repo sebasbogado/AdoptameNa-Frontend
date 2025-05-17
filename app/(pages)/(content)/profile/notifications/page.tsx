@@ -61,7 +61,7 @@ const NotificationsPage = () => {
   } = usePagination<Notification>({
     fetchFunction: fetchNotificationsPage,
     initialPage: 1,
-    initialPageSize: 5,
+    initialPageSize: 10,
     scrollToTop: true
   });
 
