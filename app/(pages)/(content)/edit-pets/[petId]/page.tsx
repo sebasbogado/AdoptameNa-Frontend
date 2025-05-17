@@ -363,241 +363,273 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <div className="border p-4 w-full max-w-5xl rounded-lg shadow">
-        <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
-          <NewBanner
-            medias={selectedImages}
-          />
-          <button
-            onClick={toggleFullScreen}
-            className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-          >
-            <Maximize size={20} />
-          </button>
-        </div>
-        <div className="flex gap-2 mt-2 justify-center items-center">
-
-          {selectedImages.map((img, index) => (
-            <div key={index} className="relative w-24 h-24 group">
-              {/* Imagen */}
-              <Image
-                src={img.url}
-                alt="Imagen de mascota"
-                fill
-                className="w-full h-full object-cover rounded-lg border"
-              />
-
-              {/* Botón de eliminación */}
-              <button
-                onClick={() => handleRemoveImage(index)}
-                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            id="fileInput"
-            onChange={handleImageUpload}
-            disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-          />
-          <label
-            htmlFor="fileInput"
-            className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-              } bg-white`}
-          >
-            <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-          </label>
-        </div>
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+      {/* Fondo de imagen + overlay violeta */}
+      <div
+        className="fixed inset-0 -z-50"
+        style={{
+          backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
       </div>
 
-      {errorMessage && (
-        <div>
-          <Alert
-            color="red"
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-            onClose={() => setErrorMessage("")}>
-            {errorMessage}
-          </Alert>
+      {/* Card del formulario */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+        <div className="flex items-center gap-2 mb-16">
+          <button
+            type="button"
+            aria-label="Volver"
+            onClick={() => router.push('/profile')}
+            className="text-text-primary hover:text-gray-700 focus:outline-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-text-primary">Editar mascota</h1>
         </div>
-      )}
-
-      {precautionMessage && (
-        <div>
-          <Alert
-            color="orange"
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-            onClose={() => setPrecautionMessage("")}>
-            {precautionMessage}
-          </Alert>
-        </div>
-      )}
-
-      {successMessage && (
-        <div>
-          <Alert
-            color="green"
-            onClose={() => setSuccessMessage("")}
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-            {successMessage}
-          </Alert>
-        </div>
-      )}
-
-      {/* Wrapped Card Component */}
-
-      <Card>
-        <CardContent className="p-4">
-          <form onSubmit={zodHandleSubmit(openConfirmationModalEdit)}>
-            <div className="w-full mb-2">
-              <label className="block mb-1">Estado de la mascota</label>
-              <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
-                {petsStatus?.map((a, i) => (
-                  <option key={i} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-              {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
-            </div>
-
-            {/* Tipo de Animal */}
-            <div className="w-full mb-2">
-              <label className="block mb-1">Tipo de Animal</label>
-              <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
-                {animals?.map((a, i) => (
-                  <option key={i} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-              {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
-            </div>
-
-            {/* breedId */}
-            <div className="w-full mb-2">
-              <label className="block mb-1">Raza</label>
-              <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
-                {breed?.filter((b) => b.animalId === watch("animalId")) // Filtra por tipo de animal
-                  .map((b, i) => (
-                    <option key={i} value={b.id}>{b.name}</option>
-                  ))}
-              </select>
-              {errors.breedId && <p className="text-red-500">{errors.breedId.message}</p>}
-            </div>
-
-            {/* Nombre de la mascota */}
-            <div className="mb-2">
-              <label className="block mb-1">Nombre de la mascota</label>
-              <input className="w-full p-2 border rounded" placeholder="Título" {...register("name")} maxLength={200} />
-              {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-            </div>
-
-            {/* Descripción */}
-            <div className="mb-2">
-              <label className="block mb-1">Descripción</label>
-              <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("description")} maxLength={500} />
-              {errors.description && <p className="text-red-500">{errors.description.message}</p>}
-            </div>
-
-            {/* Fecha de birthdate */}
-            <div className="mb-2">
-              <label className="block mb-1">Fecha de nacimiento</label>
-              <input type="date" className="w-full p-2 border rounded" {...register("birthdate")} />
-              {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
-            </div>
-
-            {/* Género */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Macho</label>
-              <input type="radio" value="MALE" {...register("gender")} />
-              <label>Hembra</label>
-              <input type="radio" value="FEMALE" {...register("gender")} />
-            </div>
-
-            {/* isVaccinated */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Esta desparasitado</label>
-              <input type="checkbox" {...register("isVaccinated")} />
-              {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
-            </div>
-
-            {/* isSterilized */}
-            <div className="flex gap-2 items-center mb-2">
-              <label>Esta esterilizado</label>
-              <input type="checkbox" {...register("isSterilized")} />
-              {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-            </div>
-
-
-            {/* Mapa */}
-            <div
-              className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+        <div className="p-4 w-full max-w-5xl rounded-lg">
+          <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+            <NewBanner
+              medias={selectedImages}
+            />
+            <button
+              onClick={toggleFullScreen}
+              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
             >
-              <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-            </div>
-            {errors.addressCoordinates && <p className="text-red-500">{errors.addressCoordinates.message}</p>}
+              <Maximize size={20} />
+            </button>
+          </div>
+          <div className="flex gap-2 mt-2 justify-center items-center">
 
-            {/* Buttons */}
-            <div className="flex justify-between items-center mt-6 gap-10">
-              <Button
-                type="button"
-                variant="danger"
-                size="md"
-                className="rounded hover:bg-red-700"
-                onClick={openConfirmationModalDelete}
-                disabled={loading}
+            {selectedImages.map((img, index) => (
+              <div key={index} className="relative w-24 h-24 group">
+                {/* Imagen */}
+                <Image
+                  src={img.url}
+                  alt="Imagen de mascota"
+                  fill
+                  className="w-full h-full object-cover rounded-lg border"
+                />
+
+                {/* Botón de eliminación */}
+                <button
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              id="fileInput"
+              onChange={handleImageUpload}
+              disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
+            />
+            <label
+              htmlFor="fileInput"
+              className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                } bg-white`}
+            >
+              <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+            </label>
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div>
+            <Alert
+              color="red"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setErrorMessage("")}>
+              {errorMessage}
+            </Alert>
+          </div>
+        )}
+
+        {precautionMessage && (
+          <div>
+            <Alert
+              color="orange"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setPrecautionMessage("")}>
+              {precautionMessage}
+            </Alert>
+          </div>
+        )}
+
+        {successMessage && (
+          <div>
+            <Alert
+              color="green"
+              onClose={() => setSuccessMessage("")}
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+              {successMessage}
+            </Alert>
+          </div>
+        )}
+
+        {/* Wrapped Card Component */}
+        <section className="p-8">
+          <div>
+            <form onSubmit={zodHandleSubmit(openConfirmationModalEdit)} className="flex flex-col gap-6">
+              <div className="w-fit mb-2">
+                <label className="block mb-1">Estado de la mascota</label>
+                <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione el estado del animal</option>
+                  {petsStatus?.map((a, i) => (
+                    <option key={i} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+                {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
+              </div>
+
+              {/* Tipo de Animal */}
+              <div className="w-fit mb-2">
+                <label className="block mb-1">Tipo de Animal</label>
+                <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione el tipo de animal</option>
+                  {animals?.map((a, i) => (
+                    <option key={i} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+                {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
+              </div>
+
+              {/* breedId */}
+              <div className="w-fit mb-2">
+                <label className="block mb-1">Raza</label>
+                <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione la raza</option>
+                  {breed?.filter((b) => b.animalId === watch("animalId"))
+                    .map((b, i) => (
+                      <option key={i} value={b.id}>{b.name}</option>
+                    ))}
+                </select>
+                {errors.breedId && <p className="text-red-500">{errors.breedId.message}</p>}
+              </div>
+
+              {/* Título */}
+              <div className="mb-2">
+                <label className="block mb-1">Nombre</label>
+                <input className="w-2/4 p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
+                {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+              </div>
+
+              {/* Descripción */}
+              <div className="mb-2">
+                <label className="block mb-1">Descripción</label>
+                <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("description")} maxLength={500} />
+                {errors.description && <p className="text-red-500">{errors.description.message}</p>}
+              </div>
+
+              {/* Fecha de cumpleaños */}
+              <div className="mb-2">
+                <label className="block mb-1">Fecha de cumpleaños</label>
+                <input type="date" className="w-1/3 p-2 border rounded" {...register("birthdate")} />
+                {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
+              </div>
+
+              {/* Género */}
+              <div className="flex gap-4 items-center mb-2">
+                <div className="flex gap-2">
+                  <input type="radio" value="MALE" {...register("gender")} />
+                  <label>Macho</label>
+                </div>
+                <div className="flex gap-2">
+                  <input type="radio" value="FEMALE" {...register("gender")} />
+                  <label>Hembra</label>
+                </div>
+              </div>
+
+              {/* isVaccinated */}
+              <div className="flex gap-2 items-center mb-2">
+                <input type="checkbox" {...register("isVaccinated")} />
+                <label>Está desparasitado</label>
+                {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
+              </div>
+
+              {/* isSterilized */}
+              <div className="flex gap-2 items-center mb-2">
+                <input type="checkbox" {...register("isSterilized")} />
+                <label>Está esterilizado</label>
+                {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
+              </div>
+
+              {/* Mapa */}
+              <div
+                className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
-                {isSubmitting ? 'Eliminando...' : 'Eliminar publicación'}
-              </Button>
+                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+              </div>
 
-              <div className="flex gap-4">
+              {/* Buttons */}
+              <div className="flex justify-between items-center mt-6 gap-10">
                 <Button
                   type="button"
-                  variant="tertiary"
-                  className="border rounded text-gray-700 hover:bg-gray-100"
-                  onClick={handleCancel}
-                  disabled={isSubmitting || loading}
+                  variant="danger"
+                  size="md"
+                  className="rounded hover:bg-red-700"
+                  onClick={openConfirmationModalDelete}
+                  disabled={loading}
                 >
-                  Cancelar
+                  {isSubmitting ? 'Eliminando...' : 'Eliminar publicación'}
                 </Button>
-                <Button
-                  type="submit"
-                  variant="cta"
-                  className="rounded hover:bg-purple-700"
-                  disabled={isSubmitting || loading}
-                >
-                  {isSubmitting ? "Editando..." : "Confirmar cambios"}
-                </Button>
+
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    className="border rounded text-gray-700 hover:bg-gray-100"
+                    onClick={handleCancel}
+                    disabled={isSubmitting || loading}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="cta"
+                    className="rounded hover:bg-purple-700"
+                    disabled={isSubmitting || loading}
+                  >
+                    {isSubmitting ? "Editando..." : "Confirmar cambios"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </form>
+          </div>
+        </section>
 
-      {isEditModalOpen &&
-        <ConfirmationModal
-          isOpen={isEditModalOpen}
-          title="Confirmar cambios"
-          message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
-          textConfirm="Confirmar cambios"
-          confirmVariant="cta"
-          onClose={closeModal}
-          onConfirm={handleSubmit}
-        />}
+        {isEditModalOpen &&
+          <ConfirmationModal
+            isOpen={isEditModalOpen}
+            title="Confirmar cambios"
+            message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
+            textConfirm="Confirmar cambios"
+            confirmVariant="cta"
+            onClose={closeModal}
+            onConfirm={handleSubmit}
+          />}
 
-      {isDeleteModalOpen &&
-        <ConfirmationModal
-          isOpen={isDeleteModalOpen}
-          title="Confirmar eliminación"
-          message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
-          textConfirm="Eliminar"
-          confirmVariant="danger"
-          onClose={closeModal}
-          onConfirm={handleDelete}
-        />}
+        {isDeleteModalOpen &&
+          <ConfirmationModal
+            isOpen={isDeleteModalOpen}
+            title="Confirmar eliminación"
+            message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
+            textConfirm="Eliminar"
+            confirmVariant="danger"
+            onClose={closeModal}
+            onConfirm={handleDelete}
+          />}
+      </div>
     </div>
   );
 };
