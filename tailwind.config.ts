@@ -48,6 +48,7 @@ module.exports = withMT({
         //Brand colors
         "primary-brand-color": "var(--primary-brand-color)",
         "secondary-brand-color": "var(--secondary-brand-color)",
+        "lilac-background": "var(--color-lilac-backgorund)",  
         //Text colors
         "text-primary": "var(--color-text-primary)",
         "text-secondary": "var(--color-text-secondary)",
