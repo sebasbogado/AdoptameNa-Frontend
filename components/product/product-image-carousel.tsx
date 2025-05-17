@@ -1,26 +1,34 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Carousel, IconButton } from "@material-tailwind/react"
-import Image from "next/image"
-import { Media } from "@/types/media"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-
-// Utilizamos la interfaz Media que ya tienes definida
+import { useState, useEffect, useCallback } from "react"; // Agregado useCallback
+import { Carousel } from "@material-tailwind/react";
+import Image from "next/image";
+import { Media } from "@/types/media";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ProductImageCarouselProps {
-  media: Media[]
-  className?: string
+  media: Media[];
+  className?: string;
 }
 
 export default function ProductImageCarousel({ media, className = "" }: ProductImageCarouselProps) {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const hasImages = media && media.length > 0
+  const [activeIndex, setActiveIndex] = useState<number>(0); // Nuestro estado para el índice activo
+
+  // Estado para guardar la función setActiveIndex que nos da el Carousel a través de `navigation`
+  const [carouselControlApi, setCarouselControlApi] = useState<{
+    setActiveIndex?: (index: number) => void;
+  } | null>(null);
+
+  // El estado `images` es el que usas para renderizar, ya incluye `isVertical`
   const [images, setImages] = useState<{ url: string; isVertical: boolean; id: number }[]>([]);
-  const showArrows = images.length > 1
+  const showArrows = images.length > 1;
+  const hasImages = media?.length > 0;
 
   const checkOrientation = async (mediaItems: Media[]) => {
-    if (!mediaItems || mediaItems.length === 0) return;
+    if (!mediaItems || mediaItems.length === 0) {
+      setImages([]);
+      return;
+    }
     const promises = mediaItems.map(
       (media) =>
         new Promise<{ id: number; url: string; isVertical: boolean }>(
@@ -53,32 +61,104 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
 
   // Función para cambiar la imagen activa
   const handleThumbnailClick = (index: number) => {
-    setActiveIndex(index)
-  }
+    if (index !== activeIndex) {
+      setActiveIndex(index); // Actualiza nuestro estado local
+      // Si tenemos la función de control del carrusel, le decimos que cambie al nuevo índice
+      if (carouselControlApi?.setActiveIndex) {
+        carouselControlApi.setActiveIndex(index);
+      }
+    }
+  };
 
-  // Reiniciar el estado cuando cambian las imágenes
+  // Efecto para reiniciar cuando `media` cambia
   useEffect(() => {
-    setActiveIndex(0)
-    checkOrientation(media)
-  }, [media])
+    setActiveIndex(0);
+    checkOrientation(media);
+    // También queremos que el carrusel se reinicie a 0 si tenemos su control
+    if (carouselControlApi?.setActiveIndex) {
+      carouselControlApi.setActiveIndex(0);
+    }
+  }, [media]);
+
+  useEffect(() => {
+    if (carouselControlApi?.setActiveIndex) {
+      carouselControlApi.setActiveIndex(activeIndex);
+    }
+  }, [activeIndex, carouselControlApi]);
+
+
+  // Render prop para la navegación (lo usamos para capturar la API y opcionalmente renderizar puntos)
+  const navigationRenderProp = useCallback(
+    (navProps: {
+      setActiveIndex: (index: number) => void;
+      activeIndex: number; // Este es el índice interno del Carousel
+      length: number;
+    }) => {
+      const { setActiveIndex: carouselApiSetIdx, activeIndex: carouselInternalIdx } = navProps;
+
+      // Capturar la API del carrusel para poder controlarlo desde fuera
+      useEffect(() => {
+        // Guardamos la función setActiveIndex del carrusel en nuestro estado
+        // Solo lo hacemos si es diferente para evitar re-renders innecesarios si la ref es estable
+        if (carouselControlApi?.setActiveIndex !== carouselApiSetIdx) {
+          setCarouselControlApi({ setActiveIndex: carouselApiSetIdx });
+        }
+
+        // Sincronizar nuestro activeIndex si el carrusel cambia internamente
+        // (ej. si tuvieras autoplay o puntos de navegación internos que el usuario usa)
+        if (carouselInternalIdx !== activeIndex) {
+          // Usar queueMicrotask para evitar el error "setState in render"
+          queueMicrotask(() => {
+            setActiveIndex(carouselInternalIdx);
+          });
+        }
+        // `carouselControlApi` y `activeIndex` están aquí como dependencias porque
+        // los usamos en las condiciones del efecto.
+      }, [carouselApiSetIdx, carouselInternalIdx, carouselControlApi, activeIndex]);
+
+      return (
+        <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
+          {images.length > 1 && new Array(navProps.length).fill("").map((_, i) => (
+            <span
+              key={i}
+              className={`block h-1 cursor-pointer rounded-2xl transition-all content-[''] ${
+                // Usamos `activeIndex` (nuestro estado) para el estilo del punto activo
+                activeIndex === i ? "w-8 bg-white" : "w-4 bg-white/50"
+                }`}
+              onClick={() => {
+                // Al hacer clic en un punto, actualizamos nuestro estado y le decimos al carrusel que cambie.
+                setActiveIndex(i);
+                if (carouselApiSetIdx) {
+                  carouselApiSetIdx(i);
+                }
+              }}
+            />
+          ))}
+        </div>
+      );
+    },
+    [images.length, activeIndex]
+  );
 
   if (!hasImages) {
     return (
       <div className="flex items-center justify-center w-full h-64 bg-gray-100 rounded-lg">
         <p className="text-gray-500">No hay imágenes disponibles</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className={`flex flex-col md:flex-row gap-4 px-6 ${className}`}>
-      {media.length > 1 && (
+      {/* Miniaturas */}
+      {images.length > 1 && (
         <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-2 md:h-96 md:w-24 pb-2 md:pb-0 md:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {media.map((item, index) => (
+          {images.map((item, index) => (
             <button
               key={item.id}
-              
-              className={`relative min-w-[80px] md:min-w-0 md:w-full h-20 border-2 rounded-md overflow-hidden transition-all ${activeIndex === index ? "border-blue-500 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
+              onClick={() => handleThumbnailClick(index)}
+              className={`relative min-w-[80px] md:min-w-0 md:w-full h-20 border-2 rounded-md overflow-hidden transition-all ${activeIndex === index ? "border-blue-500 shadow-md" : "border-gray-200 hover:border-gray-300"
+                }`}
             >
               <Image
                 src={item.url || "/placeholder.svg"}
@@ -86,30 +166,19 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
                 fill
                 sizes="(max-width: 768px) 80px, 96px"
                 className="object-cover"
-                onClick={() => handleThumbnailClick(index)}
               />
             </button>
           ))}
         </div>
       )}
 
-      <div className="relative w-10 h-96 bg-gray-100 rounded-lg overflow-hidden flex-grow">
+      {/* Carousel Principal */}
+      <div className="relative h-96 bg-gray-100 rounded-lg overflow-hidden flex-grow">
         <Carousel
-          loop
+          loop={images.length > 1}
           autoplay
-          autoplayDelay={10000}
           className="h-full"
-          navigation={({ setActiveIndex, activeIndex, length }) => (
-            <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
-              {images.length > 1 && new Array(length).fill("").map((_, i) => (
-                <span
-                  key={i}
-                  className={`block h-1 cursor-pointer rounded-2xl transition-all content-[''] ${activeIndex === i ? "w-8 bg-white" : "w-4 bg-white/50"}`}
-                  onClick={() => setActiveIndex(i)}
-                />
-              ))}
-            </div>
-          )}
+          navigation={navigationRenderProp}
           prevArrow={({ handlePrev }) => (
             showArrows && (
               <button
@@ -133,14 +202,15 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
             )
           )}
         >
-          {media.map((item, index) => (
+          {images.map((item, index) => (
             <div key={item.id} className="h-full w-full flex items-center justify-center">
               <Image
-                src={item.url}
+                src={item.url} // Añadir placeholder por si url es undefined
                 alt={`Product-image ${index + 1}`}
-                width={600}
-                height={600}
-                className={`h-full w-full object-contain transition-opacity duration-300`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // AJUSTA ESTO
+                className={`transition-opacity duration-300 ${item.isVertical ? 'object-contain' : 'object-cover' // object-fit sigue aplicando
+                  }`} // Ya no necesitas w-full h-full en la imagen, fill se encarga.
                 priority={index === 0}
               />
             </div>
@@ -148,5 +218,5 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
         </Carousel>
       </div>
     </div>
-  )
+  );
 }
