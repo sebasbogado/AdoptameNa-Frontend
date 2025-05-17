@@ -8,25 +8,28 @@ import { Crowdfunding } from "@/types/crowfunding-type";
 import CrowdfundingCardText from "./card-text";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { getFullUser } from "@/utils/user-profile.http";
+import { getUserProfile } from "@/utils/user-profile.http";
+import { Media } from "@/types/media";
 
 type CrowdfundingCardProps = {
     item: Crowdfunding;
     className?: string
 };
 
-export default function CrowdfundingCard({ item, className }: CrowdfundingCardProps) {
+export default function CrowdfundingCard({ item, className = "" }: CrowdfundingCardProps) {
     const { user } = useAuth();
     const router = useRouter();
 
     const [authorName, setAuthorName] = useState("");
+    const [authorImage, setAuthorImage] = useState<Media[]>([]);
 
     useEffect(() => {
         const fetchUserData = async () => {
             if (!item.id) return;
             try {
-                const response = await getFullUser(item.id.toString());
+                const response = await getUserProfile(item.userId.toString());
                 setAuthorName(response.fullName);
+                setAuthorImage(response.media);
             } catch (error) {
                 console.error("Error fetching user profile:", error);
             }
@@ -41,8 +44,8 @@ export default function CrowdfundingCard({ item, className }: CrowdfundingCardPr
             className
         )}>
             <Link href={`/profile/${item.userId}`}>
-                <CardImage />
-                <CrowdfundingCardText item={item} authorName={authorName} />
+                <CardImage media={authorImage[0]}/>
+                <CrowdfundingCardText key={item.id} item={item} authorName={authorName} />
             </Link>
 
         </div>
