@@ -11,6 +11,7 @@ interface CreateProfileProps {
     setValue: (name: keyof ProfileValues, value: any) => void;
     isSubmitting: boolean;
     errors: Partial<Record<keyof ProfileValues, { message?: string }>>;
+    hideSubmitButton?: boolean;
 }
 
 export const CreateProfile = ({
@@ -20,15 +21,16 @@ export const CreateProfile = ({
     setValue,
     isSubmitting,
     errors,
+    hideSubmitButton,
 }: CreateProfileProps) => {
     // Añadir efecto para monitorear el estado de envío del formulario
-    
+
 
     return (
-        <form 
+        <form
             onSubmit={(e) => {
                 return handleSubmit(onSubmit)(e);
-            }} 
+            }}
             className="space-y-4 text-left"
         >
             {/* Información personal */}
@@ -47,11 +49,13 @@ export const CreateProfile = ({
             />
 
             {/* Botón de envío */}
-            <SubmitButton
-                isSubmitting={isSubmitting}
-                label="Guardar perfil"
-                loadingLabel="Procesando..."
-            />
+            {!hideSubmitButton && (
+                <SubmitButton
+                    isSubmitting={isSubmitting}
+                    label="Guardar perfil"
+                    loadingLabel="Procesando..."
+                />
+            )}
         </form>
     );
 };

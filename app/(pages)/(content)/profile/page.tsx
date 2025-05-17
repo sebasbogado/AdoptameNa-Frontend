@@ -26,6 +26,7 @@ import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
 import ImageHeader from '@/components/image-header';
 import HeaderImage from '@/components/image-header';
+import EditProfileModal from '@/components/profile/edit-profile-modal'
 
 
 const getUserProfileData = async (
@@ -116,9 +117,10 @@ export default function ProfilePage() {
         posts: false,
         userProfile: false
     });
+    const [medias, setMedias] = useState<MediaDTO[]>([])
+    const [showEditModal, setShowEditModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [medias, setMedias] = useState<MediaDTO[]>([])
 
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
@@ -278,21 +280,10 @@ export default function ProfilePage() {
 
                         <EditButton
                             size="lg"
-                            isEditing={isEditing}
-                            id='edit-button'
-                            onClick={handleEditButtonClick}
+                            isEditing={false}
+                            id="edit-button"
+                            onClick={() => setShowEditModal(true)}
                         />
-                        {isEditing && (
-                            <>
-                                <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                                    Guardar
-                                </Button>
-                            </>
-                        )}
-                        {!isEditing && (
-                            <MenuButton size="lg" />
-
-                        )}
                     </div>
 
                     <div className='w-[40vw] mt-[-30px] '>
@@ -322,6 +313,35 @@ export default function ProfilePage() {
                         items={posts}
                         loading={loading}
                         error={errors.posts}
+                    />
+
+                    <EditProfileModal
+                        open={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        initialData={{
+                            fullName: userProfile?.fullName ?? "",
+                            phoneNumber: userProfile?.phoneNumber ?? null,
+                            address: userProfile?.address ?? null,
+                            gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
+                            birthdate: userProfile?.birthdate ? new Date(userProfile.birthdate) : null,
+                            description: userProfile?.description ?? "",
+                            addressCoordinates: userProfile?.addressCoordinates
+                                ? userProfile.addressCoordinates.split(",").map(parseFloat)
+                                : undefined,
+                            departmentId: userProfile?.departmentId ?? undefined,
+                            districtId: userProfile?.districtId ?? undefined,
+                            neighborhoodId: userProfile?.neighborhoodId ?? undefined,
+                        }}
+                        onSuccess={() =>
+                            getUserProfileData(
+                                setUserProfile,
+                                setProfileLoading,
+                                setErrors,
+                                String(user.id)
+                            )
+                        }
+                        setSuccessMessage={setSuccessMessage}
+                        setErrorMessage={setErrorMessage}
                     />
                 </div>
             </div>
