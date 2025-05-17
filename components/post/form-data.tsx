@@ -29,7 +29,7 @@ export const FormData = ({ handleSubmit,
     loading,
     handleCancel,
     handlePositionChange,
-    
+    MAX_TAGS,
     MAX_IMAGES,
     
 }:FormDataProps) => {
@@ -66,6 +66,7 @@ export const FormData = ({ handleSubmit,
                             setValue("tagIds", selected.map((animal) => animal.id));
                         }}
                         placeholder="Seleccionar tags"
+                        maxSelected={MAX_TAGS} // <-- Limita la selección a 3 tags
                     />
                 </div>
                 {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
@@ -141,7 +142,7 @@ export const FormData = ({ handleSubmit,
                         <Button
                             type="submit"
                             variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            className={`rounded ${selectedTags.length >= MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
                             disabled={loading || selectedTags.length >= MAX_IMAGES}
                         >
                             {loading ? "Creando..." : "Crear publicación"}

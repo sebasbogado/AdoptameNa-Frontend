@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
 
-// Asegura que T tenga al menos id y name
 interface BaseOption {
   id: number;
   name: string;
@@ -12,22 +11,28 @@ type MultiSelectProps<T extends BaseOption> = {
   selected: T[];
   onChange: (selected: T[]) => void;
   placeholder?: string;
+  maxSelected?: number;
 };
 
 export function MultiSelect<T extends BaseOption>({
   options,
   selected,
   onChange,
-  placeholder = "Seleccionar opciones"
+  placeholder = "Seleccionar opciones",
+  maxSelected,
 }: MultiSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOption = (option: T) => {
     const alreadySelected = selected.some((s) => s.id === option.id);
+
     if (alreadySelected) {
       onChange(selected.filter((s) => s.id !== option.id));
     } else {
-      onChange([...selected, option]);
+      // Solo permite agregar si no se ha alcanzado el máximo
+      if (!maxSelected || selected.length < maxSelected) {
+        onChange([...selected, option]);
+      }
     }
   };
 
@@ -68,16 +73,21 @@ export function MultiSelect<T extends BaseOption>({
       {isOpen && (
         <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
           {options.map((option) => {
-            const selected = isSelected(option);
+            const isOptionSelected = isSelected(option);
+            const disabled = !isOptionSelected && maxSelected && selected.length >= maxSelected;
+
             return (
               <li
                 key={option.id}
-                className={`cursor-pointer px-4 py-2 hover:bg-blue-100 flex justify-between items-center ${selected ? 'bg-blue-50 font-medium' : ''
-                  }`}
-                onClick={() => toggleOption(option)}
+                className={`cursor-pointer px-4 py-2 hover:bg-blue-100 flex justify-between items-center 
+        ${isOptionSelected ? 'bg-blue-50 font-medium' : ''} 
+        ${disabled ? 'text-gray-400 cursor-not-allowed' : ''}`}
+                onClick={() => {
+                  if (!disabled) toggleOption(option);
+                }}
               >
                 <span>{option.name}</span>
-                {selected && <Check className="w-4 h-4 text-blue-600" />}
+                {isOptionSelected && <Check className="w-4 h-4 text-blue-600" />}
               </li>
             );
           })}

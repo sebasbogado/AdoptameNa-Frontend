@@ -22,4 +22,5 @@ setValue: UseFormSetValue<PostFormValues>
   closeModal: () => void;
   confirmSubmit: () => void;
     MAX_IMAGES: number;
+  MAX_TAGS: number;
 };

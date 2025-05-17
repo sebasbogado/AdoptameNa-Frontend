@@ -27,6 +27,7 @@ import { MultiSelect } from "@/components/multi-select";
 import UploadImage from "@/components/post/upload-images";
 import UploadImages from "@/components/post/upload-images";
 import {FormData as FormDataPost} from "@/components/post/form-data";
+import { MAX_TAGS } from "@/validations/post-schema";
 
 
 export default function Page() {
@@ -313,6 +314,7 @@ export default function Page() {
                 closeModal={closeModal}
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
+                MAX_TAGS={MAX_TAGS}
             />
 
             {isModalOpen &&
