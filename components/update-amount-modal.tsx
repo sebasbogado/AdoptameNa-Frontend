@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { donateToCrowdfunding } from "@/utils/crowfunding.http";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
+import LabeledInput from "./inputs/labeled-input";
 
 interface UpdateAmountModalProps {
     open: boolean;
@@ -63,19 +64,20 @@ export default function UpdateAmountModal({
 
                 <div className="mb-4">
                     <p className="text-sm">
-                        Actual: Gs. {selectedCrowdfunding.currentAmount.toLocaleString("es-PY")} / Meta: Gs. {selectedCrowdfunding.goal.toLocaleString("es-PY")}
+                        Actual: ₲ {selectedCrowdfunding.currentAmount.toLocaleString("es-PY")} / Meta: ₲ {selectedCrowdfunding.goal.toLocaleString("es-PY")}
                     </p>
                 </div>
 
                 <div className="mb-4">
-                    <label className="text-sm font-medium block">AÑADIR (Gs)</label>
-                    <input
-                        type="number"
+                    <LabeledInput
+                        label="AÑADIR (Gs)"
+                        value={amount || null}
+                        onChange={(value: number | null) => {
+                            setAmount(value ?? 0);
+                        }}
                         min={1}
-                        value={amount}
-                        onChange={(e) => setAmount(Number(e.target.value))}
-                        className="w-full border rounded-lg p-2"
-                        disabled={isLoading}
+                        debounceDelay={0}
+                        className="w-full"
                     />
                 </div>
 
