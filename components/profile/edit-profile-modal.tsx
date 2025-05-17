@@ -47,6 +47,8 @@ export default function EditProfileModal({
         reset(initialData);
     }, [initialData, reset]);
 
+
+
     const handleSave = async (data: ProfileValues) => {
         if (!authToken || !user?.id) {
             setErrorMessage?.("Error de autenticación");
@@ -70,8 +72,7 @@ export default function EditProfileModal({
                 departmentId: data.departmentId || null,
                 districtId: data.districtId || null,
                 neighborhoodId: data.neighborhoodId || null,
-                organizationName: "",
-                document: "",
+                organizationName: data.organizationName || "",
                 earnedPoints: 0,
                 email: user.email || "",
                 isProfileCompleted: true,
