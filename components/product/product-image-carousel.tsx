@@ -205,12 +205,11 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
           {images.map((item, index) => (
             <div key={item.id} className="h-full w-full flex items-center justify-center">
               <Image
-                src={item.url} // Añadir placeholder por si url es undefined
+                src={item.url}
                 alt={`Product-image ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // AJUSTA ESTO
-                className={`transition-opacity duration-300 ${item.isVertical ? 'object-contain' : 'object-cover' // object-fit sigue aplicando
-                  }`} // Ya no necesitas w-full h-full en la imagen, fill se encarga.
+                width={600}
+                height={600}
+                className={`h-full w-full object-contain transition-opacity duration-300`}
                 priority={index === 0}
               />
             </div>
