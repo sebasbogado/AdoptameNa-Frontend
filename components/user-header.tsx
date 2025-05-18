@@ -15,13 +15,13 @@ import {
   UserIcon
 } from "lucide-react";
 import NotificationBell from "./notification-bell";
-import ChatBell from "./chat/chat-bell";
+import ChatButton from "./chat/chat-button";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
   const { logout } = useAuth();  return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
       <NotificationBell />
-      <ChatBell />
+      <ChatButton />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button className="outline-none">
