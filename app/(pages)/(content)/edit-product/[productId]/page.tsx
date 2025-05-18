@@ -435,7 +435,7 @@ export default function Page() {
                         <input
                             type="text"
                             {...register("title")}
-                            className={`w-full p-2 border rounded ${errors.title ? 'border-red-500' : ''}`} />
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.title ? 'border-red-500' : ''}`} />
                         {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
                     </div>
 
@@ -443,7 +443,7 @@ export default function Page() {
                         <label className="block mb-1">Descripción</label>
                         <textarea 
                             {...register("content")} 
-                            className={`w-full p-2 border rounded ${errors.content ? 'border-red-500' : ''}`}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
                         />
                         {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
                     </div>
@@ -464,7 +464,7 @@ export default function Page() {
 
                     <div className="w-1/3 mb-2">
                         <label className="block mb-1">Estado</label>
-                        <select {...register("condition")} className={`w-full p-2 border rounded ${errors.condition ? 'border-red-500' : ''}`}>
+                        <select {...register("condition")} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.condition ? 'border-red-500' : ''}`}>
                             {Object.values(ProductCondition).map(cond => (
                                 <option key={cond} value={cond}>{capitalize(cond)}</option>
                             ))}
@@ -474,7 +474,7 @@ export default function Page() {
 
                     <div className="w-1/3 mb-2">
                         <label className="block mb-1">Categoría</label>
-                        <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded ${errors.categoryId ? 'border-red-500' : ''}`}>
+                        <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.categoryId ? 'border-red-500' : ''}`}>
                             <option value={0}>Seleccionar categoría</option>
                             {categories.map(cat => (
                                 <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -487,7 +487,7 @@ export default function Page() {
                         <label className="block mb-1">Contacto</label>
                         <input
                             {...register("contactNumber")}
-                            className={`w-full p-2 border rounded ${errors.contactNumber ? 'border-red-500' : ''}`}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.contactNumber ? 'border-red-500' : ''}`}
                             onKeyDown={(e) => {
                                 if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
                                     e.preventDefault();
