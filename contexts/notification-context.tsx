@@ -26,6 +26,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     loading: state.loading,
     fetchBellNotifications: actions.fetchBellNotifications,
     markAsRead: actions.markAsRead,
+    markAllAsRead: actions.markAllAsRead,
   };
 
   return (
