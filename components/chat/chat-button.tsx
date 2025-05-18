@@ -4,29 +4,24 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { 
   MessageCircle, 
-  Check, 
-  Clock, 
-  UserCircle
+  Check
 } from "lucide-react";
 import { useChat } from "@/contexts/chat-context";
 import { useFloatingChat } from "@/contexts/floating-chat-context";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { useState, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { UserDTO } from "@/types/chat";
 import { Alert } from "@material-tailwind/react";
-import { useRouter } from "next/navigation";
 
-const ChatBell = () => {
+const ChatButton = () => {
   const { chatUsers, unreadCount, markChatAsRead, selectChat } = useChat();
   const { openChat } = useFloatingChat();
   const [open, setOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [latestMessage, setLatestMessage] = useState<{ senderName: string; content: string } | null>(null);
-  const seenMessageIds = useRef<Set<number>>(new Set());
   const isFirstLoad = useRef<boolean>(true);
-  const router = useRouter();
 
-  // Similar to the notification bell, show toasts for new messages
   useEffect(() => {
     if (chatUsers.length === 0) return;
     
@@ -50,10 +45,11 @@ const ChatBell = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [chatUsers]);  const handleChatSelect = (user: UserDTO) => {
+  }, [chatUsers]);
+
+  const handleChatSelect = (user: UserDTO) => {
     selectChat(user);
     setOpen(false);
-    // En lugar de ir a /chats, vamos a abrir el chat flotante
     openChat();
   };
 
@@ -66,7 +62,7 @@ const ChatBell = () => {
       {showToast && latestMessage && (
         <Alert
           open={showToast}
-          color="blue-gray"
+          color="purple"
           animate={{
             mount: { y: 0 },
             unmount: { y: -100 },
@@ -85,7 +81,7 @@ const ChatBell = () => {
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
           <button className="relative outline-none flex items-center justify-center">
-            <MessageCircle className="text-blue-gray-500 w-6 h-6" />
+            <MessageCircle className="text-amber-500 w-6 h-6" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">
                 {unreadCount > 9 ? "9+" : unreadCount}
@@ -99,11 +95,12 @@ const ChatBell = () => {
             className="min-w-[350px] max-w-[400px] bg-white rounded-md p-2 shadow-md z-50"
             sideOffset={5}
             align="end"
-          >            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+          >
+            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
               <span className="font-medium text-sm text-gray-800">Mensajes</span>
               <Link
                 href="/chats"
-                className="text-xs text-blue-gray-600 hover:text-blue-gray-800"
+                className="text-xs text-amber-600 hover:text-amber-800"
               >
                 Ver todos
               </Link>
@@ -118,13 +115,12 @@ const ChatBell = () => {
                     key={user.id}
                     className={clsx(
                       "p-3 border-b border-gray-100 last:border-0 cursor-pointer hover:bg-gray-50 transition-colors",
-                      user.unreadMessagesCount > 0 && "bg-blue-50"
+                      user.unreadMessagesCount > 0 && "bg-amber-50"
                     )}
                     onClick={() => handleChatSelect(user)}
                   >
-                    <div className="flex items-start gap-2">
-                      <div className="mt-0.5 relative">
-                        <UserCircle className="w-8 h-8 text-blue-500" />
+                    <div className="flex items-start gap-2">                      <div className="mt-0.5 relative">
+                        <UserAvatar userId={user.id} fullName={user.name} size="sm" />
                         {user.online && (
                           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
                         )}
@@ -133,7 +129,7 @@ const ChatBell = () => {
                         <div className="flex items-center justify-between mb-1">
                           <div className="font-medium text-sm">{user.name}</div>
                           {user.unreadMessagesCount > 0 ? (
-                            <div className="text-xs bg-blue-gray-500 text-white px-2 py-0.5 rounded-full">
+                            <div className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">
                               {user.unreadMessagesCount}
                             </div>
                           ) : null}
@@ -154,7 +150,7 @@ const ChatBell = () => {
                                 e.stopPropagation();
                                 handleMarkAsRead(user.id);
                               }}
-                              className="text-xs text-blue-gray-600 hover:text-blue-gray-800 flex items-center gap-1"
+                              className="text-xs text-amber-600 hover:text-amber-800 flex items-center gap-1"
                             >
                               <Check className="w-3 h-3" /> Marcar como leído
                             </button>
@@ -170,9 +166,10 @@ const ChatBell = () => {
                 ))
               )}
             </div>
-              <Link
+
+            <Link
               href="/chats"
-              className="block w-full text-center p-2 text-sm text-blue-gray-600 hover:bg-blue-gray-50 rounded-md mt-1"
+              className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
             >
               Ver todos los mensajes
             </Link>
@@ -183,4 +180,4 @@ const ChatBell = () => {
   );
 };
 
-export default ChatBell;
+export default ChatButton;
