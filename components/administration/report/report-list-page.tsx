@@ -9,6 +9,7 @@ import SectionAdmin from '../section';
 import CardReport from "@/components/administration/report/card-button";
 import { ITEM_TYPE } from '@/types/constants';
 import clsx from 'clsx';
+import { useEffect } from "react";
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
@@ -35,6 +36,10 @@ export default function ReportListPage<T>({
     initialPage: 1,
     initialPageSize: pageSize,
   });
+  
+  useEffect(() => {
+    console.log("Tipo de ítem reportado:", type);
+  }, [type]);
 
   return (
     <div className='flex flex-col justify-between h-full'>
