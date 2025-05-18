@@ -5,11 +5,12 @@ import React, { useState, useEffect } from "react";
 
 interface CardImageProps {
     media?: Media | null;
+    className?: string;
 }
 
 const notFoundSrc = "/logo.png"; // O la ruta a tu imagen de fallback
 
-const CardImage: React.FC<CardImageProps> = ({ media }) => {
+const CardImage: React.FC<CardImageProps> = ({ media, className = "" }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [imageSrc, setImageSrc] = useState<string>(notFoundSrc);
 
@@ -20,6 +21,7 @@ const CardImage: React.FC<CardImageProps> = ({ media }) => {
             setImageSrc(newSrc);
         }
     }, [media, imageSrc]);
+
     return (
         <div className="relative h-36 rounded-lg overflow-hidden">
             {isLoading && (
