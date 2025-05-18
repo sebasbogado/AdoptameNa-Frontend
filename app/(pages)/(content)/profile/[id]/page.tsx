@@ -20,11 +20,46 @@ import { getUser } from '@/utils/user.http';
 import MenuButton from '@/components/buttons/menu-button';
 import HeaderImage from '@/components/image-header';
 import PostLocationMap from '@/components/post/post-location-map';
+import { Product } from '@/types/product';
+import { getProducts } from '@/utils/product.http';
+type ErrorsType = {
+    user: boolean;
+    pets: boolean;
+    posts: boolean;
+    userProfile: boolean;
+    marketplacePosts: boolean;
+};
+const getProductsData = async (
+    setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    userId: string,
+) => {
+
+
+    try {
+        // Cargar posts del usuario
+        const queryParams = {
+            page: 0,
+            size: 5,
+            sort: "id,desc",
+            userId: Number(userId)
+        }; // Usamos el ID del usuario actual
+
+        const response = await getProducts(queryParams);
+        setMarketplacePosts(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+        console.error("Error al cargar posts:", err);
+        setErrors(prev => ({ ...prev, posts: true }));
+    } finally {
+        setLoading(false);
+    }
+};
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -33,7 +68,6 @@ const getUserProfileData = async (
         setUserProfile(profile);
 
     } catch (err) {
-        console.error("Error al cargar el perfil:", err);
         setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
     } finally {
         setLoading(false);
@@ -43,7 +77,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -52,11 +86,11 @@ const getPostsData = async (
             userId: Number(userId),
             page: 0,
             size: 5,
-            sort: "id,desc" }; // Usamos el ID del usuario actual
+            sort: "id,desc"
+        }; // Usamos el ID del usuario actual
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, posts: true }));
     } finally {
         setLoading(false);
@@ -66,7 +100,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -79,7 +113,6 @@ const getPetsData = async (
         const petData = await getPetsByUserId(petParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, pets: true }));
     } finally {
         setLoading(false);
@@ -88,14 +121,13 @@ const getPetsData = async (
 
 const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ user: boolean; pets: boolean; posts: boolean; userProfile: boolean }>>,
+setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
         const userData = await getUser(userId);
         setUser(userData);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prevErrors => ({ ...prevErrors, user: true }));
     } finally {
         setLoading(false);
@@ -117,8 +149,11 @@ export default function ProfilePage() {
         user: false,
         pets: false,
         posts: false,
-        userProfile: false
+        userProfile: false,
+        marketplacePosts: false,
     });
+        const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
+    
     const handleContactClick = () => {
 
         const destinatario = userProfile?.email;
@@ -135,12 +170,18 @@ export default function ProfilePage() {
     };
 
     useEffect(() => {
+        if (userProfile?.media?.length) {
+            setMedias(userProfile.media);
+        }
+    }, [userProfile]);
+
+    useEffect(() => {
         const userId = param.id;
         if (!userId) {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
-        if (userAuth && userId == userAuth.id) {
+        if (userAuth && Number(userId) === userAuth.id) {
             router.push('/profile');
         }
         getUserProfileData(
@@ -177,6 +218,20 @@ export default function ProfilePage() {
             userId.toString()
         );
     }, []);
+      useEffect(() => {
+        const userId = param.id;
+        if (!userId) {
+            setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
+            return;
+        }
+
+        getProductsData(
+            setMarketplacePosts,
+            setLoading,
+            setErrors,
+            userId.toString()
+        );
+    }, []);
     useEffect(() => {
         const userId = param.id;
         if (!userId) {
@@ -195,14 +250,10 @@ export default function ProfilePage() {
         return <Loading />;
     }
     if ((errors.userProfile || !user) && !loading) {
-        console.log(errors.userProfile, user, loading)
         return NotFound();
     }
 
     const isOrganization = !!userProfile?.organizationName?.trim();
-
-    const isFundraisingActive = true;
-    const fundraisingTitle = 'Recaudacion para vacunar animales Callejeros';
 
     return (
         <div className="w-full font-roboto">
@@ -223,10 +274,8 @@ export default function ProfilePage() {
                         setUserProfile={setUserProfile}
                         isDisable={true}
                         validationErrors={validationErrors}
-                        donatedAmount={1000000}
-                        goalAmount={17000000}
-                        isFundraisingActive={isFundraisingActive}
-                        fundraisingTitle={"asdfasdf"}
+                        setSuccessMessage={() => { }}
+                        setErrorMessage={() => { }}
                     />
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
@@ -267,6 +316,15 @@ export default function ProfilePage() {
                         loading={loading}
                         error={errors.posts}
                     />
+                     <Section
+                        title={`Productos de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
+                        path='marketplace'
+                        itemType='product'
+                        postTypeName="Marketplace"
+                        items={marketplacePosts}
+                        loading={loading}
+                        error={errors.marketplacePosts}>
+                      </Section>
 
                 </div>
 

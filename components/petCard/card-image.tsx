@@ -4,20 +4,21 @@ import React from "react";
 
 interface CardImageProps {
     media: Media;
+    className?: string;
 }
 
 const notFoundSrc = "/logo.png";
 
-const CardImage: React.FC<CardImageProps> = ({ media }) => {
+const CardImage: React.FC<CardImageProps> = ({ media, className = "" }) => {
+    
     return (
-        <div className="h-36 rounded-lg overflow-hidden">
-            <Image
-                className="w-full  h-auto object-cover"
+    <div className={`relative h-full w-full ${className}`}>
+              <Image
                 src={media?.url || notFoundSrc}
-                alt="Imagen de mascota"
-                width={500}
-                height={500}
-            />
+                alt={media?.alt || "Image not available"}
+                fill
+                className="object-cover"
+      />
         </div>
     );
 };

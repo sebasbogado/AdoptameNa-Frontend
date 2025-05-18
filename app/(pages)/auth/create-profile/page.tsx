@@ -22,7 +22,7 @@ export default function CreateProfilePage() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting }, 
+    formState: { errors, isSubmitting },
     reset,
     getValues,
     trigger,
@@ -37,7 +37,7 @@ export default function CreateProfilePage() {
       addressCoordinates: undefined,
       description: "",
     },
-    mode: "onSubmit" 
+    mode: "onSubmit"
   });
   useEffect(() => {
     if (user) {
@@ -68,7 +68,7 @@ export default function CreateProfilePage() {
         departmentId: data.departmentId || null,
         districtId: data.districtId || null,
         neighborhoodId: data.neighborhoodId || null,
-        organizationName: "",
+        organizationName: data.organizationName ?? "",
         document: "",
         earnedPoints: 0,
         email: user?.email || "",
@@ -77,7 +77,7 @@ export default function CreateProfilePage() {
         latitude: data.addressCoordinates ? data.addressCoordinates[0] : null,
       };
 
-   
+
       await updateProfile(profileToUpdate);
     } catch (err) {
       setError("Error al procesar el formulario. Por favor intenta nuevamente.");
@@ -89,11 +89,11 @@ export default function CreateProfilePage() {
       setError("Error de autenticación. Por favor inicia sesión nuevamente.");
       return;
     }
-    
+
     setError("");
     try {
       const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
-      updateUserProfileCompletion(true); 
+      updateUserProfileCompletion(true);
       router.push("/profile");
     } catch (err: any) {
       if (err.message && err.message.includes("401")) {
