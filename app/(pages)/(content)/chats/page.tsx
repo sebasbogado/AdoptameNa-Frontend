@@ -103,7 +103,6 @@ export default function ChatsPage() {
               <ChatHeader 
                 name={selectedChat.name} 
                 online={selectedChat.online}
-                avatarContent={selectedChat.name.charAt(0)}
               />
               
               <ChatContainer
