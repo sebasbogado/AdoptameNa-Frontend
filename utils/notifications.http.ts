@@ -78,6 +78,23 @@ export const markNotificationAsRead = async (token: string, id: number): Promise
   }
 };
 
+export const markAllNotificationsAsRead = async (token: string): Promise<void> => {
+  try {
+    await axios.patch(
+      `${API_URL}/mark-all-as-read`,
+      {},
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error: any) {
+    throw new Error(error.message || "Error al marcar todas las notificaciones como leídas");
+  }
+};
+
 export const createNotification = async (
   notificationData: NotificationDTO, 
   token: string
