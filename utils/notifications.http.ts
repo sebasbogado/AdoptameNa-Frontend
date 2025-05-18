@@ -91,7 +91,7 @@ export const markAllNotificationsAsRead = async (token: string): Promise<void> =
       }
     );
   } catch (error: any) {
-    throw new Error(error.message || "Error al marcar todas las notificaciones como leídas");
+    throw new Error(error.message ? `${error.message} (Error al marcar todas las notificaciones como leídas)` : "Error al marcar todas las notificaciones como leídas");
   }
 };
 
