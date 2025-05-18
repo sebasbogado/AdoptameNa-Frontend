@@ -297,7 +297,7 @@ export default function Page() {
       </div>
 
       {/* Card del formulario */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-12">
+      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
         <div className="flex items-center gap-2 mb-16">
           <button
             type="button"
@@ -399,7 +399,7 @@ export default function Page() {
         <section className="p-8">
           <CardContent >
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-              <div className="w-fit mb-2">
+              <div className="w-1/3 mb-2">
                 <label className="block mb-1">Estado de la mascota</label>
                 <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
                   <option value="0">Seleccione el estado del animal</option>
@@ -411,7 +411,7 @@ export default function Page() {
               </div>
 
               {/* Tipo de Animal */}
-              <div className="w-fit mb-2">
+              <div className="w-1/3 mb-2">
                 <label className="block mb-1">Tipo de Animal</label>
                 <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
                   <option value="0">Seleccione el tipo de animal</option>
@@ -423,7 +423,7 @@ export default function Page() {
               </div>
 
               {/* breedId */}
-              <div className="w-fit mb-2">
+              <div className="w-1/3 mb-2">
                 <label className="block mb-1">Raza</label>
                 <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
                   <option value="0">Seleccione la raza</option>
@@ -438,7 +438,7 @@ export default function Page() {
               {/* Título */}
               <div className="mb-2">
                 <label className="block mb-1">Nombre</label>
-                <input className="w-2/4 p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
+                <input className="w-full p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
                 {errors.name && <p className="text-red-500">{errors.name.message}</p>}
               </div>
 
@@ -452,7 +452,7 @@ export default function Page() {
               {/* Fecha de cumpleanhos */}
               <div className="mb-2">
                 <label className="block mb-1">Fecha de cumpleaños</label>
-                <input type="date" className="w-1/3 p-2 border rounded" {...register("birthdate")} />
+                <input type="date" className="w-1/5 p-2 border rounded" {...register("birthdate")} />
                 {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
               </div>
 
