@@ -92,12 +92,16 @@ export default function Page() {
         const fetchAnimals = async () => {
             try {
                 const response = await getAnimals();
-                setAvailableAnimals(response.data);
+                const capitalizedAnimals = response.data.map((animal: { id: number, name: string }) => ({
+                    ...animal,
+                    name: animal.name.charAt(0).toUpperCase() + animal.name.slice(1)
+                }));
+
+                setAvailableAnimals(capitalizedAnimals);
             } catch (error) {
                 console.error("Error al obtener animales:", error);
             }
         };
-
         fetchAnimals();
     }, []);
 
@@ -147,7 +151,7 @@ export default function Page() {
         }
 
         if (selectedCondition && selectedCondition !== "Todos") {
-            filters.condition = selectedCondition.toString();
+            filters.condition = selectedCondition.toString().toLocaleUpperCase();
         }
 
         filters = {
@@ -226,7 +230,7 @@ export default function Page() {
 
                     <LabeledSelect
                         label="Condición"
-                        options={["Todos", "NUEVO", "USADO"]}
+                        options={["Todos", "Nuevo", "Usado"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
                     />
