@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Carousel } from "@material-tailwind/react";
 import { MediaDTO } from "@/types/user-profile"; // Keep type definition
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Maximize } from "lucide-react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
@@ -18,23 +18,31 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const [mediaItems, setMediaItems] = useState<
         { url: string; isVertical: boolean; id: number; type: 'image' | 'video' }[]
     >([]);
-    const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const pathname = usePathname();
-    const isEditPostPage = pathname?.includes('/edit-post/');
+    const bannerRef = useRef<HTMLDivElement>(null);
+
+    const toggleFullScreen = () => {
+        if (!bannerRef.current) return;
+
+        if (!document.fullscreenElement) {
+            bannerRef.current.requestFullscreen()
+                .then(() => setIsFullscreen(true))
+                .catch((err) => console.error("Error al activar pantalla completa:", err));
+        } else {
+            document.exitFullscreen();
+        }
+    };
 
     useEffect(() => {
         const handleFullscreenChange = () => {
-            setIsFullscreen(document.fullscreenElement !== null);
+            setIsFullscreen(!!document.fullscreenElement);
         };
 
-        document.addEventListener('fullscreenchange', handleFullscreenChange);
-        return () => {
-            document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        };
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
     }, []);
 
-    const processMedia = async (mediaItems: MediaDTO[]) => {
+    const checkOrientation = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
             (media) =>
                 new Promise<{ id: number; url: string; isVertical: boolean; type: 'image' | 'video' }>(
@@ -93,13 +101,23 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const showArrows = mediaItems.length > 1;
 
     return (
-        <div className="relative flex flex-col items-center w-full">
+        <div className={`relative flex flex-col items-center w-full ${isFullscreen ? "h-screen flex items-center justify-center" : ""}`} ref={bannerRef}>
             <div className="relative w-full flex justify-center">
+                <button
+                    onClick={toggleFullScreen}
+                    className={`absolute z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition ${
+                        isFullscreen 
+                            ? "top-4 right-48" 
+                            : "top-4 right-24"
+                    }`}
+                >
+                    <Maximize size={20} />
+                </button>
                 <Carousel 
-                    key={mediaItems.length}
-                    className="rounded-xl overflow-hidden h-[400px] relative w-4/5"
-                    loop={mediaItems.length > 1}
-                    autoplay={mediaItems.length > 1}
+                    key={images.length}
+                    className={`rounded-xl overflow-hidden ${isFullscreen ? "h-screen" : "h-[400px]"} relative ${isFullscreen ? "w-full" : "w-4/5"}`}
+                    loop={images.length > 1}
+                    autoplay={images.length > 1}
                     autoplayDelay={10000}
                     placeholder="Media del Banner"
                     prevArrow={({ handlePrev }) =>
@@ -161,32 +179,21 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                         aria-hidden="true"
                                     />
                                 )}
-                                {media.type === 'image' ? (
-                                    <Image
-                                        src={media.url}
-                                        alt={`Imagen de portada ${index + 1}`}
-                                        className={`relative z-10 h-full w-full ${media.isVertical ? "object-contain" : "object-cover"}`}
-                                        width={1200}
-                                        height={400}
-                                        priority={index === 0}
-                                        onError={(e) => {
-                                            console.error(`Error loading image ${index + 1}: ${media.url}`);
-                                        }}
-                                    />
-                                ) : (
-                                    <video
-                                        src={media.url}
-                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage && !isFullscreen ? "[&::-webkit-media-controls-panel]:translate-y-[-24px] [&::-webkit-media-controls]:translate-y-[-24px] [&::-webkit-media-controls-timeline]:hidden [&::-webkit-media-controls-progress-bar]:hidden" : ""}`}
-                                        controls
-                                        controlsList="nodownload noplaybackrate"
-                                        disablePictureInPicture
-                                        playsInline
-                                        loop
-                                        autoPlay
-                                        muted
-                                        onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
-                                    />
-                                )}
+                                <Image
+                                    src={image.url}
+                                    alt={`Imagen de portada ${index + 1}`}
+                                    className={`relative z-10 ${
+                                        isFullscreen 
+                                            ? "h-screen w-screen object-contain" 
+                                            : "h-full w-full"
+                                    } ${image.isVertical ? "object-contain" : "object-cover"}`}
+                                    width={1200}
+                                    height={400}
+                                    priority={index === 0}
+                                    onError={(e) => {
+                                        console.error(`Error loading image ${index + 1}: ${image.url}`);
+                                    }}
+                                />
                             </div>
                         ))
                     )}
