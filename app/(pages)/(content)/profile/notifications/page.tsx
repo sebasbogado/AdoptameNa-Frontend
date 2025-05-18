@@ -17,6 +17,8 @@ const NotificationsPage = () => {
   const { markAllAsRead, markAsRead } = useNotifications();
 
   const [localNotifications, setLocalNotifications] = useState<Notification[]>([]);
+  const [loadingMarkAll, setLoadingMarkAll] = useState(false);
+  const [loadingMarkSingle, setLoadingMarkSingle] = useState<number | null>(null);
 
   const fetchNotificationsPage = async (
     page: number,
@@ -76,18 +78,22 @@ const NotificationsPage = () => {
 
   const handleMarkAsRead = async (id: number, isAlreadyRead: boolean) => {
     if (!isAlreadyRead) {
+      setLoadingMarkSingle(id);
       await markAsRead(id);
       setLocalNotifications((prev) =>
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
+      setLoadingMarkSingle(null);
     }
   };
 
   const handleMarkAllAsRead = async () => {
+    setLoadingMarkAll(true);
     await markAllAsRead();
     setLocalNotifications((prev) =>
       prev.map((n) => ({ ...n, isRead: true }))
     );
+    setLoadingMarkAll(false);
   };
 
   const renderNotification = (notification: Notification) => (
@@ -98,8 +104,8 @@ const NotificationsPage = () => {
         !notification.isRead ? "bg-amber-50 border-amber-200" : "border-gray-200"
       )}
     >
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-lg">{notification.title}</h3>
             <span
@@ -119,15 +125,22 @@ const NotificationsPage = () => {
                 : "Global"}
             </span>
           </div>
-          <p className="text-gray-600 mt-1">{notification.message}</p>
+          <p className="text-gray-600 mt-1 break-words">{notification.message}</p>
         </div>
 
         {!notification.isRead && (
           <button
             onClick={() => handleMarkAsRead(notification.id, notification.isRead)}
-            className="ml-4 text-amber-600 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-colors"
+            className="text-amber-600 hover:text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-1 transition-colors w-40 justify-center"
+            disabled={loadingMarkSingle === notification.id}
           >
-            <Check className="w-4 h-4" /> Marcar como leído
+            {loadingMarkSingle === notification.id ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
+            ) : (
+              <>
+                <Check className="w-4 h-4" /> Marcar como leído
+              </>
+            )}
           </button>
         )}
       </div>
@@ -157,9 +170,14 @@ const NotificationsPage = () => {
           <div className="flex justify-end mb-4">
             <button
               onClick={handleMarkAllAsRead}
-              className="text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm"
+              className="text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm flex items-center gap-2 w-48 justify-center"
+              disabled={loadingMarkAll}
             >
-              Marcar todas como leídas
+              {loadingMarkAll ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                "Marcar como leídas"
+              )}
             </button>
           </div>
         )}

@@ -76,7 +76,7 @@ const NotificationBell = () => {
   const getNotificationIcon = (type: NotificationType) => {
     switch(type) {
       case NotificationType.PERSONAL:
-        return <UserIcon className="w-4 h-4 text-blue-500" />;
+        return <UserIcon className="w-4 h-4 text-amber-500" />;
       case NotificationType.ROLE_BASED:
         return <Users className="w-4 h-4 text-purple-500" />;
       case NotificationType.GLOBAL:
