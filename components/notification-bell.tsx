@@ -17,7 +17,7 @@ import { formatTimeAgo } from "@/utils/date-format";
 import { Alert } from "@material-tailwind/react";
 
 const NotificationBell = () => {
-  const { bellNotifications, unreadCount, loading, markAsRead } = useNotifications();
+  const { bellNotifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [latestNotification, setLatestNotification] = useState<{ title: string; message: string } | null>(null);
@@ -67,6 +67,10 @@ const NotificationBell = () => {
     if (!isAlreadyRead) {
       await markAsRead(id);
     }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
   };
 
   const getNotificationIcon = (type: NotificationType) => {
@@ -122,13 +126,12 @@ const NotificationBell = () => {
           >
             <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
               <span className="font-medium text-sm text-gray-800">Notificaciones</span>
-              <Link 
-                href="/profile/notifications" 
-                className="text-xs text-amber-600 hover:text-amber-800"
-                onClick={() => setOpen(false)}
+             <button
+                onClick={handleMarkAllAsRead}
+                className="text-xs text-amber-500 hover:text-amber-700"
               >
-                Ver todas
-              </Link>
+                Marcar todo como leído
+              </button>
             </div>
             
             <div className="max-h-[350px] overflow-y-auto">
@@ -176,13 +179,16 @@ const NotificationBell = () => {
               )}
             </div>
             
-            <Link 
-              href="/profile/notifications" 
-              className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
-              onClick={() => setOpen(false)}
-            >
-              Ver todas las notificaciones
-            </Link>
+            <div className="flex justify-between items-center px-3 py-2 border-t border-gray-200">
+              
+              <Link 
+                href="/profile/notifications" 
+                className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
+                onClick={() => setOpen(false)}
+              >
+                Ver todas las notificaciones
+              </Link>
+            </div>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
