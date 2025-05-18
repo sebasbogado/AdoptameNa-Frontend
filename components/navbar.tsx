@@ -13,7 +13,8 @@ const navbarItems = [
     { name: "Adopción", path: "/adoption" },
     { name: "Extraviados", path: "/missing" },
     { name: "Blog", path: "/blog" },
-    { name: "Tienda", path: "/marketplace" }
+    { name: "Tienda", path: "/marketplace" },
+    { name: "Colecta", path: "/crowdfunding" }
 ];
 
 export default function Navbar() {
