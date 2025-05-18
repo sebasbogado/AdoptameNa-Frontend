@@ -26,7 +26,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const scrollPositionRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Scroll to the bottom of the messages
   const scrollToBottom = () => {
     if (containerRef.current) {
       containerRef.current.scrollTo({
@@ -36,29 +35,24 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
     }
   };
 
-  // Detect when the user is not at the bottom of the chat
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     const scrollPosition = element.scrollTop;
     const totalHeight = element.scrollHeight;
     const viewportHeight = element.clientHeight;
     
-    // Show button only if we're not near the bottom and there's enough content to scroll
     const atBottom = totalHeight - (scrollPosition + viewportHeight) < 100;
     const hasScrollableContent = totalHeight > viewportHeight;
     
     setShowScrollButton(hasScrollableContent && !atBottom);
   };
 
-  // Effect for handling initial scroll and after loading messages
   useEffect(() => {
     if (messages.length > 0 && containerRef.current) {
       if (scrollPositionRef.current > 0) {
-        // Calculate height difference after loading older messages
         const heightDiff = containerRef.current.scrollHeight - scrollPositionRef.current;
         containerRef.current.scrollTop = heightDiff;
       } else {
-        // When initially loading the chat or when receiving new messages, go to the bottom
         scrollToBottom();
       }
     }
@@ -66,7 +60,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
 
   const handleLoadMoreMessages = () => {
     if (containerRef.current) {
-      // Save the total scroll height before loading more messages
       scrollPositionRef.current = containerRef.current.scrollHeight;
       onLoadMoreMessages();
     }
@@ -84,11 +77,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           <button 
             onClick={handleLoadMoreMessages}
             disabled={isLoading}
-            className="py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-500 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center"
+            className="py-2 px-4 bg-purple-50 hover:bg-purple-100 text-purple-500 rounded-full text-sm font-medium transition-colors duration-200 flex items-center justify-center"
           >
             {isLoading ? (
               <>
-                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-gray-500 mr-2"></span>
+                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500 mr-2"></span>
                 Cargando...
               </>
             ) : (
@@ -100,7 +93,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       
       {isLoading && messages.length === 0 ? (
         <div className="flex justify-center items-center h-full">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-gray-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
         </div>
       ) : messages.length === 0 ? (
         <div className="flex flex-col justify-center items-center h-full text-gray-500">
@@ -117,7 +110,6 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         </>
       )}
 
-      {/* Scroll to bottom button */}
       {showScrollButton && (
         <ScrollToBottomButton 
           onClick={scrollToBottom} 
