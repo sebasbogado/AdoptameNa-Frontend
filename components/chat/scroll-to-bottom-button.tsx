@@ -23,7 +23,7 @@ const ScrollToBottomButton: React.FC<ScrollToBottomButtonProps> = ({
     <div className={`sticky bottom-4 left-0 right-0 flex justify-end px-4 pointer-events-none ${className}`}>
       <button
         onClick={onClick}
-        className={`${sizeClasses[size]} bg-blue-gray-500 text-white rounded-full shadow-lg hover:bg-blue-gray-600 transition-all flex items-center pointer-events-auto`}
+        className={`${sizeClasses[size]} bg-purple-500 text-white rounded-full shadow-lg hover:bg-purple-600 transition-all flex items-center pointer-events-auto`}
       >
         <span>Ir abajo</span>
         <svg className={`${size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
