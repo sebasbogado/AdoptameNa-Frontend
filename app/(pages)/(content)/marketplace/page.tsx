@@ -8,18 +8,21 @@ import { usePagination } from "@/hooks/use-pagination";
 import { Product } from "@/types/product";
 import { ProductCategory } from "@/types/product-category";
 import { getProductCategories } from "@/utils/product-category.http";
-import { getProducts } from "@/utils/products.http";
-import { useEffect, useMemo, useState } from "react";
+import { getProducts } from "@/utils/product.http";
+import { useCallback, useEffect, useState } from "react";
 import { X } from 'lucide-react';
 import { getAnimals } from "@/utils/animals.http";
 import LabeledInput from "@/components/inputs/labeled-input";
 import Link from "next/link";
 import SearchBar from "@/components/search-bar";
 import { useDebounce } from '@/hooks/use-debounce';
-
-
+import { useAuth } from "@/contexts/auth-context";
+import LocationFilter from "@/components/filters/location-filter";
+import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 
 export default function Page() {
+    const { user } = useAuth();
+
     const [pageSize, setPageSize] = useState<number>();
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -38,17 +41,10 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [inputValue, setInputValue] = useState<string>("");
+    const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
-    const selectedAnimalId = useMemo(() => {
-        const found = availableAnimals.find(a => a.name === selectedAnimal);
-        return found ? found.id : null;
-    }, [selectedAnimal, availableAnimals]);
-
-    const cleanFilters = (filters: Record<string, any>) => {
-        return Object.fromEntries(
-            Object.entries(filters).filter(([_, v]) => v !== null && v !== undefined)
-        );
-    };
+    const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
+    const [filterChanged, setFilterChanged] = useState(false);
 
     const debouncedSearch = useDebounce((value: string) => {
         if (value.length >= 3 || value === "") {
@@ -113,15 +109,6 @@ export default function Page() {
         }
     }, [minPrice, maxPrice]);
 
-    useEffect(() => {
-        if (selectedCategory && selectedCategory !== "Todos") {
-            const found = categories.find(cat => cat.name === selectedCategory);
-            setSelectedCategoryId(found ? found.id : null);
-        } else {
-            setSelectedCategoryId(null);
-        }
-    }, [selectedCategory, categories]);
-
     const {
         data: products,
         loading,
@@ -135,48 +122,68 @@ export default function Page() {
                 page: page,
                 size: size,
                 sort: "id,desc",
-                categoryId: filters?.categoryId || undefined,
-                condition: filters?.condition || undefined,
-                price: filters?.price || undefined,
-                minPrice: filters?.minPrice || undefined,
-                maxPrice: filters?.maxPrice || undefined,
-                animalIds: selectedAnimalId ? selectedAnimalId : undefined,
-                search: filters?.search || undefined,
+                ...filters,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
 
-    const cleanedFilters = useMemo(() => {
-        return cleanFilters({
-            search: searchQuery || undefined,
-            categoryId: selectedCategoryId,
-            condition: selectedCondition === "Todos" ? null : selectedCondition,
-            minPrice,
-            maxPrice,
-            animalIds: selectedAnimalId ? [selectedAnimalId] : null,
-        });
-    }, [searchQuery, selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId]);
-
     useEffect(() => {
         if (priceError) return;
-        updateFilters(cleanedFilters);
-    }, [searchQuery, selectedCategoryId, selectedCondition, minPrice, maxPrice, selectedAnimalId, priceError, updateFilters, cleanedFilters]);
+        let filters: any = {};
 
+        if (selectedCategory && selectedCategory !== "Todos") {
+            const selectedCategoryObj = categories.find(cat => cat.name.toLowerCase() === selectedCategory.toLocaleLowerCase());
+            if (selectedCategoryObj) {
+                filters.categoryId = selectedCategoryObj.id.toString();
+            }
+        }
 
+        if (selectedAnimal && selectedAnimal !== "Todos") {
+            const selectedAnimalObj = availableAnimals.find(animal => animal.name.toLowerCase() === selectedAnimal.toLocaleLowerCase());
+            if (selectedAnimalObj) {
+                filters.animalIds = selectedAnimalObj.id.toString();
+            }
+        }
 
+        if (selectedCondition && selectedCondition !== "Todos") {
+            filters.condition = selectedCondition.toString();
+        }
 
+        filters = {
+            ...filters,
+            search: searchQuery || undefined,
+            minPrice,
+            maxPrice,
+            ...locationFilters
+        };
+
+        console.log("filters", filters);
+
+        updateFilters(filters);
+    }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
+
+    const handleLocationFilterChange = useCallback(
+        (filters: Record<string, any>, type: LocationFilterType | null) => {
+            setLocationFilters(filters);
+            setLocationType(type);
+            setFilterChanged(prev => !prev);
+        },
+        []
+    );
     const resetFilters = () => {
         setSelectedCategory(null);
         setSelectedCondition(null);
         setSelectedAnimal(null);
         setMinPrice(null);
         setMaxPrice(null);
+        setLocationType(null); // ← nuevo
+        setLocationFilters({});
         updateFilters({});
         setInputValue("");
         setSearchQuery("");
+        setFilterChanged(false);
     };
-
 
 
     if (!pageSize) return <Loading />;
@@ -191,7 +198,25 @@ export default function Page() {
                         <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
                     </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+
+                <div
+                    className={`
+                        grid grid-cols-1 md:grid-cols-2
+                        ${user?.location ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}
+                        gap-x-6 gap-y-6
+                        px-4 md:px-0
+                    `}>
+                    {user?.location ? (
+                        <LocationFilter
+                            user={user}
+                            locationType={locationType}
+                            setLocationType={setLocationType}
+                            onFilterChange={handleLocationFilterChange}
+                        />
+                    ) : (
+                        <div className="hidden lg:w-1/2 flex-shrink-0"></div>
+                    )}
+
                     <LabeledSelect
                         label="Categorías"
                         options={["Todos", ...categories.map((category) => category.name)]}
