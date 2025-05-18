@@ -22,7 +22,6 @@ export default function ChatsPage() {
     markChatAsRead
   } = useChat();
 
-  // Seleccionar el primer chat si no hay ninguno seleccionado
   useEffect(() => {
     if (!selectedChat && chatUsers.length > 0 && !loadingUsers) {
       selectChat(chatUsers[0]);
@@ -62,7 +61,7 @@ export default function ChatsPage() {
   
   return (
     <div className="container mx-auto max-w-6xl py-6 px-4 h-full">
-      <h1 className="text-2xl font-bold mb-6 text-blue-gray-800">Mensajes</h1>
+      <h1 className="text-2xl font-bold mb-6 text-purple-800">Mensajes</h1>
       
       <div className="flex h-[calc(100vh-12rem)] gap-4 rounded-xl overflow-hidden shadow-lg">
         {/* Lista de Chats */}
@@ -71,13 +70,13 @@ export default function ChatsPage() {
             <input 
               type="text" 
               placeholder="Buscar conversación..." 
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <div className="overflow-y-auto h-[calc(100%-3.5rem)]">
             {loadingUsers ? (
               <div className="flex justify-center items-center h-full">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-gray-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
               </div>
             ) : (
               chatUsers.map((chatUser) => (
