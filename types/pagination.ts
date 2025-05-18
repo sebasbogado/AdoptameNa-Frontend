@@ -113,6 +113,14 @@ export type locationQueryParams = queryParams & {
   coordinates?: number[];
 };
 
+export type crowdfundingQueryParams = queryParams & {
+  userId?: number;
+  status?: string;
+  minGoal?: number;
+  maxGoal?: number;
+  keywords?: string;
+};
+
 export function buildQueryParams(params?: Record<string, any>): URLSearchParams {
   const searchParams = new URLSearchParams();
   if (params) {
