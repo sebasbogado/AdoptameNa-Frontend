@@ -26,9 +26,10 @@ interface PostButtonsProps {
     isPet?: boolean;
     onShare?: () => void;
     postIdUser?: number; //id user owner
+    sizeButton?: "xs" | "sm" | "md" | "lg";
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -168,7 +169,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             {isEditing && (
                 <div className="relative inline-block text-left">
                     <EditButton
-                        size="lg"
+                        size={sizeButton}
                         isEditing={false}
                         id="edit-button"
                         onClick={() => {
@@ -222,7 +223,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             )}
 
             <div className="relative">
-                <SendButton size="lg" onClick={handleShare} disabled={copied} />
+                <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
                         color="gray"
@@ -233,7 +234,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 )}
             </div>
 
-            <ReportButton size="lg" idEntity={postId} isPet={isPet} />
+            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
 
             <div className="relative">
                 {!isPet && (
