@@ -11,6 +11,9 @@ import { Bell, UsersRound, Globe } from "lucide-react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { USER_ROLE } from "@/types/constants";
+import { getAllFullUserProfile } from "@/utils/user-profile.http";
+import { UserResponse } from "@/types/auth";
+import { useDebouncedValue } from "@/hooks/use-debounce";
 
 
 export default function NotificationsAdminPage() {
@@ -18,6 +21,12 @@ export default function NotificationsAdminPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Autocompletado de usuarios
+  const [userSearch, setUserSearch] = useState("");
+  const [userOptions, setUserOptions] = useState<UserResponse[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
+  const debouncedUserSearch = useDebouncedValue(userSearch, 400);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
@@ -41,6 +50,39 @@ export default function NotificationsAdminPage() {
     }
   }, [successMessage, errorMessage]);
 
+  // Buscar usuarios para autocompletado
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!authToken || !debouncedUserSearch) {
+        setUserOptions([]);
+        return;
+      }
+      try {
+        const res = await getAllFullUserProfile(authToken, {
+          page: 1,
+          size: 10,
+          name: debouncedUserSearch,
+        });
+        setUserOptions(
+          res.data.map((user: any) => ({
+            ...user,
+            isVerified: true, // o false, según tu lógica
+            role: user.role || "", // o el valor adecuado si existe
+          }))
+        );
+      } catch {
+        setUserOptions([]);
+      }
+    };
+    fetchUsers();
+  }, [debouncedUserSearch, authToken]);
+
+  // Filtrado adicional en el frontend para autocompletado
+  const filteredOptions = userOptions.filter(user =>
+    (user.fullName && user.fullName.toLowerCase().includes(userSearch.toLowerCase())) ||
+    (user.email && user.email.toLowerCase().includes(userSearch.toLowerCase()))
+  );
+
   const onSubmit = async (data: NotificationFormData) => {
     if (!authToken) return;
 
@@ -54,11 +96,27 @@ export default function NotificationsAdminPage() {
 
       if (data.type === NotificationType.ROLE_BASED && data.targetRoleIds) {
         notificationData.targetRoleIds = data.targetRoleIds;
+      } else if (data.type === NotificationType.USER_BASED && selectedUser) {
+        notificationData.type = NotificationType.PERSONAL;
+        notificationData.targetUserId = selectedUser.id;
+        delete notificationData.targetRoleIds;
       }
+
+      // Limpiar campos no usados
+      if (notificationData.type === NotificationType.ROLE_BASED) {
+        delete notificationData.targetUserId;
+      }
+      if (notificationData.type === NotificationType.PERSONAL) {
+        delete notificationData.targetRoleIds;
+      }
+
+      console.log("Enviando notificación:", notificationData);
 
       await createNotification(notificationData, authToken);
       setSuccessMessage("Notificación enviada correctamente");
       reset();
+      setSelectedUser(null);
+      setUserSearch("");
     } catch (error: any) {
       console.error("Error al enviar notificación:", error);
       setErrorMessage(error.message || "Error al enviar notificación");
@@ -117,7 +175,6 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a usuarios con roles específicos</div>
                 </div>
               </label>
-              
               <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.GLOBAL ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'}`}>
                 <input
                   type="radio"
@@ -131,8 +188,74 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a todos los usuarios</div>
                 </div>
               </label>
+              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.USER_BASED ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <input
+                  type="radio"
+                  value={NotificationType.USER_BASED}
+                  {...register("type")}
+                  className="sr-only"
+                />
+                <UsersRound className="h-5 w-5 text-blue-500 mr-2" />
+                <div>
+                  <div className="font-medium">Por usuario</div>
+                  <div className="text-xs text-gray-500">Enviada a usuarios específicos</div>
+                </div>
+              </label>
             </div>
           </div>
+
+          {/* Selector de usuarios para USER_BASED */}
+          {notificationType === NotificationType.USER_BASED && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Seleccionar usuario</label>
+              <input
+                type="text"
+                className="w-full border rounded-md p-2 mb-2"
+                placeholder="Buscar por ID, correo o nombre"
+                value={userSearch}
+                onChange={e => {
+                  setUserSearch(e.target.value);
+                  setSelectedUser(null);
+                }}
+                disabled={!!selectedUser}
+              />
+              {filteredOptions.length > 0 && !selectedUser && (
+                <ul className="border rounded-md bg-white max-h-40 overflow-y-auto mb-2">
+                  {filteredOptions.map(user => (
+                    <li
+                      key={user.id}
+                      className="p-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setUserOptions([]);
+                        setUserSearch(user.fullName ? user.fullName : user.email);
+                      }}
+                    >
+                      <span>
+                        {user.fullName ? user.fullName : user.email} ({user.email})
+                      </span>
+                      <span className="text-xs text-gray-400">ID: {user.id}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {selectedUser && (
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center">
+                    {selectedUser.fullName ? selectedUser.fullName : selectedUser.email}
+                    <button
+                      type="button"
+                      className="ml-1 text-blue-500 hover:text-red-500"
+                      onClick={() => {
+                        setSelectedUser(null);
+                        setUserSearch("");
+                      }}
+                    >✕</button>
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium mb-1">Título</label>

@@ -1,7 +1,8 @@
 export enum NotificationType {
   PERSONAL = "PERSONAL",
   ROLE_BASED = "ROLE_BASED",
-  GLOBAL = "GLOBAL"
+  GLOBAL = "GLOBAL",
+  USER_BASED = "USER_BASED"
 }
 
 export interface Notification {
@@ -27,6 +28,7 @@ export interface NotificationDTO {
   title: string;
   message: string;
   type: NotificationType;
+  targetUserIds?: number[];
   targetUserId?: number;
   targetRoleIds?: number[];
 }

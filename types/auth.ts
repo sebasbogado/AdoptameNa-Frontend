@@ -46,4 +46,5 @@ export type UserResponse = {
   id: number;
   isVerified: boolean;
   role: string;
+  fullName?: string;
 };
