@@ -162,7 +162,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                     alt={`Imagen de portada ${index + 1}`}
                                     className={`relative z-10 ${
                                         isFullscreen 
-                                            ? "max-h-screen w-auto max-w-full h-auto" 
+                                            ? "h-screen w-screen object-contain" 
                                             : "h-full w-full"
                                     } ${image.isVertical ? "object-contain" : "object-cover"}`}
                                     width={1200}
