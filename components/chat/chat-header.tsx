@@ -6,7 +6,6 @@ import { UserAvatar } from '@/components/ui/user-avatar';
 interface ChatHeaderProps {
   name: string;
   online: boolean;
-  avatarContent?: string;
   onClose?: () => void;
   onMinimize?: () => void;
   showControls?: boolean;
@@ -15,7 +14,6 @@ interface ChatHeaderProps {
 const ChatHeader: React.FC<ChatHeaderProps> = ({
   name,
   online,
-  avatarContent = '',
   onClose,
   onMinimize,
   showControls = false
