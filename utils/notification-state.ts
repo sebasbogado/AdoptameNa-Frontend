@@ -111,7 +111,7 @@ export function useNotificationState(authToken: string | null, user: any | null)
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
-  }, [authToken, user]);
+  }, [authToken]);
 
   return [
     { bellNotifications, unreadCount, loading },
