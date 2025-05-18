@@ -37,7 +37,7 @@ export default function DirectMessageButton({
   return (
     <button
       onClick={handleMessageClick}
-      className={`flex items-center gap-2 px-4 py-2 bg-blue-gray-500 hover:bg-blue-gray-600 text-white rounded-lg transition-colors ${className}`}
+      className={`flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors ${className}`}
     >
       <MessageCircle size={16} />
       <span>Enviar mensaje</span>
