@@ -5,35 +5,36 @@ import { MessageResponseDTO } from "@/types/chat";
 import { useWebSocket } from "../hooks/websocket-hook";
 import { User } from "@/types/auth";
 
+type Subscription = {
+  unsubscribe: () => void;
+};
+
 export function useChatWebSocket(
   authToken: string | null,
   user: User | null,
   addNewMessage: (message: MessageResponseDTO) => void,
-  handleUnreadUpdate: (data: any) => void
+  handleUnreadUpdate: (data: any) => void,
+  // Optional: separate handler for status updates
+  // handleUserStatusUpdate?: (status: UserStatus) => void
 ) {
-  // Mantener referencias a las suscripciones activas
-  const subscriptionsRef = useRef<any[]>([]);
+  const subscriptionsRef = useRef<Subscription[]>([]);
   const userEmailRef = useRef<string | null>(null);
   const userIdRef = useRef<number | null>(null);
 
-  // Función para limpiar suscripciones anteriores
   const cleanupSubscriptions = useCallback(() => {
     if (subscriptionsRef.current.length > 0) {
-      console.log(`Cleaning up ${subscriptionsRef.current.length} previous subscriptions`);
+      console.log(`🧹 Cleaning up ${subscriptionsRef.current.length} subscriptions`);
       subscriptionsRef.current.forEach((sub) => {
         try {
-          if (sub && typeof sub.unsubscribe === 'function') {
-            sub.unsubscribe();
-          }
+          sub.unsubscribe();
         } catch (err) {
-          console.error("Error unsubscribing:", err);
+          console.error("❌ Error unsubscribing:", err);
         }
       });
       subscriptionsRef.current = [];
     }
   }, []);
 
-  // Actualizar las referencias cuando cambia el usuario
   useEffect(() => {
     if (user?.email !== userEmailRef.current || user?.id !== userIdRef.current) {
       userEmailRef.current = user?.email || null;
@@ -44,24 +45,21 @@ export function useChatWebSocket(
 
   const setupSubscriptions = useCallback(
     (client: any) => {
-      // Limpiar suscripciones anteriores
       cleanupSubscriptions();
-      
+
       if (!user?.email || !client) {
-        console.log("No user email or STOMP client available for WebSocket subscriptions");
+        console.warn("⚠️ No user email or client available. Skipping subscriptions.");
         return;
       }
 
-      console.log(`Setting up subscriptions for user ${user.email} (ID: ${user.id})`);
+      console.log(`🔌 Setting up subscriptions for ${user.email} (ID: ${user.id})`);
 
       try {
-        // Suscribirse a mensajes privados - probamos diferentes formatos de destino
-        // 1. Formato con email
-        const privateSub1 = client.subscribe(
-          `/user/${user.email}/queue/messages`, 
+        const privateMessageSub = client.subscribe(
+          `/user/queue/messages`,
           (message: { body: string }) => {
             try {
-              console.log("📨 Received private message via email route:", message.body);
+              console.log("📨 New message:", message.body);
               const data = JSON.parse(message.body);
               addNewMessage(data);
             } catch (err) {
@@ -69,44 +67,13 @@ export function useChatWebSocket(
             }
           }
         );
-        subscriptionsRef.current.push(privateSub1);
-        
-        // 2. Formato con ID (algunas implementaciones usan este formato)
-        const privateSub2 = client.subscribe(
-          `/user/${user.id}/queue/messages`, 
-          (message: { body: string }) => {
-            try {
-              console.log("📨 Received private message via ID route:", message.body);
-              const data = JSON.parse(message.body);
-              addNewMessage(data);
-            } catch (err) {
-              console.error("❌ Error parsing chat message:", err);
-            }
-          }
-        );
-        subscriptionsRef.current.push(privateSub2);
-        
-        // 3. Formato simple (algunas implementaciones usan este formato)
-        const privateSub3 = client.subscribe(
-          `/user/queue/messages`, 
-          (message: { body: string }) => {
-            try {
-              console.log("📨 Received private message via simplified route:", message.body);
-              const data = JSON.parse(message.body);
-              addNewMessage(data);
-            } catch (err) {
-              console.error("❌ Error parsing chat message:", err);
-            }
-          }
-        );
-        subscriptionsRef.current.push(privateSub3);
+        subscriptionsRef.current.push(privateMessageSub);
 
-        // Suscribirse a actualizaciones de conteo de mensajes no leídos - también probamos varias rutas
-        const unreadSub1 = client.subscribe(
-          `/user/${user.email}/queue/unread-count`, 
+        const unreadCountSub = client.subscribe(
+          `/user/queue/unread-count`,
           (message: { body: string }) => {
             try {
-              console.log("🔔 Received unread count update:", message.body);
+              console.log("🔔 Unread count update:", message.body);
               const data = JSON.parse(message.body);
               handleUnreadUpdate(data);
             } catch (err) {
@@ -114,52 +81,39 @@ export function useChatWebSocket(
             }
           }
         );
-        subscriptionsRef.current.push(unreadSub1);
-        
-        // Versión alternativa para unread
-        const unreadSub2 = client.subscribe(
-          `/user/queue/unread-count`, 
-          (message: { body: string }) => {
-            try {
-              console.log("🔔 Received unread count update (simplified route):", message.body);
-              const data = JSON.parse(message.body);
-              handleUnreadUpdate(data);
-            } catch (err) {
-              console.error("❌ Error parsing unread count update:", err);
-            }
-          }
-        );
-        subscriptionsRef.current.push(unreadSub2);
+        subscriptionsRef.current.push(unreadCountSub);
 
-        // Suscribirse al estado de usuarios en línea
-        const statusSub = client.subscribe(
+        const userStatusSub = client.subscribe(
           `/topic/user-status`,
           (message: { body: string }) => {
             try {
-              console.log("👤 User status update received:", message.body);
+              console.log("👤 User status update:", message.body);
               const data = JSON.parse(message.body);
-              
-              // Crear un objeto con el formato esperado para el estado del usuario
+
               const userStatus = {
                 userId: data.userId,
                 email: data.email,
                 online: data.online,
-                timestamp: data.timestamp
+                timestamp: data.timestamp,
               };
-              
-              // La función handleUnreadUpdate manejará las actualizaciones de estado de usuario
-              handleUnreadUpdate({ 
-                type: 'USER_STATUS_UPDATE', 
-                userStatus // Enviar el estado individual del usuario
+
+              handleUnreadUpdate({
+                type: "USER_STATUS_UPDATE",
+                userStatus,
               });
+
+              // Optional: use separate handler instead
+              // if (handleUserStatusUpdate) {
+              //   handleUserStatusUpdate(userStatus);
+              // }
             } catch (err) {
               console.error("❌ Error parsing user status:", err);
             }
           }
         );
-        subscriptionsRef.current.push(statusSub);
+        subscriptionsRef.current.push(userStatusSub);
 
-        console.log("✅ All WebSocket subscriptions set up successfully");
+        console.log("✅ WebSocket subscriptions established");
       } catch (error) {
         console.error("❌ Error setting up WebSocket subscriptions:", error);
       }
@@ -167,10 +121,8 @@ export function useChatWebSocket(
     [user, addNewMessage, handleUnreadUpdate, cleanupSubscriptions]
   );
 
-  // Usar el hook de WebSocket con nuestro callback de configuración
   const { isConnected } = useWebSocket(authToken, setupSubscriptions);
 
-  // Efecto de limpieza al desmontar
   useEffect(() => {
     return () => {
       cleanupSubscriptions();
