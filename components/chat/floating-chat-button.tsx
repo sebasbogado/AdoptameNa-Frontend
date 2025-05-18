@@ -8,7 +8,6 @@ import ChatInput from "./chat-input";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import ChatContainer from "./chat-container";
-import ChatHeader from "./chat-header";
 import ChatUserListItem from "./chat-user-list-item";
 
 const FloatingChatButton = () => {
@@ -17,10 +16,8 @@ const FloatingChatButton = () => {
   const { user } = useAuth();
   const router = useRouter();
     
-  // Si hay mensajes no leídos, mostrar el usuario con más mensajes no leídos
   useEffect(() => {
     if (isOpen && !selectedChat && chatUsers.length > 0) {
-      // Ordenar por mensajes no leídos y seleccionar el primero
       const sortedUsers = [...chatUsers].sort((a, b) => b.unreadMessagesCount - a.unreadMessagesCount);
       if (sortedUsers[0]) {
         selectChat(sortedUsers[0]);
@@ -28,7 +25,6 @@ const FloatingChatButton = () => {
     }
   }, [isOpen, chatUsers, selectedChat, selectChat]);
   
-  // Marcar mensajes como leídos cuando se abre el chat
   useEffect(() => {
     if (isOpen && selectedChat && selectedChat.unreadMessagesCount > 0) {
       markChatAsRead(selectedChat.id);
@@ -72,7 +68,7 @@ const FloatingChatButton = () => {
     <div className="fixed bottom-4 right-16 z-40">
       {isOpen && (
         <div className="bg-white rounded-lg shadow-xl overflow-hidden w-80 h-96 mb-4 flex flex-col transition-all duration-300">
-          <div className="bg-blue-gray-500 text-white p-3 flex justify-between items-center">
+          <div className="bg-purple-500 text-white p-3 flex justify-between items-center">
             <div className="flex items-center gap-2">
               {selectedChat ? (
                 <div className="relative">
@@ -88,13 +84,13 @@ const FloatingChatButton = () => {
             <div className="flex space-x-2">
               <button 
                 onClick={minimizeChat}
-                className="text-white hover:bg-blue-gray-600 rounded p-1"
+                className="text-white hover:bg-purple-600 rounded p-1"
               >
                 <ChevronDown size={18} />
               </button>
               <button 
                 onClick={closeChat}
-                className="text-white hover:bg-blue-gray-600 rounded p-1"
+                className="text-white hover:bg-purple-600 rounded p-1"
               >
                 <X size={18} />
               </button>
@@ -139,7 +135,7 @@ const FloatingChatButton = () => {
       {isVisible && (
         <button 
           onClick={handleOpenChat}
-          className="bg-gradient-to-r from-blue-gray-600 to-blue-gray-400 hover:from-blue-gray-700 hover:to-blue-gray-500 text-white rounded-lg px-4 py-2.5 flex items-center justify-between shadow-lg relative transition-all duration-300 hover:shadow-xl border border-blue-300"
+          className="bg-gradient-to-r from-purple-600 to-purple-400 hover:from-purple-700 hover:to-purple-500 text-white rounded-lg px-4 py-2.5 flex items-center justify-between shadow-lg relative transition-all duration-300 hover:shadow-xl border border-purple-300"
         >
           <div className="flex items-center gap-2">
             <div className="relative">
