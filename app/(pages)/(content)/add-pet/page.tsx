@@ -401,7 +401,7 @@ export default function Page() {
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
               <div className="w-1/3 mb-2">
                 <label className="block mb-1">Estado de la mascota</label>
-                <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("petStatusId", { valueAsNumber: true })}>
                   <option value="0">Seleccione el estado del animal</option>
                   {petsStatus?.map((a, i) => (
                     <option key={i} value={a.id}>{a.name}</option>
@@ -413,7 +413,7 @@ export default function Page() {
               {/* Tipo de Animal */}
               <div className="w-1/3 mb-2">
                 <label className="block mb-1">Tipo de Animal</label>
-                <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("animalId", { valueAsNumber: true })}>
                   <option value="0">Seleccione el tipo de animal</option>
                   {animals?.map((a, i) => (
                     <option key={i} value={a.id}>{a.name}</option>
@@ -425,7 +425,7 @@ export default function Page() {
               {/* breedId */}
               <div className="w-1/3 mb-2">
                 <label className="block mb-1">Raza</label>
-                <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("breedId", { valueAsNumber: true })}>
                   <option value="0">Seleccione la raza</option>
                   {breed?.filter((b) => b.animalId === watch("animalId")) // Filtra por tipo de animal
                     .map((b, i) => (
@@ -438,46 +438,46 @@ export default function Page() {
               {/* Título */}
               <div className="mb-2">
                 <label className="block mb-1">Nombre</label>
-                <input className="w-full p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
+                <input className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
                 {errors.name && <p className="text-red-500">{errors.name.message}</p>}
               </div>
 
               {/* Descripción */}
               <div className="mb-2">
                 <label className="block mb-1">Descripción</label>
-                <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("description")} maxLength={500} />
+                <textarea className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" placeholder="Descripción" {...register("description")} maxLength={500} />
                 {errors.description && <p className="text-red-500">{errors.description.message}</p>}
               </div>
 
               {/* Fecha de cumpleanhos */}
               <div className="mb-2">
                 <label className="block mb-1">Fecha de cumpleaños</label>
-                <input type="date" className="w-1/5 p-2 border rounded" {...register("birthdate")} />
+                <input type="date" className="w-1/5 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("birthdate")} />
                 {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
               </div>
 
               {/* Género */}
               <div className="flex gap-4 items-center mb-2">
                 <div className="flex gap-2">
-                <input type="radio" value="MALE" {...register("gender")} />
+                <input type="radio" value="MALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
                 <label>Macho</label>
                 </div>
                 <div className="flex gap-2">
-                <input type="radio" value="FEMALE" {...register("gender")} />
+                <input type="radio" value="FEMALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
                 <label>Hembra</label>
                 </div>
               </div>
 
               {/* isVaccinated */}
               <div className="flex gap-2 items-center mb-2">
-              <input type="checkbox" {...register("isVaccinated")} />
+              <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isVaccinated")} />
                 <label>Está desparasitado</label>
                 {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
               </div>
 
               {/* isSterilized */}
               <div className="flex gap-2 items-center mb-2">
-                <input type="checkbox" {...register("isSterilized")} />
+                <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
                 <label>Está esterilizado</label>
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
               </div>
