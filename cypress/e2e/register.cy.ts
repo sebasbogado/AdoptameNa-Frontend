@@ -11,7 +11,7 @@ describe("Pruebas de Registro", () => {
     cy.get('input[name="accountType"][value="persona"]').should("be.checked");
 
     cy.get('input[name="fullName"]').type("Usuario Valido");
-    cy.get('input[name="email"]').type("usuario.validoXX@example.com");
+    cy.get('input[name="email"]').type(`usuario.valido${Date.now()}@example.com`);
     cy.get('input[name="password"]').type("Password123");
     cy.get('input[name="confirmPassword"]').type("Password123");
 
