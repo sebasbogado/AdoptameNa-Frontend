@@ -31,7 +31,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Escribe un mensaje..."
-        className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
         disabled={disabled}
       />
       <button
@@ -40,7 +40,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         className={clsx(
           "p-2 rounded-full",
           message.trim() && !disabled
-            ? "bg-blue-gray-500 text-white hover:bg-blue-600" 
+            ? "bg-purple-500 text-white hover:bg-purple-600" 
             : "bg-gray-200 text-gray-400 cursor-not-allowed"
         )}
       >
