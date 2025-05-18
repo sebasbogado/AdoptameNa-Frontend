@@ -29,7 +29,6 @@ export const FloatingChatProvider = ({ children }: FloatingChatProviderProps) =>
   const { user } = useAuth();
   const pathname = usePathname();
   
-  // Don't show floating chat in the chat page or login/register pages
   const shouldShowChat = 
     user && 
     !pathname.startsWith('/chats') &&
