@@ -9,6 +9,9 @@ import { usePathname } from "next/navigation";
 
 const notFoundSrc = "/logo.png"; // Default image source
 
+// Supported video formats
+const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/webm'];
+
 // Define props for clarity
 interface HeaderImageProps {
     medias: MediaDTO[];
@@ -18,7 +21,10 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     const [mediaItems, setMediaItems] = useState<
         { url: string; isVertical: boolean; id: number; type: 'image' | 'video' }[]
     >([]);
+    const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const pathname = usePathname();
+    const isEditPostPage = pathname?.includes('/edit-post/');
     const bannerRef = useRef<HTMLDivElement>(null);
 
     const toggleFullScreen = () => {
@@ -35,19 +41,21 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
 
     useEffect(() => {
         const handleFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement);
+            setIsFullscreen(document.fullscreenElement !== null);
         };
 
-        document.addEventListener("fullscreenchange", handleFullscreenChange);
-        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
     }, []);
 
-    const checkOrientation = async (mediaItems: MediaDTO[]) => {
+    const processMedia = async (mediaItems: MediaDTO[]) => {
         const promises = mediaItems.map(
             (media) =>
                 new Promise<{ id: number; url: string; isVertical: boolean; type: 'image' | 'video' }>(
                     (resolve) => {
-                        const isVideo = media.mimeType.startsWith('video/');
+                        const isVideo = SUPPORTED_VIDEO_FORMATS.some(format => media.mimeType.startsWith(format));
                         if (isVideo) {
                             resolve({ id: media.id, url: media.url, isVertical: false, type: 'video' });
                             return;
@@ -80,7 +88,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                 id: m.id, 
                 url: m.url, 
                 isVertical: false, 
-                type: m.mimeType.startsWith('video/') ? 'video' : 'image' 
+                type: SUPPORTED_VIDEO_FORMATS.some(format => m.mimeType.startsWith(format)) ? 'video' : 'image' 
             })));
         }
     };
@@ -114,10 +122,10 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                     <Maximize size={20} />
                 </button>
                 <Carousel 
-                    key={images.length}
+                    key={mediaItems.length}
                     className={`rounded-xl overflow-hidden ${isFullscreen ? "h-screen" : "h-[400px]"} relative ${isFullscreen ? "w-full" : "w-4/5"}`}
-                    loop={images.length > 1}
-                    autoplay={images.length > 1}
+                    loop={mediaItems.length > 1}
+                    autoplay={mediaItems.length > 1}
                     autoplayDelay={10000}
                     placeholder="Media del Banner"
                     prevArrow={({ handlePrev }) =>
@@ -179,21 +187,32 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                         aria-hidden="true"
                                     />
                                 )}
-                                <Image
-                                    src={image.url}
-                                    alt={`Imagen de portada ${index + 1}`}
-                                    className={`relative z-10 ${
-                                        isFullscreen 
-                                            ? "h-screen w-screen object-contain" 
-                                            : "h-full w-full"
-                                    } ${image.isVertical ? "object-contain" : "object-cover"}`}
-                                    width={1200}
-                                    height={400}
-                                    priority={index === 0}
-                                    onError={(e) => {
-                                        console.error(`Error loading image ${index + 1}: ${image.url}`);
-                                    }}
-                                />
+                                {media.type === 'image' ? (
+                                    <Image
+                                        src={media.url}
+                                        alt={`Imagen de portada ${index + 1}`}
+                                        className={`relative z-10 h-full w-full ${media.isVertical ? "object-contain" : "object-cover"}`}
+                                        width={1200}
+                                        height={400}
+                                        priority={index === 0}
+                                        onError={(e) => {
+                                            console.error(`Error loading image ${index + 1}: ${media.url}`);
+                                        }}
+                                    />
+                                ) : (
+                                    <video
+                                        src={media.url}
+                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage && !isFullscreen ? "[&::-webkit-media-controls]:hidden" : ""}`}
+                                        controls={isFullscreen}
+                                        controlsList="nodownload noplaybackrate"
+                                        disablePictureInPicture
+                                        playsInline
+                                        loop
+                                        autoPlay
+                                        muted
+                                        onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
+                                    />
+                                )}
                             </div>
                         ))
                     )}
