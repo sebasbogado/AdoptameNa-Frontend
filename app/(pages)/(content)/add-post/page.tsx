@@ -8,20 +8,27 @@ import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
+import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import { deleteMedia, postMedia } from "@/utils/media.http";
+import { MapProps } from "@/types/map-props";
+import dynamic from "next/dynamic";
+import { ImagePlus } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { postSchema, PostFormValues } from "@/validations/post-schema";
 import { useForm, useWatch } from "react-hook-form";
+import { Alert } from "@material-tailwind/react";
 import { Media } from "@/types/media";
 import { Tags } from "@/types/tags";
 import NewBanner from "@/components/newBanner";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
-import UploadImages from "@/components/post/upload-images";
-import {FormData as FormDataPost} from "@/components/post/form-data";
-import { MAX_TAGS } from "@/validations/post-schema";
+import { MultiSelect } from "@/components/multi-select";
 
+const MapWithNoSSR = dynamic<MapProps>(
+    () => import('@/components/ui/map'),
+    { ssr: false }
+);
 
 export default function Page() {
     const {
@@ -268,60 +275,216 @@ export default function Page() {
         }
     };
 
-   return (
- <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
-            <NewBanner
-                medias={selectedImages}
-            />
-            <UploadImages 
-                selectedImages={selectedImages}
-                currentImageIndex={currentImageIndex}
-                setCurrentImageIndex={setCurrentImageIndex}
-                handleRemoveImage={handleRemoveImage}
-                handleImageUpload={handleImageUpload}
-                MAX_IMAGES={MAX_IMAGES}
-                errorMessage={errorMessage}
-                setErrorMessage={setErrorMessage}
-                precautionMessage={precautionMessage}
-                setPrecautionMessage={setPrecautionMessage}
-                successMessage={successMessage}
-                setSuccessMessage={setSuccessMessage}
-            />
+    return (
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50 bg-cover bg-center"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                }}
+            >
+                <div className="absolute inset-0 bg-[#9747FF] opacity-60"></div>
+            </div>
 
-           <FormDataPost
-                handleSubmit={handleSubmit}
-                onSubmit={onSubmit}
-                register={register}
-                errors={errors}
-                watch={watch}
-                postTypes={postTypes}
-                filteredTags={filteredTags}
-                selectedTags={selectedTags}
-                setSelectedTags={setSelectedTags}
-                setValue={setValue}
-                isModalOpen={isModalOpen}
-                position={position}
-                loading={loading}
-                handleCancel={handleCancel}
-                handlePositionChange={handlePositionChange}
-                closeModal={closeModal}
-                confirmSubmit={confirmSubmit}
-                MAX_IMAGES={MAX_IMAGES}
-                MAX_TAGS={MAX_TAGS}
-            />
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
+                        type="button"
+                        aria-label="Volver"
+                        onClick={() => router.push('/dashboard')}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Crear publicación</h1>
+                </div>
 
-            {isModalOpen &&
-                <ConfirmationModal
-                    isOpen={isModalOpen}
-                    title="Confirmar creación"
-                    message="¿Estás seguro de que deseas crear esta publicación?"
-                    textConfirm="Confirmar"
-                    confirmVariant="cta"
-                    onClose={closeModal}
-                    onConfirm={confirmSubmit}
+                {errorMessage && (
+                    <div>
+                        <Alert
+                            color="red"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setErrorMessage("")}>
+                            {errorMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                {precautionMessage && (
+                    <div>
+                        <Alert
+                            color="orange"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setPrecautionMessage("")}>
+                            {precautionMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div>
+                        <Alert
+                            color="green"
+                            onClose={() => setSuccessMessage("")}
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                            {successMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                <NewBanner
+                    medias={selectedImages}
                 />
-            }
-        </div>
-);
+                <div className="flex gap-2 mt-2 justify-center items-center">
+                    {selectedImages.map((src, index) => (
+                        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+                            {src.url && (
+                                <>
+                                    <Image
+                                        src={src.url}
+                                        alt="post-image"
+                                        fill
+                                        className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                        onClick={() => setCurrentImageIndex(index)}
+                                        unoptimized
+                                    />
+                                    {/* Botón de eliminación */}
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                                        title="Eliminar imagen"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                    <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        multiple
+                        className="hidden"
+                        id="fileInput"
+                        onChange={handleImageUpload}
+                        disabled={selectedImages.length >= MAX_IMAGES}
+                    />
+                    <label
+                        htmlFor="fileInput"
+                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                            } bg-white`}
+                    >
+                        <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+                    </label>
+                </div>
 
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tipo de publicación <span className="text-red-500">*</span></label>
+                        <select
+                            {...register("postTypeId", { valueAsNumber: true })}
+                            className={`w-1/3 p-2 border rounded ${errors.postTypeId ? 'border-red-500' : ''}`}
+                        >
+                            <option value={0}>Seleccione un tipo</option>
+                            {postTypes.map((type) => (
+                                <option key={type.id} value={type.id}>{type.name}</option>
+                            ))}
+                        </select>
+                        {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tags</label>
+                        <MultiSelect
+                            options={filteredTags.map(tag => ({ id: tag.id, name: tag.name }))}
+                            selected={selectedTags.map(tag => ({ id: tag.id, name: tag.name }))}
+                            onChange={(selected) => {
+                                const mappedTags = selected.map(option => 
+                                    filteredTags.find(tag => tag.id === option.id)!
+                                );
+                                setSelectedTags(mappedTags);
+                                setValue("tagIds", mappedTags.map((tag) => tag.id));
+                            }}
+                            placeholder="Seleccionar tags"
+                        />
+                        {errors.tagIds && <p className="text-red-500 text-sm">{errors.tagIds.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Título <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            {...register("title")}
+                            className={`w-full p-2 border rounded ${errors.title ? 'border-red-500' : ''}`}
+                        />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Descripción</label>
+                        <textarea 
+                            {...register("content")} 
+                            className={`w-full p-2 border rounded ${errors.content ? 'border-red-500' : ''}`}
+                        />
+                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <label className="block mb-1">Contacto</label>
+                        <input
+                            {...register("contactNumber")}
+                            className={`w-full p-2 border rounded ${errors.contactNumber ? 'border-red-500' : ''}`}
+                            onKeyDown={(e) => {
+                                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                                    e.preventDefault();
+                                }
+                            }}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    </div>
+
+                    <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                    </div>
+                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+
+                    <div className="flex justify-end items-center mt-6 gap-4">
+                        <Button
+                            type="button"
+                            variant="tertiary"
+                            className="border rounded text-gray-700 hover:bg-gray-100"
+                            onClick={() => router.push('/dashboard')}
+                            disabled={loading}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="cta"
+                            className="rounded hover:bg-purple-700"
+                            disabled={loading}
+                        >
+                            {loading ? "Creando..." : "Crear publicación"}
+                        </Button>
+                    </div>
+                </form>
+
+                {isModalOpen && (
+                    <ConfirmationModal
+                        isOpen={isModalOpen}
+                        title="Confirmar publicación"
+                        message="¿Estás seguro de que deseas crear esta publicación?"
+                        textConfirm="Confirmar"
+                        confirmVariant="cta"
+                        onClose={closeModal}
+                        onConfirm={confirmSubmit}
+                    />
+                )}
+            </div>
+        </div>
+    );
 }

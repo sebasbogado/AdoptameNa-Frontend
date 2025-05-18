@@ -355,201 +355,240 @@ export default function Page() {
 
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <NewBanner
-                medias={selectedImages}
-            />
-            <div className="flex gap-2 mt-2 justify-center items-center">
-                {selectedImages.map((src, index) => (
-                    <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        {src.url && (
-                            <>
-                                <Image
-                                    src={src.url}
-                                    alt="post-image"
-                                    fill
-                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    unoptimized
-                                />
-                                {/* Botón de eliminación */}
-                                <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                    title="Eliminar imagen"
-                                >
-                                    ✕
-                                </button>
-                            </>
-                        )}
-                    </div>
-                ))}
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleImageUpload}
-                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-                />
-                <label
-                    htmlFor="fileInput"
-                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                        } bg-white`}
-                >
-                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-                </label>
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50 bg-cover bg-center"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                }}
+            >
+                <div className="absolute inset-0 bg-[#9747FF] opacity-60"></div>
             </div>
 
-            {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setErrorMessage("")}>
-                        {errorMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {precautionMessage && (
-                <div>
-                    <Alert
-                        color="orange"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setPrecautionMessage("")}>
-                        {precautionMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {/* Tipo de publicación */}
-                <select
-                    {...register("postTypeId", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
-                >
-                    <option value={0}>Seleccione un tipo</option>
-                    {postTypes.map((type) => (
-                        <option key={type.id} value={type.id}>{type.name}</option>
-                    ))}
-                </select>
-                {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
-
-                {/* Título */}
-                <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    {...register("title")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
-                />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-
-                {/* Tags (MultiSelect) */}
-                <label className="block text-sm font-medium">Tags</label>
-                <MultiSelect
-                    options={filteredTags} // <-- Usa los tags filtrados
-                    selected={selectedTags}
-                    onChange={(selected) => {
-                        setSelectedTags(selected);
-                        setValue("tagIds", selected.map((animal) => animal.id));
-                    }}
-                    placeholder="Seleccionar tags"
-                />
-                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
-
-                {/* Descripción */}
-                <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
-                <textarea
-                    {...register("content")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                />
-                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-
-                {/* Contacto */}
-                <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    {...register("contactNumber")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                />
-                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-                {/* Mapa */}
-                <div
-                    className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                >
-                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                </div>
-                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
-
-                <div className="flex justify-between items-center mt-6 gap-10">
-                    <Button
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
                         type="button"
-                        variant="danger"
-                        size="md"
-                        className="rounded hover:bg-red-700"
-                        onClick={openDeleteModal}
-                        disabled={loading}
+                        aria-label="Volver"
+                        onClick={() => router.push(`/posts/${postId}`)}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                        {loading ? 'Eliminando...' : 'Eliminar publicación'}
-                    </Button>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Editar publicación</h1>
+                </div>
 
-                    <div className="flex gap-4">
+                {errorMessage && (
+                    <div>
+                        <Alert
+                            color="red"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setErrorMessage("")}>
+                            {errorMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                {precautionMessage && (
+                    <div>
+                        <Alert
+                            color="orange"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setPrecautionMessage("")}>
+                            {precautionMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div>
+                        <Alert
+                            color="green"
+                            onClose={() => setSuccessMessage("")}
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                            {successMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                <NewBanner
+                    medias={selectedImages}
+                />
+                <div className="flex gap-2 mt-2 justify-center items-center">
+                    {selectedImages.map((src, index) => (
+                        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+                            {src.url && (
+                                <>
+                                    <Image
+                                        src={src.url}
+                                        alt="post-image"
+                                        fill
+                                        className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                        onClick={() => setCurrentImageIndex(index)}
+                                        unoptimized
+                                    />
+                                    {/* Botón de eliminación */}
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                                        title="Eliminar imagen"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    ))}
+                    <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        multiple
+                        className="hidden"
+                        id="fileInput"
+                        onChange={handleImageUpload}
+                        disabled={selectedImages.length >= MAX_IMAGES}
+                    />
+                    <label
+                        htmlFor="fileInput"
+                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                            } bg-white`}
+                    >
+                        <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+                    </label>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tipo de publicación <span className="text-red-500">*</span></label>
+                        <select
+                            {...register("postTypeId", { valueAsNumber: true })}
+                            className={`w-1/3 p-2 border rounded ${errors.postTypeId ? 'border-red-500' : ''}`}
+                        >
+                            <option value={0}>Seleccione un tipo</option>
+                            {postTypes.map((type) => (
+                                <option key={type.id} value={type.id}>{type.name}</option>
+                            ))}
+                        </select>
+                        {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tags</label>
+                        <MultiSelect
+                            options={filteredTags.map(tag => ({ id: tag.id, name: tag.name }))}
+                            selected={selectedTags.map(tag => ({ id: tag.id, name: tag.name }))}
+                            onChange={(selected: Option[]) => {
+                                const mappedTags = selected.map(option => 
+                                    filteredTags.find(tag => tag.id === option.id)!
+                                );
+                                setSelectedTags(mappedTags);
+                                setValue("tagIds", mappedTags.map((tag) => tag.id));
+                            }}
+                            placeholder="Seleccionar tags"
+                        />
+                        {errors.tagIds && <p className="text-red-500 text-sm">{errors.tagIds.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Título <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            {...register("title")}
+                            className={`w-full p-2 border rounded ${errors.title ? 'border-red-500' : ''}`}
+                        />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Descripción</label>
+                        <textarea 
+                            {...register("content")} 
+                            className={`w-full p-2 border rounded ${errors.content ? 'border-red-500' : ''}`}
+                        />
+                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <label className="block mb-1">Contacto</label>
+                        <input
+                            {...register("contactNumber")}
+                            className={`w-full p-2 border rounded ${errors.contactNumber ? 'border-red-500' : ''}`}
+                            onKeyDown={(e) => {
+                                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                                    e.preventDefault();
+                                }
+                            }}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    </div>
+
+                    <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                    </div>
+                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+
+                    <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
                             type="button"
-                            variant="tertiary"
-                            className="border rounded text-gray-700 hover:bg-gray-100"
-                            onClick={handleCancel}
+                            variant="danger"
+                            size="md"
+                            className="rounded hover:bg-red-700"
+                            onClick={openDeleteModal}
                             disabled={loading}
                         >
-                            Cancelar
+                            {loading ? 'Eliminando...' : 'Eliminar publicación'}
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_IMAGES}
-                        >
-                            {loading ? "Editando..." : "Confirmar cambios"}
-                        </Button>
+
+                        <div className="flex gap-4">
+                            <Button
+                                type="button"
+                                variant="tertiary"
+                                className="border rounded text-gray-700 hover:bg-gray-100"
+                                onClick={handleCancel}
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="cta"
+                                className="rounded hover:bg-purple-700"
+                                disabled={loading}
+                            >
+                                {loading ? "Editando..." : "Confirmar cambios"}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
 
-            {isEditModalOpen &&
-                <ConfirmationModal
-                    isOpen={isEditModalOpen}
-                    title="Confirmar cambios"
-                    message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
-                    textConfirm="Confirmar cambios"
-                    confirmVariant="cta"
-                    onClose={closeModal}
-                    onConfirm={confirmSubmit}
-                />}
+                {isEditModalOpen && (
+                    <ConfirmationModal
+                        isOpen={isEditModalOpen}
+                        title="Confirmar cambios"
+                        message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
+                        textConfirm="Confirmar cambios"
+                        confirmVariant="cta"
+                        onClose={closeModal}
+                        onConfirm={confirmSubmit}
+                    />
+                )}
 
-            {isDeleteModalOpen &&
-                <ConfirmationModal
-                    isOpen={isDeleteModalOpen}
-                    title="Confirmar eliminación"
-                    message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
-                    textConfirm="Eliminar"
-                    confirmVariant="danger"
-                    onClose={closeModal}
-                    onConfirm={handleDelete}
-                />}
+                {isDeleteModalOpen && (
+                    <ConfirmationModal
+                        isOpen={isDeleteModalOpen}
+                        title="Confirmar eliminación"
+                        message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
+                        textConfirm="Eliminar"
+                        confirmVariant="danger"
+                        onClose={closeModal}
+                        onConfirm={handleDelete}
+                    />
+                )}
+            </div>
         </div>
     );
 }
