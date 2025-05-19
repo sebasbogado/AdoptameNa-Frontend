@@ -39,7 +39,7 @@ export default function Page() {
             return;
         }
         fetchPost(postId as string, setPost, setLoading, setError);
-    }, []);
+    }, [params.id]);
 
    
     const routeUserProfile = () => {
