@@ -14,69 +14,6 @@ import HeaderUser from "@/components/blog/header-user";
 import BlogContent from "@/components/blog/blog-content";
 import PostComments from "@/components/post/post-comments";
 
-const markdownExample = `# 🐶 El Fascinante Mundo de los Perros
-
-## Introducción
-
-¡Cuidado con lo que come tu peludo! comidas prohibidas para perros 🐶
----
-
-## 🧠 Inteligencia Canina
-
-> "Los perros no son toda nuestra vida, pero hacen nuestras vidas completas."  
-> — Roger Caras
-
-La inteligencia de los perros varía según la raza y el entrenamiento. Algunas de las razas más inteligentes incluyen:
-
-- **Border Collie**: Conocidos por su capacidad para aprender comandos rápidamente.
-- **Poodle (Caniche)**: Altamente entrenables y excelentes en competencias.
-- **Pastor Alemán**: Utilizados en fuerzas policiales y de rescate por su agudeza mental.
-
----
-## 🐾 Un perrito feliz
-
-![Un perrito adoptado](https://adoptamena-api.rodrigomaidana.com/media/66fa929b-47fd-4edb-adcb-7524ea76220a.webp)
-
-Este perrito encontró un nuevo hogar gracias a la comunidad.
-
-
-## 🐕‍🦺 Razas Populares
-
-1. **Labrador Retriever**: Amigables y excelentes para familias.
-2. **Bulldog Francés**: De tamaño compacto y gran personalidad.
-3. **Golden Retriever**: Leales y fáciles de entrenar.
-
----
-
-## 🏃‍♂️ Actividades y Ejercicio
-
-Es esencial proporcionar ejercicio diario a los perros para mantener su salud física y mental. Algunas actividades recomendadas:
-
-- Paseos diarios de al menos 30 minutos.
-- Juegos de búsqueda con pelotas o frisbees.
-- Entrenamiento de agilidad en circuitos diseñados para perros.
-
----
-
-## 🧼 Cuidado y Aseo
-
-El cuidado adecuado incluye:
-
-- **Baños regulares**: Utilizar champús específicos para perros.
-- **Cepillado**: Dependiendo del tipo de pelaje, puede ser diario o semanal.
-- **Revisiones veterinarias**: Al menos una vez al año para chequeos generales.
-
----
-
-## 🐾 Conclusión
-
-Los perros aportan alegría, compañía y amor incondicional. Cuidarlos adecuadamente garantiza una relación armoniosa y duradera.
-
----
-
-¿Tienes una raza favorita o una anécdota con tu perro que quieras compartir? ¡Déjala en los comentarios!
-
-`
 
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -164,7 +101,7 @@ export default function Page() {
              
                     <BlogContent
                     post={post}
-                    blogContent={markdownExample}
+                    blogContent={post.content}
                 />
               
                    <div className="mt-9 mb-10">

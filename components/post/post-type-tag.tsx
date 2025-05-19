@@ -7,7 +7,6 @@ const getColorByPostType = (type: string): string => {
             return "bg-blog";
         case "volunteering":
             return "bg-volunteering";
-        // Agrega más tipos si lo necesitas
         default:
             return "bg-gray-200";
     }
