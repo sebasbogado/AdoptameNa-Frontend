@@ -61,9 +61,11 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                 const favorite = favorites.find((fav: Favorites) => fav.postId === post.id);
                 await deleteFavorite(favorite.id, authToken);
                 setSuccessMessage("Publicación eliminada de favoritos");
+                setTimeout(() => {setSuccessMessage("")}, 2500);
             } else {
                 await addFavorite(post.id, authToken);
                 setSuccessMessage("Publicación añadida a favoritos");
+                setTimeout(() => {setSuccessMessage("")}, 2500);
             }
             await fetchFavorites();
         } catch (error) {
