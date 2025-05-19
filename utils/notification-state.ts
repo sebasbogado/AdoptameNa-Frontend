@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { Notification } from "@/types/notification";
 import { notificationQueryParams } from "@/types/pagination";
-import { getMyNotifications, markNotificationAsRead as apiMarkAsRead } from "@/utils/notifications.http";
+import { getMyNotifications, markNotificationAsRead as apiMarkAsRead, markAllNotificationsAsRead } from "@/utils/notifications.http";
 
 export interface NotificationState {
   bellNotifications: Notification[];
@@ -15,6 +15,7 @@ export type NotificationActions = {
   fetchBellNotifications: () => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
   addNewNotification: (notification: Notification) => void;
+  markAllAsRead: () => Promise<void>;
 }
 
 export function useNotificationState(authToken: string | null, user: any | null): [NotificationState, NotificationActions] {
@@ -96,8 +97,24 @@ export function useNotificationState(authToken: string | null, user: any | null)
     }
   }, []);
 
+  const markAllAsRead = useCallback(async () => {
+    if (!authToken || !user) return;
+
+    try {
+      await markAllNotificationsAsRead(authToken);
+
+      setBellNotifications((prev) =>
+        prev.map((n) => ({ ...n, isRead: true }))
+      );
+
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+    }
+  }, [authToken]);
+
   return [
     { bellNotifications, unreadCount, loading },
-    { fetchBellNotifications, markAsRead, addNewNotification }
+    { fetchBellNotifications, markAsRead, addNewNotification, markAllAsRead }
   ];
 }
