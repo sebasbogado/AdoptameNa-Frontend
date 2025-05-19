@@ -318,7 +318,7 @@ export default function ProfilePage() {
                     />
                      <Section
                         title={`Productos de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
-                        path='marketplace'
+                        path={`/profile/my-products/${user?.id ?? ''}`}
                         itemType='product'
                         postTypeName="Marketplace"
                         items={marketplacePosts}

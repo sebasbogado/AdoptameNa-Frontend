@@ -362,7 +362,7 @@ export default function ProfilePage() {
                     />
                     <Section
                         title='Mis productos'
-                        path='marketplace'
+                        path={`/profile/my-products/${user.id}`}
                         itemType='product'
                         postTypeName="Marketplace"
                         items={marketplacePosts}
@@ -380,8 +380,8 @@ export default function ProfilePage() {
                             address: userProfile?.address ?? null,
                             gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
                             birthdate: userProfile?.birthdate
-                                ? userProfile.birthdate.split("T")[0]
-                                : undefined,
+                                ? new Date(userProfile.birthdate)
+                                : null,
                             description: userProfile?.description ?? "",
                             addressCoordinates: userProfile?.addressCoordinates
                                 ? userProfile.addressCoordinates.split(",").map(parseFloat)

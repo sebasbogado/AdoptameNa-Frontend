@@ -104,8 +104,11 @@ export type adoptionsResponseQueryParams = queryParams & {
   fullName?: string;
   email?: string;
   phone?: string;
-  isAccepted?: boolean
+  status?: "ACCEPTED" | "REJECTED" | "PENDING";
+  createdAfter?: string;
+  createdBefore?: string;
 };
+
 export type locationQueryParams = queryParams & {
   departmentId?: string;
   districtId?: string;
