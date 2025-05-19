@@ -159,12 +159,13 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
         }
     };
     return (
-        <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
+        <div className=" gap-3 flex justify-end relative pr-12">
             {isPet && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
                 </Button>
             )}
+            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
 
             {isEditing && (
                 <div className="relative inline-block text-left">
@@ -234,7 +235,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
                 )}
             </div>
 
-            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
 
             <div className="relative">
                 {!isPet && (

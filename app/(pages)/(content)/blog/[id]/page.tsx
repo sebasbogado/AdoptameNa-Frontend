@@ -11,43 +11,73 @@ import { formatLongDate } from "@/utils/date-format";
 import PostTypeTag from "@/components/post/post-type-tag";
 import PostButtons from "@/components/post/post-buttons";
 import HeaderUser from "@/components/blog/header-user";
-import Image from "next/image";
-import { MDXEditor } from '@mdxeditor/editor';
-const markdownExample = `
-# Encabezado nivel 1
+import BlogContent from "@/components/blog/blog-content";
+import PostComments from "@/components/post/post-comments";
 
-## Encabezado nivel 2
+const markdownExample = `# 🐶 El Fascinante Mundo de los Perros
 
-**Texto en negrita**
+## Introducción
 
-*Texto en cursiva*
+¡Cuidado con lo que come tu peludo! comidas prohibidas para perros 🐶
+---
 
-**_Negrita y cursiva_**
+## 🧠 Inteligencia Canina
 
-~~Texto tachado~~
+> "Los perros no son toda nuestra vida, pero hacen nuestras vidas completas."  
+> — Roger Caras
 
-[Enlace a OpenAI](https://www.openai.com)
+La inteligencia de los perros varía según la raza y el entrenamiento. Algunas de las razas más inteligentes incluyen:
 
-- Lista con viñetas
-  - Subítem 1
-  - Subítem 2
+- **Border Collie**: Conocidos por su capacidad para aprender comandos rápidamente.
+- **Poodle (Caniche)**: Altamente entrenables y excelentes en competencias.
+- **Pastor Alemán**: Utilizados en fuerzas policiales y de rescate por su agudeza mental.
 
-1. Lista numerada
-2. Segundo ítem
+---
+## 🐾 Un perrito feliz
 
-\`\`\`js
-// Bloque de código en JavaScript
-function saludo() {
-  console.log("¡Hola mundo!");
-}
-\`\`\`
+![Un perrito adoptado](https://adoptamena-api.rodrigomaidana.com/media/66fa929b-47fd-4edb-adcb-7524ea76220a.webp)
 
-> Esto es una cita
+Este perrito encontró un nuevo hogar gracias a la comunidad.
+
+
+## 🐕‍🦺 Razas Populares
+
+1. **Labrador Retriever**: Amigables y excelentes para familias.
+2. **Bulldog Francés**: De tamaño compacto y gran personalidad.
+3. **Golden Retriever**: Leales y fáciles de entrenar.
 
 ---
 
-![Imagen de ejemplo](https://via.placeholder.com/150)
-`;
+## 🏃‍♂️ Actividades y Ejercicio
+
+Es esencial proporcionar ejercicio diario a los perros para mantener su salud física y mental. Algunas actividades recomendadas:
+
+- Paseos diarios de al menos 30 minutos.
+- Juegos de búsqueda con pelotas o frisbees.
+- Entrenamiento de agilidad en circuitos diseñados para perros.
+
+---
+
+## 🧼 Cuidado y Aseo
+
+El cuidado adecuado incluye:
+
+- **Baños regulares**: Utilizar champús específicos para perros.
+- **Cepillado**: Dependiendo del tipo de pelaje, puede ser diario o semanal.
+- **Revisiones veterinarias**: Al menos una vez al año para chequeos generales.
+
+---
+
+## 🐾 Conclusión
+
+Los perros aportan alegría, compañía y amor incondicional. Cuidarlos adecuadamente garantiza una relación armoniosa y duradera.
+
+---
+
+¿Tienes una raza favorita o una anécdota con tu perro que quieras compartir? ¡Déjala en los comentarios!
+
+`
+
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
@@ -113,27 +143,34 @@ export default function Page() {
 
     if (error || !post || !user) return <NotFound />;
     return (
-        <div className="px-4 sm:px-6 md:px-8 lg:px-28 py-8">
-            <HeaderUser
-                user={user}
-                routeUserProfile={routeUserProfile}
-                post={post}
-            ></HeaderUser>
+        <div className="flex justify-center">
+            <div className="w-full   bg-white max-w-5xl px-4 pt-16 prose prose-neutral dark:prose-invert">
+                <div className="flex justify-between items-center mb-4">
+                    <HeaderUser
+                        user={user}
+                        routeUserProfile={routeUserProfile}
+                        post={post}
+                    />
 
-            <div className="flex justify-end ">
-                <PostButtons
-                    postId={String(post?.id)}
-                    onShare={handleShare}
-                    postIdUser={post?.userId}
-                    sizeButton="md"
+
+                    <PostButtons
+                        postId={String(post?.id)}
+                        onShare={handleShare}
+                        postIdUser={post?.userId}
+                        sizeButton="md"
+                    />
+                </div>
+
+             
+                    <BlogContent
+                    post={post}
+                    blogContent={markdownExample}
                 />
+              
+                   <div className="mt-9 mb-10">
+                <PostComments authToken={authToken ?? undefined} user={user} userLoading={userLoading} referenceId={post?.id as number} referenceType={"POST"} />
+                </div>
             </div>
-            <div className="flex justify-center">
-                <h1 className="text-3xl font-bold text-gray-900">{post?.title}</h1>
-                
-            </div>
-            </div>
-
-
-            );
-} 
+        </div>
+    );
+}
