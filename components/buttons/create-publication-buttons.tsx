@@ -126,8 +126,8 @@ const FloatingActionButton = () => {
                                     onClick={handleLinkClick}
                                     style={{
                                         transitionDelay: isOpen
-                                            ? `${index * 75}ms`
-                                            : `${(page.options.length - 1 - index) * 50}ms`,
+                                            ? `${(page.options.length - 1 - index) * 50}ms`
+                                            : `${index * 75}ms`,
                                     }}
                                     className={`
                                         flex items-center text-right gap-2
@@ -135,7 +135,7 @@ const FloatingActionButton = () => {
                                         border-2 w-[200px]
                                         bg-white text-[#FFAE34] border-[#FFAE34]
                                         hover:bg-[#FFAE34] hover:text-white
-                                        transform-gpu transition-all duration-300 ease-out /* Duración base de cada item */
+                                        transform-gpu transition-all duration-300 ease-out
                                         ${isOpen
                                             ? 'opacity-100 translate-y-0 scale-100'
                                             : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
