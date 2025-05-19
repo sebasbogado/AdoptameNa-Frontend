@@ -15,7 +15,7 @@ import LabeledSelect from "@/components/labeled-selected";
 import Button from "@/components/buttons/button";
 import ResetFiltersButton from "@/components/reset-filters-button";
 import Loading from "@/app/loading";
-export default function UserSponsorsPage() {
+export default function UserCrowdfundingPage() {
     const { authToken, user, loading: userLoading } = useAuth();
     const router = useRouter();
      if (userLoading) return <Loading />;
