@@ -1,9 +1,7 @@
 "use client";
 
-import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
-import PetCard from "@/components/petCard/pet-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
@@ -11,7 +9,7 @@ import { getPosts } from "@/utils/posts.http";
 import { getTags } from "@/utils/tags";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import BlogCard from "@/components/blog/blog-card";
 export default function Page() {
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
@@ -26,16 +24,16 @@ export default function Page() {
 
     useEffect(() => {
         if (Object.keys(allAuthorsMap).length > 0 || Object.keys(allTagsMap).length > 0) {
-            const filters: Record<string, number> = {} ;
-            
+            const filters: Record<string, number> = {};
+
             if (selectedAutor && selectedAutor !== "Todos") {
                 filters["userId"] = allAuthorsMap[selectedAutor];
             }
-            
+
             if (selectedTag && selectedTag !== "Todos") {
                 filters["tagId"] = allTagsMap[selectedTag];
             }
-            
+
             updateFilters(filters);
             handlePageChange(1);
         }
@@ -146,15 +144,12 @@ export default function Page() {
                             <p className="text-gray-600">No se encontraron blogs</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-                            {posts.map((p) => (
-                                <PetCard
-                                    key={p.id}
-                                    post={p}
-                                    isPost={true}
-                                />
-                            ))}
+                        <div className="w-full max-w-6xl mx-auto flex flex-col gap-6 mt-2 p-4">
+                        {posts.map((p) => (
+                            <BlogCard key={p.id} post={p} />
+                        ))}
                         </div>
+
                     )
                 )}
             </div>
