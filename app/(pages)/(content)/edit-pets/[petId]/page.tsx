@@ -46,7 +46,6 @@ export default function Page() {
   const { petId } = useParams();
   const router = useRouter();
   const bannerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const MAX_IMAGES = 5; //Tam max de imagenes
   const {
     register,
@@ -285,51 +284,10 @@ export default function Page() {
     }
   };
 
-  const adjustImageSize = () => {
-    if (!bannerRef.current) return;
-
-    const images = bannerRef.current.querySelectorAll("img");
-    images.forEach((img) => {
-      if (document.fullscreenElement) {
-        img.style.width = "100vw";
-        img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
-        setIsFullscreen(true);
-      } else {
-        img.style.width = "";
-        img.style.height = "";
-        img.style.objectFit = "";
-        setIsFullscreen(false);
-      }
-    });
-  };
-
   const handlePositionChange = (newPosition: [number, number]) => {
     setPosition(newPosition); // Actualiza el petStatusId local
     setValue("addressCoordinates", newPosition); // Actualiza el formulario
   };
-
-  const toggleFullScreen = () => {
-    if (!bannerRef.current) return;
-
-    if (!document.fullscreenElement) {
-      bannerRef.current.requestFullscreen()
-        .then(() => adjustImageSize())
-        .catch((err) => console.error("Error al activar pantalla completa:", err));
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("fullscreenchange", adjustImageSize);
-    return () => document.removeEventListener("fullscreenchange", adjustImageSize);
-  }, []);
-
-  useEffect(() => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log("authLoading", authLoading);
-  }, [authToken, authLoading, user?.id]);
 
   const handleSubmit = async () => {
     setIsEditModalOpen(false);
@@ -414,7 +372,25 @@ export default function Page() {
                   fill
                   className="w-full h-full object-cover rounded-lg border"
                 />
+            {selectedImages.map((img, index) => (
+              <div key={index} className="relative w-24 h-24 group">
+                {/* Imagen */}
+                <Image
+                  src={img.url}
+                  alt="Imagen de mascota"
+                  fill
+                  className="w-full h-full object-cover rounded-lg border"
+                />
 
+                {/* Botón de eliminación */}
+                <button
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
                 {/* Botón de eliminación */}
                 <button
                   onClick={() => handleRemoveImage(index)}
@@ -571,6 +547,18 @@ export default function Page() {
                 <MapWithNoSSR position={position} setPosition={handlePositionChange} />
               </div>
 
+              {/* Buttons */}
+              <div className="flex justify-between items-center mt-6 gap-10">
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="md"
+                  className="rounded hover:bg-red-700"
+                  onClick={openConfirmationModalDelete}
+                  disabled={loading}
+                >
+                  {isSubmitting ? 'Eliminando...' : 'Eliminar publicación'}
+                </Button>
               {/* Buttons */}
               <div className="flex justify-between items-center mt-6 gap-10">
                 <Button
