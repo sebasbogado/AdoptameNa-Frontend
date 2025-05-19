@@ -2,12 +2,12 @@ describe("Logout Functionality - TC-REG-O-07", () => {
   it("should log out correctly and redirect when accessing protected routes", () => {
     // 1. Login con credenciales válidas
     cy.visit("/auth/login");
-    cy.get('input[type="email"]').type("cymtop@mailto.plus");
-    cy.get('input[type="password"]').type("Holagato12");
+    cy.get('input[name="email"]').type("rodrigo.maidana2019@fiuni.edu.py", { delay: 100 });
+    cy.get('input[name="password"]').type("Contraseña123", { delay: 100 });
     cy.get('button[type="submit"]').click();
 
     // 2. Verificar login exitoso (redireccionado al dashboard)
-    cy.wait(5000);
+    cy.wait(10000);
     cy.url().should("include", "/dashboard");
 
     // 3. Verificar que los elementos de usuario autenticado son visibles
@@ -26,6 +26,7 @@ describe("Logout Functionality - TC-REG-O-07", () => {
     cy.visit("/profile");
 
     // 9. Verificar redirección a la página de login
+    cy.wait(10000);
     cy.url().should("include", "/auth/login");
   });
 });

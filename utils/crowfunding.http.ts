@@ -1,25 +1,19 @@
+import { Crowdfunding } from "@/types/crowfunding-type";
+import { buildQueryParams, crowdfundingQueryParams, PaginatedResponse } from "@/types/pagination";
 import axios from "axios";
+import build from "next/dist/build";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/crowdfunding`;
 
 export const getCrowdfundings = async (
-    token: string,
-    page: number = 0,
-    size: number = 25,
-    userId?: number
-) => {
+    queryParams?: crowdfundingQueryParams
+): Promise<PaginatedResponse<Crowdfunding>> => {
     try {
-        const params = new URLSearchParams();
-        params.append("page", page.toString());
-        params.append("size", size.toString());
-        if (userId !== undefined) {
-            params.append("userId", userId.toString());
-        }
-
-        const response = await axios.get(`${API_URL}?${params.toString()}`, {
+        const params = buildQueryParams(queryParams);
+        const response = await axios.get(API_URL, {
+            params: params,
             headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${token}`,
             },
         });
 

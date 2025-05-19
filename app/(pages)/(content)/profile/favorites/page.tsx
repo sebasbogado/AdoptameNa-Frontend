@@ -59,7 +59,7 @@ export default function Page() {
     return Loading();
   }
 
-  const bannerImages = ["../banner1.png","../banner2.png","../banner3.png","../banner4.png"];
+  const bannerImages = ["/banner1.png","/banner2.png","/banner3.png","/banner4.png"];
 
   return (
     <div className="flex flex-col gap-3">

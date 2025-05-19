@@ -15,6 +15,7 @@ interface CreateProfileProps {
     setValue: (name: keyof ProfileValues, value: any) => void;
     isSubmitting: boolean;
     errors: Partial<Record<keyof ProfileValues, { message?: string }>>;
+    hideSubmitButton?: boolean;
 }
 
 export const CreateProfile = ({
@@ -24,6 +25,7 @@ export const CreateProfile = ({
     setValue,
     isSubmitting,
     errors,
+    hideSubmitButton,
 }: CreateProfileProps) => {
     const { user, authToken } = useAuth();
     const isOrganization = user?.role === "organization";
@@ -70,11 +72,13 @@ export const CreateProfile = ({
             />
 
             {/* Botón de envío */}
-            <SubmitButton
-                isSubmitting={isSubmitting}
-                label="Guardar perfil"
-                loadingLabel="Procesando..."
-            />
+            {!hideSubmitButton && (
+                <SubmitButton
+                    isSubmitting={isSubmitting}
+                    label="Guardar perfil"
+                    loadingLabel="Procesando..."
+                />
+            )}
         </form>
     );
 };
