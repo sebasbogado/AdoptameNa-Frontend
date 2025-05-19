@@ -73,11 +73,8 @@ export default function UserReportListPage<T extends {
         }
       });
 
-      //console.log("Promesas fetcheadas: ", fetchPromises)
       const results = await Promise.all(fetchPromises);
-      //console.log("Resultado: ", results)
       const enrichedData = results.filter((item) => item !== null) as EnrichedReport<T>[];
-      //console.log("Data enriquecida: ", enrichedData)
       setEnrichedData(enrichedData);
 
     };

@@ -19,7 +19,6 @@ export default function UserReportCardButtons({
   isPost,
 }: PetCardProps) {
   const pathname = usePathname();
-  console.log("Pathname: ",pathname);
   const isDetailPage =
   pathname === `/profile/report/posts/${post.id}` ||
   pathname === `/profile/report/pets/${post.id}` ||
