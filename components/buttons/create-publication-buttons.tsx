@@ -160,7 +160,7 @@ const FloatingActionButton = () => {
                     group relative z-30 
                     flex items-center justify-center
                     bg-[#FFAE34] text-white 
-                    h-10 w-
+                    h-10 w-10
                     rounded-full shadow-lg 
                     transition-all duration-300 ease-in-out
                     hover:bg-[#E09A2D]
