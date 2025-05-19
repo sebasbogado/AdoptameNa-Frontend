@@ -24,7 +24,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                         <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                     </span> :
                     <span className="flex flex-col">
-                        <span className="text-xl">Publicado por <Link className="text-[#4781FF]" href={`/profile/${pet?.userId}`}>{pet?.userFullName} </Link></span>
+                        <span className="text-xl">Publicado por <Link className="text-[#4781FF]" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName} </Link></span>
                         <span className="mt-8">
                             {pet?.gender == "FEMALE" ? "Hembra" : pet?.gender == "MALE" ? "Macho" : "Desconocido"}, {pet?.isSterilized ? " esterilizado" : " no esterilizado"},
                             {pet?.isVaccinated ? " vacunado" : " no vacunado"}
