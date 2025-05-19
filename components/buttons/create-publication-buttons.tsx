@@ -175,7 +175,7 @@ const FloatingActionButton = () => {
             >
                 <div className={`
                     transform transition-transform duration-300 ease-in-out
-                    ${isOpen ? 'rotate-45' : 'group-hover:rotate-90'}
+                    ${isOpen ? 'rotate-30' : 'group-hover:rotate-90'}
                 `}>
                     {isOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                 </div>
