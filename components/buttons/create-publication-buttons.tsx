@@ -10,17 +10,17 @@ const pageItems = [
         name: "Inicio", path: "/dashboard",
         options: [{
             href: "/add-post",
-            label: "Crear Publicación",
+            label: "Publicación",
             icon: <PawPrintIcon className="flex text-right h-5 w-5" />,
         },
         {
             href: "/add-pet",
-            label: "Añadir Mascota",
+            label: "Mascota",
             icon: <DogIcon className="flex text-right h-5 w-5" />,
         },
         {
             href: "/add-product",
-            label: "Añadir Producto",
+            label: "Producto",
             icon: <BoneIcon className="flex text-right h-5 w-5" />,
         }]
     },
@@ -28,7 +28,7 @@ const pageItems = [
         name: "Voluntariado", path: "/volunteering",
         options: [{
             href: "/add-post",
-            label: "Crear Publicación",
+            label: "Publicación",
             icon: <PawPrintIcon className="flex text-right h-5 w-5" />,
         }]
     },
@@ -36,7 +36,7 @@ const pageItems = [
         name: "Adopción", path: "/adoption",
         options: [{
             href: "/add-pet",
-            label: "Añadir Mascota",
+            label: "Mascota",
             icon: <DogIcon className="flex text-right h-5 w-5" />,
         }]
     },
@@ -44,7 +44,7 @@ const pageItems = [
         name: "Extraviados", path: "/missing",
         options: [{
             href: "/add-pet",
-            label: "Añadir Mascota",
+            label: "Mascota",
             icon: <DogIcon className="flex text-right h-5 w-5" />,
         }]
     },
@@ -52,7 +52,7 @@ const pageItems = [
         name: "Blog", path: "/blog",
         options: [{
             href: "/add-post",
-            label: "Crear Publicación",
+            label: "Publicación",
             icon: <PawPrintIcon className="flex text-right h-5 w-5" />,
         }]
     },
@@ -60,7 +60,7 @@ const pageItems = [
         name: "Tienda", dpath: "/marketplace",
         options: [{
             href: "/add-product",
-            label: "Añadir Producto",
+            label: "Producto",
             icon: <BoneIcon className="flex text-right h-5 w-5" />,
         }]
     }
@@ -101,7 +101,7 @@ const FloatingActionButton = () => {
     const isMarketplacePage = pathname.includes("/marketplace");
 
     return (
-        <div className="fixed bottom-5 right-5 z-20" ref={menuRef}>
+        <div className="fixed bottom-5 right-5 z-20 flex flex-col items-end gap-2">
             {pageItems
                 .filter(page =>
                     (isDashboardPage && page.name === "Inicio") ||
@@ -130,23 +130,24 @@ const FloatingActionButton = () => {
                                             : `${index * 75}ms`,
                                     }}
                                     className={`
-                                        flex items-center text-right gap-2
-                                        px-5 py-2 rounded-full shadow-lg 
-                                        border-2 sd:md:w-[40px] md:w-[200px] lg:w-[200px]
+                                        flex items-center
+                                        px-4 py-2 rounded-full shadow-lg
+                                        border-2
                                         bg-white text-[#FFAE34] border-[#FFAE34]
                                         hover:bg-[#FFAE34] hover:text-white
                                         transform-gpu transition-all duration-300 ease-out
+                                        overflow-hidden
                                         ${isOpen
-                                            ? 'opacity-100 translate-y-0 scale-100'
-                                            : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+                                            ? 'opacity-100 translate-y-0 scale-100 justify-start w-[60px] sm:w-[180px] md:w-[200px]'
+                                            : 'opacity-0 translate-y-2 scale-95 pointer-events-none justify-center w-[40px]'
                                         }
                                     `}
                                     title={option.label}
                                 >
-                                    <div className="ml-0 flex items-center">
+                                    <div className="flex items-center justify-center">
                                         {option.icon}
                                     </div>
-                                    <span className="hidden sm:inline">{option.label}</span>
+                                    <span className="ml-2 truncate hidden sm:inline">{option.label}</span>
                                 </a>
                             </Link>
                         ))}
@@ -191,7 +192,7 @@ const FloatingActionButton = () => {
                         : 'max-w-0 ml-0 opacity-0 group-hover:max-w-xs group-hover:ml-1.5 group-hover:opacity-100 ' // Cerrado: oculto, visible en hover
                     }
                 `}>
-                    <span className="text-sm">
+                    <span className="text-base">
                         {isOpen ? 'Cerrar' : 'Crear'}
                     </span>
                 </div>
