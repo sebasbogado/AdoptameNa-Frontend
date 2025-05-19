@@ -20,7 +20,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             <p className="text-2xl text-gray-700">
                 {post ?
                     <span className="text-xl">
-                        Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
+                        Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.organizationName || post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
                         <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                     </span> :
                     <span className="flex flex-col">
