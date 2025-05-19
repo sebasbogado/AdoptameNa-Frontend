@@ -132,7 +132,7 @@ const FloatingActionButton = () => {
                                     className={`
                                         flex items-center text-right gap-2
                                         px-5 py-2 rounded-full shadow-lg 
-                                        border-2 w-[200px]
+                                        border-2 sd:md:w-[40px] md:w-[200px] lg:w-[200px]
                                         bg-white text-[#FFAE34] border-[#FFAE34]
                                         hover:bg-[#FFAE34] hover:text-white
                                         transform-gpu transition-all duration-300 ease-out
@@ -165,7 +165,11 @@ const FloatingActionButton = () => {
                     transition-all duration-300 ease-in-out
                     hover:bg-[#E09A2D]
                     hover:shadow-xl
-                    ${isOpen ? 'w-40 pr-4' : 'hover:w-24'} 
+                    outline-none ring-2 ring-[#FFAE34] ring-offset-2
+                    ${isOpen
+                        ? 'px-3 w-auto min-w-[7rem] sm:min-w-[8rem] md:min-w-[9rem]' // Abierto: padding y ancho automático con mínimo
+                        : 'w-10 hover:w-auto hover:min-w-[7rem] hover:sm:min-w-[8rem] hover:px-3' // Cerrado: w-10, en hover se expande
+                    } 
                 `}
                 aria-expanded={isOpen}
                 aria-haspopup="menu"
@@ -175,16 +179,21 @@ const FloatingActionButton = () => {
             >
                 <div className={`
                     transform transition-transform duration-300 ease-in-out
-                    ${isOpen ? 'rotate-30' : 'group-hover:rotate-90'}
+                    ${isOpen ? 'rotate-30' : 'group-hover:rotate-90'} 
                 `}>
                     {isOpen ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                 </div>
                 <div className={`
-                    overflow-hidden transition-all duration-300 ease-in-out 
-                    ${isOpen ? 'max-w-xs ml-2 opacity-100' : 'max-w-0 ml-0 opacity-0 group-hover:max-w-xs group-hover:ml-2 group-hover:opacity-100'}
-                    whitespace-nowrap
+                    overflow-hidden 
+                    transition-all duration-300 ease-in-out
+                    ${isOpen
+                        ? 'max-w-xs ml-1.5 opacity-100' // Abierto: visible
+                        : 'max-w-0 ml-0 opacity-0 group-hover:max-w-xs group-hover:ml-1.5 group-hover:opacity-100 ' // Cerrado: oculto, visible en hover
+                    }
                 `}>
-                    <span>{isOpen ? 'Cerrar' : 'Crear'}</span>
+                    <span className="text-sm">
+                        {isOpen ? 'Cerrar' : 'Crear'}
+                    </span>
                 </div>
             </button>
         </div>
