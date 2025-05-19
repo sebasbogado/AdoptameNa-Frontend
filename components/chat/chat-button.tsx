@@ -4,7 +4,8 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 import { 
   MessageCircle, 
-  Check
+  Check,
+  X
 } from "lucide-react";
 import { useChat } from "@/contexts/chat-context";
 import { useFloatingChat } from "@/contexts/floating-chat-context";
@@ -19,23 +20,36 @@ const ChatButton = () => {
   const { openChat } = useFloatingChat();
   const [open, setOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [latestMessage, setLatestMessage] = useState<{ senderName: string; content: string } | null>(null);
+  const [latestMessage, setLatestMessage] = useState<{ senderName: string; content: string; userId: number } | null>(null);
   const isFirstLoad = useRef<boolean>(true);
+  const previousUnreadCounts = useRef<Record<number, number>>({});
 
   useEffect(() => {
-    if (chatUsers.length === 0) return;
+    if (chatUsers.length === 0) {
+      previousUnreadCounts.current = {};
+      return;
+    }
     
     if (isFirstLoad.current) {
+      chatUsers.forEach(user => {
+        previousUnreadCounts.current[user.id] = user.unreadMessagesCount;
+      });
       isFirstLoad.current = false;
       return;
     }
     
-    const newMessageUser = chatUsers.find(user => user.unreadMessagesCount > 0);
+    const newMessageUser = chatUsers.find(user => {
+      const previousCount = previousUnreadCounts.current[user.id] || 0;
+      const hasNewMessages = user.unreadMessagesCount > previousCount;
+      previousUnreadCounts.current[user.id] = user.unreadMessagesCount;
+      return hasNewMessages;
+    });
     
     if (newMessageUser) {
       setLatestMessage({
         senderName: newMessageUser.name,
-        content: `Nuevo mensaje de ${newMessageUser.name}`
+        content: `Nuevo mensaje de ${newMessageUser.name}`,
+        userId: newMessageUser.id
       });
       setShowToast(true);
       
@@ -57,25 +71,54 @@ const ChatButton = () => {
     await markChatAsRead(userId);
   };
 
+  const handleToastClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.close-button')) {
+      return;
+    }
+
+    if (latestMessage) {
+      const user = chatUsers.find(u => u.id === latestMessage.userId);
+      if (user) {
+        handleChatSelect(user);
+      }
+    }
+    setShowToast(false);
+  };
+
   return (
     <>
       {showToast && latestMessage && (
-        <Alert
-          open={showToast}
-          color="purple"
-          animate={{
-            mount: { y: 0 },
-            unmount: { y: -100 },
-          }}
-          icon={<MessageCircle className="h-5 w-5" />}
-          onClose={() => setShowToast(false)}
-          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        <div 
+          onClick={handleToastClick}
+          className="fixed top-4 right-4 z-[10001] cursor-pointer transition-transform hover:scale-[1.02]"
         >
-          <div>
-            <p className="font-medium">{latestMessage.senderName}</p>
-            <p className="text-sm line-clamp-2">{latestMessage.content}</p>
-          </div>
-        </Alert>
+          <Alert
+            open={showToast}
+            color="purple"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<MessageCircle className="h-5 w-5" />}
+            action={
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowToast(false);
+                }}
+                className="!absolute top-3 right-3 p-1 hover:bg-purple-100 rounded-full close-button"
+              >
+                <X size={18} className="text-gray-500" />
+              </button>
+            }
+            className="w-72 shadow-lg !pr-12"
+          >
+            <div>
+              <p className="font-medium">{latestMessage.senderName}</p>
+              <p className="text-sm line-clamp-2">{latestMessage.content}</p>
+            </div>
+          </Alert>
+        </div>
       )}
 
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
