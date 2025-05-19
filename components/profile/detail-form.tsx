@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
   createCrowdfunding,
-  getCrowdfundings,
+  getActiveCrowdFundingByUserId,
   updateCrowdfunding,
   updateCrowdfundingStatus
 } from "@/utils/crowfunding.http";
@@ -50,6 +50,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<ResponseCrowdfundingDTO | null>(null);
   const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
 
+  const isActive = crowdfunding?.status === "ACTIVE";
 
   useEffect(() => {
     if (userAuth && userProfile?.id) {
@@ -67,10 +68,16 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
       try {
         setLoadingCrowd(true);
-        const data = await getCrowdfundings(authToken, 0, 1, userProfile.id);
-        if (data?.data?.length > 0) {
+
+        if (isOwner && isActive) {
+          const data = await getActiveCrowdFundingByUserId(authToken, userAuth?.id ?? 0);
+          setCrowdfunding(data.data[0]);
+        } else {
+          const data = await getActiveCrowdFundingByUserId(authToken, userProfile.id);
           setCrowdfunding(data.data[0]);
         }
+
+
       } catch (err) {
         console.error("Error al obtener crowdfunding:", err);
       } finally {
@@ -144,11 +151,10 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   };
 
 
+
   const renderCrowdfunding = () => {
     if (!isOrganization || loadingCrowd) return null;
 
-
-    const isActive = crowdfunding?.status === "ACTIVE";
     const isVisible = crowdfunding !== null;
     const metaAlcanzada = crowdfunding && crowdfunding.currentAmount >= crowdfunding.goal;
 
@@ -158,7 +164,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
 
     //Fase 1: Organizacion sin colecta Activa
-    if (!isVisible && isOwner && !isActive) {
+    if (isVisible && isOwner && !isActive) {
       return (
         <div className="mt-8">
           <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
