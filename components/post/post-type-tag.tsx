@@ -1,4 +1,3 @@
-import { Post } from "@/types/post";
 import { PostType } from "@/types/post-type";
 
 const getColorByPostType = (type: string): string => {

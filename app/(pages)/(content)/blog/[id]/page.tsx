@@ -1,14 +1,11 @@
 'use client'
-import { UserAvatar } from "@/components/ui/user-avatar";
 import { Post } from "@/types/post";
 import { useEffect, useState } from "react";
-import { getPost, getPosts, sharePost } from "@/utils/posts.http";
+import { getPost, sharePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
-import { formatLongDate } from "@/utils/date-format";
-import PostTypeTag from "@/components/post/post-type-tag";
 import PostButtons from "@/components/post/post-buttons";
 import HeaderUser from "@/components/blog/header-user";
 import BlogContent from "@/components/blog/blog-content";
@@ -30,7 +27,6 @@ const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateActio
 
 export default function Page() {
     const [post, setPost] = useState<Post | null>(null);
-    const [posts, setPosts] = useState<Post[]>([]);
     const [error, setError] = useState<boolean>(false);
     const params = useParams();
     const [loading, setLoading] = useState<boolean>(true);
@@ -45,16 +41,7 @@ export default function Page() {
         fetchPost(postId as string, setPost, setLoading, setError);
     }, []);
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            const posts = await getPosts({
-                size: 5,
-                page: 0,
-            });
-            setPosts(posts.data);
-        };
-        fetchPosts();
-    }, []);
+   
     const routeUserProfile = () => {
         router.push(`/profile/${post?.userId}`);
     };

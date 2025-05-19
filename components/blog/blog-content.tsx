@@ -1,7 +1,6 @@
 import Image from "next/image";
 import ForwardRefEditor from "../editor/forward-ref-editor";
 import { BlogContentProps } from "@/types/props/blogs/blog-content-props";
-import PostSidebar from "../post/post-sidebar";
 const notFoundSrc = "/logo.png"; // Default image source
 
 const BlogContent = ({ post, blogContent }: BlogContentProps) => {
