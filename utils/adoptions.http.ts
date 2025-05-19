@@ -1,6 +1,6 @@
 import { AdoptionRequest } from "@/types/adoption-request";
 import { AdoptionResponse } from "@/types/adoption-response";
-import { adoptionsResponseQueryParams, PaginatedResponse, queryParams } from "@/types/pagination";
+import { adoptionsResponseQueryParams, buildQueryParams, PaginatedResponse, queryParams } from "@/types/pagination";
 import axios from "axios";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/adoptions-requests`;
 
@@ -24,12 +24,8 @@ export const getReceivedAdoptionsRequest = async ( token: string,
   queryParams?: adoptionsResponseQueryParams
 ): Promise<PaginatedResponse<AdoptionResponse>> => {
   try {
-    const response = await axios.get(`${API_URL}`, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        sort: queryParams?.sort
-      },
+    const response = await axios.get(`${API_URL}/received-requests`, {
+      params: buildQueryParams(queryParams),
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -44,23 +40,18 @@ export const getReceivedAdoptionsRequest = async ( token: string,
   }
 };
 
-export const getSentAdoptionRequests = async (token: string,
+
+export const getMyAdoptionRequests = async (token: string,
   queryParams?:adoptionsResponseQueryParams
 ): Promise<PaginatedResponse<AdoptionResponse>> => {
   try{
-    const response = await axios.get(`${API_URL}`, {
-      params: {
-        page: queryParams?.page || 0,
-        size: queryParams?.size || 10,
-        sort: queryParams?.sort,
-        userId: queryParams?.userId,
-        isAccepted: queryParams?.isAccepted
-      },
+    const response = await axios.get(`${API_URL}/my-requests`, {
+      params: buildQueryParams(queryParams),
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });       
+        "Content-Type": "application/json"
+      }
+    });
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
@@ -80,7 +71,7 @@ export const acceptAdoptionRequest = async (id: number, token: string): Promise<
 };
 
 export const rejectAdoptionRequest = async (id: number, token: string): Promise<void> => {
-  await axios.delete(`${API_URL}/${id}`, {
+  await axios.post(`${API_URL}/${id}/reject`, {}, {
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
