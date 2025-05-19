@@ -134,7 +134,7 @@ export default function NotificationsAdminPage() {
 
       if (data.type === NotificationType.ROLE_BASED && data.targetRoleIds) {
         notificationData.targetRoleIds = data.targetRoleIds;
-      } else if (data.type === NotificationType.USER_BASED && selectedUser) {
+      } else if (data.type === NotificationType.PERSONAL && selectedUser) {
         notificationData.type = NotificationType.PERSONAL;
         notificationData.targetUserId = selectedUser.id;
         delete notificationData.targetRoleIds;
@@ -148,15 +148,12 @@ export default function NotificationsAdminPage() {
         delete notificationData.targetRoleIds;
       }
 
-      console.log("Enviando notificación:", notificationData);
-
       await createNotification(notificationData, authToken);
       setSuccessMessage("Notificación enviada correctamente");
       reset();
       setSelectedUser(null);
       handleClearSearch();
     } catch (error: any) {
-      console.error("Error al enviar notificación:", error);
       setErrorMessage(error.message || "Error al enviar notificación");
     } finally {
       setIsSubmitting(false);
@@ -226,24 +223,24 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a todos los usuarios</div>
                 </div>
               </label>
-              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.USER_BASED ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.PERSONAL ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
                 <input
                   type="radio"
-                  value={NotificationType.USER_BASED}
+                  value={NotificationType.PERSONAL}
                   {...register("type")}
                   className="sr-only"
                 />
                 <UsersRound className="h-5 w-5 text-blue-500 mr-2" />
                 <div>
-                  <div className="font-medium">Por usuario</div>
-                  <div className="text-xs text-gray-500">Enviada a usuarios específicos</div>
+                  <div className="font-medium">Personal</div>
+                  <div className="text-xs text-gray-500">Enviada a un usuario específico</div>
                 </div>
               </label>
             </div>
           </div>
 
-          {/* Selector de usuarios para USER_BASED */}
-          {notificationType === NotificationType.USER_BASED && (
+          {/* Selector de usuarios para PERSONAL */}
+          {notificationType === NotificationType.PERSONAL && (
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Seleccionar usuario</label>
               <SearchBar

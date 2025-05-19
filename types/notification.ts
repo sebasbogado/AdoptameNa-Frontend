@@ -1,8 +1,7 @@
 export enum NotificationType {
   PERSONAL = "PERSONAL",
   ROLE_BASED = "ROLE_BASED",
-  GLOBAL = "GLOBAL",
-  USER_BASED = "USER_BASED"
+  GLOBAL = "GLOBAL"
 }
 
 export interface Notification {
