@@ -9,6 +9,7 @@ export interface NotificationContextType {
   loading: boolean;
   fetchBellNotifications: () => Promise<void>;
   markAsRead: (id: number) => Promise<void>;
+  markAllAsRead: () => Promise<void>;
 }
 
 export const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
