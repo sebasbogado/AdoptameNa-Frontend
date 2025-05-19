@@ -17,8 +17,6 @@ import Link from "next/link";
 import SearchBar from "@/components/search-bar";
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from "@/contexts/auth-context";
-import LocationFilter from "@/components/filters/location-filter";
-import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { useParams } from "next/navigation";
 
 export default function Page() {
@@ -28,11 +26,9 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
     const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
 
     const [categories, setCategories] = useState<ProductCategory[]>([]);
-    const [allPrices, setAllPrices] = useState<number[]>([]);
 
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
@@ -43,9 +39,7 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [inputValue, setInputValue] = useState<string>("");
-    const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
-    const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
 
     const debouncedSearch = useDebounce((value: string) => {
@@ -158,30 +152,21 @@ export default function Page() {
             search: searchQuery || undefined,
             minPrice,
             maxPrice,
-            ...locationFilters
         };
 
         console.log("filters", filters);
 
         updateFilters(filters);
-    }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
+    }, [selectedCategory, selectedAnimal, selectedCondition, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
 
-    const handleLocationFilterChange = useCallback(
-        (filters: Record<string, any>, type: LocationFilterType | null) => {
-            setLocationFilters(filters);
-            setLocationType(type);
-            setFilterChanged(prev => !prev);
-        },
-        []
-    );
+  
     const resetFilters = () => {
         setSelectedCategory(null);
         setSelectedCondition(null);
         setSelectedAnimal(null);
         setMinPrice(null);
         setMaxPrice(null);
-        setLocationType(null); // ← nuevo
-        setLocationFilters({});
+       
         updateFilters({});
         setInputValue("");
         setSearchQuery("");
@@ -204,21 +189,13 @@ export default function Page() {
 
                 <div
                     className={`
-                        grid grid-cols-1 md:grid-cols-2
-                        ${user?.location ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}
-                        gap-x-6 gap-y-6
+                        flex
+                        justify-center
+                        items-center
+                        gap-10
                         px-4 md:px-0
                     `}>
-                    {user?.location ? (
-                        <LocationFilter
-                            user={user}
-                            locationType={locationType}
-                            setLocationType={setLocationType}
-                            onFilterChange={handleLocationFilterChange}
-                        />
-                    ) : (
-                        <div className="hidden lg:w-1/2 flex-shrink-0"></div>
-                    )}
+                    
 
                     <LabeledSelect
                         label="Categorías"
@@ -254,7 +231,7 @@ export default function Page() {
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
                     />
-                    <div className="flex items-end justify-start">
+                    <div className="flex items-center mt-6 justify-start">
                         <button
                             onClick={resetFilters}
                             title="Limpiar filtros"
