@@ -66,7 +66,7 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
 
  return (
     <Link
-      href={`/blog/${post.id}`}
+      href={`/posts/${post.id}`}
       className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full h-96 sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
     >
       <div className="absolute top-2 right-2 z-10">
@@ -78,7 +78,7 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
       </div>
 
       <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
-        <CardImage media={post.media?.[0]} isBlogCard className="h-full w-full object-cover" />
+        <CardImage media={post.media?.[0]} className="h-full w-full object-cover" />
       </div>
 
       <div className="p-4 md:p-6 flex flex-col justify-between w-full">

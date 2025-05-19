@@ -26,10 +26,9 @@ interface PostButtonsProps {
     isPet?: boolean;
     onShare?: () => void;
     postIdUser?: number; //id user owner
-    sizeButton?: "xs" | "sm" | "md" | "lg";
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -159,18 +158,17 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
         }
     };
     return (
-        <div className=" gap-3 flex justify-end relative pr-12">
+        <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
             {isPet && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
                 </Button>
             )}
-            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
 
             {isEditing && (
                 <div className="relative inline-block text-left">
                     <EditButton
-                        size={sizeButton}
+                        size="lg"
                         isEditing={false}
                         id="edit-button"
                         onClick={() => {
@@ -224,7 +222,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
             )}
 
             <div className="relative">
-                <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
+                <SendButton size="lg" onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
                         color="gray"
@@ -235,6 +233,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
                 )}
             </div>
 
+            <ReportButton size="lg" idEntity={postId} isPet={isPet} />
 
             <div className="relative">
                 {!isPet && (
