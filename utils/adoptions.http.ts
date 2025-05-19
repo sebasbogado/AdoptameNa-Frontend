@@ -1,6 +1,6 @@
 import { AdoptionRequest } from "@/types/adoption-request";
 import { AdoptionResponse } from "@/types/adoption-response";
-import { adoptionsResponseQueryParams, buildQueryParams, PaginatedResponse, queryParams } from "@/types/pagination";
+import { adoptionsResponseQueryParams, buildQueryParams, PaginatedResponse } from "@/types/pagination";
 import axios from "axios";
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/adoptions-requests`;
 
