@@ -70,6 +70,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
     "/missing",
     "/blog",
     "/marketplace",
+    "/crowdfunding",
   ];
   const showCarousel = allowedRoutes.includes(pathname);
   const showBanners = allowedRoutes.includes(pathname);

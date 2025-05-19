@@ -355,201 +355,193 @@ export default function Page() {
 
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <NewBanner
-                medias={selectedImages}
-            />
-            <div className="flex gap-2 mt-2 justify-center items-center">
-                {selectedImages.map((src, index) => (
-                    <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        {src.url && (
-                            <>
-                                <Image
-                                    src={src.url}
-                                    alt="post-image"
-                                    fill
-                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    unoptimized
-                                />
-                                {/* Botón de eliminación */}
-                                <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                    title="Eliminar imagen"
-                                >
-                                    ✕
-                                </button>
-                            </>
-                        )}
-                    </div>
-                ))}
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleImageUpload}
-                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-                />
-                <label
-                    htmlFor="fileInput"
-                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                        } bg-white`}
+        <div className="container mx-auto px-4 py-8">
+            <div className="mb-4">
+                <button
+                    onClick={() => router.push(`/posts/${postId}`)}
+                    className="text-gray-600 hover:text-gray-800"
                 >
-                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-                </label>
+                    ← Volver
+                </button>
             </div>
-
-            {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setErrorMessage("")}>
-                        {errorMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {precautionMessage && (
-                <div>
-                    <Alert
-                        color="orange"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setPrecautionMessage("")}>
-                        {precautionMessage}
-                    </Alert>
-                </div>
-            )}
-
+            <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
+                <NewBanner medias={selectedImages} />
+            </div>
             {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
+                <Alert className="mb-4" color="green">
+                    {successMessage}
+                </Alert>
             )}
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {/* Tipo de publicación */}
-                <select
-                    {...register("postTypeId", { valueAsNumber: true })}
-                    className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
-                >
-                    <option value={0}>Seleccione un tipo</option>
-                    {postTypes.map((type) => (
-                        <option key={type.id} value={type.id}>{type.name}</option>
+            {errorMessage && (
+                <Alert className="mb-4" color="red">
+                    {errorMessage}
+                </Alert>
+            )}
+            {precautionMessage && (
+                <Alert className="mb-4" color="amber">
+                    {precautionMessage}
+                </Alert>
+            )}
+            <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+                <div className="flex gap-2 mt-2 justify-center items-center">
+                    {selectedImages.map((src, index) => (
+                        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+                            {src.url && (
+                                <>
+                                    <Image
+                                        src={src.url}
+                                        alt="post-image"
+                                        fill
+                                        className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                        onClick={() => setCurrentImageIndex(index)}
+                                        unoptimized
+                                    />
+                                    {/* Botón de eliminación */}
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                                        title="Eliminar imagen"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     ))}
-                </select>
-                {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
-
-                {/* Título */}
-                <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    {...register("title")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
-                />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-
-                {/* Tags (MultiSelect) */}
-                <label className="block text-sm font-medium">Tags</label>
-                <MultiSelect
-                    options={filteredTags} // <-- Usa los tags filtrados
-                    selected={selectedTags}
-                    onChange={(selected) => {
-                        setSelectedTags(selected);
-                        setValue("tagIds", selected.map((animal) => animal.id));
-                    }}
-                    placeholder="Seleccionar tags"
-                />
-                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
-
-                {/* Descripción */}
-                <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
-                <textarea
-                    {...register("content")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                />
-                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-
-                {/* Contacto */}
-                <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
-                <input
-                    type="text"
-                    {...register("contactNumber")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                />
-                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-                {/* Mapa */}
-                <div
-                    className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                >
-                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                </div>
-                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
-
-                <div className="flex justify-between items-center mt-6 gap-10">
-                    <Button
-                        type="button"
-                        variant="danger"
-                        size="md"
-                        className="rounded hover:bg-red-700"
-                        onClick={openDeleteModal}
-                        disabled={loading}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        id="fileInput"
+                        onChange={handleImageUpload}
+                        disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
+                    />
+                    <label
+                        htmlFor="fileInput"
+                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                            } bg-white`}
                     >
-                        {loading ? 'Eliminando...' : 'Eliminar publicación'}
-                    </Button>
+                        <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+                    </label>
+                </div>
 
-                    <div className="flex gap-4">
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    {/* Tipo de publicación */}
+                    <select
+                        {...register("postTypeId", { valueAsNumber: true })}
+                        className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
+                    >
+                        <option value={0}>Seleccione un tipo</option>
+                        {postTypes.map((type) => (
+                            <option key={type.id} value={type.id}>{type.name}</option>
+                        ))}
+                    </select>
+                    {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+
+                    {/* Título */}
+                    <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        {...register("title")}
+                        className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
+                    />
+                    {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+
+                    {/* Tags (MultiSelect) */}
+                    <label className="block text-sm font-medium">Tags</label>
+                    <MultiSelect
+                        options={filteredTags} // <-- Usa los tags filtrados
+                        selected={selectedTags}
+                        onChange={(selected) => {
+                            setSelectedTags(selected);
+                            setValue("tagIds", selected.map((animal) => animal.id));
+                        }}
+                        placeholder="Seleccionar tags"
+                    />
+                    {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
+
+                    {/* Descripción */}
+                    <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
+                    <textarea
+                        {...register("content")}
+                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+                    />
+                    {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+
+                    {/* Contacto */}
+                    <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        {...register("contactNumber")}
+                        className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+                    />
+                    {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+
+                    {/* Mapa */}
+                    <div
+                        className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                    >
+                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                    </div>
+                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+
+                    <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
                             type="button"
-                            variant="tertiary"
-                            className="border rounded text-gray-700 hover:bg-gray-100"
-                            onClick={handleCancel}
+                            variant="danger"
+                            size="md"
+                            className="rounded hover:bg-red-700"
+                            onClick={openDeleteModal}
                             disabled={loading}
                         >
-                            Cancelar
+                            {loading ? 'Eliminando...' : 'Eliminar publicación'}
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_IMAGES}
-                        >
-                            {loading ? "Editando..." : "Confirmar cambios"}
-                        </Button>
+
+                        <div className="flex gap-4">
+                            <Button
+                                type="button"
+                                variant="tertiary"
+                                className="border rounded text-gray-700 hover:bg-gray-100"
+                                onClick={handleCancel}
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="cta"
+                                className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                                disabled={loading || selectedTags.length >= MAX_IMAGES}
+                            >
+                                {loading ? "Editando..." : "Confirmar cambios"}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
 
-            {isEditModalOpen &&
-                <ConfirmationModal
-                    isOpen={isEditModalOpen}
-                    title="Confirmar cambios"
-                    message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
-                    textConfirm="Confirmar cambios"
-                    confirmVariant="cta"
-                    onClose={closeModal}
-                    onConfirm={confirmSubmit}
-                />}
+                {isEditModalOpen &&
+                    <ConfirmationModal
+                        isOpen={isEditModalOpen}
+                        title="Confirmar cambios"
+                        message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
+                        textConfirm="Confirmar cambios"
+                        confirmVariant="cta"
+                        onClose={closeModal}
+                        onConfirm={confirmSubmit}
+                    />}
 
-            {isDeleteModalOpen &&
-                <ConfirmationModal
-                    isOpen={isDeleteModalOpen}
-                    title="Confirmar eliminación"
-                    message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
-                    textConfirm="Eliminar"
-                    confirmVariant="danger"
-                    onClose={closeModal}
-                    onConfirm={handleDelete}
-                />}
+                {isDeleteModalOpen &&
+                    <ConfirmationModal
+                        isOpen={isDeleteModalOpen}
+                        title="Confirmar eliminación"
+                        message="¿Estás seguro de que deseas eliminar esta publicación? Esta acción no se puede deshacer."
+                        textConfirm="Eliminar"
+                        confirmVariant="danger"
+                        onClose={closeModal}
+                        onConfirm={handleDelete}
+                    />}
+            </div>
         </div>
     );
 }
