@@ -65,10 +65,17 @@ const FloatingChatButton = () => {
   const canLoadMore = selectedChat && hasMoreMessages(selectedChat.id);
   
   return (
-    <div className="fixed bottom-4 right-16 z-40">
-      {isOpen && (
-        <div className="bg-white rounded-lg shadow-xl overflow-hidden w-80 h-96 mb-4 flex flex-col transition-all duration-300">
-          <div className="bg-purple-500 text-white p-3 flex justify-between items-center">
+    <div className="fixed bottom-4 right-16 z-50">
+      <div 
+        className={`
+          absolute bottom-0 right-2 mb-16
+          transform transition-all duration-300 ease-in-out origin-bottom-right
+          ${!isOpen ? 'opacity-0 scale-95 pointer-events-none translate-y-4' : 'opacity-100 scale-100 translate-y-0'}
+          ${isMinimized ? 'h-0 opacity-0' : 'h-96'}
+        `}
+      >
+        <div className="bg-white rounded-lg shadow-xl overflow-hidden w-80 flex flex-col h-full">
+          <div className="bg-[var(--color-primary-brand-color)] text-white p-3 flex justify-between items-center">
             <div className="flex items-center gap-2">
               {selectedChat ? (
                 <div className="relative">
@@ -84,13 +91,13 @@ const FloatingChatButton = () => {
             <div className="flex space-x-2">
               <button 
                 onClick={minimizeChat}
-                className="text-white hover:bg-purple-600 rounded p-1"
+                className="text-white hover:bg-purple-400 rounded p-1"
               >
                 <ChevronDown size={18} />
               </button>
               <button 
                 onClick={closeChat}
-                className="text-white hover:bg-purple-600 rounded p-1"
+                className="text-white hover:bg-purple-400 rounded p-1"
               >
                 <X size={18} />
               </button>
@@ -130,12 +137,12 @@ const FloatingChatButton = () => {
             </div>
           )}
         </div>
-      )}
+      </div>
       
       {isVisible && (
         <button 
           onClick={handleOpenChat}
-          className="bg-gradient-to-r from-purple-600 to-purple-400 hover:from-purple-700 hover:to-purple-500 text-white rounded-lg px-4 py-2.5 flex items-center justify-between shadow-lg relative transition-all duration-300 hover:shadow-xl border border-purple-300"
+          className="bg-[var(--color-primary-brand-color)] hover:bg-purple-400 text-white rounded-lg px-4 py-2.5 flex items-center justify-between shadow-lg relative transition-all duration-300 ease-in-out hover:shadow-xl border border-purple-300 hover:scale-105 right-2"
         >
           <div className="flex items-center gap-2">
             <div className="relative">
