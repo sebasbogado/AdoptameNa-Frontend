@@ -15,7 +15,7 @@ type AdoptionRequestCardProps = {
   requesterEmail?: string;
   onAccept?: (id: number) => void;
   onReject?: (id: number) => void;
-  status?: boolean;
+  status?: "PENDING" | "ACCEPTED" | "REJECTED";
   className?: string;
   requestId?: number;
   requesterBreed?: string;
@@ -53,12 +53,12 @@ export default function AdoptionRequestCard({
         {requesterEmail && <p><strong>Correo:</strong> {requesterEmail}</p>}
       </div>
 
-      {onAccept && onReject && (
+      {onAccept && onReject && status === "PENDING" && (
         <div className="m-4 flex gap-2 justify-center">
-          <Button size="sm"  onClick={(event) => {
+          <Button size="sm" onClick={(event) => {
             event.preventDefault();
             onAccept?.(requestId!);
-          }}  className="flex items-center justify-center">
+          }} className="flex items-center justify-center">
             <CheckIcon className="w-3 h-3 mr-2 text-white" strokeWidth={4} />
             Aceptar
           </Button>
@@ -72,17 +72,22 @@ export default function AdoptionRequestCard({
         </div>
       )}
 
-      {status !== undefined && (
+      {status && (
         <div className="px-4 pb-4 flex items-center gap-2">
-          {status ? (
+          {status === "ACCEPTED" ? (
             <>
               <CheckCircle className="text-green-600 w-4 h-4" />
               <p className="text-sm font-semibold text-green-600">Solicitud aceptada</p>
             </>
+          ) : status === "REJECTED" ? (
+            <>
+              <XIcon className="text-red-500 w-4 h-4" />
+              <p className="text-sm font-semibold text-red-500">Solicitud rechazada</p>
+            </>
           ) : (
             <>
-              <Hourglass className="text-red-500 w-4 h-4 animate-pulse" />
-              <p className="text-sm font-semibold text-red-500">Pendiente</p>
+              <Hourglass className="text-yellow-500 w-4 h-4 animate-pulse" />
+              <p className="text-sm font-semibold text-yellow-500">Pendiente</p>
             </>
           )}
         </div>
