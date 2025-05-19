@@ -4,4 +4,5 @@ export interface Media {
     url: string;
     userId: number;
     uploadDate: string;
+    alt?: string;
 }
