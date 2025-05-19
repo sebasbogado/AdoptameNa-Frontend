@@ -68,7 +68,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
       try {
         setLoadingCrowd(true);
-
         if (isOwner && isActive) {
           const data = await getActiveCrowdFundingByUserId(authToken, userAuth?.id ?? 0);
           setCrowdfunding(data.data[0]);
@@ -79,7 +78,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
 
       } catch (err) {
-        console.error("Error al obtener crowdfunding:", err);
+        setErrorMessage?.("Ocurrió un error al obtener la colecta.");
       } finally {
         setLoadingCrowd(false);
       }
@@ -134,7 +133,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       );
       setCrowdfunding(updated);
     } catch (err) {
-      console.error("Error al actualizar la recaudación", err);
+      setErrorMessage?.("Ocurrió un error al actualizar la colecta.");
     }
   };
 
@@ -145,7 +144,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       setCrowdfunding({ ...crowdfunding, status: "CLOSED" });
       setSuccessMessage?.("Colecta finalizada con éxito.");
     } catch (err) {
-      console.error("Error al cerrar la recaudación", err);
       setErrorMessage?.("Ocurrió un error al finalizar la colecta.");
     }
   };
@@ -214,17 +212,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                 >
                   Finalizar
                 </button>
-
-                {/* <button
-                type="button"
-                className="bg-[#4781ff] hover:bg-[#3569e6] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
-                onClick={() => {
-                  setCrowdfundingToEdit(crowdfunding);
-                  setIsModalOpen(true);
-                }}
-              >
-                Modificar
-              </button> */}
 
                 <button
                   type="button"
@@ -367,8 +354,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           setIsModalOpen(false);
           setCrowdfundingToEdit(null);
         }}
-        setSuccessMessage={(msg) => console.log("✅", msg)}
-        setErrorMessage={(msg) => console.error("❌", msg)}
+        setSuccessMessage={() => { }}
+        setErrorMessage={(msg) => console.error(msg)}
       />
 
       <ConfirmationModal
@@ -401,8 +388,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             setCrowdfunding(updated);
             setIsUpdateAmountOpen(false);
           }}
-          setSuccessMessage={(msg) => console.log("✅", msg)}
-          setErrorMessage={(msg) => console.error("❌", msg)}
+          setSuccessMessage={() => { }}
+          setErrorMessage={(msg) => console.error(msg)}
         />
       )}
     </div>
