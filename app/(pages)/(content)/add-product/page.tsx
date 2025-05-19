@@ -21,6 +21,7 @@ import { createProduct } from "@/utils/product.http";
 import { getFullUser } from "@/utils/user-profile.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { Media } from "@/types/media";
+import { MediaDTO } from "@/types/user-profile";
 import Image from "next/image";
 import { Alert } from "@material-tailwind/react";
 import { ImagePlus } from "lucide-react";

@@ -569,17 +569,16 @@ export default function Page() {
                         onConfirm={confirmSubmit}
                     />}
 
-                {isDeleteModalOpen &&
-                    <ConfirmationModal
-                        isOpen={isDeleteModalOpen}
-                        title="Confirmar eliminación"
-                        message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
-                        textConfirm="Eliminar"
-                        confirmVariant="danger"
-                        onClose={closeModal}
-                        onConfirm={handleDelete}
-                    />}
-            </div>
+            {isDeleteModalOpen &&
+                <ConfirmationModal
+                    isOpen={isDeleteModalOpen}
+                    title="Confirmar eliminación"
+                    message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
+                    textConfirm="Eliminar"
+                    confirmVariant="danger"
+                    onClose={closeModal}
+                    onConfirm={handleDelete}
+                />}
         </div>
     );
 }

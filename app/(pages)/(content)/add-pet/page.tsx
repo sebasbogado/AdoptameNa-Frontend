@@ -46,8 +46,6 @@ export default function Page() {
   const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const bannerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const MAX_IMAGES = 5; //Tam max de imagenes
   const {
     register,
@@ -68,8 +66,6 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
-      //edad: 0,
-      //peso: 0,
     },
   });
 
@@ -194,46 +190,10 @@ export default function Page() {
     }
   };
 
-  const adjustImageSize = () => {
-    if (!bannerRef.current) return;
-
-    const images = bannerRef.current.querySelectorAll("img");
-    images.forEach((img) => {
-      if (document.fullscreenElement) {
-        img.style.width = "100vw";
-        img.style.height = "100vh";
-        img.style.objectFit = "contain"; // Asegura que la imagen se vea completa sin cortes
-        setIsFullscreen(true);
-      } else {
-        img.style.width = "";
-        img.style.height = "";
-        img.style.objectFit = "";
-        setIsFullscreen(false);
-      }
-    });
-  };
-
   const handlePositionChange = (newPosition: [number, number]) => {
-    setPosition(newPosition); // Actualiza el petStatusId local
-    setValue("addressCoordinates", newPosition); // Actualiza el formulario
+    setPosition(newPosition);
+    setValue("addressCoordinates", newPosition);
   };
-
-  const toggleFullScreen = () => {
-    if (!bannerRef.current) return;
-
-    if (!document.fullscreenElement) {
-      bannerRef.current.requestFullscreen()
-        .then(() => adjustImageSize())
-        .catch((err) => console.error("Error al activar pantalla completa:", err));
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("fullscreenchange", adjustImageSize);
-    return () => document.removeEventListener("fullscreenchange", adjustImageSize);
-  }, []);
 
   useEffect(() => {
     if (authLoading || !authToken || !user?.id) return;
@@ -283,221 +243,239 @@ export default function Page() {
   };
 
   return (
-    <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
-      <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
-        <NewBanner
-          medias={selectedImages}
-        />
-        <button
-          onClick={toggleFullScreen}
-          className="absolute top-2 right-24 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-        >
-          <Maximize size={20} />
-        </button>
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+      {/* Fondo de imagen + overlay violeta */}
+      <div
+        className="fixed inset-0 -z-50"
+        style={{
+          backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',          
+        }}
+      >
+        <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
       </div>
-      <div className="flex gap-2 mt-2 justify-center items-center">
-        {selectedImages.map((img, index) => (
-          <div key={index} className="relative w-24 h-24 group">
-            {/* Imagen */}
-            <Image
-              src={img.url}
-              alt="pet"
-              fill
-              className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-              onClick={() => setCurrentImageIndex(index)}
-            />
 
-            {/* Botón de eliminación */}
-            <button
-              onClick={() => handleRemoveImage(index)}
-              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-            >
-              ✕
-            </button>
+      {/* Card del formulario */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+        <div className="flex items-center gap-2 mb-16">
+          <button
+            type="button"
+            aria-label="Volver"
+            onClick={() => router.push('/profile')}
+            className="text-text-primary hover:text-gray-700 focus:outline-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-text-primary">Nueva mascota</h1>
+        </div>
+        <NewBanner medias={selectedImages} />
+        <div className="flex gap-2 mt-2 justify-center items-center">
+          {selectedImages.map((img, index) => (
+            <div key={index} className="relative w-24 h-24 group">
+              {/* Imagen */}
+              <Image
+                src={img.url}
+                alt="pet"
+                fill
+                className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                onClick={() => setCurrentImageIndex(index)}
+              />
+
+              {/* Botón de eliminación */}
+              <button
+                onClick={() => handleRemoveImage(index)}
+                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            multiple
+            className="hidden"
+            id="fileInput"
+            onChange={handleImageUpload}
+            disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
+          />
+          <label
+            htmlFor="fileInput"
+            className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+              } bg-white`}
+          >
+            <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+          </label>
+        </div>
+
+        {errorMessage && (
+          <div>
+            <Alert
+              color="red"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setErrorMessage("")}>
+              {errorMessage}
+            </Alert>
           </div>
-        ))}
+        )}
 
-        <input
-          type="file"
-          accept="image/png, image/jpeg, image/webp"
-          multiple
-          className="hidden"
-          id="fileInput"
-          onChange={handleImageUpload}
-          disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-        />
-        <label
-          htmlFor="fileInput"
-          className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-            } bg-white`}
-        >
-          <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-        </label>
-      </div>
+        {precautionMessage && (
+          <div>
+            <Alert
+              color="orange"
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+              onClose={() => setPrecautionMessage("")}>
+              {precautionMessage}
+            </Alert>
+          </div>
+        )}
 
-      {errorMessage && (
-        <div>
-          <Alert
-            color="red"
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-            onClose={() => setErrorMessage("")}>
-            {errorMessage}
-          </Alert>
-        </div>
-      )}
+        {successMessage && (
+          <div>
+            <Alert
+              color="green"
+              onClose={() => setSuccessMessage("")}
+              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+              {successMessage}
+            </Alert>
+          </div>
+        )}
 
-      {precautionMessage && (
-        <div>
-          <Alert
-            color="orange"
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-            onClose={() => setPrecautionMessage("")}>
-            {precautionMessage}
-          </Alert>
-        </div>
-      )}
-
-      {successMessage && (
-        <div>
-          <Alert
-            color="green"
-            onClose={() => setSuccessMessage("")}
-            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-            {successMessage}
-          </Alert>
-        </div>
-      )}
-
-      {/* Wrapped Card Component */}
-      <section className="p-8">
-        <CardContent >
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-            <div className="w-fit mb-2">
-              <label className="block mb-1">Estado de la mascota</label>
-              <select className="w-full p-2 border rounded" {...register("petStatusId", { valueAsNumber: true })}>
-                <option value="0">Seleccione el estado del animal</option>
-                {petsStatus?.map((a, i) => (
-                  <option key={i} value={a.id}>{a.name}</option>
-                ))}
-              </select>
-              {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
-            </div>
-
-                {/* Tipo de Animal */}
-                <div className="w-fit mb-2">
-                  <label className="block mb-1">Tipo de Animal</label>
-                  <select className="w-full p-2 border rounded" {...register("animalId", { valueAsNumber: true })}>
-                    <option value="0">Seleccione el tipo de animal</option>
-                    {animals?.map((a, i) => (
-                      <option key={i} value={a.id}>{a.name}</option>
-                    ))}
-                  </select>
-                  {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
-                </div>
-
-            {/* breedId */}
-            <div className="w-fit mb-2">
-              <label className="block mb-1">Raza</label>
-              <select className="w-full p-2 border rounded" {...register("breedId", { valueAsNumber: true })}>
-                <option value="0">Seleccione la raza</option>
-                {breed?.filter((b) => b.animalId === watch("animalId")) // Filtra por tipo de animal
-                  .map((b, i) => (
-                    <option key={i} value={b.id}>{b.name}</option>
+        {/* Wrapped Card Component */}
+        <section className="p-8">
+          <CardContent >
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+              <div className="w-1/3 mb-2">
+                <label className="block mb-1">Estado de la mascota</label>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("petStatusId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione el estado del animal</option>
+                  {petsStatus?.map((a, i) => (
+                    <option key={i} value={a.id}>{a.name}</option>
                   ))}
-              </select>
-              {errors.breedId && <p className="text-red-500">{errors.breedId.message}</p>}
-            </div>
-
-            {/* Título */}
-            <div className="mb-2">
-              <label className="block mb-1">Nombre</label>
-              <input className="w-2/4 p-2 border rounded" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
-              {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-            </div>
-
-            {/* Descripción */}
-            <div className="mb-2">
-              <label className="block mb-1">Descripción</label>
-              <textarea className="w-full p-2 border rounded" placeholder="Descripción" {...register("description")} maxLength={500} />
-              {errors.description && <p className="text-red-500">{errors.description.message}</p>}
-            </div>
-
-            {/* Fecha de cumpleanhos */}
-            <div className="mb-2">
-              <label className="block mb-1">Fecha de cumpleaños</label>
-              <input type="date" className="w-1/3 p-2 border rounded" {...register("birthdate")} />
-              {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
-            </div>
-
-            {/* Género */}
-            <div className="flex gap-4 items-center mb-2">
-              <div className="flex gap-2">
-              <input type="radio" value="MALE" {...register("gender")} />
-              <label>Macho</label>
+                </select>
+                {errors.petStatusId && <p className="text-red-500">{errors.petStatusId.message}</p>}
               </div>
-              <div className="flex gap-2">
-              <input type="radio" value="FEMALE" {...register("gender")} />
-              <label>Hembra</label>
-              </div>
-            </div>
 
-                {/* isVaccinated */}
-                <div className="flex gap-2 items-center mb-2">
-                <input type="checkbox" {...register("isVaccinated")} />
-                  <label>Está desparasitado</label>
-                  {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
+              {/* Tipo de Animal */}
+              <div className="w-1/3 mb-2">
+                <label className="block mb-1">Tipo de Animal</label>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("animalId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione el tipo de animal</option>
+                  {animals?.map((a, i) => (
+                    <option key={i} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+                {errors.animalId && <p className="text-red-500">{errors.animalId.message}</p>}
+              </div>
+
+              {/* breedId */}
+              <div className="w-1/3 mb-2">
+                <label className="block mb-1">Raza</label>
+                <select className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("breedId", { valueAsNumber: true })}>
+                  <option value="0">Seleccione la raza</option>
+                  {breed?.filter((b) => b.animalId === watch("animalId")) // Filtra por tipo de animal
+                    .map((b, i) => (
+                      <option key={i} value={b.id}>{b.name}</option>
+                    ))}
+                </select>
+                {errors.breedId && <p className="text-red-500">{errors.breedId.message}</p>}
+              </div>
+
+              {/* Título */}
+              <div className="mb-2">
+                <label className="block mb-1">Nombre</label>
+                <input className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" placeholder="Nombre de la mascota" {...register("name")} maxLength={200} />
+                {errors.name && <p className="text-red-500">{errors.name.message}</p>}
+              </div>
+
+              {/* Descripción */}
+              <div className="mb-2">
+                <label className="block mb-1">Descripción</label>
+                <textarea className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" placeholder="Descripción" {...register("description")} maxLength={500} />
+                {errors.description && <p className="text-red-500">{errors.description.message}</p>}
+              </div>
+
+              {/* Fecha de cumpleanhos */}
+              <div className="mb-2">
+                <label className="block mb-1">Fecha de cumpleaños</label>
+                <input type="date" className="w-1/5 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]" {...register("birthdate")} />
+                {errors.birthdate && <p className="text-red-500">{errors.birthdate.message}</p>}
+              </div>
+
+              {/* Género */}
+              <div className="flex gap-4 items-center mb-2">
+                <div className="flex gap-2">
+                <input type="radio" value="MALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
+                <label>Macho</label>
                 </div>
-
-                {/* isSterilized */}
-                <div className="flex gap-2 items-center mb-2">
-                  <input type="checkbox" {...register("isSterilized")} />
-                  <label>Está esterilizado</label>
-                  {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
+                <div className="flex gap-2">
+                <input type="radio" value="FEMALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
+                <label>Hembra</label>
                 </div>
-
-            {/* Mapa */}
-            <div
-              className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
-            >
-              <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end items-center mt-6 w-full">
-              <div className="flex gap-4">
-                <Button
-                  variant="tertiary"
-                  className="border rounded text-gray-700"
-                  type="button"
-                  onClick={handleCancel}
-                >
-                  Cancelar
-                </Button>
-
-                <Button
-                  type="submit"
-                  variant="cta"
-                  disabled={isSubmitting}
-                  className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
-                    }`}
-                >
-                  {isSubmitting ? "Creando..." : "Crear"}
-                </Button>
               </div>
-            </div>
-          </form>
-        </CardContent>
-      </section>
-      <ConfirmationModal
-        isOpen={isModalOpen}
-        title="Confirmar creación"
-        message="¿Estás seguro de que deseas crear esta mascota?"
-        textConfirm="Confirmar"
-        confirmVariant="cta"
-        onClose={closeModal}
-        onConfirm={confirmSubmit}
-      />
+
+              {/* isVaccinated */}
+              <div className="flex gap-2 items-center mb-2">
+              <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isVaccinated")} />
+                <label>Está desparasitado</label>
+                {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
+              </div>
+
+              {/* isSterilized */}
+              <div className="flex gap-2 items-center mb-2">
+                <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
+                <label>Está esterilizado</label>
+                {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
+              </div>
+
+              {/* Mapa */}
+              <div
+                className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+              >
+                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end items-center mt-6 w-full">
+                <div className="flex gap-4">
+                  <Button
+                    variant="tertiary"
+                    className="border rounded text-gray-700"
+                    type="button"
+                    onClick={handleCancel}
+                  >
+                    Cancelar
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    variant="cta"
+                    disabled={isSubmitting}
+                    className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+                      }`}
+                  >
+                    {isSubmitting ? "Creando..." : "Crear"}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </CardContent>
+        </section>
+        <ConfirmationModal
+          isOpen={isModalOpen}
+          title="Confirmar creación"
+          message="¿Estás seguro de que deseas crear esta mascota?"
+          textConfirm="Confirmar"
+          confirmVariant="cta"
+          onClose={closeModal}
+          onConfirm={confirmSubmit}
+        />
+      </div>
     </div>
   );
 };
