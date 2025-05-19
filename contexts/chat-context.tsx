@@ -55,26 +55,40 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           return prev;
         }
 
-        const newMessages = [...conversationMessages, message];
-
         return {
           ...prev,
-          [targetUserId]: newMessages,
+          [targetUserId]: [...conversationMessages, message],
         };
       });
 
       setChatUsers((prev) => {
-        const userIndex = prev.findIndex((u) => u.id === targetUserId);
-
-        if (userIndex === -1) {
-          return prev;
+        const existingUser = prev.find((u) => u.id === targetUserId);
+        if (!existingUser) {
+          const newUser: UserDTO = {
+            id: targetUserId,
+            name:
+              senderId === currentUserId
+                ? message.recipientName
+                : message.senderName,
+            email: "",
+            online: false,
+            unreadMessagesCount: senderId === currentUserId ? 0 : 1,
+          };
+          return [...prev, newUser];
         }
 
+        if (senderId !== currentUserId) {
+          return prev.map((u) =>
+            u.id === targetUserId
+              ? { ...u, unreadMessagesCount: u.unreadMessagesCount + 1 }
+              : u
+          );
+        }
         return prev;
       });
 
-      if (senderId !== currentUserId) {
-        getUserChats(authToken || "")
+      if (authToken) {
+        getUserChats(authToken)
           .then((users) => {
             if (users) {
               setChatUsers(users);
@@ -82,7 +96,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           })
           .catch((err) => {
             console.error(
-              "Error al actualizar la lista de usuarios después de recibir un mensaje:",
+              "Error updating chat users after receiving message:",
               err
             );
           });
@@ -156,7 +170,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       setChatUsers(
         users.map((user) => ({
           ...user,
-          online: user.online || false, // Asegurarse de que el estado online esté presente
+          online: user.online || false,
         }))
       );
 
@@ -397,6 +411,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     loadMoreMessages,
     markChatAsRead,
     hasMoreMessages,
+    setChatUsers,
   };
 
   return (
