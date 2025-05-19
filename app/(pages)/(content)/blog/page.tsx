@@ -1,9 +1,7 @@
 "use client";
 
-import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
-import PetCard from "@/components/petCard/pet-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";

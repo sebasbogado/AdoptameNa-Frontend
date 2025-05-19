@@ -28,6 +28,7 @@ import ImageHeader from '@/components/image-header';
 import HeaderImage from '@/components/image-header';
 import { Product } from '@/types/product';
 import { getProducts } from '@/utils/product.http';
+import EditProfileModal from '@/components/profile/edit-profile-modal'
 
 type ErrorsType = {
     user: boolean;
@@ -39,7 +40,7 @@ type ErrorsType = {
 const getProductsData = async (
     setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -63,10 +64,11 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     }
 };
 
+
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -85,7 +87,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -111,7 +113,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -146,13 +148,15 @@ export default function ProfilePage() {
     const [tempUserProfile, setTempUserProfile] = useState<UserProfile | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
-       const [errors, setErrors] = useState({
+    const [errors, setErrors] = useState({
         user: false,
         pets: false,
         posts: false,
         userProfile: false,
         marketplacePosts: false,
     });
+
+    const [showEditModal, setShowEditModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [medias, setMedias] = useState<MediaDTO[]>([])
@@ -228,23 +232,23 @@ export default function ProfilePage() {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
         setErrors(prev => ({ ...prev, pets: false }));
-        getPetsData(setPets, setLoading, setErrors,  String(user.id)
-);
+        getPetsData(setPets, setLoading, setErrors, String(user.id)
+        );
 
     }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         console.log("authLoading", authLoading);
-        getPostsData(setPosts, setLoading, setErrors,  String(user.id)
-);
+        getPostsData(setPosts, setLoading, setErrors, String(user.id)
+        );
     }, [authToken, authLoading, user?.id]);
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-        
+
         console.log("authLoading", authLoading);
         getProductsData(setMarketplacePosts, setLoading, setErrors, String(user.id));
-       
+
     }, [authToken, authLoading, user?.id]);
 
     const handleContactClick = () => {
@@ -325,21 +329,10 @@ export default function ProfilePage() {
 
                         <EditButton
                             size="lg"
-                            isEditing={isEditing}
-                            id='edit-button'
-                            onClick={handleEditButtonClick}
+                            isEditing={false}
+                            id="edit-button"
+                            onClick={() => setShowEditModal(true)}
                         />
-                        {isEditing && (
-                            <>
-                                <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                                    Guardar
-                                </Button>
-                            </>
-                        )}
-                        {!isEditing && (
-                            <MenuButton size="lg" />
-
-                        )}
                     </div>
 
                     <div className='w-[40vw] mt-[-30px] '>
@@ -367,7 +360,7 @@ export default function ProfilePage() {
                         loading={loading}
                         error={errors.posts}
                     />
-                       <Section
+                    <Section
                         title='Mis productos'
                         path='marketplace'
                         itemType='product'
@@ -375,8 +368,40 @@ export default function ProfilePage() {
                         items={marketplacePosts}
                         loading={loading}
                         error={errors.marketplacePosts}>
-                      </Section>
+                    </Section>
 
+
+                    <EditProfileModal
+                        open={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        initialData={{
+                            fullName: userProfile?.fullName ?? "",
+                            phoneNumber: userProfile?.phoneNumber ?? null,
+                            address: userProfile?.address ?? null,
+                            gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
+                            birthdate: userProfile?.birthdate
+                                ? userProfile.birthdate.split("T")[0]
+                                : undefined,
+                            description: userProfile?.description ?? "",
+                            addressCoordinates: userProfile?.addressCoordinates
+                                ? userProfile.addressCoordinates.split(",").map(parseFloat)
+                                : undefined,
+                            departmentId: userProfile?.departmentId ?? undefined,
+                            districtId: userProfile?.districtId ?? undefined,
+                            neighborhoodId: userProfile?.neighborhoodId ?? undefined,
+                            organizationName: userProfile?.organizationName ?? "",
+                        }}
+                        onSuccess={() =>
+                            getUserProfileData(
+                                setUserProfile,
+                                setProfileLoading,
+                                setErrors,
+                                String(user.id)
+                            )
+                        }
+                        setSuccessMessage={setSuccessMessage}
+                        setErrorMessage={setErrorMessage}
+                    />
                 </div>
             </div>
         </div>
