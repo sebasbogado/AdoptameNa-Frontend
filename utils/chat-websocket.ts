@@ -23,7 +23,6 @@ export function useChatWebSocket(
 
   const cleanupSubscriptions = useCallback(() => {
     if (subscriptionsRef.current.length > 0) {
-      console.log(`🧹 Cleaning up ${subscriptionsRef.current.length} subscriptions`);
       subscriptionsRef.current.forEach((sub) => {
         try {
           sub.unsubscribe();
@@ -52,14 +51,12 @@ export function useChatWebSocket(
         return;
       }
 
-      console.log(`🔌 Setting up subscriptions for ${user.email} (ID: ${user.id})`);
 
       try {
         const privateMessageSub = client.subscribe(
           `/user/queue/messages`,
           (message: { body: string }) => {
             try {
-              console.log("📨 New message:", message.body);
               const data = JSON.parse(message.body);
               addNewMessage(data);
             } catch (err) {
@@ -73,7 +70,6 @@ export function useChatWebSocket(
           `/user/queue/unread-count`,
           (message: { body: string }) => {
             try {
-              console.log("🔔 Unread count update:", message.body);
               const data = JSON.parse(message.body);
               handleUnreadUpdate(data);
             } catch (err) {
@@ -87,7 +83,7 @@ export function useChatWebSocket(
           `/topic/user-status`,
           (message: { body: string }) => {
             try {
-              console.log("👤 User status update:", message.body);
+
               const data = JSON.parse(message.body);
 
               const userStatus = {
@@ -113,7 +109,7 @@ export function useChatWebSocket(
         );
         subscriptionsRef.current.push(userStatusSub);
 
-        console.log("✅ WebSocket subscriptions established");
+
       } catch (error) {
         console.error("❌ Error setting up WebSocket subscriptions:", error);
       }

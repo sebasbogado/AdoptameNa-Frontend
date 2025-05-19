@@ -15,14 +15,12 @@ export function useWebSocket(
   const subscriptionsSetupRef = useRef<boolean>(false);
 
   const setupWebSocketConnection = useCallback(() => {
-    // Limpiar conexión existente si la hay
     if (clientRef.current && clientRef.current.connected) {
       clientRef.current.deactivate();
       clientRef.current = null;
     }
 
     if (!authToken) {
-      console.log("No auth token available for WebSocket");
       return () => {};
     }
 
@@ -31,18 +29,14 @@ export function useWebSocket(
         const { Client } = await import("@stomp/stompjs");
         const SockJS = (await import("sockjs-client")).default;
 
-        console.log("Connecting to WebSocket at URL:", WS_BASE_URL);
 
         const client = new Client({
           webSocketFactory: () => new SockJS(WS_BASE_URL),
           connectHeaders: {
             Authorization: `Bearer ${authToken}`,
           },
-          debug: function (str) {
-            console.log("STOMP Debug:", str);
-          },
+       
           onConnect: () => {
-            console.log("✅ Connected to WebSocket server");
             setIsConnected(true);
             clientRef.current = client;
 
@@ -56,11 +50,9 @@ export function useWebSocket(
             setIsConnected(false);
           },
           onDisconnect: () => {
-            console.log("WebSocket disconnected");
             setIsConnected(false);
           },
           onWebSocketClose: () => {
-            console.log("WebSocket closed");
             setIsConnected(false);
           },
           onWebSocketError: (event) => {
@@ -79,7 +71,6 @@ export function useWebSocket(
 
     return () => {
       if (clientRef.current) {
-        console.log("Deactivating WebSocket connection");
         clientRef.current.deactivate();
         subscriptionsSetupRef.current = false;
         setIsConnected(false);

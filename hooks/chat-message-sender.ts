@@ -9,7 +9,6 @@ export function useChatMessageSender(authToken: string | null) {
   const [connected, setConnected] = useState(false);
 
   const setupSubscriptions = useCallback((client: any) => {
-    console.log("Setting up STOMP client for sending messages");
     stompClientRef.current = client;
     setConnected(Boolean(client && client.connected));
   }, []);
