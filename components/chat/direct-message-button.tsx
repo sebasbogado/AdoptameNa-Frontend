@@ -1,9 +1,9 @@
 "use client";
 
 import { useChat } from "@/contexts/chat-context";
+import { useFloatingChat } from "@/contexts/floating-chat-context";
 import { UserDTO } from "@/types/chat";
 import { MessageCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface DirectMessageButtonProps {
   userId: number;
@@ -18,29 +18,38 @@ export default function DirectMessageButton({
   userEmail, 
   className = "" 
 }: DirectMessageButtonProps) {
-  const { selectChat } = useChat();
-  const router = useRouter();
+  const { selectChat, setChatUsers } = useChat();
+  const { openChat } = useFloatingChat();
   
-  const handleMessageClick = () => {
+  const handleMessageClick = async () => {
     const userToChat: UserDTO = {
       id: userId,
       name: userName,
       email: userEmail,
-      online: false, // No tenemos esta información aquí
+      online: false,
       unreadMessagesCount: 0
     };
     
+    setChatUsers((prev: UserDTO[]) => {
+      const existingUser = prev.find((u: UserDTO) => u.id === userId);
+      if (!existingUser) {
+        return [...prev, userToChat];
+      }
+      return prev;
+    });
+
     selectChat(userToChat);
-    router.push('/chats');
-  };
-  
-  return (
+    openChat();
+  };    return (
     <button
       onClick={handleMessageClick}
-      className={`flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors ${className}`}
+      className={`flex items-center gap-x-2 w-full px-3 py-2 rounded-md hover:bg-gray-200 hover:text-gray-800 ${className}`}
     >
-      <MessageCircle size={16} />
-      <span>Enviar mensaje</span>
+      <MessageCircle />
+      <span className="font-medium text-sm text-gray-800">Mensaje: </span>
+      <span className="font-medium text-sm text-gray-500">
+        Enviar mensaje directo
+      </span>
     </button>
   );
 }
