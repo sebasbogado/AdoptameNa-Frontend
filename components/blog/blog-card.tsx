@@ -78,7 +78,7 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
       </div>
 
       <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
-        <CardImage media={post.media?.[0]} className="h-full w-full object-cover" />
+        <CardImage media={post.media?.[0]} isBlogCard className="h-full w-full object-cover" />
       </div>
 
       <div className="p-4 md:p-6 flex flex-col justify-between w-full">
