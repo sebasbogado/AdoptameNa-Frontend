@@ -7,6 +7,9 @@ import ChatInput from "@/components/chat/chat-input";
 import ChatContainer from "@/components/chat/chat-container";
 import ChatHeader from "@/components/chat/chat-header";
 import ChatUserListItem from "@/components/chat/chat-user-list-item";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import Loading from "@/app/loading";
 
 export default function ChatsPage() {
   const { 
@@ -21,6 +24,15 @@ export default function ChatsPage() {
     hasMoreMessages,
     markChatAsRead
   } = useChat();
+
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+  }, [loading, user, router]);
 
   useEffect(() => {
     if (!selectedChat && chatUsers.length > 0 && !loadingUsers) {
@@ -46,6 +58,8 @@ export default function ChatsPage() {
 
   const currentChatMessages = selectedChat ? messages[selectedChat.id] || [] : [];
   const canLoadMore = selectedChat && hasMoreMessages(selectedChat.id);
+
+  if (loading) return <Loading />;
 
   if (!loadingUsers && chatUsers.length === 0) {
     return (
