@@ -271,17 +271,7 @@ export default function Page() {
           </button>
           <h1 className="text-2xl font-bold text-text-primary">Nueva mascota</h1>
         </div>
-        <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
-          <NewBanner
-            medias={selectedImages}
-          />
-          <button
-            onClick={toggleFullScreen}
-            className="absolute top-2 right-24 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-          >
-            <Maximize size={20} />
-          </button>
-        </div>
+        <NewBanner medias={selectedImages} />
         <div className="flex gap-2 mt-2 justify-center items-center">
           {selectedImages.map((img, index) => (
             <div key={index} className="relative w-24 h-24 group">

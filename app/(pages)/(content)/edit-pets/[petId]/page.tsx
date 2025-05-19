@@ -350,19 +350,12 @@ export default function Page() {
           <h1 className="text-2xl font-bold text-text-primary">Editar mascota</h1>
         </div>
         <div className="p-4 w-full max-w-5xl rounded-lg">
-          <div className={`relative ${isFullscreen ? "w-screen h-screen" : ""}`} ref={bannerRef}>
+          <div className="relative" ref={bannerRef}>
             <NewBanner
               medias={selectedImages}
             />
-            <button
-              onClick={toggleFullScreen}
-              className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-            >
-              <Maximize size={20} />
-            </button>
           </div>
           <div className="flex gap-2 mt-2 justify-center items-center">
-
             {selectedImages.map((img, index) => (
               <div key={index} className="relative w-24 h-24 group">
                 {/* Imagen */}
@@ -372,16 +365,6 @@ export default function Page() {
                   fill
                   className="w-full h-full object-cover rounded-lg border"
                 />
-            {selectedImages.map((img, index) => (
-              <div key={index} className="relative w-24 h-24 group">
-                {/* Imagen */}
-                <Image
-                  src={img.url}
-                  alt="Imagen de mascota"
-                  fill
-                  className="w-full h-full object-cover rounded-lg border"
-                />
-
                 {/* Botón de eliminación */}
                 <button
                   onClick={() => handleRemoveImage(index)}
@@ -391,16 +374,6 @@ export default function Page() {
                 </button>
               </div>
             ))}
-                {/* Botón de eliminación */}
-                <button
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-
             <input
               type="file"
               accept="image/*"
@@ -559,19 +532,6 @@ export default function Page() {
                 >
                   {isSubmitting ? 'Eliminando...' : 'Eliminar publicación'}
                 </Button>
-              {/* Buttons */}
-              <div className="flex justify-between items-center mt-6 gap-10">
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="md"
-                  className="rounded hover:bg-red-700"
-                  onClick={openConfirmationModalDelete}
-                  disabled={loading}
-                >
-                  {isSubmitting ? 'Eliminando...' : 'Eliminar publicación'}
-                </Button>
-
                 <div className="flex gap-4">
                   <Button
                     type="button"
