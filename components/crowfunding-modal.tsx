@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
     createCrowdfunding,
@@ -84,7 +83,7 @@ export default function CrowdfundingModal({
                     selectedCrowdfunding.id,
                     data.title,
                     data.description,
-                    data.durationDays ?? selectedCrowdfunding.durationDays, // 👈 si no se provee, usa el actual
+                    data.durationDays ?? selectedCrowdfunding.durationDays,
                     data.goal
                 );
                 onSaved(updated);
@@ -166,7 +165,7 @@ export default function CrowdfundingModal({
                             {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
                         </div>
 
-                        {(!selectedCrowdfunding || selectedCrowdfunding.status === "CLOSED") && (
+                        {(!selectedCrowdfunding || selectedCrowdfunding.status === "PENDING") && (
                         <div>
                             <label className="text-sm font-medium block">Duración (días)</label>
                             <input
@@ -175,7 +174,7 @@ export default function CrowdfundingModal({
                             min={1}
                             max={365}
                             className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
-                            disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "CLOSED")}
+                            disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "PENDING")}
                             />
                         </div>
                         )}
