@@ -14,6 +14,7 @@ import { USER_ROLE } from "@/types/constants";
 import { getAllFullUserProfile } from "@/utils/user-profile.http";
 import { UserResponse } from "@/types/auth";
 import { useDebouncedValue } from "@/hooks/use-debounce";
+import { getUser } from "@/utils/user.http";
 
 
 export default function NotificationsAdminPage() {
@@ -26,7 +27,6 @@ export default function NotificationsAdminPage() {
   const [userSearch, setUserSearch] = useState("");
   const [userOptions, setUserOptions] = useState<UserResponse[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
-  const debouncedUserSearch = useDebouncedValue(userSearch, 400);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
@@ -53,21 +53,38 @@ export default function NotificationsAdminPage() {
   // Buscar usuarios para autocompletado
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!authToken || !debouncedUserSearch) {
+      if (!authToken || !userSearch) {
         setUserOptions([]);
         return;
       }
+      const isNumeric = /^\d+$/.test(userSearch);
+      if (isNumeric) {
+        try {
+          const user = await getUser(userSearch);
+          if (user) {
+            setUserOptions([{
+              ...user,
+              isVerified: true,
+              role: user.role || "",
+            }]);
+            return;
+          }
+        } catch {
+          // Si no existe usuario por ID, sigue buscando por nombre/email
+        }
+      }
+      // Si no es numérico o no encontró usuario por ID, busca por nombre/email
       try {
         const res = await getAllFullUserProfile(authToken, {
           page: 1,
           size: 10,
-          name: debouncedUserSearch,
+          name: userSearch,
         });
         setUserOptions(
           res.data.map((user: any) => ({
             ...user,
-            isVerified: true, // o false, según tu lógica
-            role: user.role || "", // o el valor adecuado si existe
+            isVerified: true,
+            role: user.role || "",
           }))
         );
       } catch {
@@ -75,7 +92,7 @@ export default function NotificationsAdminPage() {
       }
     };
     fetchUsers();
-  }, [debouncedUserSearch, authToken]);
+  }, [userSearch, authToken]);
 
   // Filtrado adicional en el frontend para autocompletado
   const filteredOptions = userOptions.filter(user =>
@@ -217,7 +234,6 @@ export default function NotificationsAdminPage() {
                   setUserSearch(e.target.value);
                   setSelectedUser(null);
                 }}
-                disabled={!!selectedUser}
               />
               {filteredOptions.length > 0 && !selectedUser && (
                 <ul className="border rounded-md bg-white max-h-40 overflow-y-auto mb-2">
@@ -228,7 +244,6 @@ export default function NotificationsAdminPage() {
                       onClick={() => {
                         setSelectedUser(user);
                         setUserOptions([]);
-                        setUserSearch(user.fullName ? user.fullName : user.email);
                       }}
                     >
                       <span>
@@ -238,6 +253,9 @@ export default function NotificationsAdminPage() {
                     </li>
                   ))}
                 </ul>
+              )}
+              {filteredOptions.length === 0 && userSearch && !selectedUser && (
+                <div className="text-gray-400 p-2">No se encontraron resultados</div>
               )}
               {selectedUser && (
                 <div className="flex flex-wrap gap-2">
