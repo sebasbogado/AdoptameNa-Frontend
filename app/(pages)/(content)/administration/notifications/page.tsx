@@ -11,11 +11,11 @@ import { Bell, UsersRound, Globe } from "lucide-react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { USER_ROLE } from "@/types/constants";
-import { getAllFullUserProfile } from "@/utils/user-profile.http";
-import { UserResponse } from "@/types/auth";
-import { useDebouncedValue } from "@/hooks/use-debounce";
-import { getUser } from "@/utils/user.http";
-
+import { getAllFullUserProfile, getFullUser } from "@/utils/user-profile.http";
+import { UserProfile } from "@/types/user-profile";
+import { useDebounce } from "@/hooks/use-debounce";
+import SearchBar from "@/components/search-bar";
+import { usePagination } from "@/hooks/use-pagination";
 
 export default function NotificationsAdminPage() {
   const { authToken, loading, user } = useAuth();
@@ -23,10 +23,81 @@ export default function NotificationsAdminPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Autocompletado de usuarios
-  const [userSearch, setUserSearch] = useState("");
-  const [userOptions, setUserOptions] = useState<UserResponse[]>([]);
-  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
+  // Búsqueda de usuarios
+  const [inputValue, setInputValue] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const debouncedSearch = useDebounce((value: string) => {
+    if ((/^\d+$/.test(value) && value.length >= 1) || value.length >= 3 || value === "") {
+      setSearchQuery(value);
+    }
+  }, 300);
+
+  const handleSearch = (query: string) => {
+    setInputValue(query);
+    debouncedSearch(query);
+  };
+
+  const handleClearSearch = () => {
+    setInputValue("");
+    setSearchQuery("");
+    setSelectedUser(null);
+    setSearchResults([]);
+  };
+
+  // Paginación para búsqueda por nombre/email
+  const {
+    data: users,
+    loading: usersLoading,
+    updateFilters,
+  } = usePagination<UserProfile>({
+    fetchFunction: (page, size, filters) =>
+      getAllFullUserProfile(authToken || "", {
+        page,
+        size: 10,
+        name: filters?.name || undefined,
+      }),
+    initialPage: 1,
+    initialPageSize: 10,
+  });
+
+  // Efecto para búsqueda combinada (ID o nombre/email)
+  useEffect(() => {
+    let cancelled = false;
+    const fetch = async () => {
+      setSearchLoading(true);
+      setSearchResults([]);
+      // Si input vacío o no válido, limpiar
+      if (!searchQuery || (!/^\d+$/.test(searchQuery) && searchQuery.length < 3)) {
+        setSearchLoading(false);
+        setSearchResults([]);
+        return;
+      }
+      // Si es numérico, buscar por ID
+      if (/^\d+$/.test(searchQuery)) {
+        try {
+          const user = await getFullUser(searchQuery);
+          if (!cancelled && user) {
+            setSearchResults([user]);
+          }
+        } catch {
+          if (!cancelled) setSearchResults([]);
+        } finally {
+          if (!cancelled) setSearchLoading(false);
+        }
+      } else {
+        // Si es texto, usar paginación normal
+        updateFilters({ name: searchQuery, id: undefined });
+        setSearchResults(users);
+        setSearchLoading(usersLoading);
+      }
+    };
+    fetch();
+    return () => { cancelled = true; };
+  }, [searchQuery, updateFilters, users, usersLoading]);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
@@ -49,56 +120,6 @@ export default function NotificationsAdminPage() {
       return () => clearTimeout(timer);
     }
   }, [successMessage, errorMessage]);
-
-  // Buscar usuarios para autocompletado
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!authToken || !userSearch) {
-        setUserOptions([]);
-        return;
-      }
-      const isNumeric = /^\d+$/.test(userSearch);
-      if (isNumeric) {
-        try {
-          const user = await getUser(userSearch);
-          if (user) {
-            setUserOptions([{
-              ...user,
-              isVerified: true,
-              role: user.role || "",
-            }]);
-            return;
-          }
-        } catch {
-          // Si no existe usuario por ID, sigue buscando por nombre/email
-        }
-      }
-      // Si no es numérico o no encontró usuario por ID, busca por nombre/email
-      try {
-        const res = await getAllFullUserProfile(authToken, {
-          page: 1,
-          size: 10,
-          name: userSearch,
-        });
-        setUserOptions(
-          res.data.map((user: any) => ({
-            ...user,
-            isVerified: true,
-            role: user.role || "",
-          }))
-        );
-      } catch {
-        setUserOptions([]);
-      }
-    };
-    fetchUsers();
-  }, [userSearch, authToken]);
-
-  // Filtrado adicional en el frontend para autocompletado
-  const filteredOptions = userOptions.filter(user =>
-    (user.fullName && user.fullName.toLowerCase().includes(userSearch.toLowerCase())) ||
-    (user.email && user.email.toLowerCase().includes(userSearch.toLowerCase()))
-  );
 
   const onSubmit = async (data: NotificationFormData) => {
     if (!authToken) return;
@@ -133,7 +154,7 @@ export default function NotificationsAdminPage() {
       setSuccessMessage("Notificación enviada correctamente");
       reset();
       setSelectedUser(null);
-      setUserSearch("");
+      handleClearSearch();
     } catch (error: any) {
       console.error("Error al enviar notificación:", error);
       setErrorMessage(error.message || "Error al enviar notificación");
@@ -225,25 +246,21 @@ export default function NotificationsAdminPage() {
           {notificationType === NotificationType.USER_BASED && (
             <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Seleccionar usuario</label>
-              <input
-                type="text"
-                className="w-full border rounded-md p-2 mb-2"
-                placeholder="Buscar por ID, correo o nombre"
-                value={userSearch}
-                onChange={e => {
-                  setUserSearch(e.target.value);
-                  setSelectedUser(null);
-                }}
+              <SearchBar
+                placeholder="Buscar por nombre, email o ID..."
+                value={inputValue}
+                onChange={handleSearch}
+                onClear={handleClearSearch}
               />
-              {filteredOptions.length > 0 && !selectedUser && (
+              {/* Mostrar lista solo si la búsqueda es válida */}
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && searchResults.length > 0 && !selectedUser && (
                 <ul className="border rounded-md bg-white max-h-40 overflow-y-auto mb-2">
-                  {filteredOptions.map(user => (
+                  {searchResults.map(user => (
                     <li
                       key={user.id}
                       className="p-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
                       onClick={() => {
                         setSelectedUser(user);
-                        setUserOptions([]);
                       }}
                     >
                       <span>
@@ -254,7 +271,7 @@ export default function NotificationsAdminPage() {
                   ))}
                 </ul>
               )}
-              {filteredOptions.length === 0 && userSearch && !selectedUser && (
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && searchResults.length === 0 && !selectedUser && (
                 <div className="text-gray-400 p-2">No se encontraron resultados</div>
               )}
               {selectedUser && (
@@ -266,7 +283,7 @@ export default function NotificationsAdminPage() {
                       className="ml-1 text-blue-500 hover:text-red-500"
                       onClick={() => {
                         setSelectedUser(null);
-                        setUserSearch("");
+                        handleClearSearch();
                       }}
                     >✕</button>
                   </span>
