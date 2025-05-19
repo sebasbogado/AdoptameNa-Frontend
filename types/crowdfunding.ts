@@ -9,3 +9,15 @@ export interface ResponseCrowdfundingDTO {
     startDate?: string;
     endDate?: string;
 }
+export enum CrowdfundingStatus {
+    ACTIVE = 'ACTIVE',
+    CLOSED = 'CLOSED',
+    NONE = 'NONE',
+    PENDING = 'PENDING',
+}
+export enum FilterStatus {
+    ALL = 'Todos',
+    ACTIVE = 'Activo',
+    PENDING = 'Pendiente',
+    CLOSED = 'Cerrado',
+}

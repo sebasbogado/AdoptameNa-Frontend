@@ -1,13 +1,13 @@
 import { Crowdfunding } from "@/types/crowfunding-type";
 import { buildQueryParams, crowdfundingQueryParams, PaginatedResponse } from "@/types/pagination";
+import { SponsorStatus } from "@/types/sponsor";
 import axios from "axios";
 import build from "next/dist/build";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/crowdfunding`;
 
 export const getCrowdfundings = async (
-    queryParams?: crowdfundingQueryParams
-): Promise<PaginatedResponse<Crowdfunding>> => {
+ queryParams?: crowdfundingQueryParams): Promise<PaginatedResponse<Crowdfunding>> => {
     try {
         const params = buildQueryParams(queryParams);
         const response = await axios.get(API_URL, {
@@ -24,12 +24,12 @@ export const getCrowdfundings = async (
     }
 };
 
-export const getCrowdfundingById = async (token: string, id: number) => {
+export const getCrowdfundingById = async ( id: number) => {
     try {
         const response = await axios.get(`${API_URL}/${id}`, {
             headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${token}`,
+                
             },
         });
 

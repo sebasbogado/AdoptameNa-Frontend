@@ -166,18 +166,18 @@ export default function CrowdfundingModal({
                             {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
                         </div>
 
-                        {!selectedCrowdfunding && (
-                            <div>
-                                <label className="text-sm font-medium block">Duración (días)</label>
-                                <input
-                                    type="number"
-                                    {...register("durationDays", { valueAsNumber: true })}
-                                    min={1}
-                                    max={365}
-                                    className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
-                                    disabled={isLoading}
-                                />
-                            </div>
+                        {(!selectedCrowdfunding || selectedCrowdfunding.status === "CLOSED") && (
+                        <div>
+                            <label className="text-sm font-medium block">Duración (días)</label>
+                            <input
+                            type="number"
+                            {...register("durationDays", { valueAsNumber: true })}
+                            min={1}
+                            max={365}
+                            className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
+                            disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "CLOSED")}
+                            />
+                        </div>
                         )}
 
                         <div>
