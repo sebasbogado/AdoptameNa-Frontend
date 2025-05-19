@@ -13,8 +13,8 @@ const PostSidebar = ({ posts, pets }: PostSidebarProps) => {
             <h2 className="pl-12 text-2xl text-gray-700 my-4">
                 {posts 
                     ? "Posts relacionados" 
-                    : pets?.length > 0 
-                        ? `Otros peluditos: ${pets[0]?.petStatus.name}` 
+                    : (pets?.length ?? 0) > 0 
+                        ? `Otros peluditos: ${pets?.[0]?.petStatus.name ?? ""}` 
                         : "No hay datos de mascotas disponibles"}
             </h2>
             {
