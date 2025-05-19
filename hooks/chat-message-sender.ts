@@ -14,10 +14,8 @@ export function useChatMessageSender(authToken: string | null) {
     setConnected(Boolean(client && client.connected));
   }, []);
 
-  // Usar el hook de WebSocket para establecer la conexión
   const { isConnected } = useWebSocket(authToken, setupSubscriptions);
 
-  // Función para enviar mensajes a través de WebSocket
   const sendMessageWs = useCallback(
     (messageDto: MessageDTO) => {
       if (!stompClientRef.current || !isConnected) {
@@ -26,9 +24,7 @@ export function useChatMessageSender(authToken: string | null) {
       }
 
       try {
-        console.log("Sending message via WebSocket:", messageDto);
 
-        // Usar el método correcto según la API de STOMP.js
         if (stompClientRef.current.publish) {
           stompClientRef.current.publish({
             destination: "/app/chat.sendMessage",
@@ -45,7 +41,6 @@ export function useChatMessageSender(authToken: string | null) {
           return false;
         }
 
-        console.log("✅ Message sent successfully via WebSocket");
         return true;
       } catch (error) {
         console.error("❌ Error sending message via WebSocket:", error);
@@ -55,7 +50,6 @@ export function useChatMessageSender(authToken: string | null) {
     [isConnected]
   );
 
-  // Función para marcar mensajes como leídos
   const markAsReadWs = useCallback(
     (markReadDto: MarkReadDTO) => {
       if (!stompClientRef.current || !isConnected) {
@@ -64,9 +58,6 @@ export function useChatMessageSender(authToken: string | null) {
       }
 
       try {
-        console.log("Marking messages as read via WebSocket:", markReadDto);
-
-        // Usar el método correcto según la API de STOMP.js
         if (stompClientRef.current.publish) {
           stompClientRef.current.publish({
             destination: "/app/chat.markRead",
@@ -83,7 +74,6 @@ export function useChatMessageSender(authToken: string | null) {
           return false;
         }
 
-        console.log("✅ Mark as read sent successfully via WebSocket");
         return true;
       } catch (error) {
         console.error("❌ Error marking messages as read via WebSocket:", error);

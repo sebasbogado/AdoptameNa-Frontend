@@ -17,6 +17,7 @@ export interface ChatContextType {
   loadMoreMessages: (userId: number, loadOlder?: boolean) => Promise<void>;
   markChatAsRead: (senderId: number) => Promise<void>;
   hasMoreMessages: (userId: number) => boolean;
+  setChatUsers: (updater: (prev: UserDTO[]) => UserDTO[]) => void;
 }
 
 export const ChatContext = createContext<ChatContextType | undefined>(undefined);
