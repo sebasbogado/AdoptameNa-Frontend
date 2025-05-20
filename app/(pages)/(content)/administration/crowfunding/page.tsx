@@ -71,7 +71,7 @@ export default function CrowfundingPage() {
         if (!authToken || crowdfundingToApproveId === null) return;
         try {
             await updateCrowdfundingStatus(authToken, crowdfundingToApproveId, 'ACTIVE');
-            setAlertInfo({ open: true, color: 'green', message: 'Crowdfunding aprobado.' });
+            setAlertInfo({ open: true, color: 'green', message: 'Colecta aprobada.' });
             fetchCrowdfundings();
         } catch {
             setAlertInfo({ open: true, color: 'red', message: 'Error al aprobar.' });
@@ -95,7 +95,6 @@ export default function CrowfundingPage() {
 
     const handleDelete = (id: number) => {
         const crowdfunding = crowdfundings.find(c => c.id === id);
-        console.log(id);
         if (crowdfunding && crowdfunding.status !== 'CLOSED') {
             setAlertInfo({ open: true, color: 'red', message: 'Solo puedes eliminar campañas que estén cerradas.' });
             return;
@@ -110,16 +109,14 @@ export default function CrowfundingPage() {
         try {
             if (isDefinitiveDelete) {
                 await deleteCrowdfunding(authToken, crowdfundingToDeleteId);
-                setAlertInfo({ open: true, color: 'green', message: 'Crowdfunding eliminado.' });
+                setAlertInfo({ open: true, color: 'green', message: 'Colecta eliminada.' });
             } else {
                 await rejectCrowdfunding(authToken, crowdfundingToDeleteId);
-                setAlertInfo({ open: true, color: 'green', message: 'Crowdfunding rechazado.' });
+                setAlertInfo({ open: true, color: 'green', message: 'Colecta rechazada.' });
             }
             fetchCrowdfundings();
         } catch (error) {
             const err = error as any;
-            console.error("Error actualizando estado del crowdfunding:", err);
-            console.error("Respuesta del backend:", err.response?.data);
             setAlertInfo({ open: true, color: 'red', message: isDefinitiveDelete ? 'Error al eliminar.' : 'Error al rechazar.' });
         } finally {
             setIsConfirmModalOpen(false);
@@ -136,8 +133,8 @@ export default function CrowfundingPage() {
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-2">Administración de Crowdfundings</h1>
-            <p className="text-gray-600 mb-6">Gestiona las campañas de crowdfunding: aprobar, rechazar o eliminar.</p>
+            <h1 className="text-2xl font-semibold mb-2">Administración de Colectas</h1>
+            <p className="text-gray-600 mb-6">Gestiona las campañas de colectas: aprobar, rechazar o eliminar.</p>
 
             {alertInfo && (
                 <Alert
@@ -196,7 +193,7 @@ export default function CrowfundingPage() {
 
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
-                title={isDefinitiveDelete ? "Eliminar Crowdfunding" : "Confirmar Rechazo"}
+                title={isDefinitiveDelete ? "Eliminar Colecta" : "Confirmar Rechazo"}
                 message={isDefinitiveDelete ? "¿Estás seguro de que deseas eliminar definitivamente esta campaña?" : "¿Estás seguro de que deseas rechazar (eliminar) esta campaña?"}
                 textConfirm={isDefinitiveDelete ? "Eliminar" : "Rechazar"}
                 confirmVariant={isDefinitiveDelete ? "danger" : "danger"}
@@ -207,7 +204,7 @@ export default function CrowfundingPage() {
             <ConfirmationModal
                 isOpen={isApproveModalOpen}
                 title="Confirmar Aprobación"
-                message="¿Estás seguro de que deseas aprobar esta campaña de crowdfunding?"
+                message="¿Estás seguro de que deseas aprobar esta campaña de colecta?"
                 textConfirm="Aprobar"
                 confirmVariant="cta"
                 onClose={closeApproveModal}
