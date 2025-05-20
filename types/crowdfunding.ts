@@ -6,6 +6,7 @@ export interface ResponseCrowdfundingDTO {
     currentAmount: number;
     status: 'ACTIVE' | 'CLOSED' | 'NONE' | 'PENDING';
     durationDays: number;
-    startDate?: string;
-    endDate?: string;
+    startDate: string;
+    endDate: string;
+    userId: number;
 }
