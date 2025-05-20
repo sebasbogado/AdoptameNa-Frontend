@@ -1,0 +1,69 @@
+'use client';
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import Loading from "@/app/loading";
+import NotFound from "@/app/not-found";
+import { Report } from "@/types/report";
+import { getUserReports } from "@/utils/reports.http";
+import UserReportDetailPage from "@/components/profile/report/user-report-detail";
+import { getPost } from "@/utils/posts.http";
+import { getProduct } from '@/utils/product.http';
+import { Post } from "@/types/post";
+import { Product } from "@/types/product";
+
+
+export default function Page() {
+
+  const { authToken } = useAuth();
+    const params = useParams();
+    const router = useRouter();
+    const [post, setPost] = useState<Product | null>(null);
+    const [reports, setReports] = useState<Report[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
+    
+    const postId = params.id
+
+    useEffect(() => {
+      if (!authToken || !postId) {
+        setError(true);
+        return;
+      }
+  
+      const fetchData = async () => {
+        try {
+
+          const [postData, reportData] = await Promise.all([
+            getProduct(params.id as string),
+            getUserReports(authToken, { idProduct: Number(postId) })
+          ]);
+          setPost(postData);
+          setReports(reportData.data);
+        } catch (err) {
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }, [authToken, postId]);
+
+  
+    if (loading) return <Loading />;
+    if (error || !post) return <NotFound />;
+
+
+
+  return (
+      <div className="p-6">
+        <UserReportDetailPage
+          entity={post}
+          reports={reports}
+          onBack={() => router.push("/profile/report/products")}
+        />
+      </div>
+    );
+}
