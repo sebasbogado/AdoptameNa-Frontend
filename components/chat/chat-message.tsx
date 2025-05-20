@@ -30,18 +30,18 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         </div>
       )}
       
-      <div 
+        <div 
         className={clsx(
-          "max-w-[80%] p-3 rounded-lg",
+          "max-w-[80%] p-3 rounded-lg overflow-hidden",
           isSentByMe 
             ? "bg-purple-400 text-white rounded-tr-none" 
             : "bg-gray-100 text-gray-800 rounded-tl-none"
         )}
       >
-        <div className="text-sm break-words">{message.content}</div>
-      <div className={clsx(
+        <div className="text-sm break-words overflow-wrap-anywhere">{message.content}</div>
+        <div className={clsx(
           "text-xs mt-1",
-          isSentByMe ? "bg-purple-400" : "text-gray-500"
+          isSentByMe ? "text-white/90" : "text-gray-500"
         )}>
           {formatTimeAgo(message.sentAt)}
           {message.read && isSentByMe && (
