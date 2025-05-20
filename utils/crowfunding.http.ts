@@ -111,7 +111,7 @@ export const deleteCrowdfunding = async (token: string, id: number): Promise<voi
 export const updateCrowdfundingStatus = async (
     token: string,
     id: number,
-    status: "NONE" | "ACTIVE" | "PENDING" | "CLOSED"
+    status: "NONE" | "ACTIVE" | "PENDING" | "CLOSED" | "REJECTED"
 ) => {
     try {
         const response = await axios.patch(
@@ -130,8 +130,6 @@ export const updateCrowdfundingStatus = async (
         throw error;
     }
 };
-
-
 
 export const donateToCrowdfunding = async (
     token: string,
@@ -153,6 +151,28 @@ export const donateToCrowdfunding = async (
         return response.data;
     } catch (error) {
         console.error("Error al donar al crowdfunding:", error);
+        throw error;
+    }
+};
+
+export const rejectCrowdfunding = async (
+    token: string,
+    id: number
+) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/${id}/reject`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error rechazando crowdfunding:", error);
         throw error;
     }
 };

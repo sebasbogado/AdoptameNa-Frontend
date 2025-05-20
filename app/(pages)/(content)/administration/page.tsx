@@ -126,6 +126,12 @@ export default function Page() {
                             Notificaciones
                         </button>
                     </Link>
+                    <Link href="/administration/crowfunding">
+                        <button className="bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
+                            <Bell className="mr-2 h-5 w-5" />
+                            Crowdfunding
+                        </button>
+                    </Link>
                 </div>
             </div>
 
