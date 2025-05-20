@@ -8,13 +8,13 @@ import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
-  createCrowdfunding,
-  getActiveCrowdFundingByUserId,
+  getCrowdfundings,
   updateCrowdfunding,
   updateCrowdfundingStatus
 } from "@/utils/crowfunding.http";
 import CrowdfundingModal from "@/components/crowfunding-modal";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
+import { Crowdfunding } from "@/types/crowfunding-type"
 import ConfirmationModal from "@/components/confirm-modal";
 import { DonationFormData } from "@/types/schemas/donation-schema";
 import DonationModal from "../donation-modal";
@@ -37,17 +37,17 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
 
-  const [crowdfunding, setCrowdfunding] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfunding, setCrowdfunding] = useState<Crowdfunding | null>(null);
   const [loadingCrowd, setLoadingCrowd] = useState(false);
   const isOrganization = !!userProfile?.organizationName?.trim();
   const displayName: string = userProfile?.organizationName?.trim() ? userProfile.organizationName : userProfile?.fullName ?? "";
   const { user: userAuth, authToken } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<Crowdfunding | null>(null);
   const [isConfirmFinishOpen, setIsConfirmFinishOpen] = useState(false);
   const [openDonationModal, setOpenDonationModal] = useState(false);
-  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<Crowdfunding | null>(null);
   const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
 
   const isActive = crowdfunding?.status === "ACTIVE";
@@ -69,10 +69,12 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       try {
         setLoadingCrowd(true);
         if (isOwner && isActive) {
-          const data = await getActiveCrowdFundingByUserId(authToken, userAuth?.id ?? 0);
+          const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
+          console.log(userAuth)
           setCrowdfunding(data.data[0]);
         } else {
-          const data = await getActiveCrowdFundingByUserId(authToken, userProfile.id);
+          const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
+          console.log(userProfile)
           setCrowdfunding(data.data[0]);
         }
 
@@ -268,8 +270,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
     return null;
   };
-
-
 
 
   return (
