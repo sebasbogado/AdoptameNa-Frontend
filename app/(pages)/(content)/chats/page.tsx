@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@/contexts/chat-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import ChatInput from "@/components/chat/chat-input";
 import ChatContainer from "@/components/chat/chat-container";
@@ -27,6 +27,7 @@ export default function ChatsPage() {
 
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -56,6 +57,10 @@ export default function ChatsPage() {
     markChatAsRead(userId);
   };
 
+  const filteredChatUsers = chatUsers.filter(chatUser => 
+    chatUser.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const currentChatMessages = selectedChat ? messages[selectedChat.id] || [] : [];
   const canLoadMore = selectedChat && hasMoreMessages(selectedChat.id);
 
@@ -73,27 +78,34 @@ export default function ChatsPage() {
     );
   }
   
-  return (
+    return (
     <div className="container mx-auto max-w-6xl py-6 px-4 h-full">
       <h1 className="text-2xl font-bold mb-6 text-purple-800">Mensajes</h1>
       
-      <div className="flex h-[calc(100vh-12rem)] gap-4 rounded-xl overflow-hidden shadow-lg">
+      <div className="flex flex-col md:flex-row h-[calc(100vh-12rem)] gap-4 rounded-xl overflow-hidden shadow-lg">
         {/* Lista de Chats */}
-        <div className="w-1/4 bg-white border-r">
+        <div className="w-full md:w-1/4 md:min-w-[250px] md:max-w-[300px] bg-white border-r flex flex-col">
           <div className="p-3 border-b">
             <input 
               type="text" 
               placeholder="Buscar conversación..." 
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className="overflow-y-auto h-[calc(100%-3.5rem)]">
+          <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-3.5rem)]">
             {loadingUsers ? (
               <div className="flex justify-center items-center h-full">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
               </div>
+            ) : filteredChatUsers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-4 text-center text-gray-500">
+                <p className="mb-2">No se encontraron conversaciones</p>
+                <p className="text-sm">Intenta con otro término de búsqueda</p>
+              </div>
             ) : (
-              chatUsers.map((chatUser) => (
+              filteredChatUsers.map((chatUser) => (
                 <ChatUserListItem 
                   key={chatUser.id}
                   id={chatUser.id}
@@ -111,7 +123,7 @@ export default function ChatsPage() {
         </div>
 
         {/* Contenido del chat */}
-        <div className="flex-1 flex flex-col bg-white">
+        <div className="flex-1 min-w-0 flex flex-col bg-white overflow-hidden">
           {selectedChat ? (
             <>
               <ChatHeader 
@@ -124,9 +136,10 @@ export default function ChatsPage() {
                 isLoading={loadingMessages}
                 hasMoreMessages={canLoadMore}
                 onLoadMoreMessages={handleLoadMoreMessages}
+                className="overflow-x-hidden"
               />
 
-              <div className="p-4 border-t">
+              <div className="p-4 border-t w-full max-w-full">
                 <ChatInput onSendMessage={handleSendMessage} />
               </div>
             </>
