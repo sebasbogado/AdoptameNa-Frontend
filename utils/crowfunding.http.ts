@@ -159,23 +159,3 @@ export const donateToCrowdfunding = async (
         throw error;
     }
 };
-
-export const getMyCrowdfundingRequests = async (
-    token: string,
-    queryParams?: crowdfundingQueryParams
-): Promise<PaginatedResponse<Crowdfunding>> => {
-    try {
-        const params = buildQueryParams(queryParams);
-        const response = await axios.get(`${API_URL}/my-requests`, {
-            params,
-            headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching my crowdfunding requests:", error);
-        throw error;
-    }
-};
