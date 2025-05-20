@@ -10,6 +10,7 @@ import { getTags } from "@/utils/tags";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import BlogCard from "@/components/blog/blog-card";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 export default function Page() {
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
@@ -153,6 +154,8 @@ export default function Page() {
                     )
                 )}
             </div>
+
+            <FloatingActionButton />
 
             {/* Pagination */}
             <Pagination

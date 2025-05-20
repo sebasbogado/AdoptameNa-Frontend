@@ -2,16 +2,23 @@
 
 import { User } from "@/types/auth"
 import { useRouter } from "next/navigation";
-
+import clsx from "clsx";
 
 interface UserAvatarProps {
-    user: User;
+    // Permitir un usuario completo o propiedades individuales
+    user?: User;
+    userId?: number;
+    fullName?: string;
     size?: "sm" | "md" | "lg";
+    className?: string;
 }
 
-
-export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
+export const UserAvatar = ({ user, userId, fullName, size = "md", className }: UserAvatarProps) => {
     const router = useRouter();
+    
+    // Usar datos directos o del objeto user
+    const id = userId || user?.id;
+    const name = fullName || user?.fullName || "User";
 
     const getColorFromName = (name: string) => {
         const colors = [
@@ -30,23 +37,37 @@ export const UserAvatar = ({ user, size = "md" }: UserAvatarProps) => {
         return colors[charSum % colors.length];
     };
 
+    // Obtener iniciales del nombre (primera letra o primera+última si hay espacios)
+    const getInitials = (name: string) => {
+        if (!name) return "U";
+        const parts = name.split(" ");
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    };
+
     const sizeClasses = {
         sm: "w-8 h-8 text-xs",
         md: "w-10 h-10 text-sm",
         lg: "w-12 h-12 text-base"
     };
+    
     const handleProfileClick = () => {
-        router.push(`/profile/${user.id}`);
+        if (id) {
+            router.push(`/profile/${id}`);
+        }
     }
 
     return (
-        <div className={`${sizeClasses[size]} rounded-full overflow-hidden flex-shrink-0 hover:cursor-pointer `} onClick={handleProfileClick}>
-            <div
-                className={`w-full h-full flex items-center justify-center ${getColorFromName(user.fullName)} text-white font-medium`}
-            >
-                {user.fullName.charAt(0).toUpperCase()}
-            </div>
-
+        <div 
+            onClick={handleProfileClick}
+            className={clsx(
+                "rounded-full flex items-center justify-center text-white font-medium cursor-pointer overflow-hidden flex-shrink-0",
+                sizeClasses[size],
+                getColorFromName(name),
+                className
+            )}
+        >
+            {getInitials(name)}
         </div>
     );
 }
