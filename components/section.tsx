@@ -33,18 +33,18 @@ export function Section({ title, postTypeName, path, items, loading, error, item
             ) : error ? (
                 <p className="text-red-500">No se pudieron cargar los datos</p>
             ) : (
-<div
-    className="
-         flex 
-    overflow-x-auto 
-    gap-10
-    mt-2 
-    p-2 
-    scrollbar-hide 
-    snap-x 
-    snap-mandatory
-    "
->
+    <div
+        className="
+            flex 
+        overflow-x-auto 
+        gap-10
+        mt-2 
+        p-2 
+        scrollbar-hide 
+        snap-x 
+        snap-mandatory
+        "
+    >
     {items.map((item) => {
         if (itemType === "post") {
             return (

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
@@ -11,6 +11,7 @@ import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import NewBanner from "@/components/newBanner";
+import { POST_TYPEID } from "@/types/constants";
 
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -32,6 +33,7 @@ const PostPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const params = useParams();
+    const router = useRouter();
 
     useEffect(() => {
         const postId = params.id;
@@ -76,6 +78,9 @@ const PostPage = () => {
 
     if (error) {
         return <NotFound />;
+    }
+    if (POST_TYPEID.BLOG === post?.postType.id) {
+        return router.push(`/blog/${post?.id}`);
     }
 
     return (
