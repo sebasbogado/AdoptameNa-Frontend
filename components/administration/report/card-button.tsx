@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from "react";
 import clsx from "clsx";
 import PetCard from "@/components/petCard/pet-card";
@@ -6,7 +6,6 @@ import ReportCommentCard from "@/components/administration/report/report-comment
 import Link from "next/link";
 import Button from "@/components/buttons/button";
 import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
-import { Post } from "@/types/post";
 import { Comment } from "@/types/comment";
 import { ITEM_TYPE } from "@/types/constants";
 import ProductCard from "@/components/product-Card/product-card";
@@ -48,10 +47,26 @@ export default function CardButtons({
         }
     };
 
+    const renderCard = () => {
+        if (!post) return null;
+        switch (type) {
+            case "pet":
+                return <PetCard post={post} isPost={isPost} />;
+            case "post":
+                return <PetCard post={post} isPost={isPost} />;
+            case "product":
+                return <ProductCard product={post} />;
+            default:
+                return null;
+        }
+    };
+
     return (
-        <div className={clsx("w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+        <div className={clsx(
+            "w-64 rounded-xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
             type === "comment" ? width : "w-64",
-            className)}>
+            className
+        )}>
             {type === "comment" ? (
                 <div onClick={(e) => e.stopPropagation()}>
                     <ReportCommentCard comment={post} />
@@ -61,11 +76,9 @@ export default function CardButtons({
                     <ProductCard product={post} />
                 </div>
             ) : (
-                post && (
-                    <div onClick={(e) => e.stopPropagation()}>
-                        <PetCard post={post} isPost={isPost} />
-                    </div>
-                )
+                <div onClick={(e) => e.stopPropagation()}>
+                    {renderCard()}
+                </div>
             )}
             {isReportedPage ? (
                 <div className="m-4 flex gap-2 justify-center">
