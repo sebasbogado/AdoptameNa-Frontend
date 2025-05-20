@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { MessageResponseDTO } from "@/types/chat";
 import { useWebSocket } from "../hooks/websocket-hook";
 import { User } from "@/types/auth";
+import { soundService } from "./sound-service";
 
 type Subscription = {
   unsubscribe: () => void;
@@ -51,13 +52,15 @@ export function useChatWebSocket(
         return;
       }
 
-
       try {
         const privateMessageSub = client.subscribe(
           `/user/queue/messages`,
           (message: { body: string }) => {
             try {
               const data = JSON.parse(message.body);
+              if (data.senderId !== user?.id) {
+                soundService.playMessageSound();
+              }
               addNewMessage(data);
             } catch (err) {
               console.error("❌ Error parsing chat message:", err);
