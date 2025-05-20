@@ -32,7 +32,7 @@ const CardText = ({ post, className = "" }: props) => {
         <p className="text-xs text-text-secondary">{post.organizationName || post.userFullName}</p>
 
         {post.price !== undefined && (
-          <p className="text-sm text-green-600 font-medium">
+          <p className="text-sm text-[#9747FF] font-medium text-right">
             {post.price.toLocaleString("es-PY")} Gs
           </p>
         )}
