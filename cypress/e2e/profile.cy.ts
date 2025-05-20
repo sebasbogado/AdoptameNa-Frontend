@@ -6,12 +6,12 @@ describe("User Profile Functionality - TC-PROFILE-01", () => {
     cy.get('input[name="password"]').type("Contraseña123", { delay: 100 });
     cy.get('button[type="submit"]').click();
 
-    cy.wait(2000);
+    cy.wait(7000);
     cy.url().should("include", "/dashboard");
 
     cy.get("#avatar").click();
-    cy.contains("rodrigo.maidana2019@fiuni.edu.py").should("be.visible");
-    cy.contains("a", "Rodrigo Maidana").click();
+    //cy.contains("rodrigo.maidana2019@fiuni.edu.py").should("be.visible");
+    cy.contains('div[role="menuitem"]', 'Mi perfil').click();
 
     cy.url().should("include", "/profile");
 

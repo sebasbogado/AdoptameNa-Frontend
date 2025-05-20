@@ -1,5 +1,5 @@
 describe("Admin Panel - Activación de auspiciantes - TC-ADMIN-01", () => {
-    it("Debería iniciar sesión y activar un sponsor", () => {
+    it("Debería iniciar sesión y filtrar por estado Aprobado", () => {
       // 1. Login con credenciales válidas de admin
       cy.visit("/auth/login");
       cy.get('input[name="email"]').type("rodrigo.maidana2019@fiuni.edu.py", { delay: 100 });
@@ -18,8 +18,7 @@ describe("Admin Panel - Activación de auspiciantes - TC-ADMIN-01", () => {
       cy.contains('button', 'Auspiciantes').click();
       cy.wait(2000);
       cy.url().should("include", "/administration/sponsors");
-      cy.get('select').select('Pendiente');
-      //cy.get('button[title="Aprobar"]').first().click();
+      cy.get('select').select('Aprobado');
     });
   });
   

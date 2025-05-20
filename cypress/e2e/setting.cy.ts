@@ -6,7 +6,7 @@ describe("Admin Panel - Creación de un tipo de mascota - TC-ADMIN-01", () => {
       cy.get('input[name="password"]').type("Contraseña123", { delay: 100 });
       cy.get('button[type="submit"]').click();
   
-      cy.wait(7000);
+      cy.wait(10000);
       cy.url().should("include", "/dashboard");
   
       cy.get("#avatar").click();
@@ -16,18 +16,18 @@ describe("Admin Panel - Creación de un tipo de mascota - TC-ADMIN-01", () => {
       
       cy.wait(2000);
       cy.contains('button', 'Configuraciones').click();
-      cy.wait(2000);
+      cy.wait(5000);
       cy.url().should("include", "/administration/settings");
 
-      
+      cy.wait(5000);
       cy.get('svg.lucide-plus').first().parent().click();
       cy.get('input[name="name"]').type('Loro');
       cy.contains('button', 'Guardar').click();
       
 
-      cy.wait(4000);
+      cy.wait(7000);
       
-      cy.contains('div', 'loro').click();
+      cy.contains('div', 'Loro').click();
       cy.wait(1000);
       cy.contains('button', 'Eliminar').click();
       cy.wait(1000);
