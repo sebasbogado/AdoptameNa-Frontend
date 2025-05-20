@@ -19,6 +19,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 
 export default function Page() {
     const { user } = useAuth();
@@ -289,14 +290,9 @@ export default function Page() {
                 onPageChange={handlePageChange}
                 size="md"
             />
-            <Link href="/add-product">
-                <div className="fixed bottom-5 right-5 z-10">
-                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
-                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
-                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
-                    </button>
-                </div>
-            </Link>
+
+            <FloatingActionButton />
+            
         </div>
     );
 }
