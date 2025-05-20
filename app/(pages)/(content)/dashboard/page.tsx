@@ -72,7 +72,7 @@ export default function Page() {
     }, []);
 
     return (
-        <div className='flex flex-col mt-5 gap-3'>
+        <div className='flex flex-col mt-5'>
             <Section
                 title='En adopción'
                 path='adoption'
@@ -109,7 +109,7 @@ export default function Page() {
             <Section
                 title='Blog'
                 path='blog'
-                itemType='post'
+                itemType='blog'
                 postTypeName="Blog"
                 items={blogPosts}
                 loading={loading}
