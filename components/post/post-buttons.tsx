@@ -165,8 +165,10 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
                     Adoptar
                 </Button>
             )}
+            
+            {!isEditing && (
             <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
-
+            )}
             {isEditing && (
                 <div className="relative inline-block text-left">
                     <EditButton
