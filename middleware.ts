@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     ? "preview"
     : "production";
 
-  const apiUrl = process.env.API_URL || "https://adoptamena-api.rodrigomaidana.com";
+  const apiUrl = "https://adoptamena-api.rodrigomaidana.com";
 
   const defaultCSPDirectives = `
     default-src 'self';
@@ -33,6 +33,7 @@ export function middleware(request: NextRequest) {
       connect-src 'self' ws: ${apiUrl};
       font-src 'self';
       frame-src 'none';
+      media-src 'self' data: https://adoptamena-api.rodrigomaidana.com;
     `;
   } else if (phase === "preview") {
     csp = `
