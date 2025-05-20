@@ -16,6 +16,7 @@ import page from '../administration/settings/page'
 import { set } from 'zod'
 import { getProducts } from '@/utils/products.http'
 import { Product } from '@/types/product'
+import FloatingActionButton from '@/components/buttons/create-publication-buttons'
 
 type FetchContentDataParams = {
     setAdoptionPets: React.Dispatch<React.SetStateAction<Pet[]>>;
@@ -71,7 +72,7 @@ export default function Page() {
     }, []);
 
     return (
-        <div className='flex flex-col mt-5 gap-3'>
+        <div className='flex flex-col mt-5'>
             <Section
                 title='En adopción'
                 path='adoption'
@@ -108,7 +109,7 @@ export default function Page() {
             <Section
                 title='Blog'
                 path='blog'
-                itemType='post'
+                itemType='blog'
                 postTypeName="Blog"
                 items={blogPosts}
                 loading={loading}
@@ -126,14 +127,7 @@ export default function Page() {
                 error={error}>
             </Section>
 
-            <Link href="/add-post">
-                <div className="fixed bottom-5 right-5 z-10">
-                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
-                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
-                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
-                    </button>
-                </div>
-            </Link>
+            <FloatingActionButton />
         </div>
     )
 }

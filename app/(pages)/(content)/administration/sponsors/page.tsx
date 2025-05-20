@@ -14,6 +14,7 @@ import { Sponsor, SponsorStatus, FilterStatus } from '@/types/sponsor';
 import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
+import SponsorCard from '@/components/sponsor/sponsor-card';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
@@ -219,10 +220,11 @@ export default function AdminSponsorsPage() {
                             {applications.map((application) => (
                                 <SponsorCard
                                     key={application.id}
-                                    application={application}
+                                    sponsor={application}
+                                    isAdmin={true}
                                     onApprove={handleApprove}
                                     onReject={handleReject}
-                                    onDelete={async (id) => {
+                                    onDelete={async (id: number) => {
                                         setSponsorToDeleteId(id);
                                         setIsConfirmModalOpen(true);
                                         setIsDefinitiveDelete(true);
@@ -262,101 +264,6 @@ export default function AdminSponsorsPage() {
                 onClose={closeApproveModal}
                 onConfirm={confirmApprove}
             />
-        </div>
-    );
-}
-
-interface SponsorCardProps {
-    application: SponsorApplication;
-    onApprove: (applicationId: number) => void;
-    onReject: (applicationId: number) => void;
-    onDelete: (applicationId: number) => void;
-}
-
-function SponsorCard({ application, onApprove, onReject, onDelete }: SponsorCardProps) {
-    const [hasLogoError, setHasLogoError] = useState(false);
-    const router = useRouter();
-
-    const handleLogoError = () => {
-        setHasLogoError(true);
-    };
-
-    const handleCardClick = (e: React.MouseEvent) => {
-        // Evitar la navegación si se hace clic en los botones de acción
-        if ((e.target as HTMLElement).closest('button')) {
-            return;
-        }
-        router.push(`/administration/sponsors/${application.id}`);
-    };
-
-    return (
-        <div 
-            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={handleCardClick}
-        >
-            <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
-                {application.logoUrl && !hasLogoError ? (
-                    <Image
-                        src={application.logoUrl}
-                        alt={`Logo Solicitud ${application.id}`}
-                        fill
-                        className="object-contain p-4"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        onError={handleLogoError}
-                    />
-                ) : (
-                    <span className="logo-placeholder text-gray-400 text-sm italic">
-                        {application.logoId ? 'Error al cargar logo' : 'Sin logo'}
-                    </span>
-                )}
-            </div>
-            <div className="p-4 flex-grow">
-                <h3 className="text-lg font-semibold mb-1">{application.organizationName || application.fullName}</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                    <span className="font-medium">Contacto:</span> {application.contact || 'No especificado'}
-                </p>
-                <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
-                <p className="text-sm text-gray-700 p-2 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-                    {application.reason || 'No especificada'}
-                </p>
-            </div>
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
-                <button
-                    onClick={() => onDelete(application.id)}
-                    className="p-2 rounded-full text-gray-500 hover:bg-red-200 transition-colors"
-                    title="Eliminar definitivamente"
-                >
-                    <Trash size={20} />
-                </button>
-                <div className="flex gap-3 items-center">
-                    {application.status === 'PENDING' ? (
-                        <>
-                            <button
-                                onClick={() => onReject(application.id)}
-                                className="p-2 rounded-full text-red-500 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Rechazar (Eliminar)"
-                            >
-                                <X size={20} />
-                            </button>
-                            <button
-                                onClick={() => onApprove(application.id)}
-                                className="p-2 rounded-full text-green-500 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Aprobar"
-                            >
-                                <Check size={20} />
-                            </button>
-                        </>
-                    ) : application.status === 'ACTIVE' ? (
-                        <span className="text-sm font-medium text-green-600 flex items-center">
-                            <Check size={16} className="mr-1"/> Aprobado
-                        </span>
-                    ) : application.status === 'INACTIVE' ? (
-                        <span className="text-sm font-medium text-red-500 flex items-center">
-                            <X size={16} className="mr-1"/> Rechazado
-                        </span>
-                    ) : null}
-                </div>
-            </div>
         </div>
     );
 }

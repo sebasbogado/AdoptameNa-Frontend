@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
     ? "preview"
     : "production";
 
-  const apiUrl = process.env.API_URL || "https://adoptamena-api.rodrigomaidana.com";
+  const apiUrl = "https://adoptamena-api.rodrigomaidana.com";
 
   const defaultCSPDirectives = `
     default-src 'self';

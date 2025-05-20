@@ -41,6 +41,7 @@ const navbarAdminItems = [
       { name: "Banners", path: "/administration/settings/banner" },
       { name: "Auspiciantes", path: "/administration/sponsors" },
       { name: "Notificaciones", path: "/administration/notifications" },
+      { name: "Colectas", path: "/administration/crowfunding" },
     ],
   },
   {

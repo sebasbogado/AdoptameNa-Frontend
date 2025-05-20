@@ -1,13 +1,14 @@
 import { Crowdfunding } from "@/types/crowfunding-type";
 import { buildQueryParams, crowdfundingQueryParams, PaginatedResponse } from "@/types/pagination";
+import { SponsorStatus } from "@/types/sponsor";
 import axios from "axios";
 import build from "next/dist/build";
+
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/crowdfunding`;
 
 export const getCrowdfundings = async (
-    queryParams?: crowdfundingQueryParams
-): Promise<PaginatedResponse<Crowdfunding>> => {
+ queryParams?: crowdfundingQueryParams): Promise<PaginatedResponse<Crowdfunding>> => {
     try {
         const params = buildQueryParams(queryParams);
         const response = await axios.get(API_URL, {
@@ -24,12 +25,12 @@ export const getCrowdfundings = async (
     }
 };
 
-export const getCrowdfundingById = async (token: string, id: number) => {
+export const getCrowdfundingById = async ( id: number) => {
     try {
         const response = await axios.get(`${API_URL}/${id}`, {
             headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${token}`,
+                
             },
         });
 
@@ -40,6 +41,27 @@ export const getCrowdfundingById = async (token: string, id: number) => {
     }
 };
 
+
+
+export const getMyCrowdfundingRequests = async (
+    token: string,
+  queryParams?: crowdfundingQueryParams
+): Promise<PaginatedResponse<Crowdfunding>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/my-requests`, {
+      params,
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching my crowdfunding requests:", error);
+    throw error;
+  }
+};
 export const createCrowdfunding = async (
     token: string,
     title: string,
@@ -111,12 +133,12 @@ export const deleteCrowdfunding = async (token: string, id: number): Promise<voi
 export const updateCrowdfundingStatus = async (
     token: string,
     id: number,
-    status: "NONE" | "ACTIVE" | "PENDING" | "CLOSED"
+    status: "NONE" | "ACTIVE" | "PENDING" | "CLOSED" | "REJECTED" 
 ) => {
     try {
         const response = await axios.patch(
             `${API_URL}/${id}/update-status?status=${status}`,
-            {}, // cuerpo vacío
+            {}, 
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -130,8 +152,6 @@ export const updateCrowdfundingStatus = async (
         throw error;
     }
 };
-
-
 
 export const donateToCrowdfunding = async (
     token: string,
@@ -157,3 +177,24 @@ export const donateToCrowdfunding = async (
     }
 };
 
+export const rejectCrowdfunding = async (
+    token: string,
+    id: number
+) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/${id}/reject`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error rechazando crowdfunding:", error);
+        throw error;
+    }
+};

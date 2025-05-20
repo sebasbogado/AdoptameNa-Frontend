@@ -14,6 +14,7 @@ export interface Pet {
   addressCoordinates: string;
   userId: number;
   userFullName: string;
+  organizationName: string;
   isBanned: boolean;
   media: Media[]; 
   animal: Animal;

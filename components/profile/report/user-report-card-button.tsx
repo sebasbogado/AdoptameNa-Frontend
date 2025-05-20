@@ -19,10 +19,10 @@ export default function UserReportCardButtons({
   isPost,
 }: PetCardProps) {
   const pathname = usePathname();
-
   const isDetailPage =
   pathname === `/profile/report/posts/${post.id}` ||
-  pathname === `/profile/report/pets/${post.id}`;
+  pathname === `/profile/report/pets/${post.id}` ||
+  pathname === `/profile/report/products/${post.id}`;
 
   return (
     <div
@@ -46,8 +46,8 @@ export default function UserReportCardButtons({
           <Link
             href={
               isPost
-                ? `/profile/report/posts/${post.id}`
-                : `/profile/report/pets/${post.id}`
+                ? `${pathname}/${post.id}`
+                : `${pathname}/${post.id}`
             }
           >
             <Button size="sm" className="flex items-center justify-center">
