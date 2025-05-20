@@ -31,7 +31,6 @@ export default function Page() {
         watch,
         control,
         formState: { errors, isSubmitting },
-        trigger,
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -168,7 +167,7 @@ export default function Page() {
     };
 
     const onSubmit = (data: PostFormValues) => {
-        // 'data' aquí ya está validado por Zod
+        console.log("DATA SUBMIT", data); // <-- Verifica aquí el valor real de postTypeId
         openConfirmationModal(data); // Pasa los datos validados al modal/handler
     };
 
@@ -186,11 +185,13 @@ export default function Page() {
             content: validatedData.content,
             tagIds: validatedData.tagIds || [],
             postTypeId: validatedData.postTypeId,
-            contactNumber: validatedData.contactNumber,
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
             mediaIds: validatedData.mediaIds || []
         };
-
+            // Solo incluir contactNumber si tiene valor real
+            if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
+                updatedFormData.contactNumber = validatedData.contactNumber;
+            }
         if (!authToken) {
             console.log("Usuario no autenticado");
             setLoading(false);
@@ -309,9 +310,9 @@ export default function Page() {
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
                 MAX_TAGS={MAX_TAGS}
-                trigger={trigger}
+                control  = {control}
             />
-
+            
             {isModalOpen &&
                 <ConfirmationModal
                     isOpen={isModalOpen}

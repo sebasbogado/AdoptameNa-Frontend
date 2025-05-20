@@ -5,6 +5,8 @@ import Button from "../buttons/button";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
 import ForwardRefEditor from "../editor/forward-ref-editor";
 import { POST_TYPEID } from "@/types/constants"; // <-- AGREGA ESTO
+import { useRef, useState } from "react";
+import { Controller } from "react-hook-form";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -28,10 +30,13 @@ export const FormData = ({ handleSubmit,
     handlePositionChange,
     MAX_TAGS,
     MAX_IMAGES,
-    trigger,
+    control,
 
 }: FormDataProps) => {
     const postTypeId = watch("postTypeId");
+    const editorContentRef = useRef('')
+    const [initialContent] = useState('') // Si necesitas contenido inicial
+
 
     return (
         <>
@@ -84,23 +89,38 @@ export const FormData = ({ handleSubmit,
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
                 <div className="flex flex-col gap-2">
-                    <label className="block">
+                  
+                    {postTypeId === POST_TYPEID.BLOG ? (
+                        <Controller
+                            name="content"
+                            control={control}
+                            render={(
+                                field
+                            ) => <ForwardRefEditor
+                             IsCreateBlog={true} 
+                                    markdown={initialContent}
+                                    onChange={(value: string) => {
+                                        editorContentRef.current = value // No renderiza nada
+                                    }}
+                                    className="border-2 rounded-lg border-gray"
+                                />}
+                        > 
+
+                        </Controller>
+
+                    ) : (
+                        <>
+                          <label className="block">
                         Descripción <span className="text-red-500">*</span>
                     </label>
 
-                    {postTypeId === POST_TYPEID.BLOG ? (
-                       <ForwardRefEditor
-                            markdown={watch("content") || ""}
-                            onChange={(value: string) => {
-                                setValue("content", value, { shouldDirty: true, shouldValidate: true });
-                            }}
-                            />
-                    ) : (
                         <textarea
                             {...register("content")}
                             placeholder="Descripción"
                             className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
                         />
+                                                </>
+
                     )}
                 </div>
                 {errors.content && (
@@ -152,7 +172,7 @@ export const FormData = ({ handleSubmit,
                         </Button>
                         <Button
                             onClick={() => {
-                                trigger();
+                                    setValue('content', editorContentRef.current)
                                 console.log(errors)
                             }}
                             variant="cta"

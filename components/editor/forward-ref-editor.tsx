@@ -10,13 +10,19 @@ const Editor = dynamic(() => import('./initialized-mdx-editor'), {
   ssr: false,
 });
 
-interface ForwardRefEditorProps extends MDXEditorProps {}
+interface ForwardRefEditorProps extends MDXEditorProps {
+  IsCreateBlog?: boolean; // <-- Agregas esto
+}
 
-export default function ForwardRefEditor(props: ForwardRefEditorProps) {
+export default function ForwardRefEditor({
+  IsCreateBlog = false,  // <-- Lo agregas aquí
+  ...props
+}: ForwardRefEditorProps) {
   const editorRef = useRef<MDXEditorMethods>(null);
   return (
-    <div>
-      <Editor editorRef={editorRef} {...props} />
+    <div className='custom-editor'>
+      {/* Le pasas la prop */}
+      <Editor editorRef={editorRef} IsCreateBlog={IsCreateBlog} {...props} />
     </div>
   );
 }
