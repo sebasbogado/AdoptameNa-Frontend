@@ -84,7 +84,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
         <input
           type="text"
           inputMode="numeric"
-          className="pl-8 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none w-full"
+          className="pl-8 pr-4 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9747FF] w-full"
           value={inputValue}
           onChange={handleChange}
           placeholder={placeholder}
