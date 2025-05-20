@@ -285,8 +285,7 @@ export default function Page() {
             "image/jpeg", 
             "image/webp",
             "video/mp4",
-            "video/quicktime",
-            "video/x-msvideo"
+            "video/webm",
         ];
         
         // Verificar cantidad de archivos
