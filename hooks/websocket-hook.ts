@@ -1,44 +1,79 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
-const WS_BASE_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/ws`;
+const WS_BASE_URL = process.env.NEXT_PUBLIC_BASE_API_URL
+  ? `${process.env.NEXT_PUBLIC_BASE_API_URL}/ws`
+  : "http://localhost:8080/ws";
 
 export function useWebSocket(
   authToken: string | null,
   setupSubscriptions: (client: any) => void
 ) {
-  const setupWebSocketConnection = useCallback(() => {
-    let client: any = null;
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const clientRef = useRef<any>(null);
+  const subscriptionsSetupRef = useRef<boolean>(false);
 
-    if (authToken) {
-      const setupWebSocket = async () => {
+  const setupWebSocketConnection = useCallback(() => {
+    if (clientRef.current && clientRef.current.connected) {
+      clientRef.current.deactivate();
+      clientRef.current = null;
+    }
+
+    if (!authToken) {
+      return () => {};
+    }
+
+    const setupWebSocket = async () => {
+      try {
         const { Client } = await import("@stomp/stompjs");
         const SockJS = (await import("sockjs-client")).default;
 
-        client = new Client({
+
+        const client = new Client({
           webSocketFactory: () => new SockJS(WS_BASE_URL),
           connectHeaders: {
             Authorization: `Bearer ${authToken}`,
           },
+       
           onConnect: () => {
-            console.log("Connected to WebSocket");
-            setupSubscriptions(client);
+            setIsConnected(true);
+            clientRef.current = client;
+
+            if (!subscriptionsSetupRef.current) {
+              setupSubscriptions(client);
+              subscriptionsSetupRef.current = true;
+            }
           },
           onStompError: (frame) => {
-            console.error("STOMP error:", frame.headers.message);
+            console.error("❌ STOMP error:", frame.headers.message);
+            setIsConnected(false);
+          },
+          onDisconnect: () => {
+            setIsConnected(false);
+          },
+          onWebSocketClose: () => {
+            setIsConnected(false);
+          },
+          onWebSocketError: (event) => {
+            console.error("WebSocket error:", event);
           },
         });
 
         client.activate();
-      };
+        clientRef.current = client;
+      } catch (error) {
+        console.error("Error initializing WebSocket:", error);
+      }
+    };
 
-      setupWebSocket();
-    }
+    setupWebSocket();
 
     return () => {
-      if (client) {
-        client.deactivate();
+      if (clientRef.current) {
+        clientRef.current.deactivate();
+        subscriptionsSetupRef.current = false;
+        setIsConnected(false);
       }
     };
   }, [authToken, setupSubscriptions]);
@@ -47,4 +82,6 @@ export function useWebSocket(
     const cleanup = setupWebSocketConnection();
     return cleanup;
   }, [setupWebSocketConnection]);
+
+  return { isConnected };
 }
