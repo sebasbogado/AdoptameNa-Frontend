@@ -329,13 +329,26 @@ export default function Page() {
         <div className="flex gap-2 mt-2 justify-center items-center">
           {selectedImages.map((src, index) => (
             <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-              <Image
-                src={src.url}
-                alt="post"
-                fill
-                className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                onClick={() => setCurrentImageIndex(index)}
-              />
+              {src.mimeType && src.mimeType.startsWith('image') ? (
+                <Image
+                  src={src.url}
+                  alt="post"
+                  fill
+                  className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                />
+              ) : src.mimeType && src.mimeType.startsWith('video') ? (
+                <video
+                  src={src.url}
+                  className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                  muted
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
+                  Archivo no soportado
+                </div>
+              )}
               {/* Botón de eliminación */}
               <button
                 onClick={() => handleRemoveImage(index)}
@@ -348,7 +361,7 @@ export default function Page() {
           ))}
           <input
             type="file"
-            accept="image/png, image/jpeg, image/webp"
+            accept="image/png, image/jpeg, image/jpg, image/webp, video/webm, video/mp4"
             multiple
             className="hidden"
             id="fileInput"

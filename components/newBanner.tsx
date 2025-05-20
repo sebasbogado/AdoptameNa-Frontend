@@ -23,6 +23,7 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
     >([]);
     const [videoDimensions, setVideoDimensions] = useState<{ [key: string]: boolean }>({});
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({});
     const pathname = usePathname();
     const isEditPostPage = pathname?.includes('/edit-post/');
     const bannerRef = useRef<HTMLDivElement>(null);
@@ -99,6 +100,25 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
         setVideoDimensions(prev => ({
             ...prev,
             [url]: isVertical
+        }));
+        setLoadingStates(prev => ({
+            ...prev,
+            [url]: false
+        }));
+    };
+
+    const handleVideoError = (url: string) => {
+        setLoadingStates(prev => ({
+            ...prev,
+            [url]: false
+        }));
+        console.error(`Error loading video: ${url}`);
+    };
+
+    const handleVideoStartLoading = (url: string) => {
+        setLoadingStates(prev => ({
+            ...prev,
+            [url]: true
         }));
     };
 
@@ -180,13 +200,13 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                 key={media.id || index}
                                 className="relative w-full h-full flex items-center justify-center overflow-hidden bg-black/5"
                             >
-                                {(media.type === 'image' && media.isVertical) || (media.type === 'video' && videoDimensions[media.url]) && (
+                                {(media.type === 'image' && media.isVertical) || (media.type === 'video' && videoDimensions[media.url]) ? (
                                     <div
                                         className="absolute inset-0 bg-center bg-cover filter blur-lg scale-110"
                                         style={{ backgroundImage: `url(${media.url})` }}
                                         aria-hidden="true"
                                     />
-                                )}
+                                ) : null}
                                 {media.type === 'image' ? (
                                     <Image
                                         src={media.url}
@@ -197,21 +217,32 @@ const NewBanner: React.FC<HeaderImageProps> = ({ medias }) => {
                                         priority={index === 0}
                                         onError={(e) => {
                                             console.error(`Error loading image ${index + 1}: ${media.url}`);
+                                            e.currentTarget.src = notFoundSrc;
                                         }}
                                     />
                                 ) : (
-                                    <video
-                                        src={media.url}
-                                        className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage && !isFullscreen ? "[&::-webkit-media-controls]:hidden" : ""}`}
-                                        controls={isFullscreen}
-                                        controlsList="nodownload noplaybackrate"
-                                        disablePictureInPicture
-                                        playsInline
-                                        loop
-                                        autoPlay
-                                        muted
-                                        onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
-                                    />
+                                    <>
+                                        {loadingStates[media.url] && (
+                                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                                                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                            </div>
+                                        )}
+                                        <video
+                                            src={media.url}
+                                            className={`relative z-10 h-full w-full ${videoDimensions[media.url] ? "object-contain" : "object-cover"} ${!isEditPostPage && !isFullscreen ? "[&::-webkit-media-controls]:hidden" : ""}`}
+                                            controls={isFullscreen}
+                                            controlsList="nodownload noplaybackrate"
+                                            disablePictureInPicture
+                                            playsInline
+                                            loop
+                                            autoPlay
+                                            muted
+                                            onLoadStart={() => handleVideoStartLoading(media.url)}
+                                            onLoadedMetadata={(e) => handleVideoLoad(e, media.url)}
+                                            onError={() => handleVideoError(media.url)}
+                                            poster={notFoundSrc}
+                                        />
+                                    </>
                                 )}
                             </div>
                         ))
