@@ -27,7 +27,7 @@ export const ProductHeader = ({ product }: ProductHeaderProps) => {
           {product?.title}
         </h1>
         <p className="text-2xl text-gray-700 ">
-          Publicado por <Link className="text-[#4781FF]" href={`/profile/${product?.userId}`}>{product?.userFullName}</Link>
+          Publicado por <Link className="text-[#4781FF]" href={`/profile/${product?.userId}`}>{product?.organizationName || product?.userFullName}</Link>
         </p>
       </div>
       <div className="gap-3 flex justify-end">
