@@ -281,11 +281,15 @@ export default function Page() {
         
         const files = Array.from(e.target.files);
         const allowedTypes = [
-            "image/png", 
-            "image/jpeg", 
+            "image/jpeg",
+            "image/png",
+            "image/jpg",
             "image/webp",
             "video/mp4",
             "video/webm",
+            "video/ogg",
+            "video/x-matroska",
+            "audio/mpeg"
         ];
         
         // Verificar cantidad de archivos
@@ -310,13 +314,15 @@ export default function Page() {
             const uploadPromises = files.map(async (file) => {
                 // Validar tipo de archivo
                 if (!allowedTypes.includes(file.type)) {
-                    throw new Error(`Tipo de archivo no permitido: ${file.name}. Solo se permiten PNG, JPG, WEBP, MP4, MOV y AVI.`);
+                    throw new Error(`Tipo de archivo no permitido: ${file.name}. Solo se permiten JPG, PNG, WEBP, MP4, WEBM, OGG, MKV y MP3.`);
                 }
 
-                // Verificar el tamaño del archivo (50MB para videos, 5MB para imágenes)
-                const maxSize = file.type.startsWith('video/') ? 50 * (1024 * 1024) : 5 * (1024 * 1024);
+                // Verificar el tamaño del archivo (50MB para videos/audio, 5MB para imágenes)
+                const maxSize = file.type.startsWith('video/') || file.type.startsWith('audio/') 
+                    ? 50 * (1024 * 1024) 
+                    : 5 * (1024 * 1024);
                 if (file.size > maxSize) {
-                    const maxSizeMB = file.type.startsWith('video/') ? 50 : 5;
+                    const maxSizeMB = file.type.startsWith('video/') || file.type.startsWith('audio/') ? 50 : 5;
                     throw new Error(`El archivo ${file.name} es demasiado grande. Tamaño máximo: ${maxSizeMB}MB.`);
                 }
 
@@ -429,7 +435,7 @@ export default function Page() {
                     ))}
                     <input
                         type="file"
-                        accept="image/png,image/jpeg,image/webp,video/mp4,video/quicktime,video/x-msvideo"
+                        accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4,video/webm,video/ogg,video/x-matroska,audio/mpeg"
                         multiple
                         className="hidden"
                         id="fileInput"
