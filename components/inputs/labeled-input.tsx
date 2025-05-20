@@ -70,7 +70,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   }, [value]); // Cuando `value` cambie, se ejecuta este efecto
 
   return (
-    <div className={`flex flex-col w-[10rem] col-span-1 ${className}`}>
+    <div className={`flex flex-col col-span-1 ${className}`}>
       {label && (
         <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
       )}
