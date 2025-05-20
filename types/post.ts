@@ -6,6 +6,7 @@ export interface Post {
   id: number;
   userId: number;
   userFullName: string;
+  organizationName: string;
   title: string;
   content: string;
   locationCoordinates: string;
