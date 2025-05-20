@@ -323,34 +323,36 @@ export default function Page() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-4">
-                <button
-                    onClick={() => router.push(`/marketplace/${productId}`)}
-                    className="text-gray-600 hover:text-gray-800"
-                >
-                    ← Volver
-                </button>
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50 bg-cover bg-center"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                }}
+            >
+                <div className="absolute inset-0 bg-[#9747FF] opacity-60"></div>
             </div>
-            <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
-                <NewBanner medias={selectedImages} />
-            </div>
-            {successMessage && (
-                <Alert className="mb-4" color="green">
-                    {successMessage}
-                </Alert>
-            )}
-            {errorMessage && (
-                <Alert className="mb-4" color="red">
-                    {errorMessage}
-                </Alert>
-            )}
-            {precautionMessage && (
-                <Alert className="mb-4" color="amber">
-                    {precautionMessage}
-                </Alert>
-            )}
-            <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
+                        type="button"
+                        aria-label="Volver"
+                        onClick={() => router.push('/marketplace')}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Editar producto</h1>
+                </div>
+
+                <NewBanner
+                    medias={selectedImages}
+                />
                 <div className="flex gap-2 mt-2 justify-center items-center">
                     {selectedImages.map((src, index) => (
                         <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
@@ -378,7 +380,7 @@ export default function Page() {
                     ))}
                     <input
                         type="file"
-                        accept="image/*"
+                        accept="image/png, image/jpeg, image/webp"
                         multiple
                         className="hidden"
                         id="fileInput"
@@ -394,90 +396,134 @@ export default function Page() {
                     </label>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <label className="block text-sm font-medium">Título</label>
-                    <input
-                        type="text"
-                        {...register("title")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
-                    {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                {errorMessage && (
+                    <div>
+                        <Alert
+                            color="red"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setErrorMessage("")}>
+                            {errorMessage}
+                        </Alert>
+                    </div>
+                )}
 
-                    <label className="block text-sm font-medium">Descripción</label>
-                    <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                    />
-                    {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-                    <label className="block text-sm font-medium">Tipo de animal</label>
-                    <MultiSelect
-                        options={animals}
-                        selected={selectedAnimals}
-                        onChange={(selected) => {
-                            setSelectedAnimals(selected);
-                            setValue("animalsId", selected.map((animal) => animal.id));
-                        }}
-                        placeholder="Seleccionar animales"
-                    />
-                    {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
+                {precautionMessage && (
+                    <div>
+                        <Alert
+                            color="orange"
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
+                            onClose={() => setPrecautionMessage("")}>
+                            {precautionMessage}
+                        </Alert>
+                    </div>
+                )}
 
+                {successMessage && (
+                    <div>
+                        <Alert
+                            color="green"
+                            onClose={() => setSuccessMessage("")}
+                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
+                            {successMessage}
+                        </Alert>
+                    </div>
+                )}
 
-                    <label className="block text-sm font-medium">Estado</label>
-                    <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
-                        {Object.values(ProductCondition).map(cond => (
-                            <option key={cond} value={cond}>{capitalize(cond)}</option>
-                        ))}
-                    </select>
-                    {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Título</label>
+                        <input
+                            type="text"
+                            {...register("title")}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.title ? 'border-red-500' : ''}`} />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    </div>
 
-                    <label className="block text-sm font-medium">Categoría</label>
-                    <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
-                        <option value={0}>Seleccionar categoría</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
-                    {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Descripción</label>
+                        <textarea 
+                            {...register("content")} 
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
+                        />
+                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    </div>
 
-                    <label className="text-sm font-medium">Contacto</label>
-                    <input
-                        {...register("contactNumber")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                        onKeyDown={(e) => {
-                            if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
-                                e.preventDefault();
-                            }
-                        }
-                        }
-                    />
-                    {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tipo de animal</label>
+                        <MultiSelect
+                            options={animals}
+                            selected={selectedAnimals}
+                            onChange={(selected) => {
+                                setSelectedAnimals(selected);
+                                setValue("animalsId", selected.map((animal) => animal.id));
+                            }}
+                            placeholder="Seleccionar animales"
+                        />
+                        {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
+                    </div>
 
-                    {/*--- Input de Precio --- */}
-                    <Controller
-                        name="price" // El nombre del campo en tu schema/formValues
-                        control={control}
-                        render={({ field, fieldState }) => (
-                            <div> {/* Envuelve para posicionar el error correctamente */}
-                                <LabeledInput
-                                    label="Precio" // Pasas la etiqueta como prop
-                                    value={field.value} // Conectas el valor de RHF al componente
-                                    onChange={field.onChange} // Conectas el onChange de RHF al componente
-                                    placeholder="0"
-                                />
-                                {/* Muestras el error asociado a este campo desde RHF */}
-                                {fieldState.error && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {fieldState.error.message}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-                    />
+                    <div className="w-1/3 mb-2">
+                        <label className="block mb-1">Estado</label>
+                        <select {...register("condition")} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.condition ? 'border-red-500' : ''}`}>
+                            {Object.values(ProductCondition).map(cond => (
+                                <option key={cond} value={cond}>{capitalize(cond)}</option>
+                            ))}
+                        </select>
+                        {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+                    </div>
 
-                    {/*Mapa */}
+                    <div className="w-1/3 mb-2">
+                        <label className="block mb-1">Categoría</label>
+                        <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.categoryId ? 'border-red-500' : ''}`}>
+                            <option value={0}>Seleccionar categoría</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
+                        {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <label className="block mb-1">Contacto</label>
+                        <input
+                            {...register("contactNumber")}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.contactNumber ? 'border-red-500' : ''}`}
+                            onKeyDown={(e) => {
+                                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                                    e.preventDefault();
+                                }
+                            }}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <Controller
+                            name="price"
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <div>
+                                    <LabeledInput
+                                        label="Precio"
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="0"
+                                    />
+                                    {fieldState.error && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {fieldState.error.message}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </div>
+
                     <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
                         <MapWithNoSSR position={position} setPosition={handlePositionChange} />
                     </div>
                     {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
-                    {/*Buttons */}
                     <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
                             type="button"

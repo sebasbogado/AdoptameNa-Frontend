@@ -67,7 +67,7 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
  return (
     <Link
       href={`/blog/${post.id}`}
-      className={`relative flex flex-col md:flex-row bg-white shadow-md hover:shadow-lg transition-shadow rounded-2xl overflow-hidden w-full h-96 sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
+className={`relative flex flex-col md:flex-row bg-white shadow-[0_0_10px_rgba(0,0,0,0.1)] hover:shadow-[0_0_10px_rgba(0,0,0,0.15)] transition-shadow rounded-2xl overflow-hidden w-full h-96 sm:h-96 md:h-64 lg:h-64 xl:h-64 ${className}`}
     >
       <div className="absolute top-2 right-2 z-10">
         <FavoriteButton
@@ -78,45 +78,44 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
       </div>
 
       <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
-        <CardImage media={post.media?.[0]} isBlogCard className="h-full w-full object-cover" />
+        <CardImage media={post.media?.[0]} isBlogCard className="flex-grow w-full object-cover" />
       </div>
 
-      <div className="p-4 md:p-6 flex flex-col justify-between w-full">
-        <div className="flex flex-col gap-y-1 sm:gap-y-2">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
-            {post.title}
-          </h2>
+      <div className="p-4 md:p-6 flex flex-col w-full flex-grow">
+  {/* Contenido (título, tags, texto) */}
+  <div className="flex flex-col gap-2 overflow-hidden max-h-[calc(100%-4rem)]">
+    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 line-clamp-1">
+      {post.title}
+    </h2>
 
-          {!!post.tags?.length && (
-            <div className="flex flex-wrap gap-1">
-              {post.tags.map((tag, idx) => (
-                <PostsTags
-                  key={tag.id || idx}
-                  postType={post.postType?.name || 'Blog'}
-                  iconType="race"
-                  value={tag.name}
-                />
-              ))}
-            </div>
-          )}
-
-          <p className="text-xs sm:text-sm md:text-base text-gray-700">{previewText}</p>
-        </div>
-
-        <div className="flex flex-col md:flex-row items-center justify-between mt-3">
-          {post.userFullName && (
-            <p className="text-[10px] sm:text-xs text-gray-500">Por {post.userFullName}</p>
-          )}
-          {post.publicationDate && (
-            <p
-              className="text-[10px] sm:text-xs text-gray-500 self-end"
-              title={formatLongDate(post.publicationDate)}
-            >
-              {formatMediumDate(post.publicationDate)}
-            </p>
-          )}
-        </div>
+    {!!post.tags?.length && (
+      <div className="flex flex-wrap gap-1">
+        {post.tags.map((tag, idx) => (
+          <PostsTags
+            key={tag.id || idx}
+            postType={post.postType?.name || 'Blog'}
+            iconType="race"
+            value={tag.name}
+          />
+        ))}
       </div>
+    )}
+
+    <p className="text-xs sm:text-sm md:text-base text-gray-700 line-clamp-3">
+      {previewText}
+    </p>
+  </div>
+
+  {/* Footer: autor + fecha */}
+  <div className="mt-auto flex justify-between items-center  text-[10px] sm:text-xs text-gray-500">
+    <p>Por {post.organizationName || post.userFullName}</p>
+    {post.publicationDate && (
+      <p title={formatLongDate(post.publicationDate)}>
+        {formatMediumDate(post.publicationDate)}
+      </p>
+    )}
+  </div>
+</div>
     </Link>
   );
 }

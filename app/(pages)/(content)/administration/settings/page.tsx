@@ -1,215 +1,68 @@
-"use client"
+"use client";
 
-import Card from "@/components/card"
-import { Animal } from "@/types/animal";
+import Card from "@/components/card";
 import { useState, useEffect } from "react";
 import Modal from "@/components/modal";
 import { useAuth } from "@/contexts/auth-context";
-import { getAnimals, createAnimal, deleteAnimal, updateAnimal } from "@/utils/animals.http";
-import { getPetStatus, createPetStatus, updatePetStatus, deletePetStatus } from "@/utils/pet-statuses.http";
-import { PetStatus } from "@/types/pet-status";
-import FormAnimals from "@/components/form-animal";
-import FormPetStatus from "@/components/form-pet-status";
-import PetBreeds from "@/components/pet-breeds";
-import { Alert } from "@material-tailwind/react";
-import { ConfirmationModal } from "@/components/form/modal";
 import { ReportReason } from "@/types/report-reason";
 import { getReportReasons, createReportReason, deleteReportReason, updateReportReason } from "@/utils/report-reasons.http";
 import FormReportReason from "@/components/form-report-reason";
 import { ProductCategory } from "@/types/product-category";
 import { getProductCategories, createProductCategory, updateProductCategory, deleteProductCategory } from "@/utils/product-category.http";
 import FormProductCategory from "@/components/form-product-category";
+import { Alert } from "@material-tailwind/react";
+import { ConfirmationModal } from "@/components/form/modal";
+import PetBreeds from "@/components/pet-breeds";
 
-export default function page() {
-  const [modalAnimal, setModalAnimal] = useState(false);
-  const [modalPetStatus, setModalPetStatus] = useState(false);
+export default function Page() {
   const [modalReportReason, setModalReportReason] = useState(false);
   const [modalProductCategory, setModalProductCategory] = useState(false);
-  const [animals, setAnimals] = useState<Animal[]>([]);
-  const [petStatuses, setPetStatuses] = useState<PetStatus[]>([]);
   const [reportReasons, setReportReasons] = useState<ReportReason[]>([]);
   const [productCategories, setProductCategories] = useState<ProductCategory[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [animalSelected, setAnimalSelected] = useState<Animal>({ id: 0, name: "" });
-  const [petStatusSelected, setPetStatusSelected] = useState<PetStatus>({ id: 0, name: "", description: "" });
   const [reportReasonSelected, setReportReasonSelected] = useState<ReportReason>({ id: 0, description: "" });
   const [productCategorySelected, setProductCategorySelected] = useState<ProductCategory>({ id: 0, name: "" });
-  const [deleteType, setDeleteType] = useState<"animal" | "petStatus" | "reportReason" | "productCategory" | null>(null);
+  const [deleteType, setDeleteType] = useState<"reportReason" | "productCategory" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { authToken, user } = useAuth();
 
   useEffect(() => {
-    const fetchAnimals = async () => {
+    const fetchData = async () => {
       try {
         if (!authToken || !user || user.role !== "admin") return;
-        const animals = await getAnimals();
-        const petStatuses = await getPetStatus();
-        const reportReasons = await getReportReasons();
-        const productCategoriesResponse = await getProductCategories();
-
-        setAnimals(animals.data);
-        setPetStatuses(petStatuses.data);
-        setReportReasons(reportReasons.data);
-        setProductCategories(productCategoriesResponse.data);
+        const reportReasonsRes = await getReportReasons();
+        const productCategoriesRes = await getProductCategories();
+        setReportReasons(reportReasonsRes.data);
+        setProductCategories(productCategoriesRes.data);
       } catch (error: any) {
-        console.error('Error al obtener datos:', error);
+        console.error("Error al obtener datos:", error);
         setErrorMessage(error.message);
       }
-    }
-    fetchAnimals();
-  }, [authToken])
-
-  const handleSubmitAnimal = async (newAnimal: Animal) => {
-    try {
-      if (!authToken) return;
-      if (newAnimal.id) {
-        //actualizar animal
-        await updateAnimal(authToken, newAnimal);
-        setAnimals(animals.map((animal) => animal.id === newAnimal.id ? newAnimal : animal));
-        setModalAnimal(false);
-        setSuccessMessage("Animal actualizado correctamente");
-        return;
-      } else {
-        const { id, ...animalData } = newAnimal;
-        const animal = await createAnimal(authToken, animalData);
-        setAnimals([...animals, animal]);
-        setModalAnimal(false);
-        setSuccessMessage("Animal creado correctamente");
-      }
-    } catch (error: any) {
-      console.error('Error al guardar animal:', error);
-      setErrorMessage(error.message);
-    }
-  }
-
-  const handleDeleteAnimal = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (animalSelected.id === 0) {
-      setModalAnimal(false);
-      return;
-    }
-    setDeleteType("animal");
-    setIsOpenModal(true);
-    return;
-  }
-
-  const openEditAnimal = (animal: Animal) => {
-    setAnimalSelected(animal);
-    setModalAnimal(true);
-  }
-
-  const openEditPetStatus = (petStatus: PetStatus) => {
-    setPetStatusSelected(petStatus);
-    setModalPetStatus(true);
-  }
-
-  const handleSubmitPetStatus = async (newPetStatus: PetStatus) => {
-    try {
-      if (!authToken) return;
-      if (newPetStatus.id) {
-        //actualizar estado
-        await updatePetStatus(authToken, newPetStatus);
-        //actualizar lista de estados
-        setPetStatuses(petStatuses.map((petStatus) => petStatus.id === newPetStatus.id ? newPetStatus : petStatus));
-        setModalPetStatus(false);
-        setSuccessMessage("Estado actualizado correctamente");
-        return;
-      } else {
-        const petStatus = await createPetStatus(authToken, newPetStatus);
-        //actualizar lista de estados
-        setPetStatuses([...petStatuses, petStatus]);
-        setModalPetStatus(false);
-        setSuccessMessage("Estado creado correctamente");
-      }
-      //crear estado
-    } catch (error: any) {
-      console.error('Error al crear estado:', error);
-      setErrorMessage(error.message);
-    }
-  }
-
-  const openEditReportReason = (reportReason: ReportReason) => {
-    setReportReasonSelected(reportReason);
-    setModalReportReason(true);
-  }
-
-  const handleDeletePetStatus = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (petStatusSelected.id === 0) {
-      setModalPetStatus(false);
-      return;
-    }
-    setDeleteType("petStatus");
-    setIsOpenModal(true);
-    return;
-  }
-  const confirmDeleteAnimal = async () => {
-    try {
-      if (!authToken) return;
-      //eliminar animal
-      await deleteAnimal(authToken, animalSelected.id);
-      //actualizar lista de animales
-      setAnimals(animals.filter((animal) => animal.id !== animalSelected.id));
-      setModalAnimal(false);
-      setSuccessMessage("Animal eliminado correctamente");
-    } catch (error: any) {
-      console.error('Error al eliminar animal:', error);
-      setErrorMessage(error.message);
-    } finally {
-      setIsOpenModal(false);
-    }
-  }
-
-  const confirmDeletePetStatus = async () => {
-    try {
-      if (!authToken) return;
-      //eliminar estado
-      await deletePetStatus(authToken, petStatusSelected.id);
-      //actualizar lista de estados
-      setPetStatuses(petStatuses.filter((petStatus) => petStatus.id !== petStatusSelected.id));
-      setModalPetStatus(false);
-      setSuccessMessage("Estado eliminado correctamente");
-    } catch (error: any) {
-      console.error('Error al eliminar estado:', error);
-      setErrorMessage(error.message);
-    } finally {
-      setIsOpenModal(false);
-      setModalPetStatus(false)
-    }
-  }
-  const onClickLabelAddAnimal = () => {
-    setAnimalSelected({ id: 0, name: "" });
-    setModalAnimal(true);
-  }
-
-  const onClickLabelAddPetStatus = () => {
-    setPetStatusSelected({ id: 0, name: "", description: "" });
-    setModalPetStatus(true);
-  }
+    };
+    fetchData();
+  }, [authToken]);
 
   const addReportReason = async (newReportReason: ReportReason) => {
     if (!authToken) return;
     try {
       if (reportReasonSelected.id) {
-        //actualizar motivo
         await updateReportReason(authToken, newReportReason);
-        //actualizar lista de motivos
-        setReportReasons(reportReasons.map((reportReason) => reportReason.id === reportReasonSelected.id ? newReportReason : reportReason));
-        setModalReportReason(false);
+        setReportReasons(reportReasons.map((reason) =>
+          reason.id === reportReasonSelected.id ? newReportReason : reason
+        ));
         setSuccessMessage("Motivo actualizado correctamente");
-        return;
       } else {
-        const reportReason = await createReportReason(authToken, newReportReason);
-        setReportReasons([...reportReasons, reportReason]);
-        setModalReportReason(false);
+        const created = await createReportReason(authToken, newReportReason);
+        setReportReasons([...reportReasons, created]);
         setSuccessMessage("Motivo creado correctamente");
       }
+      setModalReportReason(false);
     } catch (error: any) {
-      console.error('Error al guardar motivo:', error);
+      console.error("Error al guardar motivo:", error);
       setErrorMessage(error.message);
     }
-  }
+  };
 
   const handleDeleteReportReason = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -219,64 +72,54 @@ export default function page() {
     }
     setDeleteType("reportReason");
     setIsOpenModal(true);
-    return;
-  }
+  };
 
   const confirmDeleteReportReason = async () => {
     try {
       if (!authToken) return;
-      //eliminar motivo
       await deleteReportReason(authToken, reportReasonSelected.id);
-      //actualizar lista de motivos
-      setReportReasons(reportReasons.filter((reportReason) => reportReason.id !== reportReasonSelected.id));
-      setModalReportReason(false);
+      setReportReasons(reportReasons.filter((reason) => reason.id !== reportReasonSelected.id));
       setSuccessMessage("Motivo eliminado correctamente");
     } catch (error: any) {
-      console.error('Error al eliminar motivo:', error);
+      console.error("Error al eliminar motivo:", error);
       setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
       setModalReportReason(false);
     }
-  }
+  };
+
+  const openEditReportReason = (reportReason: ReportReason) => {
+    setReportReasonSelected(reportReason);
+    setModalReportReason(true);
+  };
+
   const onClickLabelAddReportReason = () => {
     setReportReasonSelected({ id: 0, description: "" });
     setModalReportReason(true);
-  }
-
-  const openEditProductCategory = (productCategory: ProductCategory) => {
-    setProductCategorySelected(productCategory);
-    setModalProductCategory(true);
-  }
-
-  const onClickLabelAddProductCategory = () => {
-    setProductCategorySelected({ id: 0, name: "" });
-    setModalProductCategory(true);
-  }
+  };
 
   const handleSubmitProductCategory = async (newProductCategory: ProductCategory) => {
     try {
       if (!authToken) return;
       if (newProductCategory.id) {
         await updateProductCategory(authToken, newProductCategory);
-        setProductCategories(productCategories.map(category =>
+        setProductCategories(productCategories.map((category) =>
           category.id === newProductCategory.id ? newProductCategory : category
         ));
-        setModalProductCategory(false);
         setSuccessMessage("Categoría de producto actualizada correctamente");
-        return;
       } else {
         const { id, ...categoryData } = newProductCategory;
-        const productCategory = await createProductCategory(authToken, categoryData);
-        setProductCategories([...productCategories, productCategory]);
-        setModalProductCategory(false);
+        const created = await createProductCategory(authToken, categoryData);
+        setProductCategories([...productCategories, created]);
         setSuccessMessage("Categoría de producto creada correctamente");
       }
+      setModalProductCategory(false);
     } catch (error: any) {
-      console.error('Error al guardar categoría de producto:', error);
+      console.error("Error al guardar categoría de producto:", error);
       setErrorMessage(error.message);
     }
-  }
+  };
 
   const handleDeleteProductCategory = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -286,24 +129,32 @@ export default function page() {
     }
     setDeleteType("productCategory");
     setIsOpenModal(true);
-    return;
-  }
+  };
 
   const confirmDeleteProductCategory = async () => {
     try {
       if (!authToken) return;
       await deleteProductCategory(authToken, productCategorySelected.id);
-      setProductCategories(productCategories.filter(category => category.id !== productCategorySelected.id));
-      setModalProductCategory(false);
+      setProductCategories(productCategories.filter((category) => category.id !== productCategorySelected.id));
       setSuccessMessage("Categoría de producto eliminada correctamente");
     } catch (error: any) {
-      console.error('Error al eliminar categoría de producto:', error);
+      console.error("Error al eliminar categoría de producto:", error);
       setErrorMessage(error.message);
     } finally {
       setIsOpenModal(false);
       setModalProductCategory(false);
     }
-  }
+  };
+
+  const openEditProductCategory = (productCategory: ProductCategory) => {
+    setProductCategorySelected(productCategory);
+    setModalProductCategory(true);
+  };
+
+  const onClickLabelAddProductCategory = () => {
+    setProductCategorySelected({ id: 0, name: "" });
+    setModalProductCategory(true);
+  };
 
   return (
     <>
@@ -316,7 +167,6 @@ export default function page() {
           {successMessage}
         </Alert>
       )}
-
       {errorMessage && (
         <Alert
           color="red"
@@ -326,54 +176,50 @@ export default function page() {
           {errorMessage}
         </Alert>
       )}
-      <div className="rounded-lg  p-6">
+
+      <div className="rounded-lg p-6">
         <div className="flex justify-center gap-3">
-          {/*Modal Section */}
-          <Modal isOpen={modalAnimal} onClose={() => setModalAnimal(false)} title={animalSelected.id === 0 ? "Crear animal" : "Editar animal"}>
-            <FormAnimals onCreate={handleSubmitAnimal} onDelete={handleDeleteAnimal} animalData={animalSelected} />
+          <Modal
+            isOpen={modalReportReason}
+            onClose={() => setModalReportReason(false)}
+            title="Motivo de Reporte"
+          >
+            <FormReportReason
+              onCreate={addReportReason}
+              onDelete={handleDeleteReportReason}
+              reasonData={reportReasonSelected}
+            />
           </Modal>
-          <Modal isOpen={modalPetStatus} onClose={() => setModalPetStatus(false)} title={petStatusSelected.id === 0 ? "Crear estado" : "Editar estado"}>
-            <FormPetStatus onCreate={handleSubmitPetStatus} onDelete={handleDeletePetStatus} petStatusData={petStatusSelected} />
-          </Modal>
-          <Modal isOpen={modalReportReason} onClose={() => setModalReportReason(false)} title="Motivo de Reporte">
-            <FormReportReason onCreate={addReportReason} onDelete={handleDeleteReportReason} reasonData={reportReasonSelected} />
-          </Modal>
-          <Modal isOpen={modalProductCategory} onClose={() => setModalProductCategory(false)} title={productCategorySelected.id === 0 ? "Crear categoría de producto" : "Editar categoría de producto"}>
-            <FormProductCategory onCreate={handleSubmitProductCategory} onDelete={handleDeleteProductCategory} productCategoryData={productCategorySelected} />
+
+          <Modal
+            isOpen={modalProductCategory}
+            onClose={() => setModalProductCategory(false)}
+            title={productCategorySelected.id === 0 ? "Crear categoría de producto" : "Editar categoría de producto"}
+          >
+            <FormProductCategory
+              onCreate={handleSubmitProductCategory}
+              onDelete={handleDeleteProductCategory}
+              productCategoryData={productCategorySelected}
+            />
           </Modal>
 
           <ConfirmationModal
             isOpen={isOpenModal}
             title="Eliminar"
-            message={`¿Estás seguro de que deseas eliminar ${deleteType === "animal" ? "este animal" :
-              deleteType === "petStatus" ? "este estado" :
-                deleteType === "reportReason" ? "este motivo" :
-                  "esta categoría de producto"
-              }?`}
+            message={`¿Estás seguro de que deseas eliminar ${
+              deleteType === "reportReason" ? "este motivo" : "esta categoría de producto"
+            }?`}
             textConfirm="Eliminar"
             confirmVariant="danger"
-            onClose={() => { setIsOpenModal(false); setDeleteType(null); }}
+            onClose={() => {
+              setIsOpenModal(false);
+              setDeleteType(null);
+            }}
             onConfirm={
-              deleteType === "animal" ? confirmDeleteAnimal :
-                deleteType === "petStatus" ? confirmDeletePetStatus :
-                  deleteType === "reportReason" ? confirmDeleteReportReason :
-                    confirmDeleteProductCategory
+              deleteType === "reportReason" ? confirmDeleteReportReason : confirmDeleteProductCategory
             }
           />
 
-          {/**Cards*/}
-          <Card
-            title="Animales"
-            content={animals}
-            onClickLabelDefault={openEditAnimal}
-            onClickLabelAdd={onClickLabelAddAnimal}
-          />
-          <Card
-            title="Estados de mascotas"
-            content={petStatuses}
-            onClickLabelDefault={openEditPetStatus}
-            onClickLabelAdd={onClickLabelAddPetStatus}
-          />
           <Card
             title="Motivos de reporte"
             content={reportReasons}

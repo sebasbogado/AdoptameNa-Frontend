@@ -1,5 +1,5 @@
 "use client"
-import { Medal, Send, Inbox } from "lucide-react";
+import { Medal, Send, Inbox, Building2Icon } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/app/loading";
 import { useAuth } from "@/contexts/auth-context";
@@ -25,6 +25,7 @@ export default function ReceivedRequestsPage() {
             <h1 className="text-2xl font-bold mb-8">Mis solicitudes</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {(user?.role === 'admin' || user?.role === 'organization') && (
+                    <>
                     <Link href="/profile/received-request/sponsors">
                         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                             <div className="bg-yellow-100 p-4 rounded-full mb-4">
@@ -34,6 +35,17 @@ export default function ReceivedRequestsPage() {
                             <p className="text-gray-600 text-center">Ver y gestionar tus solicitudes de auspicio</p>
                         </div>
                     </Link>
+                     <Link href="/profile/received-request/crowdfunding-sent">
+                    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+                        <div className="bg-purple-100 p-4 rounded-full mb-4">
+                            <Building2Icon size={48} className="text-purple-600" />
+                        </div>
+                        <h2 className="text-xl font-semibold mb-2">Crowdfunding</h2>
+                        <p className="text-gray-600 text-center">Solicitudes de colecta que enviaste</p>
+                    </div>
+                </Link>
+                                    </>
+
                 )}
                 <Link href="/profile/received-request/adoption-sent">
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">

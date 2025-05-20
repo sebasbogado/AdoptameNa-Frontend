@@ -57,7 +57,6 @@ const getProductsData = async (
         const response = await getProducts(queryParams);
         setMarketplacePosts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, posts: true }));
     } finally {
         setLoading(false);
@@ -77,7 +76,6 @@ const getUserProfileData = async (
         setUserProfile(profile);
 
     } catch (err) {
-        console.error("Error al cargar el perfil:", err);
         setErrors(prev => ({ ...prev, userProfile: true }));
     } finally {
         setLoading(false);
@@ -104,7 +102,6 @@ const getPostsData = async (
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, posts: true }));
     } finally {
         setLoading(false);
@@ -129,7 +126,6 @@ const getPetsData = async (
         const petData = await getPets(postParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, pets: true }));
     } finally {
         setLoading(false);
@@ -175,7 +171,6 @@ export default function ProfilePage() {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
         } catch (err) {
-            console.error("Error al actualizar el perfil:", err);
             setErrors(prev => ({ ...prev, userProfile: true }));
 
         } finally {
@@ -208,8 +203,6 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!authLoading && !authToken) {
-            console.log("authLoading", authLoading);
-            console.log("authToken", authToken);
             router.push("/auth/login");
         }
 
@@ -239,14 +232,12 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-        console.log("authLoading", authLoading);
         getPostsData(setPosts, setLoading, setErrors, String(user.id)
         );
     }, [authToken, authLoading, user?.id]);
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
 
-        console.log("authLoading", authLoading);
         getProductsData(setMarketplacePosts, setLoading, setErrors, String(user.id));
 
     }, [authToken, authLoading, user?.id]);
@@ -380,8 +371,8 @@ export default function ProfilePage() {
                             address: userProfile?.address ?? null,
                             gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
                             birthdate: userProfile?.birthdate
-                                ? new Date(userProfile.birthdate)
-                                : null,
+                                ? userProfile.birthdate.split("T")[0]
+                                : undefined,
                             description: userProfile?.description ?? "",
                             addressCoordinates: userProfile?.addressCoordinates
                                 ? userProfile.addressCoordinates.split(",").map(parseFloat)
