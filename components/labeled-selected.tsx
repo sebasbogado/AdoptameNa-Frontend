@@ -6,11 +6,12 @@ interface LabeledSelectProps {
     options: any[];
     selected: any;
     setSelected: (value: any) => void;
+    className?: string;
 }
 
-const LabeledSelect: React.FC<LabeledSelectProps> = ({ label, options, selected, setSelected }) => {
+const LabeledSelect: React.FC<LabeledSelectProps> = ({ label, options, selected, setSelected, className="" }) => {
     return (
-        <div className="flex flex-col">
+        <div className={`flex flex-col ${className}`}>
             <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
             <CustomSelect label={label} options={options} selected={selected} setSelected={setSelected} />
         </div>

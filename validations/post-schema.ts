@@ -1,5 +1,5 @@
 import { z } from "zod";
-
+export const MAX_TAGS = 5;
 export const postSchema = z.object({
   postTypeId: z.number().min(1, "Seleccione un tipo de publicación"),
   title: z.string()
@@ -21,7 +21,9 @@ export const postSchema = z.object({
     .max(15, "Número inválido (9-15 dígitos)")
     .regex(/^\+?\d{9,15}$/, "Número inválido (9-15 dígitos)"),
   mediaIds: z.array(z.number()).optional(),
-  tagIds: z.array(z.number()).optional(),
-});
+tagIds: z
+  .array(z.number())
+  .max(MAX_TAGS, `Máximo ${MAX_TAGS} tags permitidos`)
+  .optional(),});
 
 export type PostFormValues = z.infer<typeof postSchema>;

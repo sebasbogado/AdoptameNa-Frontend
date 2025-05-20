@@ -26,9 +26,10 @@ interface PostButtonsProps {
     isPet?: boolean;
     onShare?: () => void;
     postIdUser?: number; //id user owner
+    sizeButton?: "xs" | "sm" | "md" | "lg";
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -158,17 +159,20 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
         }
     };
     return (
-        <div className="m-4 gap-3 flex justify-end h-12 relative pr-12">
+        <div className=" gap-3 flex justify-end relative pr-12">
             {isPet && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
                 </Button>
             )}
-
+            
+            {!isEditing && (
+            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
+            )}
             {isEditing && (
                 <div className="relative inline-block text-left">
                     <EditButton
-                        size="lg"
+                        size={sizeButton}
                         isEditing={false}
                         id="edit-button"
                         onClick={() => {
@@ -222,7 +226,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
             )}
 
             <div className="relative">
-                <SendButton size="lg" onClick={handleShare} disabled={copied} />
+                <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
                         color="gray"
@@ -233,7 +237,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser }: PostButtons
                 )}
             </div>
 
-            <ReportButton size="lg" idEntity={postId} isPet={isPet} />
 
             <div className="relative">
                 {!isPet && (

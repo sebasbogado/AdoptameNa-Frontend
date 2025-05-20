@@ -10,39 +10,63 @@ import {
   Globe 
 } from "lucide-react";
 import { useNotifications } from "@/contexts/notification-context";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { NotificationType } from "@/types/notification";
 import { formatTimeAgo } from "@/utils/date-format";
 import { Alert } from "@material-tailwind/react";
+import dynamic from "next/dynamic";
+
+// Importar el componente SoundToggle dinámicamente para evitar errores de SSR
+const SoundToggle = dynamic(() => import("./sound-toggle"), { ssr: false });
+
+// Componente wrapper para cargar SoundToggle dinámicamente
+const SoundToggleWrapper = () => <SoundToggle />;
 
 const NotificationBell = () => {
-  const { bellNotifications, unreadCount, loading, markAsRead } = useNotifications();
+  const { bellNotifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [latestNotification, setLatestNotification] = useState<{ title: string; message: string } | null>(null);
+  const seenNotificationIds = useRef<Set<number>>(new Set());
+  const isFirstLoad = useRef<boolean>(true);
 
-  // Observar cambios en las notificaciones para mostrar el toast
   useEffect(() => {
-    if (!loading && bellNotifications.length > 0) {
-      const unreadNotifications = bellNotifications.filter(n => !n.isRead);
+    if (loading) return;
+    
+    
+    if (isFirstLoad.current && bellNotifications.length > 0) {
+      bellNotifications.forEach(notification => {
+        seenNotificationIds.current.add(notification.id);
+      });
+      isFirstLoad.current = false;
+      return;
+    }
+    
+    if (!isFirstLoad.current && bellNotifications.length > 0) {
+      const newNotification = bellNotifications.find(
+        notification => !seenNotificationIds.current.has(notification.id)
+      );
       
-      if (unreadNotifications.length > 0) {
-        // Mostrar el toast para la notificación más reciente no leída
-        const newest = unreadNotifications[0];
+      if (newNotification && !newNotification.isRead) {
         setLatestNotification({
-          title: newest.title,
-          message: newest.message
+          title: newNotification.title,
+          message: newNotification.message
         });
         setShowToast(true);
         
-        // Ocultar el toast después de 5 segundos
         const timer = setTimeout(() => {
           setShowToast(false);
         }, 5000);
         
+        seenNotificationIds.current.add(newNotification.id);
+        
         return () => clearTimeout(timer);
       }
+      
+      bellNotifications.forEach(notification => {
+        seenNotificationIds.current.add(notification.id);
+      });
     }
   }, [bellNotifications, loading]);
 
@@ -52,10 +76,14 @@ const NotificationBell = () => {
     }
   };
 
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
+  };
+
   const getNotificationIcon = (type: NotificationType) => {
     switch(type) {
       case NotificationType.PERSONAL:
-        return <UserIcon className="w-4 h-4 text-blue-500" />;
+        return <UserIcon className="w-4 h-4 text-amber-500" />;
       case NotificationType.ROLE_BASED:
         return <Users className="w-4 h-4 text-purple-500" />;
       case NotificationType.GLOBAL:
@@ -66,7 +94,6 @@ const NotificationBell = () => {
 
   return (
     <>
-      {/* Toast para nuevas notificaciones */}
       {showToast && latestNotification && (
         <Alert
           open={showToast}
@@ -103,16 +130,20 @@ const NotificationBell = () => {
             className="min-w-[350px] max-w-[400px] bg-white rounded-md p-2 shadow-md z-50"
             sideOffset={5}
             align="end"
-          >
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+          >            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
               <span className="font-medium text-sm text-gray-800">Notificaciones</span>
-              <Link 
-                href="/profile/notifications" 
-                className="text-xs text-amber-600 hover:text-amber-800"
-                onClick={() => setOpen(false)}
-              >
-                Ver todas
-              </Link>
+              <div className="flex items-center gap-2">
+                {/* Importar dinámicamente el SoundToggle para evitar errores de SSR */}
+                {typeof window !== 'undefined' && (
+                  <SoundToggleWrapper />
+                )}
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-xs text-amber-500 hover:text-amber-700"
+                >
+                  Marcar todo como leído
+                </button>
+              </div>
             </div>
             
             <div className="max-h-[350px] overflow-y-auto">
@@ -160,13 +191,16 @@ const NotificationBell = () => {
               )}
             </div>
             
-            <Link 
-              href="/profile/notifications" 
-              className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
-              onClick={() => setOpen(false)}
-            >
-              Ver todas las notificaciones
-            </Link>
+            <div className="flex justify-between items-center px-3 py-2 border-t border-gray-200">
+              
+              <Link 
+                href="/profile/notifications" 
+                className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
+                onClick={() => setOpen(false)}
+              >
+                Ver todas las notificaciones
+              </Link>
+            </div>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>

@@ -11,6 +11,7 @@ import { Sponsor, SponsorStatus, FilterStatus } from "@/types/sponsor";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
 import { useRouter } from "next/navigation";
+import SponsorCard from '@/components/sponsor/sponsor-card';
 
 export default function UserSponsorsPage() {
     const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
@@ -106,7 +107,7 @@ export default function UserSponsorsPage() {
                             {applications.map((application) => (
                                 <SponsorCard
                                     key={application.id}
-                                    application={application}
+                                    sponsor={application}
                                 />
                             ))}
                         </div>
@@ -122,72 +123,6 @@ export default function UserSponsorsPage() {
                     />
                 </>
             )}
-        </div>
-    );
-}
-
-interface SponsorCardProps {
-    application: Sponsor;
-}
-
-function SponsorCard({ application }: SponsorCardProps) {
-    const [hasLogoError, setHasLogoError] = useState(false);
-    const router = useRouter();
-
-    const handleLogoError = () => {
-        setHasLogoError(true);
-    };
-
-    const handleCardClick = (e: React.MouseEvent) => {
-        // Evitar la navegación si se hace clic en los botones de acción
-        if ((e.target as HTMLElement).closest('button')) {
-            return;
-        }
-        router.push(`/profile/received-request/sponsors/${application.id}`);
-    };
-
-    return (
-        <div 
-            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200 flex flex-col cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={handleCardClick}
-        >
-            <div className="h-32 bg-gray-100 flex items-center justify-center relative overflow-hidden border-b">
-                {application.logoUrl && !hasLogoError ? (
-                    <Image
-                        src={application.logoUrl}
-                        alt={`Logo Solicitud ${application.id}`}
-                        fill
-                        className="object-cover w-full h-full"
-                        onError={handleLogoError}
-                    />
-                ) : (
-                    <span className="logo-placeholder text-gray-400 text-sm italic">
-                        {application.logoId ? 'Error al cargar logo' : 'Sin logo'}
-                    </span>
-                )}
-            </div>
-            <div className="p-4 flex-grow">
-                <h3 className="text-lg font-semibold mb-1">{application.organizationName || application.fullName}</h3>
-                <p className="text-sm text-gray-700 mb-1"><span className="font-medium">Razón:</span></p>
-                <p className="text-sm text-gray-700 p-2 max-h-20 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-                    {application.reason || 'No especificada'}
-                </p>
-            </div>
-            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 items-center">
-                {application.status === 'ACTIVE' ? (
-                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-green-400 bg-green-50 text-green-700">
-                        <Check size={16} className="mr-1"/> Aprobado
-                    </span>
-                ) : application.status === 'PENDING' ? (
-                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-yellow-400 bg-yellow-50 text-yellow-700">
-                        <X size={16} className="mr-1"/> Pendiente
-                    </span>
-                ) : (
-                    <span className="text-sm font-medium flex items-center px-3 py-1 rounded border border-red-400 bg-red-50 text-red-700">
-                        <X size={16} className="mr-1"/> Rechazado
-                    </span>
-                )}
-            </div>
         </div>
     );
 }
