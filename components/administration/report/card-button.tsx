@@ -2,7 +2,6 @@
 import React from "react";
 import clsx from "clsx";
 import PetCard from "@/components/petCard/pet-card";
-import ProductCard from "@/components/product-Card/product-card"; // 👈 nuevo import
 import ReportCommentCard from "@/components/administration/report/report-comment-card";
 import Link from "next/link";
 import Button from "@/components/buttons/button";
