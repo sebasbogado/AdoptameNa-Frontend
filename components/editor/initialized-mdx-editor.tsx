@@ -10,6 +10,14 @@ import {
   type MDXEditorMethods,
   type MDXEditorProps,
   imagePlugin,
+  toolbarPlugin,
+  UndoRedo,
+  Separator,
+  BoldItalicUnderlineToggles,
+  BlockTypeSelect,
+  ListsToggle,
+  InsertImage,
+  InsertThematicBreak,
 } from '@mdxeditor/editor';
 
 interface InitializedMDXEditorProps extends MDXEditorProps {
@@ -19,7 +27,7 @@ interface InitializedMDXEditorProps extends MDXEditorProps {
 export default function InitializedMDXEditor({
   editorRef,
   ...props
-}: InitializedMDXEditorProps) {
+}: InitializedMDXEditorProps) { 
   return (
     <MDXEditor
       ref={editorRef}
@@ -30,7 +38,23 @@ export default function InitializedMDXEditor({
         thematicBreakPlugin(),
         markdownShortcutPlugin(),
         imagePlugin(),
-        
+          toolbarPlugin({
+          toolbarContents: () => (
+            <>
+              <UndoRedo />
+              <Separator />
+              <BlockTypeSelect />
+              <Separator />
+              <BoldItalicUnderlineToggles />
+              <Separator />
+              <ListsToggle />
+              <Separator />
+              <InsertImage />
+              <InsertThematicBreak />
+            </>
+          ),
+        }),
+        markdownShortcutPlugin(),
       ]}
       {...props}
     />

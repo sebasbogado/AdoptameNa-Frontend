@@ -30,7 +30,8 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
+        trigger,
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -308,6 +309,7 @@ export default function Page() {
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
                 MAX_TAGS={MAX_TAGS}
+                trigger={trigger}
             />
 
             {isModalOpen &&
