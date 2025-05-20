@@ -3,6 +3,7 @@ import { buildQueryParams, crowdfundingQueryParams, PaginatedResponse } from "@/
 import axios from "axios";
 import build from "next/dist/build";
 
+
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/crowdfunding`;
 
 export const getCrowdfundings = async (
@@ -39,6 +40,8 @@ export const getCrowdfundingById = async (token: string, id: number) => {
         throw error;
     }
 };
+
+
 
 export const createCrowdfunding = async (
     token: string,
@@ -156,4 +159,3 @@ export const donateToCrowdfunding = async (
         throw error;
     }
 };
-

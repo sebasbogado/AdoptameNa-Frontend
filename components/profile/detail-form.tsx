@@ -8,13 +8,13 @@ import { MapPin, PhoneIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
-  createCrowdfunding,
   getCrowdfundings,
   updateCrowdfunding,
   updateCrowdfundingStatus
 } from "@/utils/crowfunding.http";
 import CrowdfundingModal from "@/components/crowfunding-modal";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
+import { Crowdfunding } from "@/types/crowfunding-type"
 import ConfirmationModal from "@/components/confirm-modal";
 import { DonationFormData } from "@/types/schemas/donation-schema";
 import DonationModal from "../donation-modal";
@@ -37,19 +37,20 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
 
-  const [crowdfunding, setCrowdfunding] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfunding, setCrowdfunding] = useState<Crowdfunding | null>(null);
   const [loadingCrowd, setLoadingCrowd] = useState(false);
   const isOrganization = !!userProfile?.organizationName?.trim();
   const displayName: string = userProfile?.organizationName?.trim() ? userProfile.organizationName : userProfile?.fullName ?? "";
   const { user: userAuth, authToken } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<Crowdfunding | null>(null);
   const [isConfirmFinishOpen, setIsConfirmFinishOpen] = useState(false);
   const [openDonationModal, setOpenDonationModal] = useState(false);
-  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<Crowdfunding | null>(null);
   const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
 
+  const isActive = crowdfunding?.status === "ACTIVE";
 
   useEffect(() => {
     if (userAuth && userProfile?.id) {
@@ -67,12 +68,19 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
       try {
         setLoadingCrowd(true);
-        const data = await getCrowdfundings(authToken, 0, 1, userProfile.id);
-        if (data?.data?.length > 0) {
+        if (isOwner && isActive) {
+          const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
+          console.log(userAuth)
+          setCrowdfunding(data.data[0]);
+        } else {
+          const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
+          console.log(userProfile)
           setCrowdfunding(data.data[0]);
         }
+
+
       } catch (err) {
-        console.error("Error al obtener crowdfunding:", err);
+        setErrorMessage?.("Ocurrió un error al obtener la colecta.");
       } finally {
         setLoadingCrowd(false);
       }
@@ -127,7 +135,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       );
       setCrowdfunding(updated);
     } catch (err) {
-      console.error("Error al actualizar la recaudación", err);
+      setErrorMessage?.("Ocurrió un error al actualizar la colecta.");
     }
   };
 
@@ -138,17 +146,15 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       setCrowdfunding({ ...crowdfunding, status: "CLOSED" });
       setSuccessMessage?.("Colecta finalizada con éxito.");
     } catch (err) {
-      console.error("Error al cerrar la recaudación", err);
       setErrorMessage?.("Ocurrió un error al finalizar la colecta.");
     }
   };
 
 
+
   const renderCrowdfunding = () => {
     if (!isOrganization || loadingCrowd) return null;
 
-
-    const isActive = crowdfunding?.status === "ACTIVE";
     const isVisible = crowdfunding !== null;
     const metaAlcanzada = crowdfunding && crowdfunding.currentAmount >= crowdfunding.goal;
 
@@ -158,7 +164,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
 
     //Fase 1: Organizacion sin colecta Activa
-    if (!isVisible && isOwner && !isActive) {
+    if (isVisible && isOwner && !isActive) {
       return (
         <div className="mt-8">
           <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
@@ -208,17 +214,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                 >
                   Finalizar
                 </button>
-
-                {/* <button
-                type="button"
-                className="bg-[#4781ff] hover:bg-[#3569e6] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
-                onClick={() => {
-                  setCrowdfundingToEdit(crowdfunding);
-                  setIsModalOpen(true);
-                }}
-              >
-                Modificar
-              </button> */}
 
                 <button
                   type="button"
@@ -275,8 +270,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
     return null;
   };
-
-
 
 
   return (
@@ -361,8 +354,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           setIsModalOpen(false);
           setCrowdfundingToEdit(null);
         }}
-        setSuccessMessage={(msg) => console.log("✅", msg)}
-        setErrorMessage={(msg) => console.error("❌", msg)}
+        setSuccessMessage={() => { }}
+        setErrorMessage={(msg) => console.error(msg)}
       />
 
       <ConfirmationModal
@@ -395,8 +388,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             setCrowdfunding(updated);
             setIsUpdateAmountOpen(false);
           }}
-          setSuccessMessage={(msg) => console.log("✅", msg)}
-          setErrorMessage={(msg) => console.error("❌", msg)}
+          setSuccessMessage={() => { }}
+          setErrorMessage={(msg) => console.error(msg)}
         />
       )}
     </div>
