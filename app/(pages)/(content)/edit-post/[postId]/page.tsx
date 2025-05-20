@@ -277,52 +277,62 @@ export default function Page() {
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        
+        const file = e.target.files[0];
+        const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+        
+        // Validar tipo de archivo
+        if (!allowedTypes.includes(file.type)) {
+            setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+            e.target.value = ''; // Limpiar el input
+            return;
+        }
+
+        // Verificar el tamaño del archivo (5MB)
+        if (file.size > 5 * (1024 * 1024)) {
+            setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
+            e.target.value = ''; // Limpiar el input
+            return;
+        }
+
+        // Verificar cantidad de imágenes
+        if (selectedImages.length >= MAX_IMAGES) {
+            setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
+            e.target.value = ''; // Limpiar el input
+            return;
+        }
+
         setLoading(true);
-        if (e.target.files) {
-            const file = e.target.files[0];
-            const fileData = new FormData();
-            fileData.append("file", file);
+        setErrorMessage(null);
+        setPrecautionMessage(null);
 
-            if (!authToken) {
-                throw new Error("El token de autenticación es requerido");
-            }
+        const fileData = new FormData();
+        fileData.append("file", file);
 
-            // Verifica la cantidad de imagens que se pueden subir
-            if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
-                return;
-            }
-            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
-            if (!allowedTypes.includes(file.type)) {
-                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
-                return;
-            }
-            // Verificar el tamaño del archivo (1MB)
-            if (file.size > 5 * (1024 * 1024)) {
-                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
-                return;
-            }
+        if (!authToken) {
+            setErrorMessage("Error de autenticación. Por favor, inicia sesión nuevamente.");
+            e.target.value = ''; // Limpiar el input
+            setLoading(false);
+            return;
+        }
 
-            try {
-                setLoading(true);
-                const response = await postMedia(fileData, authToken);
-
-                if (response) {
-                    const newSelectedImages = [...selectedImages, response];
-                    setSelectedImages(newSelectedImages);
-                    // Actualiza react-hook-form con TODOS los IDs actuales
-                    const updatedMediaIds = newSelectedImages.map(img => img.id);
-                    setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
-                    setSuccessMessage("Imagen subida.");
-                    setTimeout(() => setSuccessMessage(null), 2000);
-                }
-            } catch (error) {
-                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
-                console.error("Error al subir la imagen", error);
-            } finally {
-                setLoading(false);
-                if (e.target) e.target.value = '';
+        try {
+            const response = await postMedia(fileData, authToken);
+            if (response) {
+                const newSelectedImages = [...selectedImages, response];
+                setSelectedImages(newSelectedImages);
+                const updatedMediaIds = newSelectedImages.map(img => img.id);
+                setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
+                setSuccessMessage("Imagen subida correctamente.");
+                setTimeout(() => setSuccessMessage(null), 2000);
             }
+        } catch (error) {
+            console.error("Error al subir la imagen", error);
+            setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
+        } finally {
+            setLoading(false);
+            e.target.value = ''; // Limpiar el input
         }
     };
 
@@ -410,8 +420,7 @@ export default function Page() {
                     ))}
                     <input
                         type="file"
-                        accept="image/*"
-                        multiple
+                        accept="image/png,image/jpeg,image/webp"
                         className="hidden"
                         id="fileInput"
                         onChange={handleImageUpload}
