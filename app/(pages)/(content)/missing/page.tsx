@@ -15,6 +15,7 @@ import { PetStatus } from "@/types/pet-status";
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters } from "@/types/location-filter";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 
 export default function Page() {
   const { user } = useAuth();
@@ -166,6 +167,8 @@ export default function Page() {
           </div>
         )}
       </div>
+
+      <FloatingActionButton />
 
       <Pagination
         totalPages={totalPages}

@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters } from "@/types/location-filter";
 import { Animal } from "@/types/animal";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 
 export default function Page() {
     const { user } = useAuth();
@@ -187,6 +188,8 @@ export default function Page() {
                     )
                 )}
             </div>
+
+            <FloatingActionButton />
 
             {/* Pagination */}
             <Pagination
