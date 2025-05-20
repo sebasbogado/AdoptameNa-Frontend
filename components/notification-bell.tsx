@@ -15,6 +15,13 @@ import clsx from "clsx";
 import { NotificationType } from "@/types/notification";
 import { formatTimeAgo } from "@/utils/date-format";
 import { Alert } from "@material-tailwind/react";
+import dynamic from "next/dynamic";
+
+// Importar el componente SoundToggle dinámicamente para evitar errores de SSR
+const SoundToggle = dynamic(() => import("./sound-toggle"), { ssr: false });
+
+// Componente wrapper para cargar SoundToggle dinámicamente
+const SoundToggleWrapper = () => <SoundToggle />;
 
 const NotificationBell = () => {
   const { bellNotifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
@@ -123,15 +130,20 @@ const NotificationBell = () => {
             className="min-w-[350px] max-w-[400px] bg-white rounded-md p-2 shadow-md z-50"
             sideOffset={5}
             align="end"
-          >
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+          >            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
               <span className="font-medium text-sm text-gray-800">Notificaciones</span>
-             <button
-                onClick={handleMarkAllAsRead}
-                className="text-xs text-amber-500 hover:text-amber-700"
-              >
-                Marcar todo como leído
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Importar dinámicamente el SoundToggle para evitar errores de SSR */}
+                {typeof window !== 'undefined' && (
+                  <SoundToggleWrapper />
+                )}
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="text-xs text-amber-500 hover:text-amber-700"
+                >
+                  Marcar todo como leído
+                </button>
+              </div>
             </div>
             
             <div className="max-h-[350px] overflow-y-auto">
