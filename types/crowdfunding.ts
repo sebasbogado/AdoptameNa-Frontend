@@ -6,8 +6,9 @@ export interface ResponseCrowdfundingDTO {
     currentAmount: number;
     status: 'ACTIVE' | 'CLOSED' | 'NONE' | 'PENDING' | 'REJECTED';
     durationDays: number;
-    startDate?: string;
-    endDate?: string;
+    startDate: string;
+    endDate: string;
+    userId: number;
 }
 export enum CrowdfundingStatus {
     ACTIVE = 'ACTIVE',
@@ -22,4 +23,5 @@ export enum FilterStatus {
     PENDING = 'Pendiente',
     CLOSED = 'Finalizado',
     REJECTED = 'Rechazado',
+
 }
