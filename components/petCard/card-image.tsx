@@ -37,7 +37,8 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                 alt="Imagen de la tarjeta"
                 width={500}
                 height={500}
-                onLoadingComplete={() => setIsLoading(false)}
+                onLoad={() => setIsLoading(false)}
+                priority
                 onError={() => {
                     if (imageSrc !== notFoundSrc) setImageSrc(notFoundSrc);
                     setIsLoading(false);

@@ -55,6 +55,7 @@
   --color-secondary-brand-color: #F2AA0F;
   --color-found-tag: #73B263;
   --color-missing-tag: #FF5050;
+  --color-lilac-backgorund: #9747FF;
   /*Text colors*/
   --color-text-primary: #333333;
   --color-text-secondary: #636363;
@@ -115,4 +116,34 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;  /* IE y Edge */
   scrollbar-width: none;     /* Firefox */
+}
+@layer utilities {
+  .scrollbar-light {
+    overflow-x: auto; /* o overflow-y-auto si lo prefieres */
+  }
+
+  .scrollbar-light::-webkit-scrollbar {
+    height: 12px; /* 🆕 más alto (antes 8px) */
+    width: 12px;
+  }
+
+  .scrollbar-light::-webkit-scrollbar-track {
+    background: transparent;
+    
+  }
+
+  .scrollbar-light::-webkit-scrollbar-thumb {
+    background-color: #ffffff;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+  }
+
+ 
+
+  .scrollbar-light {
+    scrollbar-width: thin;
+    scrollbar-color: #efefef transparent;
+  }
+
+  /* Firefox hover no se puede personalizar, pero se verá gris claro */
 }

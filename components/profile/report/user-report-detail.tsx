@@ -8,6 +8,7 @@ import { Report } from '@/types/report';
 import Button from "@/components/buttons/button";
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
+import { Product } from "@/types/product";
 import UserSectionReport from './user-section-report';
 import UserReportCardButtons from './user-report-card-button';
 import ReportList from '@/components/administration/report/report-list';
@@ -15,7 +16,7 @@ import UserReportList from './user-report-list';
 
 
 interface Props<T> {
-  entity: Post | Pet;
+  entity: Post | Pet | Product;
   reports: Report[];
   onBack: () => void;
 }

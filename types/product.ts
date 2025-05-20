@@ -13,6 +13,7 @@ export interface Product {
   userId: number;
   animals: Animal[];
   userFullName: string;
+  organizationName: string;
   price: number;
   category: ProductCategory;
   condition: "NUEVO" | "USADO"; // Enum como string

@@ -6,6 +6,7 @@ import * as authServices from '@/utils/auth.http';
 import { getFullUser } from '@/utils/user-profile.http';
 import Cookies from 'js-cookie';
 import { UserProfile } from '@/types/user-profile';
+import { soundService } from '@/utils/sound-service';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TOKEN_COOKIE_NAME = 'authToken';
@@ -74,17 +75,20 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const token = Cookies.get(TOKEN_COOKIE_NAME);
 
-    if (token) {
-      fetchUserData(token);
+    if (token) {      // Cargar sonidos del servidor
+      soundService.setAuthToken(token)
+        .then(() => fetchUserData(token))
+        .catch((err: unknown) => {
+          console.error("Error al cargar sonidos:", err);
+          fetchUserData(token);
+        });
     } else {
       setLoading(false);
     }
   }, []);
-
   const login = async (credentials: LoginCredentials): Promise<boolean> => {
     try {
       const data = await authServices.login(credentials);
@@ -94,6 +98,9 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
       const { token, user } = data;
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
+      
+      // Cargar los sonidos desde el servidor
+      await soundService.setAuthToken(token);
 
       try {
         const fullUserData = await getFullUser(user.id.toString());
@@ -118,11 +125,12 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
   const loginWithGoogle = async (code: string): Promise<void> => {
     try {
-      const { token, user } = await authServices.loginWithGoogle(code);
-
-      if (!token || !user) throw new Error('Error de autenticación con Google');
+      const { token, user } = await authServices.loginWithGoogle(code);      if (!token || !user) throw new Error('Error de autenticación con Google');
 
       Cookies.set(TOKEN_COOKIE_NAME, token, { expires: COOKIE_EXPIRATION_DAYS });
+      
+      // Cargar los sonidos desde el servidor
+      await soundService.setAuthToken(token);
 
       try {
         const fullUserData = await getFullUser(user.id.toString());

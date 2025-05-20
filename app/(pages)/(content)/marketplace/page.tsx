@@ -19,6 +19,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
+import { capitalizeFirstLetter } from "@/utils/Utils";
 
 export default function Page() {
     const { user } = useAuth();
@@ -92,7 +93,12 @@ export default function Page() {
         const fetchAnimals = async () => {
             try {
                 const response = await getAnimals();
-                setAvailableAnimals(response.data);
+                const capitalizedAnimals = response.data.map((animal: { id: number, name: string }) => ({
+                    ...animal,
+                    name: capitalizeFirstLetter(animal.name),
+                }));
+
+                setAvailableAnimals(capitalizedAnimals);
             } catch (error) {
                 console.error("Error al obtener animales:", error);
             }
@@ -147,7 +153,7 @@ export default function Page() {
         }
 
         if (selectedCondition && selectedCondition !== "Todos") {
-            filters.condition = selectedCondition.toString();
+            filters.condition = selectedCondition.toString().toLocaleUpperCase();
         }
 
         filters = {
@@ -226,7 +232,7 @@ export default function Page() {
 
                     <LabeledSelect
                         label="Condición"
-                        options={["Todos", "NUEVO", "USADO"]}
+                        options={["Todos", "Nuevo", "Usado"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
                     />
