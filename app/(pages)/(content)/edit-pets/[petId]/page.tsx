@@ -529,6 +529,7 @@ export default function Page() {
                 className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
                 <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                {errors.addressCoordinates && <p className="text-red-500">{errors.addressCoordinates.message}</p>}
               </div>
 
               {/* Buttons */}
