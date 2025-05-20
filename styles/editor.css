@@ -60,14 +60,12 @@ blockquote {
   --baseTextContrast: #000000;
 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: var(--baseBg);
   color: var(--baseText);
 }
 
 .custom-editor .mdxeditor-toolbar {
   display: flex;
   flex-direction: row;
-  gap: 0.5rem;
   align-items: center;
   padding: 0.5rem;
   background-color: var(--accentBg);
@@ -95,4 +93,9 @@ blockquote {
   padding: 1rem;
   font-size: 1rem;
   line-height: 1.5;
+}
+
+div[aria-label="editable markdown"] {
+  min-height: 400px !important;
+  height: 400px !important;
 }

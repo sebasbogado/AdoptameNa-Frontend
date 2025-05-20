@@ -16,11 +16,15 @@ export const postSchema = z.object({
       z.number().min(-180).max(180, "Longitud inválida"),
     ])
     .optional(),
-  contactNumber: z.string()
-    .min(9, "Número inválido (9-15 dígitos)")
-    .max(15, "Número inválido (9-15 dígitos)")
-    .regex(/^\+?\d{9,15}$/, "Número inválido (9-15 dígitos)")
-    .optional(),
+ contactNumber: z
+  .string()
+  .optional()
+  .refine(
+    (val) => !val || (/^\d{5,20}$/.test(val)),
+    {
+      message: "El número de contacto debe tener entre 5 y 20 dígitos numéricos.",
+    }
+  ),
   mediaIds: z.array(z.number()).optional(),
   tagIds: z
     .array(z.number())
