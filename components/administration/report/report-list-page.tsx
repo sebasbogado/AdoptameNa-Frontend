@@ -36,10 +36,6 @@ export default function ReportListPage<T>({
     initialPage: 1,
     initialPageSize: pageSize,
   });
-  
-  useEffect(() => {
-    console.log("Tipo de ítem reportado:", type);
-  }, [type]);
 
   return (
     <div className='flex flex-col justify-between h-full'>
