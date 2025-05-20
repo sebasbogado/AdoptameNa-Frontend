@@ -2,11 +2,11 @@ import { formatLongDate } from "@/utils/date-format"
 import PostTypeTag from "../post/post-type-tag"
 import { UserAvatar } from "../ui/user-avatar"
 import { HeaderUserProps } from "@/types/header-user-props"
-const HeaderUser = ({user, routeUserProfile, post}: HeaderUserProps) => {
+const HeaderUser = ({ routeUserProfile, post}: HeaderUserProps) => {
     return(
          <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-9 flex-wrap">
       <div className="flex  sm:items-center gap-2">
-        <UserAvatar user={user} size="lg"/>
+        <UserAvatar nombre={post.organizationName ||post.userFullName } size="lg"/>
         <div
           onClick={routeUserProfile}
           className="font-bold text-lg cursor-pointer"
