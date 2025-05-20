@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 import CardImage from "@/components/petCard/card-image";
-import Link from "next/link";
 import { Crowdfunding } from "@/types/crowfunding-type";
 import CrowdfundingCardText from "./card-text";
 import { useAuth } from "@/contexts/auth-context";
@@ -19,9 +18,18 @@ type CrowdfundingCardProps = {
     onApprove?: (id: number) => void;
     onReject?: (id: number) => void;
     onDelete?: (id: number) => void;
+    showStatus?: boolean;
 };
 
-export default function CrowdfundingCard({ item, className = "", isAdmin = false, onApprove, onReject, onDelete }: CrowdfundingCardProps) {
+export default function CrowdfundingCard({
+    item,
+    className = "",
+    isAdmin = false,
+    onApprove,
+    onReject,
+    onDelete,
+    showStatus = true
+}: CrowdfundingCardProps) {
     const { user } = useAuth();
     const router = useRouter();
 
@@ -62,9 +70,8 @@ export default function CrowdfundingCard({ item, className = "", isAdmin = false
     // Handler para navegación solo si no es admin
     const handleCardClick = (e: React.MouseEvent) => {
         if (isAdmin) return;
-        // Evitar navegación si se hace click en un botón
         if ((e.target as HTMLElement).closest('button')) return;
-        router.push(`/crowdfunding/${item.id}`);
+        router.push(`/profile/${item.userId}`);
     };
 
     return (
@@ -118,14 +125,16 @@ export default function CrowdfundingCard({ item, className = "", isAdmin = false
                         )}
                     </>
                 ) : (
-                    <span className={`text-sm font-medium flex items-center px-3 py-1 rounded border ${statusColor}`}>
-                        {item.status === 'ACTIVE' ? (
-                            <Check size={16} className="mr-1" />
-                        ) : (
-                            <X size={16} className="mr-1" />
-                        )}
-                        {statusLabel}
-                    </span>
+                    showStatus && (
+                        <span className={`text-sm font-medium flex items-center px-3 py-1 rounded border ${statusColor}`}>
+                            {item.status === 'ACTIVE' ? (
+                                <Check size={16} className="mr-1" />
+                            ) : (
+                                <X size={16} className="mr-1" />
+                            )}
+                            {statusLabel}
+                        </span>
+                    )
                 )}
             </div>
         </div>
