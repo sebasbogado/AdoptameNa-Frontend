@@ -16,8 +16,8 @@ const CardText = ({ post, className = "" }: props) => {
   const { authToken } = useAuth();
   const [postTypes, setPostTypes] = useState<PostType | null>(null);
   const [name, setName] = useState<string>("adoption");
-  
- 
+
+
   const hardcodedTags = [
     { iconType: "race", value: "Animal" },
     { iconType: "race", value: "Mascota" },
@@ -30,8 +30,15 @@ const CardText = ({ post, className = "" }: props) => {
       <div className="flex flex-col gap-1">
         <p className="text-lg md:text-base lg:text-lg font-semibold max-h-7 truncate text-ellipsis">{post.title || post.name}</p>
         <p className="text-xs text-text-secondary">{post.organizationName || post.userFullName}</p>
+
+        {post.price !== undefined && (
+          <p className="text-sm text-green-600 font-medium">
+            {post.price.toLocaleString("es-PY")} Gs
+          </p>
+        )}
+
         <div className="flex flex-wrap max-h-16 overflow-hidden gap-1">
-        
+
           {post.tags ? (
             Object.values(post.tags).map((tagObject, index) => (
               <PostsTags
@@ -52,9 +59,12 @@ const CardText = ({ post, className = "" }: props) => {
             ))
           )}
         </div>
-        <p className="text-base md:text-sm lg:text-sm line-clamp-2">{post.content || post.description} </p>
-        
-        
+        <p
+          className={`text-base md:text-sm lg:text-sm ${post.price !== undefined ? 'truncate' : 'line-clamp-2'
+            }`}
+        >
+          {post.content || post.description}
+        </p>
       </div>
     </div>
   );
