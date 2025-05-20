@@ -9,6 +9,7 @@ import { CheckIcon, EyeIcon, XIcon } from "lucide-react";
 import { Post } from "@/types/post";
 import { Comment } from "@/types/comment";
 import { ITEM_TYPE } from "@/types/constants";
+import ProductCard from "@/components/product-Card/product-card";
 
 type CardButtonProps = {
     post?: any;
@@ -54,6 +55,10 @@ export default function CardButtons({
             {type === "comment" ? (
                 <div onClick={(e) => e.stopPropagation()}>
                     <ReportCommentCard comment={post} />
+                </div>
+            ) : type === "product" ? (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <ProductCard product={post} />
                 </div>
             ) : (
                 post && (
