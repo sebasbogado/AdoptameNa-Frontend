@@ -61,20 +61,20 @@ export default function Page() {
             console.error("Error sharing post:", error);
         }
     };
+
     if (loading) {
         return <Loading />;
     }
 
-    if (error || !post || !user) return <NotFound />;
+    if (error || !post ) return <NotFound />;
     return (
         <div className="flex justify-center">
             <div className="w-full   bg-white max-w-5xl px-4 pt-16 prose prose-neutral dark:prose-invert">
                 <div className="flex justify-between items-center mb-4">
-                    <HeaderUser
-                        user={user}
-                        routeUserProfile={routeUserProfile}
-                        post={post}
-                    />
+                        <HeaderUser
+                            routeUserProfile={routeUserProfile}
+                            post={post}
+                        />
 
 
                     <PostButtons

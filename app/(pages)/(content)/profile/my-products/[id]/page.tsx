@@ -192,7 +192,7 @@ export default function Page() {
                         flex
                         justify-center
                         items-center
-                        gap-10
+                        gap-5
                         px-4 md:px-0
                     `}>
                     
@@ -202,6 +202,7 @@ export default function Page() {
                         options={["Todos", ...categories.map((category) => category.name)]}
                         selected={selectedCategory}
                         setSelected={setSelectedCategory}
+                        className="w-[16rem]"
                     />
 
                     <LabeledSelect
@@ -209,6 +210,7 @@ export default function Page() {
                         options={["Todos", "NUEVO", "USADO"]}
                         selected={selectedCondition}
                         setSelected={setSelectedCondition}
+                        className="w-[16rem]"
                     />
 
                     <LabeledSelect
@@ -216,6 +218,7 @@ export default function Page() {
                         options={["Todos", ...availableAnimals.map((a) => a.name)]}
                         selected={selectedAnimal}
                         setSelected={setSelectedAnimal}
+                        className="w-[16rem]"
                     />
 
                     <LabeledInput
@@ -223,6 +226,7 @@ export default function Page() {
                         placeholder="0"
                         value={minPrice ?? null}
                         onChange={setMinPrice}
+                        className="w-[10rem]"
                     />
 
                     <LabeledInput
@@ -230,6 +234,7 @@ export default function Page() {
                         placeholder="0"
                         value={maxPrice ?? null}
                         onChange={setMaxPrice}
+                        className="w-[10rem]"
                     />
                     <div className="flex items-center mt-6 justify-start">
                         <button

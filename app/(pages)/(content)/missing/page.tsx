@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters } from "@/types/location-filter";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
+import { capitalizeFirstLetter } from "@/utils/Utils";
 
 export default function Page() {
   const { user } = useAuth();
@@ -55,7 +56,7 @@ export default function Page() {
   const fetchData = async () => {
     try {
       const animals = await getAnimals();
-      setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
+      setAnimalList(animals.data.map((animal: { name: string }) => capitalizeFirstLetter(animal.name)));
       setAnimals(animals.data);
 
       const petStatus = await getPetStatus();

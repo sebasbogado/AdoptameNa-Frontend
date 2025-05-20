@@ -70,7 +70,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
   }, [value]); // Cuando `value` cambie, se ejecuta este efecto
 
   return (
-    <div className={`flex flex-col w-[10rem] col-span-1 ${className}`}>
+    <div className={`flex flex-col col-span-1 ${className}`}>
       {label && (
         <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
       )}
@@ -84,7 +84,7 @@ const LabeledInput: React.FC<LabeledInputProps> = ({
         <input
           type="text"
           inputMode="numeric"
-          className="pl-8 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none w-full"
+          className="pl-8 pr-4 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#9747FF] w-full"
           value={inputValue}
           onChange={handleChange}
           placeholder={placeholder}

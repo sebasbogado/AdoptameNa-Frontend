@@ -153,8 +153,6 @@ export const updateCrowdfundingStatus = async (
     }
 };
 
-
-
 export const donateToCrowdfunding = async (
     token: string,
     id: number,
@@ -175,6 +173,28 @@ export const donateToCrowdfunding = async (
         return response.data;
     } catch (error) {
         console.error("Error al donar al crowdfunding:", error);
+        throw error;
+    }
+};
+
+export const rejectCrowdfunding = async (
+    token: string,
+    id: number
+) => {
+    try {
+        const response = await axios.post(
+            `${API_URL}/${id}/reject`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/json",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error rechazando crowdfunding:", error);
         throw error;
     }
 };

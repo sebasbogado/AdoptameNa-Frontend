@@ -116,7 +116,7 @@ export default function Page() {
                     </Link>
                     <Link href="/administration/sponsors">
                         <button className="bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
-                            <AlertCircle className="mr-2 h-5 w-5" />
+                            <Bell className="mr-2 h-5 w-5" />
                             Auspiciantes
                         </button>
                     </Link>
@@ -124,6 +124,12 @@ export default function Page() {
                         <button className="bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
                             <Bell className="mr-2 h-5 w-5" />
                             Notificaciones
+                        </button>
+                    </Link>
+                    <Link href="/administration/crowfunding">
+                        <button className="bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
+                            <Bell className="mr-2 h-5 w-5" />
+                            Colectas
                         </button>
                     </Link>
                 </div>
