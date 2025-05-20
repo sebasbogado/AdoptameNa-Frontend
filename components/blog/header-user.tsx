@@ -11,7 +11,7 @@ const HeaderUser = ({user, routeUserProfile, post}: HeaderUserProps) => {
           onClick={routeUserProfile}
           className="font-bold text-lg cursor-pointer"
         >
-          {post.userFullName}
+          {post.organizationName || post.userFullName}
         </div>
       </div>
 
