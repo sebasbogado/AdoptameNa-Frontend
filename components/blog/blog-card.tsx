@@ -104,9 +104,9 @@ export default function BlogCard({ post, className = '' }: BlogCardProps) {
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-between mt-3">
-          {post.userFullName && (
-            <p className="text-[10px] sm:text-xs text-gray-500">Por {post.userFullName}</p>
-          )}
+         <p className="text-[10px] sm:text-xs text-gray-500">
+          Por {post.organizationName || post.userFullName}
+        </p>
           {post.publicationDate && (
             <p
               className="text-[10px] sm:text-xs text-gray-500 self-end"
