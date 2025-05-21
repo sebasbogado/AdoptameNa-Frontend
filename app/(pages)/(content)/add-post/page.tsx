@@ -230,7 +230,7 @@ export default function Page() {
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
+        if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
             const fileData = new FormData();
             fileData.append("file", file);
@@ -239,9 +239,9 @@ export default function Page() {
                 throw new Error("El token de autenticación es requerido");
             }
 
-            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4", "video/webm"];
             if (!allowedTypes.includes(file.type)) {
-                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten imágenes PNG, JPG y WEBP o videos MP4 y WEBM.");
                 return;
             }
 
@@ -250,7 +250,7 @@ export default function Page() {
                 setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
-            // Verificar el tamaño del archivo (1MB)
+            // Verificar el tamaño del archivo (5MB)
             if (file.size > 5 * (1024 * 1024)) {
                 setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
                 return;
@@ -268,8 +268,8 @@ export default function Page() {
                     setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
                 }
             } catch (error) {
-                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
-                console.error("Error al subir la imagen", error);
+                setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
+                console.error("Error al subir el archivo", error);
             } finally {
                 setLoading(false);
             }

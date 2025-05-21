@@ -46,11 +46,14 @@ const ChatUserListItem: React.FC<ChatUserListItemProps> = ({
           <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
         )}
       </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-center">
-          <p className="font-medium truncate">{name}</p>
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="flex justify-between items-center w-full">
+          <p className="font-medium truncate max-w-[70%] pr-1">{name}</p>
           {unreadMessagesCount > 0 && (
-            <span className="bg-purple-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center ml-2">
+            <span 
+              className="bg-purple-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center ml-2 flex-shrink-0"
+              aria-label={`${unreadMessagesCount} unread messages`}
+            >
               {unreadMessagesCount}
             </span>
           )}

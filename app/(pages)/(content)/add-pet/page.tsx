@@ -122,9 +122,9 @@ export default function Page() {
         setPrecautionMessage(`Solo puedes subir hasta 5 imágenes.`);
         return;
       }
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4"];
       if (!allowedTypes.includes(file.type)) {
-        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG, WEBP y MP4.");
         return;
       }
       // Verificar el tamaño del archivo
@@ -275,15 +275,26 @@ export default function Page() {
         <div className="flex gap-2 mt-2 justify-center items-center">
           {selectedImages.map((img, index) => (
             <div key={index} className="relative w-24 h-24 group">
-              {/* Imagen */}
-              <Image
-                src={img.url}
-                alt="pet"
-                fill
-                className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                onClick={() => setCurrentImageIndex(index)}
-              />
-
+              {img.mimeType && img.mimeType.startsWith('image') ? (
+                <Image
+                  src={img.url}
+                  alt="pet"
+                  fill
+                  className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                />
+              ) : img.mimeType && img.mimeType.startsWith('video') ? (
+                <video
+                  src={img.url}
+                  className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                  muted
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
+                  Archivo no soportado
+                </div>
+              )}
               {/* Botón de eliminación */}
               <button
                 onClick={() => handleRemoveImage(index)}
@@ -296,7 +307,7 @@ export default function Page() {
 
           <input
             type="file"
-            accept="image/png, image/jpeg, image/webp"
+            accept="image/png, image/jpeg, image/jpg, image/webp, video/webm, video/mp4"
             multiple
             className="hidden"
             id="fileInput"
@@ -437,7 +448,7 @@ export default function Page() {
                 className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
                 <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-
+                {errors.addressCoordinates && (<p className="text-red-500">{errors.addressCoordinates.message}</p>)}
               </div>
 
               {/* Buttons */}

@@ -45,7 +45,16 @@ export default function ProductCard({ product, className }: ProductCardProps) {
             </div>
 
             <Link href={`/marketplace/${product.id}`}>
-                <CardImage media={product.media[0]} />
+                {product.media[0]?.mimeType && product.media[0].mimeType.startsWith("video/") ? (
+                    <video
+                        className="w-full h-36 object-cover rounded-lg"
+                        src={product.media[0].url}
+                        muted
+                        playsInline
+                    />
+                ) : (
+                    <CardImage media={product.media[0]} />
+                )}
                 <CardText post={product} />
             </Link>
         </div>
