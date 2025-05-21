@@ -59,6 +59,7 @@ export function CommentItem({
 
     const routeUserProfile = () => {
         router.push(`/profile/${comment.user.id}`);
+
     };
 
     const isCurrentUserComment = currentUser && comment.user.id === currentUser.id;

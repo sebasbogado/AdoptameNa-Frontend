@@ -108,8 +108,13 @@ export async function updatePost(
     throw new Error(error.message || "Error al editar Post");
   }
 }
-
-export async function restorePost(
+/**
+ * 
+ * @param id 
+ * @param postData 
+ * @param token 
+ * @returns 
+ * export async function restorePost(
   id: string,
   postData: RestorePost,
   token: string
@@ -130,6 +135,8 @@ export async function restorePost(
     throw new Error(error.message || "Error al editar Post");
   }
 }
+ */
+
 
 export async function deletePost(id: string, token: string) {
   try {
