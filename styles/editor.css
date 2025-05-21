@@ -1,37 +1,62 @@
-
-ul {
+.custom-editor ul {
   list-style-type: disc;
   margin-left: 1.5em;
   padding-left: 1.5em;
 }
-ol {
-  list-style-type: decimal ;
+.custom-editor ol {
+  list-style-type: decimal;
   margin-left: 1.5em;
   padding-left: 1.5em;
 }
-li {
+.custom-editor li {
   margin-bottom: 0.3em;
 }
-h1 { font-size: 1.7rem; font-weight: bold; margin: 0.9em 0 0.6em 0; }
-h2 { font-size: 1.3rem; font-weight: bold; margin: 0.7em 0 0.5em 0; }
-h3 { font-size: 1.2rem; font-weight: bold; margin: 0.5em 0 0.4em 0; }
-h4 { font-size: 1.1rem; font-weight: bold; margin: 0.4em 0 0.3em 0; }
-h5 { font-size: 1.0rem; font-weight: bold; margin: 0.3em 0 0.2em 0; }
-h6 { font-size: 0.9rem; font-weight: bold; margin: 0.2em 0 0.1em 0; }
-p { margin: 0.5em 0; }
-blockquote {
+.custom-editor h1 {
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin: 0.9em 0 0.6em 0;
+}
+.custom-editor h2 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 0.7em 0 0.5em 0;
+}
+.custom-editor h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.5em 0 0.4em 0;
+}
+.custom-editor h4 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.4em 0 0.3em 0;
+}
+.custom-editor h5 {
+  font-size: 1.0rem;
+  font-weight: bold;
+  margin: 0.3em 0 0.2em 0;
+}
+.custom-editor h6 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 0.2em 0 0.1em 0;
+}
+.custom-editor p {
+  margin: 0.5em 0;
+}
+.custom-editor blockquote {
   border-left: 4px solid #ccc;
   padding-left: 1em;
   margin: 0.5em 0;
   color: #555;
 }
-.custom-toolbar {
+.custom-editor .custom-toolbar {
   display: flex;
   flex-direction: row;
   gap: 0.5rem; /* Ajusta el espacio entre los elementos según sea necesario */
   align-items: center;
 }
-.custom-toolbar button {
+.custom-editor .custom-toolbar button {
   background: none;
   border: none;
   color: #333;
@@ -95,6 +120,6 @@ blockquote {
   line-height: 1.5;
 }
 
-div[aria-label="editable markdown"] {
+.custom-editor div[aria-label="editable markdown"] {
   min-height: 400px !important;
 }
