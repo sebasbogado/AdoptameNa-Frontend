@@ -57,14 +57,19 @@ const CardText = ({ post, className = "" }: props) => {
             <>
               <PostsTags
                 key={post.id}
-                postType={getColorGender((post as Pet).gender)}
                 postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                iconType={getAnimalIcon((post as Pet).animal.name)}
+                value={capitalizeFirstLetter((post as Pet).animal.name)} />
+
+              <PostsTags
+                key={post.id + 1}
+                postType={(post as Pet).gender ? getColorGender((post as Pet).gender) : getColorAdoptionOrMissing((post as Pet).petStatus.name)}
                 iconType={getGenderIcon((post as Pet).gender)}
                 value={convertGenderToSpanish((post as Pet).gender)} />
 
               {post.isSterilized &&
                 <PostsTags
-                  key={post.id + 1}
+                  key={post.id + 2}
                   postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
                   iconType={getSterilizedIcon((post as Pet).isSterilized)}
                   value={(post as Pet).isVaccinated ? "Esterilizado" : ""} />
@@ -72,7 +77,7 @@ const CardText = ({ post, className = "" }: props) => {
 
               {post.isVaccinated &&
                 <PostsTags
-                  key={post.id + 2}
+                  key={post.id + 3}
                   postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
                   iconType={getVaccinatedIcon((post as Pet).isVaccinated)}
                   value={(post as Pet).isVaccinated ? "Vacunado" : ""} />
