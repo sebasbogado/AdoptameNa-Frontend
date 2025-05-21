@@ -79,7 +79,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
     const getUserProfileData = async (userId: string) => {
         try {
             const profile = await getUserProfile(userId);
-            console.log("Perfil recibido:", profile);
             setUserProfile(profile);
         } catch (err) {
             console.error("Error al cargar el perfil:", err);
@@ -108,7 +107,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
 
         try {
             const result = await postAdoption(requestData);
-            console.log("Solicitud de adopción enviada:", result);
             setSuccessMessage("¡Solicitud enviada correctamente!");
         } catch (error: any) {
             console.error("Error al enviar solicitud:", error.message);

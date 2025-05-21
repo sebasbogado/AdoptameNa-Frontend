@@ -9,7 +9,6 @@ interface PostHeaderProps {
 }
 
 export const PostHeader = ({ post, pet }: PostHeaderProps) => {
-    console.log("PostHeader", post ?? pet);
     return (
         <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
             <h1
