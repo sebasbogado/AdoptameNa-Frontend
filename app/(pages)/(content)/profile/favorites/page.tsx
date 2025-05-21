@@ -61,7 +61,6 @@ export default function Page() {
     }
   }, [authToken, authLoading, router]);
 
-  // Uso de la página de loading ya implementada
   if (authLoading) {
     return Loading();
   }
