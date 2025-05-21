@@ -7,14 +7,14 @@ import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
 import { MapProps } from "@/types/map-props";
 import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
@@ -26,6 +26,7 @@ import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
+import ForwardRefEditor from "@/components/editor/forward-ref-editor";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -53,6 +54,7 @@ export default function Page() {
         handleSubmit,  // Renombramos el handleSubmit de useForm
         setValue,
         reset,
+           watch,
         control,
         formState: { errors, isSubmitting }
     } = useForm<PostFormValues>({
@@ -67,6 +69,9 @@ export default function Page() {
             tagIds: [],
         }
     });
+    const postTypeId = watch("postTypeId");
+    const editorContentRef = useRef('')
+    const [initialContent, setInitialContent] = useState('') // Si necesitas contenido inicial
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -150,7 +155,6 @@ export default function Page() {
                     title: postData.title || "",
                     content: postData.content || "",
                     locationCoordinates: initialCoords,
-                    contactNumber: postData.contactNumber || "",
                     mediaIds: postData.media?.map(m => m.id) || [],
                     tagIds: postData.tags?.map(t => t.id) || [], // Si usas tags
                 });
@@ -160,7 +164,7 @@ export default function Page() {
 
                 // Poblar estado local de tags seleccionados (si usas tags)
                 setSelectedTags(postData.tags || []);
-
+                setInitialContent(postData.content)
             } catch (err: any) {
                 console.error("Error al cargar datos iniciales:", err);
                 if (err.response?.status === 404) {
@@ -388,7 +392,7 @@ export default function Page() {
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
             <div
-                className="fixed inset-0 -z-50"
+                className="fixed inset-0 z-0"
                 style={{
                     backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
                     backgroundSize: 'cover',
@@ -399,7 +403,7 @@ export default function Page() {
             </div>
 
             {/* Card del formulario */}
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-24 py-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+<div className="relative z-10 w-full max-w-5xl mx-auto px-24 py-16 bg-white rounded-3xl shadow-lg my-24">
                 <div className="flex items-center gap-2 mb-16">
                     <button
                         type="button"
@@ -557,17 +561,47 @@ export default function Page() {
                         {errors.tagIds && <p className="text-red-500 text-sm">{errors.tagIds.message}</p>}
                     </div>
 
-                    {/* Descripción */}
-                    <div className="mb-2">
-                        <label className="block mb-1">Descripción <span className="text-red-500">*</span></label>
-                        <textarea
-                            {...register("content")}
-                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-                    </div>
+                   <div className="flex flex-col gap-2">
+                                
+                                  {postTypeId === POST_TYPEID.BLOG ? (
+                                      <Controller
+                                          name="content"
+                                          control={control}
+                                          render={(
+                                              field
+                                          ) => <ForwardRefEditor
+                                           IsCreateBlog={true} 
+                                                  markdown={initialContent}
+                                                  onChange={(value: string) => {
+                                                      editorContentRef.current = value // No renderiza nada
+                                                  }}
+                                                  className="border-2 rounded-lg border-gray"
+                                              />}
+                                      > 
+              
+                                      </Controller>
+              
+                                  ) : (
+                                      <>
+                                        <label className="block">
+                                      Descripción <span className="text-red-500">*</span>
+                                  </label>
+              
+                                      <textarea
+                                          {...register("content")}
+                                          placeholder="Descripción"
+                                          className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+                                      />
+                                                              </>
+              
+                                  )}
+                              </div>
+                              {errors.content && (
+                                  <p className="text-red-500 text-sm">{errors.content.message}</p>
+                              )}
 
-                    {/* Contacto */}
+                    {postTypeId !== POST_TYPEID.BLOG && (
+
                     <div className="mb-2">
                         <label className="block mb-1">Número de contacto <span className="text-red-500">*</span></label>
                         <input
@@ -577,12 +611,16 @@ export default function Page() {
                         />
                         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
                     </div>
+                                    )}
 
-                    {/* Mapa */}
+                {postTypeId !== POST_TYPEID.BLOG && (
+
                     <div className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
                         <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                        {errors.locationCoordinates && <p className="text-red-500 text-sm">{errors.locationCoordinates.message}</p>}
+
                     </div>
-                    {errors.locationCoordinates && <p className="text-red-500 text-sm">{errors.locationCoordinates.message}</p>}
+                )}
 
                     <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
