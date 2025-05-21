@@ -82,11 +82,11 @@ export const checkToken = async (token: string): Promise<User> => {
 const BASE_PATH = "auth/reset-password-request";
 const BASE_PATH_PASSWORD = "auth/reset-password";
 
-export const requestPasswordReset = async (params: Record<string, any>) => {
+export const requestPasswordReset = async (params: { email: string }) => {
   try {
     const response = await axios.post(
-      `${API_URL}/reset-password-request`,
-      params,
+      `${API_URL}/reset-password-request?email=${encodeURIComponent(params.email)}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -125,7 +125,8 @@ export const resetPassword = async (params: Record<string, any>) => {
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
-      throw new AuthError("Error al restablecer la contraseña", status || 500);
+      const message = error.response?.data?.message || "Error al restablecer la contraseña";
+      throw new AuthError(message, status || 500);
     }
     if (error instanceof AuthError) {
       throw error;
