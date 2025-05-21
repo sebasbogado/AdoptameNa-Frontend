@@ -21,7 +21,7 @@ import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { profileEditSchema, profileSchema } from '@/validations/user-profile';
+import { profileEditSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
 import ImageHeader from '@/components/image-header';
