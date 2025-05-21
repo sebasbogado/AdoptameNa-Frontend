@@ -70,25 +70,7 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-3">
       <Banners images={bannerImages} />
-      <div className="w-full max-w-2xl mx-auto p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Select Tipo de publicación */}
-          <LabeledSelect
-            label="Tipo de publicación"
-            options={publicationsTypes}
-            selected={selectedPublicationType}
-            setSelected={setSelectedPublicationType}
-          />
 
-          {/* Select Mascota */}
-          <LabeledSelect
-            label="Mascota"
-            options={pets}
-            selected={selectedPet}
-            setSelected={setSelectedPet}
-          />
-        </div>
-      </div>
       <div className="flex flex-col gap-5">
         <div className="w-full flex flex-col items-center justify-center mb-6">
           {loading ? (
