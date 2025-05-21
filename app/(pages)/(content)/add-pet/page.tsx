@@ -11,9 +11,7 @@ import { getBreed } from "@/utils/breed.http";
 import { postPets } from "@/utils/pets.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
-import { ImagePlus } from "lucide-react";
-import Banners from "@/components/banners";
-import { Maximize, Minimize } from "lucide-react";
+import { AlertTriangle, Check, ImagePlus, X } from "lucide-react";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -326,10 +324,17 @@ export default function Page() {
         {errorMessage && (
           <div>
             <Alert
+              open={true}
               color="red"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setErrorMessage("")}>
-              {errorMessage}
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<X className="h-5 w-5" />}
+              onClose={() => setErrorMessage("")}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{errorMessage}</p>
             </Alert>
           </div>
         )}
@@ -337,10 +342,17 @@ export default function Page() {
         {precautionMessage && (
           <div>
             <Alert
-              color="orange"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setPrecautionMessage("")}>
-              {precautionMessage}
+              open={true}
+              color="amber"
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<AlertTriangle className="h-5 w-5" />}
+              onClose={() => setPrecautionMessage("")}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{precautionMessage}</p>
             </Alert>
           </div>
         )}
@@ -348,10 +360,17 @@ export default function Page() {
         {successMessage && (
           <div>
             <Alert
+              open={true}
               color="green"
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<Check className="h-5 w-5" />}
               onClose={() => setSuccessMessage("")}
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-              {successMessage}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{successMessage}</p>
             </Alert>
           </div>
         )}

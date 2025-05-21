@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import { Media } from "@/types/media";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
@@ -404,38 +404,52 @@ export default function Page() {
                         <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
                     </label>
                 </div>
-
                 {errorMessage && (
-                    <div>
-                        <Alert
-                            color="red"
-                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                            onClose={() => setErrorMessage("")}>
-                            {errorMessage}
-                        </Alert>
-                    </div>
+                    <Alert
+                        open={true}
+                        color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
+                        onClose={() => setErrorMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{errorMessage}</p>
+                    </Alert>
                 )}
 
                 {precautionMessage && (
-                    <div>
-                        <Alert
-                            color="orange"
-                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                            onClose={() => setPrecautionMessage("")}>
-                            {precautionMessage}
-                        </Alert>
-                    </div>
+                    <Alert
+                        open={true}
+                        color="orange"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<AlertTriangle className="h-5 w-5" />}
+                        onClose={() => setPrecautionMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{precautionMessage}</p>
+                    </Alert>
                 )}
 
                 {successMessage && (
-                    <div>
-                        <Alert
-                            color="green"
-                            onClose={() => setSuccessMessage("")}
-                            className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                            {successMessage}
-                        </Alert>
-                    </div>
+                    <Alert
+                        open={true}
+                        color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{successMessage}</p>
+                    </Alert>
                 )}
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">

@@ -7,7 +7,7 @@ import { createNotification } from "@/utils/notifications.http";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NotificationFormData, notificationSchema } from "@/validations/notification-schema";
-import { Bell, UsersRound, Globe } from "lucide-react";
+import { Bell, Check, UsersRound, Globe, X } from "lucide-react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { USER_ROLE } from "@/types/constants";
@@ -153,21 +153,33 @@ export default function NotificationsAdminPage() {
     <div className="p-8">
       {successMessage && (
         <Alert
+          open={true}
           color="green"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
           onClose={() => setSuccessMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {successMessage}
+          <p className="text-sm">{successMessage}</p>
         </Alert>
       )}
 
       {errorMessage && (
         <Alert
+          open={true}
           color="red"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
           onClose={() => setErrorMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {errorMessage}
+          <p className="text-sm">{errorMessage}</p>
         </Alert>
       )}
 

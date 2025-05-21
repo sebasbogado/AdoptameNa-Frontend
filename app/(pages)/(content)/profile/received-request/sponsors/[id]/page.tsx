@@ -6,9 +6,10 @@ import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Sponsor } from '@/types/sponsor';
+import { Alert } from "@material-tailwind/react";
+import { User, Mail, Check, X, AlertTriangle } from 'lucide-react';
 import { getSponsorById, updateSponsor, deleteSponsor } from '@/utils/sponsor.http';
 import Image from 'next/image';
-import { User, Mail, X } from 'lucide-react';
 import EditButton from "@/components/buttons/edit-button";
 import Button from "@/components/buttons/button";
 import BannerImage from '@/components/banner/banner-image';
@@ -232,6 +233,29 @@ export default function SponsorDetailPage() {
 
     return (
         <div className="w-full flex flex-col items-center py-10 px-2 min-h-screen bg-gray-50">
+            {alertInfo && (
+                <Alert
+                    open={alertInfo.open}
+                    color={alertInfo.color}
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={
+                        alertInfo.color === "green" ? (
+                            <Check className="h-5 w-5" />
+                        ) : alertInfo.color === "red" ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5" />
+                        )
+                    }
+                    onClose={() => setAlertInfo(null)}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{alertInfo.message}</p>
+                </Alert>
+            )}
             <div className="w-full max-w-2xl">
                 <button
                     className="mb-4 text-blue-600 hover:underline flex items-center gap-1"
@@ -452,4 +476,4 @@ export default function SponsorDetailPage() {
             />
         </div>
     );
-} 
+}

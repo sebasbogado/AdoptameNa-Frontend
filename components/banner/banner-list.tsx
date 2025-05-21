@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAllBanners, activateBanner, deactivateBanner, deleteBanner } from '@/utils/banner.http';
-import { Loader2, Pencil, X } from 'lucide-react';
+import { Loader2, Pencil, X, Check, AlertTriangle } from 'lucide-react';
 import { usePagination } from '@/hooks/use-pagination';
 import { bannerQueryParams, PaginatedResponse } from '@/types/pagination';
 import { Banner } from '@/types/banner';
@@ -173,10 +173,23 @@ export default function BannerList() {
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color}
-                    className="mb-4"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={
+                        alertInfo.color === "green" ? (
+                            <Check className="h-5 w-5" />
+                        ) : alertInfo.color === "red" ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5" />
+                        )
+                    }
                     onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                 >
-                    {alertInfo.message}
+                    <p className="text-sm">{alertInfo.message}</p>
                 </Alert>
             )}
 

@@ -7,7 +7,7 @@ import { Spinner, Alert } from "@material-tailwind/react";
 import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
 import { useRouter } from "next/navigation";
-import { deleteCrowdfunding, getCrowdfundings, getMyCrowdfundingRequests } from "@/utils/crowfunding.http";
+import { deleteCrowdfunding, getMyCrowdfundingRequests } from "@/utils/crowfunding.http";
 import { Crowdfunding } from "@/types/crowfunding-type";
 import { RequestCard } from "@/components/request/request-card";
 import { CrowdfundingStatus, FilterStatus } from "@/types/crowdfunding";
