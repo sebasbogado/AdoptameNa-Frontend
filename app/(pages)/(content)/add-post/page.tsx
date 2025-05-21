@@ -168,7 +168,6 @@ export default function Page() {
     };
 
     const onSubmit = (data: PostFormValues) => {
-        console.log("DATA SUBMIT", data); // <-- Verifica aquí el valor real de postTypeId
         openConfirmationModal(data); // Pasa los datos validados al modal/handler
     };
 
