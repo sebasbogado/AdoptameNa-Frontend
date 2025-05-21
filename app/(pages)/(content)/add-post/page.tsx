@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -58,6 +58,7 @@ export default function Page() {
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
+    const params = useParams()
     const watchedPostTypeId = useWatch({
         control,
         name: "postTypeId", // El nombre del campo en tu formulario
@@ -202,7 +203,12 @@ export default function Page() {
             const response = await createPost(updatedFormData, authToken);
             if (response && response.id) {
                 setSuccessMessage("Post creado exitosamente.")
-                router.push(`/posts/${response.id}`);
+
+                if (validatedData.postTypeId === POST_TYPEID.BLOG) {
+                router.push(`/blog/${response.id}`);
+                } else {
+                    router.push(`/posts/${response.id}`);
+                } 
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
                 router.push("/dashboard"); // O a donde sea apropiado como fallback

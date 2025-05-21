@@ -78,7 +78,7 @@ export default function InitializedMDXEditor({
     <MDXEditor
       ref={editorRef}
       plugins={basePlugins}
-       className="mdx-custom-height min-h-[400px] h-[400px] flex flex-col"
+       className="mdx-custom-height "
 
       {...props}
     />

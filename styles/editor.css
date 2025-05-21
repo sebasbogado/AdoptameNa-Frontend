@@ -97,5 +97,4 @@ blockquote {
 
 div[aria-label="editable markdown"] {
   min-height: 400px !important;
-  height: 400px !important;
 }
