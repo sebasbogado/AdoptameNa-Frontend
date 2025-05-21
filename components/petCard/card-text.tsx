@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { Tags } from "@/types/tags";
 import { Pet } from "@/types/pet";
 import { Product } from "@/types/product";
-import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorAdoptionOrMissing, getConditionIcon, getGenderIcon, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
+import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorAdoptionOrMissing, getColorGender, getConditionIcon, getGenderIcon, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
 
 interface props {
   post: any,
@@ -56,7 +56,7 @@ const CardText = ({ post, className = "" }: props) => {
             <>
               <PostsTags
                 key={post.id}
-                postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                postType={getColorGender((post as Pet).gender)}
                 iconType={getGenderIcon((post as Pet).gender)}
                 value={convertGenderToSpanish((post as Pet).gender)} />
 

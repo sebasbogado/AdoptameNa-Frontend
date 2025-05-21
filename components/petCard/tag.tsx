@@ -15,6 +15,8 @@ const postColors: Record<string, string> = {
     Blog: "text-found-tag border-found-tag",
     Extraviados: "text-missing border-missing",
     Marketplace: "text-marketplace border-marketplace",
+    Macho: "text-[#FF70FE] border-[#FF70FE]",
+    Hembra: "text-adoption border-adoption",
 };
 
 const attributeIcons: Record<string, React.ElementType> = {

@@ -36,3 +36,7 @@ export const getConditionIcon = (str: string) => {
 export const getColorAdoptionOrMissing = (str: string) => {
   return str === "En Adopción" ? "Adopcion" : str === "Perdido" ? "Extraviados" : "Extraviados";
 }
+
+export const getColorGender = (str: string) => {
+  return str === "MALE" ? "Hembra" : str === "FEMALE" ? "Macho" : "Adoption";
+}
