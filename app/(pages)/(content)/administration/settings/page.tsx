@@ -11,6 +11,7 @@ import { ProductCategory } from "@/types/product-category";
 import { getProductCategories, createProductCategory, updateProductCategory, deleteProductCategory } from "@/utils/product-category.http";
 import FormProductCategory from "@/components/form-product-category";
 import { Alert } from "@material-tailwind/react";
+import { Check, X } from "lucide-react";
 import { ConfirmationModal } from "@/components/form/modal";
 import PetBreeds from "@/components/pet-breeds";
 
@@ -158,22 +159,34 @@ export default function Page() {
 
   return (
     <>
-      {successMessage && (
+    {successMessage && (
         <Alert
+          open={true}
           color="green"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
           onClose={() => setSuccessMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {successMessage}
+          <p className="text-sm">{successMessage}</p>
         </Alert>
       )}
       {errorMessage && (
         <Alert
+          open={true}
           color="red"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
           onClose={() => setErrorMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {errorMessage}
+          <p className="text-sm">{errorMessage}</p>
         </Alert>
       )}
 

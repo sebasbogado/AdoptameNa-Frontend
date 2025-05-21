@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Alert } from '@material-tailwind/react';
 import { postMedia } from '@/utils/media.http';
-import { Upload, ImageIcon, X, Loader2, Plus } from 'lucide-react';
+import { Upload, ImageIcon, X, Loader2, Plus, Check, AlertTriangle } from 'lucide-react';
 import { fileSchema } from '@/utils/file-schema';
 
 interface ImageUploadProps {
@@ -117,10 +117,23 @@ export default function BannerImage({ onImageUploaded, initialImage, token, rese
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color}
-                    className="mb-4"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={
+                        alertInfo.color === "green" ? (
+                            <Check className="h-5 w-5" />
+                        ) : alertInfo.color === "red" ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5" />
+                        )
+                    }
                     onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                 >
-                    {alertInfo.message}
+                    <p className="text-sm">{alertInfo.message}</p>
                 </Alert>
             )}
 

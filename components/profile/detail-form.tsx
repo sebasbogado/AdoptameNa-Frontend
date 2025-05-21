@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { User } from "@/types/auth";
 import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
-import { MapPin, PhoneIcon } from "lucide-react";
+import { MapPin, PhoneIcon, AlertTriangle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
@@ -98,11 +98,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     let rawPhone = userProfile?.phoneNumber || "";
 
     // Limpia el número (quitar espacios, guiones, etc.)
-    rawPhone = rawPhone.replace(/\D/g, "");
-
-    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    rawPhone = rawPhone.replace(/\D/g, "");    // Si está vacío o tiene menos de 8 dígitos, muestra error
     if (!rawPhone || rawPhone.length < 8) {
-      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      setErrorMessage("Este usuario no tiene un número de teléfono válido para WhatsApp.");
       return;
     }
 

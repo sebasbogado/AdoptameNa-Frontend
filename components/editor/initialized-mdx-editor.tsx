@@ -87,7 +87,6 @@ export default function InitializedMDXEditor({
     if (!file) return;
 
     if (!authToken) {
-      alert("No auth token");
       return;
     }
 

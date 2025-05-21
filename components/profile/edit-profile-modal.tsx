@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { Alert } from "@material-tailwind/react";
 import { UpdateUserProfile } from "@/types/user-profile";
+import { X } from "lucide-react";
 import { CreateProfile } from "@/components/profile/create-form";
 import { USER_ROLE } from "@/types/auth";
 
@@ -126,10 +127,19 @@ export default function EditProfileModal({
                         errors={errors}
                         hideSubmitButton={true}
                     />
-
                     {error && (
-                        <Alert color="red" onClose={() => setError("")}>
-                            {error}
+                        <Alert
+                            open={true}
+                            color="red"
+                            animate={{
+                                mount: { y: 0 },
+                                unmount: { y: -100 },
+                            }}
+                            icon={<X className="h-5 w-5" />}
+                            onClose={() => setError("")}
+                            className="w-full shadow-lg"
+                        >
+                            <p className="text-sm">{error}</p>
                         </Alert>
                     )}
 

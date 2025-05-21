@@ -4,6 +4,7 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
+import { Check, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
@@ -227,10 +228,17 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
                 <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
+                        open={true}
                         color="gray"
-                        className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                        onClose={() => setCopied(false)}
                     >
-                        ¡Enlace copiado al portapapeles!
+                        <p className="text-sm">¡Enlace copiado al portapapeles!</p>
                     </Alert>
                 )}
             </div>
@@ -247,20 +255,32 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
                 )}
                 {successMessage && (
                     <Alert
+                        open={true}
                         color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
                         onClose={() => setSuccessMessage("")}
-                        className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                     >
-                        {successMessage}
+                        <p className="text-sm">{successMessage}</p>
                     </Alert>
                 )}
                 {errorMessage && (
                     <Alert
+                        open={true}
                         color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
                         onClose={() => setErrorMessage("")}
-                        className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                     >
-                        {errorMessage}
+                        <p className="text-sm">{errorMessage}</p>
                     </Alert>
                 )}
             </div>

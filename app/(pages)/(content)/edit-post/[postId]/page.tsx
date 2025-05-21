@@ -19,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import { Media } from "@/types/media";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
@@ -417,20 +417,49 @@ export default function Page() {
                 <div className="w-full mb-8">
                     <NewBanner medias={selectedImages} />
                 </div>
-
                 {successMessage && (
-                    <Alert className="fixed top-4 right-4 w-75 shadow-lg z-[60]" color="green" onClose={() => setSuccessMessage(null)}>
-                        {successMessage}
+                    <Alert
+                        open={true}
+                        color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        onClose={() => setSuccessMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{successMessage}</p>
                     </Alert>
                 )}
                 {errorMessage && (
-                    <Alert className="fixed top-4 right-4 w-75 shadow-lg z-[60]" color="red" onClose={() => setErrorMessage(null)}>
-                        {errorMessage}
+                    <Alert
+                        open={true}
+                        color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
+                        onClose={() => setErrorMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{errorMessage}</p>
                     </Alert>
                 )}
                 {precautionMessage && (
-                    <Alert className="fixed top-4 right-4 w-75 shadow-lg z-[60]" color="amber" onClose={() => setPrecautionMessage(null)}>
-                        {precautionMessage}
+                    <Alert
+                        open={true}
+                        color="amber"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<AlertTriangle className="h-5 w-5" />}
+                        onClose={() => setPrecautionMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{precautionMessage}</p>
                     </Alert>
                 )}
 
