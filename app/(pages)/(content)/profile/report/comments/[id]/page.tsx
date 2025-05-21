@@ -31,18 +31,27 @@ export default function ReportedCommentsPage() {
             try {
               const commentData = await getCommentById(authToken, report.commentId);
               commentContent = commentData.content;
+              return {
+                ...report,
+                user: {
+                  id: commentData.user.id,
+                  fullName: commentData.user.fullName || "Usuario desconocido",
+                },
+                createdAt: report.reportDate,
+                content: commentContent,
+              };
             } catch {
               commentContent = "(No se pudo obtener el comentario)";
+              return {
+                ...report,
+                user: {
+                  id: report.userId,
+                  fullName: "Usuario desconocido",
+                },
+                createdAt: report.reportDate,
+                content: commentContent,
+              };
             }
-            return {
-              ...report,
-              user: {
-                id: report.userId,
-                fullName: report.reporterFullName || "Usuario desconocido",
-              },
-              createdAt: report.reportDate,
-              content: commentContent,
-            };
           })
         );
         setComments(commentsWithContent);
@@ -59,8 +68,8 @@ export default function ReportedCommentsPage() {
   const adaptComment = (comment: any) => ({
     ...comment,
     user: {
-      id: comment.userId,
-      fullName: comment.reporterFullName || "Usuario desconocido",
+      id: comment.user.id,
+      fullName: comment.user.fullName,
     },
   });
 
