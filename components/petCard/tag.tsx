@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import React from "react";
 
-const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1 text-adoption border-adoption'
-import { DogIcon, VenusIcon, MarsIcon, SyringeIcon, CakeIcon, ScissorsIcon, MapPinIcon } from "lucide-react";
+const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1'
+import { DogIcon, VenusIcon, MarsIcon, SyringeIcon, CakeIcon, ScissorsIcon, MapPinIcon, CatIcon, TurtleIcon, RabbitIcon, SparkleIcon, PackageOpenIcon, PackageIcon, HashIcon } from "lucide-react";
 interface TagProps {
     postType: string; 
     iconType: string;
@@ -10,10 +10,11 @@ interface TagProps {
 }
 
 const postColors: Record<string, string> = {
-    Blog: "text-adoption border-adoption",
-    Voluntariado: "text-adoption border-adoption",
-    // Voluntariado: "text-missing border-missing",
-    volunteering: "text-volunteering border-volunteering",
+    Voluntariado: "text-volunteering border-volunteering",
+    Adopcion: "text-adoption border-adoption",
+    Blog: "text-found-tag border-found-tag",
+    Extraviados: "text-missing border-missing",
+    Marketplace: "text-marketplace border-marketplace",
 };
 
 const attributeIcons: Record<string, React.ElementType> = {
@@ -23,7 +24,14 @@ const attributeIcons: Record<string, React.ElementType> = {
     female: VenusIcon,
     male: MarsIcon,
     sterilized: ScissorsIcon,
-    distance: MapPinIcon
+    distance: MapPinIcon,
+    dog: DogIcon,
+    cat: CatIcon,
+    turtle: TurtleIcon,
+    rabbit: RabbitIcon,
+    new: PackageIcon,
+    old: PackageOpenIcon,
+    generic: HashIcon
 };
 
 
