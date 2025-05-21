@@ -19,43 +19,48 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
     setActiveIndex?: (index: number) => void;
   } | null>(null);
 
-  // El estado `images` es el que usas para renderizar, ya incluye `isVertical`
-  const [images, setImages] = useState<{ url: string; isVertical: boolean; id: number }[]>([]);
-  const showArrows = images.length > 1;
-  const hasImages = media?.length > 0;
+  // El estado `mediaItems` es el que usas para renderizar, ya incluye isVertical y mimeType
+  const [mediaItems, setMediaItems] = useState<{ url: string; isVertical: boolean; id: number; mimeType: string }[]>([]);
+  const showArrows = mediaItems.length > 1;
+  const hasMedia = media?.length > 0;
 
-  const checkOrientation = async (mediaItems: Media[]) => {
-    if (!mediaItems || mediaItems.length === 0) {
-      setImages([]);
+  const checkOrientation = async (mediaArr: Media[]) => {
+    if (!mediaArr || mediaArr.length === 0) {
+      setMediaItems([]);
       return;
     }
-    const promises = mediaItems.map(
+    const promises = mediaArr.map(
       (media) =>
-        new Promise<{ id: number; url: string; isVertical: boolean }>(
+        new Promise<{ id: number; url: string; isVertical: boolean; mimeType: string }>(
           (resolve) => {
-            if (typeof window === "undefined") {
-              resolve({ id: media.id, url: media.url, isVertical: false });
-              return;
+            if (media.mimeType.startsWith("image")) {
+              if (typeof window === "undefined") {
+                resolve({ id: media.id, url: media.url, isVertical: false, mimeType: media.mimeType });
+                return;
+              }
+              const img = new window.Image();
+              img.src = media.url;
+              img.onload = () => {
+                const isVertical = img.naturalHeight >= img.naturalWidth;
+                resolve({ id: media.id, url: media.url, isVertical, mimeType: media.mimeType });
+              };
+              img.onerror = () => {
+                console.error(`Failed to load image: ${media.url}`);
+                resolve({ id: media.id, url: media.url, isVertical: false, mimeType: media.mimeType });
+              };
+            } else {
+              // Para videos u otros tipos
+              resolve({ id: media.id, url: media.url, isVertical: false, mimeType: media.mimeType });
             }
-            const img = new window.Image();
-            img.src = media.url;
-            img.onload = () => {
-              const isVertical = img.naturalHeight >= img.naturalWidth;
-              resolve({ id: media.id, url: media.url, isVertical });
-            };
-            img.onerror = () => {
-              console.error(`Failed to load image: ${media.url}`);
-              resolve({ id: media.id, url: media.url, isVertical: false });
-            };
           }
         )
     );
     try {
       const processed = await Promise.all(promises);
-      setImages(processed);
+      setMediaItems(processed);
     } catch (error) {
-      console.error("Error processing image orientations:", error);
-      setImages(mediaItems.map(m => ({ ...m, isVertical: false })));
+      console.error("Error processing media orientations:", error);
+      setMediaItems(mediaArr.map(m => ({ ...m, isVertical: false, mimeType: m.mimeType })));
     }
   };
 
@@ -118,7 +123,7 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
 
       return (
         <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
-          {images.length > 1 && new Array(navProps.length).fill("").map((_, i) => (
+          {mediaItems.length > 1 && new Array(navProps.length).fill("").map((_, i) => (
             <span
               key={i}
               className={`block h-1 cursor-pointer rounded-2xl transition-all content-[''] ${
@@ -137,13 +142,13 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
         </div>
       );
     },
-    [images.length, activeIndex]
+    [mediaItems.length, activeIndex]
   );
 
-  if (!hasImages) {
+  if (!hasMedia) {
     return (
       <div className="flex items-center justify-center w-full h-64 bg-gray-100 rounded-lg">
-        <p className="text-gray-500">No hay imágenes disponibles</p>
+        <p className="text-gray-500">No hay archivos multimedia disponibles</p>
       </div>
     );
   }
@@ -151,22 +156,35 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
   return (
     <div className={`flex flex-col md:flex-row gap-4 px-6 ${className}`}>
       {/* Miniaturas */}
-      {images.length > 1 && (
+      {mediaItems.length > 1 && (
         <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-2 md:h-96 md:w-24 pb-2 md:pb-0 md:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {images.map((item, index) => (
+          {mediaItems.map((item, index) => (
             <button
               key={item.id}
               onClick={() => handleThumbnailClick(index)}
               className={`relative min-w-[80px] md:min-w-0 md:w-full h-20 border-2 rounded-md overflow-hidden transition-all ${activeIndex === index ? "border-blue-500 shadow-md" : "border-gray-200 hover:border-gray-300"
                 }`}
             >
-              <Image
-                src={item.url || "/placeholder.svg"}
-                alt={`Miniatura ${index + 1}`}
-                fill
-                sizes="(max-width: 768px) 80px, 96px"
-                className="object-cover"
-              />
+              {item.mimeType.startsWith("image") ? (
+                <Image
+                  src={item.url || "/placeholder.svg"}
+                  alt={`Miniatura ${index + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 80px, 96px"
+                  className="object-cover"
+                />
+              ) : item.mimeType.startsWith("video") ? (
+                <video 
+                  src={item.url} 
+                  muted
+                  loop
+                  controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+                  disablePictureInPicture
+                  className="h-full w-full object-contain rounded-lg bg-black"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">Archivo</div>
+              )}
             </button>
           ))}
         </div>
@@ -175,7 +193,7 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
       {/* Carousel Principal */}
       <div className="relative h-96 bg-gray-100 rounded-lg overflow-hidden flex-grow">
         <Carousel
-          loop={images.length > 1}
+          loop={mediaItems.length > 1}
           autoplay
           className="h-full"
           navigation={navigationRenderProp}
@@ -202,16 +220,29 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
             )
           )}
         >
-          {images.map((item, index) => (
+          {mediaItems.map((item, index) => (
             <div key={item.id} className="h-full w-full flex items-center justify-center">
-              <Image
-                src={item.url}
-                alt={`Product-image ${index + 1}`}
-                width={600}
-                height={600}
-                className={`h-full w-full object-contain transition-opacity duration-300`}
-                priority={index === 0}
-              />
+              {item.mimeType.startsWith("image") ? (
+                <Image
+                  src={item.url}
+                  alt={`Product-image ${index + 1}`}
+                  width={600}
+                  height={600}
+                  className={`h-full w-full object-contain transition-opacity duration-300`}
+                  priority={index === 0}
+                />
+              ) : item.mimeType.startsWith("video") ? (
+                <video 
+                  src={item.url} 
+                  muted
+                  loop
+                  controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
+                  disablePictureInPicture
+                  className="h-full w-full object-contain rounded-lg bg-black"
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full bg-gray-200 text-gray-500">Archivo no soportado</div>
+              )}
             </div>
           ))}
         </Carousel>
