@@ -19,6 +19,9 @@ import {
   ListsToggle,
   InsertThematicBreak,
   imagePlugin,
+  codeBlockPlugin,
+  codeMirrorPlugin,
+  InsertCodeBlock,
 } from '@mdxeditor/editor';
 import { Image } from 'lucide-react';
 import { useRef } from 'react';
@@ -38,17 +41,34 @@ export default function InitializedMDXEditor({
   const inputFileRef = useRef<HTMLInputElement>(null);
   const refToUse = (editorRef ?? localEditorRef) as React.RefObject<MDXEditorMethods>;
 
-  // Plugins base - SIN imagePlugin
+  // Plugins base
   const basePlugins = [
     headingsPlugin(),
     listsPlugin(),
     quotePlugin(),
     thematicBreakPlugin(),
     markdownShortcutPlugin(),
-    imagePlugin()
+    imagePlugin(),
+    // codeBlockPlugin y codeMirrorPlugin para bloques de código con resaltado de sintaxis
+    codeBlockPlugin({ defaultCodeBlockLanguage: 'js' }),
+    codeMirrorPlugin({
+      codeBlockLanguages: {
+        js: 'JavaScript',
+        ts: 'TypeScript',
+        jsx: 'JSX',
+        tsx: 'TSX',
+        css: 'CSS',
+        html: 'HTML',
+        bash: 'Bash',
+        json: 'JSON',
+        md: 'Markdown',
+        python: 'Python',
+        java: 'Java',
+      }
+    }),
   ];
 
-  // Toolbar personalizado con tu propio botón de imagen
+  // Toolbar personalizado con botón para insertar bloque de código y subir imagen
   if (IsCreateBlog) {
     basePlugins.splice(4, 0, 
       toolbarPlugin({
@@ -62,7 +82,7 @@ export default function InitializedMDXEditor({
             <Separator />
             <ListsToggle />
             <Separator />
-            
+            <InsertCodeBlock /> {/* Botón para bloque de código */}
             {/* Botón personalizado para imagen */}
             <button
               type="button"
@@ -70,9 +90,7 @@ export default function InitializedMDXEditor({
               className="px-2 py-1 rounded hover:bg-gray-200"
               onClick={() => inputFileRef.current?.click()}
             >
-              <Image
-               width={"1.2rem"}
-              />
+              <Image width={"1.2rem"} />
             </button>
             <InsertThematicBreak />
           </>
