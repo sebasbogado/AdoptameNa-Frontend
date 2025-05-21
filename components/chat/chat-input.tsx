@@ -21,17 +21,17 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
     setMessage("");
   };
   
-  return (
+    return (
     <form 
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 bg-white border-t border-gray-200 p-3"
+      className="flex items-center gap-2 bg-white border-t border-gray-200 p-3 w-full"
     >
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Escribe un mensaje..."
-        className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
         disabled={disabled}
         maxLength={1000}
       />
