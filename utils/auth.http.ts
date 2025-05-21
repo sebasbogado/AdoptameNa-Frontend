@@ -4,6 +4,14 @@ import axios from "axios";
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/auth`;
 
+interface ResetPasswordRequestParams {
+  email: string;
+}
+
+interface ResetPasswordParams {
+  newPassword: string;
+}
+
 export const login = async (
   credentials: LoginCredentials
 ): Promise<AuthResponse> => {
@@ -79,19 +87,10 @@ export const checkToken = async (token: string): Promise<User> => {
   }
 };
 
-const BASE_PATH = "auth/reset-password-request";
-const BASE_PATH_PASSWORD = "auth/reset-password";
-
-export const requestPasswordReset = async (params: Record<string, any>) => {
+export const requestPasswordReset = async (params: ResetPasswordRequestParams) => {
   try {
     const response = await axios.post(
-      `${API_URL}/reset-password-request`,
-      params,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      `${API_URL}/reset-password-request?email=${params.email}`
     );
 
     return response.data;
@@ -113,13 +112,17 @@ export const requestPasswordReset = async (params: Record<string, any>) => {
   }
 };
 
-export const resetPassword = async (params: Record<string, any>) => {
+export const resetPassword = async (token: string, params: ResetPasswordParams) => {
   try {
-    const response = await axios.post(`${API_URL}/reset-password`, params, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.post(
+      `${API_URL}/reset-password?token=${token}`,
+      params.newPassword,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     return response.data;
   } catch (error) {

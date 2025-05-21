@@ -3,19 +3,30 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import logo from "@/public/logo.png";
 import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import { resetPassword } from "@/utils/auth.http";
-
+import { ResetPasswordFormValues, resetPasswordSchema } from "@/validations/reset-password-schema";
 
 export default function ResetPasswordConfirm() {
   const { loading } = useAuth();
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [credentials, setCredentials] = useState({ password: "", confirmPassword: "" });
   const [error, setError] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
 
   const searchParams = useSearchParams();
 
@@ -26,54 +37,29 @@ export default function ResetPasswordConfirm() {
       setToken(tokenFromUrl);
       setError("");
     } else {
-      setError("El token no existe o es invalido")
+      setError("El token no existe o es inválido");
     }
   }, [searchParams]);
 
-  // Función para manejar el cambio de los campos de entrada
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  // Función para comparar las contraseñas y establecer el error si no coinciden
-  const handleComparepassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCredentials({ ...credentials, [name]: value });
-
-    // Verificar si las contraseñas coinciden
-    if (name === "confirmPassword" && value !== credentials.password) {
-      setError("Las contraseñas no coinciden.");
-    } else {
-      setError(""); // Limpiar el error si las contraseñas coinciden
-    }
-  };
-
-  // Función para manejar el envío del formulario
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (credentials.password !== credentials.confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+  const onSubmit = async (data: ResetPasswordFormValues) => {
+    if (!token) {
+      setError("Token inválido o expirado");
       return;
     }
-    setError("");
-    setIsSubmitting(true);
-
+    
     try {
-      const response = await resetPassword({ newPassword: credentials.password, token: token });
+      const response = await resetPassword(token, { newPassword: data.password });
       if (response) {
-        console.log("Console responde: " + response.data)
+        console.log("Console responde: " + response.data);
       }
       // Redirigir al login
       router.push("/auth/login");
     } catch (error: any) {
       console.error("Error al restablecer la contraseña:", error);
       setError("❌ Ocurrió un error al restablecer la contraseña. Intenta nuevamente.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  // Mostrar el componente de carga si está cargando
   if (loading) {
     return <Loading />;
   }
@@ -94,33 +80,57 @@ export default function ResetPasswordConfirm() {
           </p>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="text-left">
             <label className="text-gray-700 font-medium text-sm block mb-1">Nueva Contraseña</label>
-            <input
-              type="password"
-              name="password"
-              value={credentials.password}
-              onChange={handleChange}
-              required
-              maxLength={50}
-              className={`w-full border ${!!error && error.includes("Contraseña") ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className={`w-full border ${errors.password ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="text-left">
             <label className="text-gray-700 font-medium text-sm block mb-1">Confirmar Contraseña</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={credentials.confirmPassword}
-              onChange={handleComparepassword}
-              required
-              maxLength={20}
-              className={`w-full border ${!!error && error.includes("Contraseñas no coinciden") ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                {...register("confirmPassword")}
+                className={`w-full border ${errors.confirmPassword ? "border-red-500" : "border-gray-300"} rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-[#9747FF]`}
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? (
+                  <EyeOffIcon className="h-5 w-5 text-gray-500" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
+            )}
           </div>
 
           <div className="flex flex-col items-center justify-center space-y-6 mt-6">
@@ -131,10 +141,7 @@ export default function ResetPasswordConfirm() {
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                  <Loader2Icon className="animate-spin mr-2" />
                   Procesando...
                 </div>
               ) : (
