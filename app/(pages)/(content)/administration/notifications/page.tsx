@@ -237,14 +237,14 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a todos los usuarios</div>
                 </div>
               </label>
-              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.PERSONAL ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.PERSONAL ? 'border-cyan-400 bg-cyan-50' : 'border-gray-200 hover:bg-gray-50'}`}>
                 <input
                   type="radio"
                   value={NotificationType.PERSONAL}
                   {...register("type")}
                   className="sr-only"
                 />
-                <UsersRound className="h-5 w-5 text-blue-500 mr-2" />
+                <UsersRound className="h-5 w-5 text-cyan-500 mr-2" />
                 <div>
                   <div className="font-medium">Personal</div>
                   <div className="text-xs text-gray-500">Enviada a un usuario específico</div>
@@ -309,7 +309,7 @@ export default function NotificationsAdminPage() {
               id="title"
               type="text"
               {...register("title")}
-              className={`w-full border rounded-md p-2 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-100 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Título de la notificación"
             />
             {errors.title && (
@@ -323,7 +323,7 @@ export default function NotificationsAdminPage() {
               id="message"
               rows={4}
               {...register("message")}
-              className={`w-full border rounded-md p-2 ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-100 ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Contenido del mensaje..."
             />
             {errors.message && (
