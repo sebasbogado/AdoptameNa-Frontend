@@ -146,7 +146,7 @@ export default function BannerImage({ onImageUploaded, initialImage, token, rese
                             </div>
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
                                 className="hidden"
                                 onChange={handleFileChange}
                                 disabled={uploading}
@@ -176,7 +176,7 @@ export default function BannerImage({ onImageUploaded, initialImage, token, rese
                             <input
                                 id="file-upload"
                                 type="file"
-                                accept="image/*"
+                                accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
                                 className="hidden"
                                 onChange={handleFileChange}
                                 disabled={uploading}

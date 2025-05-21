@@ -8,5 +8,5 @@ export interface Crowdfunding {
     currentAmount: number;
     startDate: string;
     endDate: string;
-    status: 'ACTIVE' | 'CLOSED' | 'NONE' | 'PENDING';
+    status: "ACTIVE" | "CLOSED" | "NONE" | "PENDING" | "REJECTED";
 }
