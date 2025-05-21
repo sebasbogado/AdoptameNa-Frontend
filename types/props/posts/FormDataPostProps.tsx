@@ -1,4 +1,4 @@
-import { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormTrigger, Control } from "react-hook-form";
 import { PostFormValues } from "@/validations/post-schema";
 import { PostType } from "@/types/post-type";
 import { Tags } from "@/types/tags";
@@ -23,4 +23,6 @@ setValue: UseFormSetValue<PostFormValues>
   confirmSubmit: () => void;
     MAX_IMAGES: number;
   MAX_TAGS: number;
+  control: any;
+
 };
