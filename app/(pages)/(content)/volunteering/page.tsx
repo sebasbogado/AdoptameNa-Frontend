@@ -13,7 +13,7 @@ import { getTags } from "@/utils/tags";
 import { Tags } from "@/types/tags";
 import LocationFilter from "@/components/filters/location-filter";
 import { useAuth } from "@/contexts/auth-context";
-import { LocationFilters } from "@/types/location-filter";
+import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 
 export default function Page() {
@@ -25,6 +25,7 @@ export default function Page() {
     const [selectedTag, setSelectedTag] = useState("");
     const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
+    const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
     const {
         data: posts,
@@ -71,7 +72,7 @@ export default function Page() {
     useEffect(() => {
         let filters: any = {};
 
-        
+
         if (selectedTag && selectedTag !== "Todos") {
             const selectedTagObj = tags.find(
                 (tag) => tag.name.toLowerCase() === selectedTag.toLowerCase()
@@ -80,37 +81,41 @@ export default function Page() {
                 filters.tagIds = selectedTagObj.id.toString();
             }
         }
-        
+
         filters = {
             ...filters,
             ...locationFilters
         };
 
         updateFilters(filters);
-    }, [ selectedTag, locationFilters, filterChanged]);
+    }, [selectedTag, locationFilters, filterChanged]);
 
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
-                <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2 lg:gap-3">
+                <div
+                    className={`
+                        grid grid-cols-1 md:grid-cols-2
+                        ${user?.location ? 'lg:grid-cols-2' : 'lg:grid-cols-1 lg:w-1/3'}
+                        gap-x-6 gap-y-6
+                        px-4 md:px-0
+                    `}>
                     {user?.location ? (
-                        <div className="w-full md:w-64 lg:w-1/2 flex-shrink-0">
-                            <LocationFilter 
-                                user={user} 
-                                onFilterChange={handleLocationFilterChange} 
-                            />
-                        </div>
-                    ) : (
-                        <div className="hidden lg:block lg:w-1/2 flex-shrink-0"></div>
-                    )}
-                    <div className="w-full md:w-64 lg:w-1/2 flex-shrink-0">
-                        <LabeledSelect
-                            label="Etiquetas"
-                            options={tagsList}
-                            selected={selectedTag}
-                            setSelected={setSelectedTag}
+                        <LocationFilter
+                            user={user}
+                            locationType={locationType}
+                            setLocationType={setLocationType}
+                            onFilterChange={handleLocationFilterChange}
                         />
-                    </div>
+                    ) : (
+                        <div className="hidden lg:w-1/2 flex-shrink-0"></div>
+                    )}
+                    <LabeledSelect
+                        label="Etiquetas"
+                        options={tagsList}
+                        selected={selectedTag}
+                        setSelected={setSelectedTag}
+                    />
                 </div>
             </div>
 
