@@ -152,7 +152,7 @@ export default function ProfilePage() {
         userProfile: false,
         marketplacePosts: false,
     });
-        const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
+    const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
     
     const handleContactClick = () => {
 
@@ -181,8 +181,10 @@ export default function ProfilePage() {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
             return;
         }
+        // Solo redirigir si el usuario está viendo su propio perfil
         if (userAuth && Number(userId) === userAuth.id) {
             router.push('/profile');
+            return;
         }
         getUserProfileData(
             setUserProfile,
@@ -190,7 +192,7 @@ export default function ProfilePage() {
             setErrors,
             userId.toString()
         );
-    }, [userAuth, loadingAuth, param.id]);
+    }, [userAuth, loadingAuth, param.id, router]);
     useEffect(() => {
         const userId = param.id;
         if (!userId) {
