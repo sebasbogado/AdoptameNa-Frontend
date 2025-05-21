@@ -12,7 +12,7 @@ import { Loader2 } from "lucide-react";
 import Pagination from "@/components/pagination";
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
-import { LocationFilters } from "@/types/location-filter";
+import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { Animal } from "@/types/animal";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { capitalizeFirstLetter } from "@/utils/Utils";
@@ -27,6 +27,7 @@ export default function Page() {
     const [animalList, setAnimalList] = useState<string[]>([]);
     const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
+    const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
     const pageSize = 10;
     const sort = "id,desc";
@@ -112,56 +113,60 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
-                <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2 lg:gap-3">
-                    {/* Select Está Vacunado */}
-                    <div className="w-full md:w-64 lg:w-1/5 flex-shrink-0">
-                        <LabeledSelect
-                            label="Vacunado"
-                            options={["Todos", "Sí", "No"]}
-                            selected={selectedVacunado}
-                            setSelected={setSelectedVacunado}
-                        />
-                    </div>
-
-                    {/* Select Está Esterilizado */}
-                    <div className="w-full md:w-64 lg:w-1/5 flex-shrink-0">
-                        <LabeledSelect
-                            label="Esterilizado"
-                            options={["Todos", "Sí", "No"]}
-                            selected={selectedEsterilizado}
-                            setSelected={setSelectedEsterilizado}
-                        />
-                    </div>
-
-                    {/* Select Género */}
-                    <div className="w-full md:w-64 lg:w-1/5 flex-shrink-0">
-                        <LabeledSelect
-                            label="Género"
-                            options={["Todos", "Femenino", "Masculino"]}
-                            selected={selectedGenero}
-                            setSelected={setSelectedGenero}
-                        />
-                    </div>
-
-                    {/* Select Tipo de Animal */}
-                    <div className="w-full md:w-64 lg:w-1/5 flex-shrink-0">
-                        <LabeledSelect
-                            label="Animal"
-                            options={animalList}
-                            selected={selectedAnimal}
-                            setSelected={setSelectedAnimal}
-                        />
-                    </div>
-
+                <div
+                    className={`
+                        grid grid-cols-2 md:grid-cols-2
+                        ${user?.location ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}
+                        gap-x-6 gap-y-6
+                        px-4 md:px-0
+                    `}>
                     {/* Filtro de ubicación - solo si hay datos de ubicación */}
                     {user?.location ? (
-                        <div className="w-full md:w-64 lg:w-1/5 flex-shrink-0">
-                            <LocationFilter
-                                user={user}
-                                onFilterChange={handleLocationFilterChange}
-                            />
-                        </div>
-                    ) : null}
+                        <LocationFilter
+                            user={user}
+                            locationType={locationType}
+                            setLocationType={setLocationType}
+                            onFilterChange={handleLocationFilterChange}
+                        />
+                    ) : (
+                        <div className="hidden lg:w-1/2 flex-shrink-0"></div>
+                    )}
+
+                    {/* Select Está Vacunado */}
+                    <LabeledSelect
+                        label="Vacunado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedVacunado}
+                        setSelected={setSelectedVacunado}
+                    />
+
+                    {/* Select Está Esterilizado */}
+
+                    <LabeledSelect
+                        label="Esterilizado"
+                        options={["Todos", "Sí", "No"]}
+                        selected={selectedEsterilizado}
+                        setSelected={setSelectedEsterilizado}
+                    />
+
+                    {/* Select Género */}
+                    <LabeledSelect
+                        label="Género"
+                        options={["Todos", "Femenino", "Masculino"]}
+                        selected={selectedGenero}
+                        setSelected={setSelectedGenero}
+                    />
+
+                    {/* Select Tipo de Animal */}
+
+                    <LabeledSelect
+                        label="Animal"
+                        options={animalList}
+                        selected={selectedAnimal}
+                        setSelected={setSelectedAnimal}
+                    />
+
+
                 </div>
             </div>
 
