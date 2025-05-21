@@ -6,10 +6,14 @@ import { PostType } from "@/types/post-type";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { Tags } from "@/types/tags";
+import { Pet } from "@/types/pet";
+import { Product } from "@/types/product";
+import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorAdoptionOrMissing, getConditionIcon, getGenderIcon, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
 
 interface props {
   post: any,
   className?: string,
+  type?: string,
 }
 
 const CardText = ({ post, className = "" }: props) => {
@@ -43,11 +47,58 @@ const CardText = ({ post, className = "" }: props) => {
             Object.values(post.tags).map((tagObject, index) => (
               <PostsTags
                 key={(tagObject as Tags).id || index}
-                postType={post.postType.name}
-                iconType={"race"}
+                postType="Voluntariado"
+                iconType={getAnimalIcon((tagObject as Tags).name)}
                 value={(tagObject as Tags).name}
               />
             ))
+          ) : post.gender ? (
+            <>
+              <PostsTags
+                key={post.id}
+                postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                iconType={getGenderIcon((post as Pet).gender)}
+                value={convertGenderToSpanish((post as Pet).gender)} />
+
+              {post.isSterilized &&
+                <PostsTags
+                  key={post.id + 1}
+                  postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                  iconType={getSterilizedIcon((post as Pet).isSterilized)}
+                  value={(post as Pet).isVaccinated ? "Esterilizado" : ""} />
+              }
+
+              {post.isVaccinated &&
+                <PostsTags
+                  key={post.id + 2}
+                  postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                  iconType={getVaccinatedIcon((post as Pet).isVaccinated)}
+                  value={(post as Pet).isVaccinated ? "Vacunado" : ""} />
+              }
+            </>
+
+          ) : post.category ? (
+            <>
+              <PostsTags
+                key={post.id}
+                postType="Marketplace"
+                iconType={"generic"}
+                value={(post as Product).category.name} />
+              <PostsTags
+                key={post.id + 1}
+                postType="Marketplace"
+                iconType={getConditionIcon((post as Product).condition)}
+                value={capitalizeFirstLetter((post as Product).condition)} />
+              {Object.values((post as Product).animals).map((animal, index) => (
+                <PostsTags
+                  key={index}
+                  postType="Marketplace"
+                  iconType={getAnimalIcon(animal.name)}
+                  value={capitalizeFirstLetter(animal.name)} />
+              ))
+              }
+            </>
+
           ) : (
             hardcodedTags.map((tag, index) => (
               <PostsTags
