@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -30,7 +30,7 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -58,6 +58,7 @@ export default function Page() {
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
+    const params = useParams()
     const watchedPostTypeId = useWatch({
         control,
         name: "postTypeId", // El nombre del campo en tu formulario
@@ -167,7 +168,6 @@ export default function Page() {
     };
 
     const onSubmit = (data: PostFormValues) => {
-        // 'data' aquí ya está validado por Zod
         openConfirmationModal(data); // Pasa los datos validados al modal/handler
     };
 
@@ -185,11 +185,13 @@ export default function Page() {
             content: validatedData.content,
             tagIds: validatedData.tagIds || [],
             postTypeId: validatedData.postTypeId,
-            contactNumber: validatedData.contactNumber,
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
             mediaIds: validatedData.mediaIds || []
         };
-
+            // Solo incluir contactNumber si tiene valor real
+            if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
+                updatedFormData.contactNumber = validatedData.contactNumber;
+            }
         if (!authToken) {
             console.log("Usuario no autenticado");
             setLoading(false);
@@ -200,7 +202,12 @@ export default function Page() {
             const response = await createPost(updatedFormData, authToken);
             if (response && response.id) {
                 setSuccessMessage("Post creado exitosamente.")
-                router.push(`/posts/${response.id}`);
+
+                if (validatedData.postTypeId === POST_TYPEID.BLOG) {
+                router.push(`/blog/${response.id}`);
+                } else {
+                    router.push(`/posts/${response.id}`);
+                } 
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
                 router.push("/dashboard"); // O a donde sea apropiado como fallback
@@ -308,8 +315,9 @@ export default function Page() {
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
                 MAX_TAGS={MAX_TAGS}
+                control  = {control}
             />
-
+            
             {isModalOpen &&
                 <ConfirmationModal
                     isOpen={isModalOpen}
