@@ -16,6 +16,8 @@ import { UserProfile } from "@/types/user-profile";
 import { useDebounce } from "@/hooks/use-debounce";
 import SearchBar from "@/components/search-bar";
 import { usePagination } from "@/hooks/use-pagination";
+import { getUsers } from "@/utils/user.http";
+import { UserResponse } from "@/types/auth";
 
 export default function NotificationsAdminPage() {
   const { authToken, loading, user } = useAuth();
@@ -26,9 +28,11 @@ export default function NotificationsAdminPage() {
   // Búsqueda de usuarios
   const [inputValue, setInputValue] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
+  const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce((value: string) => {
     if ((/^\d+$/.test(value) && value.length >= 1) || value.length >= 3 || value === "") {
@@ -58,46 +62,47 @@ export default function NotificationsAdminPage() {
       getAllFullUserProfile(authToken || "", {
         page,
         size: 10,
-        name: filters?.name || undefined,
+        search: filters?.search || undefined,
       }),
     initialPage: 1,
     initialPageSize: 10,
   });
 
-  // Efecto para búsqueda combinada (ID o nombre/email)
+  // Efecto para búsqueda combinada (ID, nombre, email, etc.)
   useEffect(() => {
     let cancelled = false;
     const fetch = async () => {
       setSearchLoading(true);
       setSearchResults([]);
-      // Si input vacío o no válido, limpiar
-      if (!searchQuery || (!/^\d+$/.test(searchQuery) && searchQuery.length < 3)) {
+      const cleanSearch = searchQuery.trim();
+      if (!cleanSearch || (isNaN(Number(cleanSearch)) && cleanSearch.length < 2)) {
         setSearchLoading(false);
         setSearchResults([]);
         return;
       }
-      // Si es numérico, buscar por ID
-      if (/^\d+$/.test(searchQuery)) {
-        try {
-          const user = await getFullUser(searchQuery);
-          if (!cancelled && user) {
-            setSearchResults([user]);
-          }
-        } catch {
-          if (!cancelled) setSearchResults([]);
-        } finally {
-          if (!cancelled) setSearchLoading(false);
+      try {
+        const params: any = {
+          page: page - 1,
+          size: 10,
+          search: cleanSearch,
+          name: "",
+          role: "",
+          sort: "id,asc"
+        };
+        const response = await getUsers(authToken || "", params);
+        if (!cancelled) {
+          setSearchResults(response.data);
+          setTotalPages(response.pagination?.totalPages || 1);
         }
-      } else {
-        // Si es texto, usar paginación normal
-        updateFilters({ name: searchQuery, id: undefined });
-        setSearchResults(users);
-        setSearchLoading(usersLoading);
+      } catch (error) {
+        if (!cancelled) setSearchResults([]);
+      } finally {
+        if (!cancelled) setSearchLoading(false);
       }
     };
     fetch();
     return () => { cancelled = true; };
-  }, [searchQuery, updateFilters, users, usersLoading]);
+  }, [searchQuery, page, authToken]);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
@@ -159,6 +164,15 @@ export default function NotificationsAdminPage() {
       setIsSubmitting(false);
     }
   };
+
+  const filteredResults = searchResults.filter(user => {
+    const term = searchQuery.toLowerCase();
+    return (
+      (user.name && user.name.toLowerCase().includes(term)) ||
+      (user.email && user.email.toLowerCase().includes(term)) ||
+      (user.id && String(user.id).includes(term))
+    );
+  });
 
   if (loading) return <Loading />;
   if (!authToken || !user || user.role !== "admin") return <NotFound />;
@@ -250,9 +264,9 @@ export default function NotificationsAdminPage() {
                 onClear={handleClearSearch}
               />
               {/* Mostrar lista solo si la búsqueda es válida */}
-              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && searchResults.length > 0 && !selectedUser && (
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && filteredResults.length > 0 && !selectedUser && (
                 <ul className="border rounded-md bg-white max-h-40 overflow-y-auto mb-2">
-                  {searchResults.map(user => (
+                  {filteredResults.map(user => (
                     <li
                       key={user.id}
                       className="p-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
@@ -261,20 +275,20 @@ export default function NotificationsAdminPage() {
                       }}
                     >
                       <span>
-                        {user.fullName ? user.fullName : user.email} ({user.email})
+                        {user.name} ({user.email})
                       </span>
                       <span className="text-xs text-gray-400">ID: {user.id}</span>
                     </li>
                   ))}
                 </ul>
               )}
-              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && searchResults.length === 0 && !selectedUser && (
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && filteredResults.length === 0 && !selectedUser && (
                 <div className="text-gray-400 p-2">No se encontraron resultados</div>
               )}
               {selectedUser && (
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center">
-                    {selectedUser.fullName ? selectedUser.fullName : selectedUser.email}
+                    {selectedUser.name ? selectedUser.name : selectedUser.email}
                     <button
                       type="button"
                       className="ml-1 text-blue-500 hover:text-red-500"
