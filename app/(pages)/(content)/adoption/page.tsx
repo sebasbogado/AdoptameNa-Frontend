@@ -120,6 +120,7 @@ export default function Page() {
                         gap-x-6 gap-y-6
                         px-4 md:px-0
                     `}>
+                        
                     {/* Filtro de ubicación - solo si hay datos de ubicación */}
                     {user?.location ? (
                         <LocationFilter
