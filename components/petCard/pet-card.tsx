@@ -13,6 +13,7 @@ import { Alert } from "@material-tailwind/react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import MissingTags from "./missing-tags";
+import { Check, X, AlertTriangle } from "lucide-react";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
@@ -72,31 +73,42 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
             console.error("Error al actualizar favorito", error);
         }
     };
-
     return (
-        <div className={clsx(
-            "snap-start shrink-0 w-[16rem] h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
-            className
-        )}>            <div className="relative">
-                {successMessage && (
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
-                    >
-                        {successMessage}
-                    </Alert>
-                )}
-                {errorMessage && (
-                    <Alert
-                        color="red"
-                        onClose={() => setErrorMessage("")}
-                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
-                    >
-                        {errorMessage}
-                    </Alert>
-                )}
-            </div>
+        <>
+            {successMessage && (
+                <Alert
+                    open={true}
+                    color="green"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<Check className="h-5 w-5" />}
+                    onClose={() => setSuccessMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{successMessage}</p>
+                </Alert>
+            )}
+            {errorMessage && (
+                <Alert
+                    open={true}
+                    color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
+                    onClose={() => setErrorMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{errorMessage}</p>
+                </Alert>
+            )}
+            <div className={clsx(
+                "snap-start shrink-0 w-[16rem] h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
+                className
+            )}>
             {isPost &&
                 <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
@@ -122,5 +134,6 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
             )}
 
         </div>
+        </>
     );
 }

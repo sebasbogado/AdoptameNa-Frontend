@@ -7,6 +7,7 @@ import { createSponsor } from "@/utils/sponsor.http";
 import { postMedia } from "@/utils/media.http";
 import Image from 'next/image';
 import { Alert } from "@material-tailwind/react";
+import { Check, X, AlertTriangle } from 'lucide-react';
 import Modal from "@/components/modal";
 import Button from "@/components/buttons/button";
 import { useRouter } from 'next/navigation';
@@ -161,16 +162,23 @@ export default function SponsorFormPage() {
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color}
-                    className={`mb-6 shadow-md font-medium border-l-4 ${
-                        alertInfo.color === "red" 
-                            ? "border-red-500" 
-                            : alertInfo.color === "green" 
-                                ? "border-green-500" 
-                                : "border-blue-500"
-                    }`}
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={
+                        alertInfo.color === "green" ? (
+                            <Check className="h-5 w-5" />
+                        ) : alertInfo.color === "red" ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5" />
+                        )
+                    }
                     onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                 >
-                    {alertInfo.message}
+                    <p className="text-sm">{alertInfo.message}</p>
                 </Alert>
             )}
             

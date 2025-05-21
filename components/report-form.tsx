@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { reportSchema } from '@/validations/report-schema';
 import { Alert } from '@material-tailwind/react';
+import { Check, X, AlertTriangle } from 'lucide-react';
 
 interface ReportFormProps {
   handleClose: () => void;
@@ -70,22 +71,34 @@ const ReportForm: React.FC<ReportFormProps> = ({ handleClose, idComment, idEntit
   };
   return (
     <>
-      {successMessage && (
+    {successMessage && (
         <Alert
+          open={true}
           color="green"
-          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
           onClose={() => setSuccessMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {successMessage}
+          <p className="text-sm">{successMessage}</p>
         </Alert>
       )}
       {errorMessage && (
         <Alert
+          open={true}
           color="red"
-          className="fixed top-4 right-4 z-[10001] w-72 shadow-lg"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
           onClose={() => setErrorMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {errorMessage}
+          <p className="text-sm">{errorMessage}</p>
         </Alert>
       )}
       <form className="mt-3" onSubmit={handleSubmit(onSubmit)}>

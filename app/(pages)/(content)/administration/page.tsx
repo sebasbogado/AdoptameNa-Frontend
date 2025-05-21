@@ -9,8 +9,6 @@ import {
     Flag, 
     Settings, 
     Users, 
-    LineChart, 
-    AlertCircle,
     Bell,
     Trash2
 } from "lucide-react";
