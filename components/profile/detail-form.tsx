@@ -294,45 +294,70 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+          className={`text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
             } focus:outline-none w-full resize-none`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
+        
         {/* Teléfono */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+        {(!isDisable || userProfile?.phoneNumber) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
+              {isDisable && userProfile?.phoneNumber && <PhoneIcon className="text-gray-500" />}
+              <input
+                type="text"
+                disabled={isDisable}
+                value={userProfile?.phoneNumber ?? ""}
+                className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
+              />
+              {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
+            </div>
+          </>
         )}
-
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <PhoneIcon className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.phoneNumber ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
-          />
-          {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
-
-        </div>
-        {/* Direccion */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+        
+        {/* Dirección */}
+        {(!isDisable || userProfile?.address || userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full relative`}>
+              {isDisable && (userProfile?.address || userProfile?.neighborhoodName) && <MapPin className="text-gray-500" />}
+              <div className="flex flex-col w-full">
+                {isDisable ? (
+                  // Modo visualización
+                  <div className={`text-3xl text-gray-700`}>
+                    {userProfile?.address && (
+                      <p>{userProfile.address}</p>
+                    )}
+                    {(userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+                      <p className="text-lg text-gray-500">
+                        {[
+                          userProfile.neighborhoodName,
+                          userProfile.districtName,
+                          userProfile.departmentName
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  // Modo edición
+                  <input
+                    type="text"
+                    disabled={isDisable}
+                    value={userProfile?.address ?? ""}
+                    className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
+                  />
+                )}
+                {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
+              </div>
+            </div>
+          </>
         )}
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <MapPin className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.address ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
-          />
-          {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
-        </div>
 
         {renderCrowdfunding()}
 
