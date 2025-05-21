@@ -33,6 +33,15 @@ interface InputProps {
 }
 
 export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, setSuccessMessage, setErrorMessage }: InputProps) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [userProfile?.description]);
+
   const handleInputChange = (field: string, value: string) => {
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -286,6 +295,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
         {/* Descripción */}
         <textarea
+          ref={textareaRef}
           disabled={isDisable}
           value={
             isDisable && !userProfile?.description
@@ -293,8 +303,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               : userProfile?.description ?? ""
           }
           className={`text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-            } focus:outline-none w-full resize-none`}
+            } focus:outline-none w-full resize-none overflow-hidden`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
+          style={{ minHeight: '60px' }}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
         
