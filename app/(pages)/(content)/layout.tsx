@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { getActiveSponsors } from '@/utils/sponsor.http';
 import { ActiveSponsor } from '@/types/sponsor';
 import { getPublicBanners } from "@/utils/banner.http";
+import { SkeletonBanner } from "@/components/ui/skeleton-banner";
 
 interface SponsorImage {
   id: number;
@@ -25,6 +26,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
   const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
   const [bannerImages, setBannerImages] = useState<string[]>([]);
   const pathname = usePathname();
+  const [loadingBanners, setLoadingBanners] = useState(true); // Estado de loading
 
   const fetchSponsors = useCallback(async () => {
     try {
@@ -56,6 +58,10 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
       console.error('Error al cargar banners:', error);
       setBannerImages([]);
     }
+    finally{
+      setLoadingBanners(false); // Termina el loading
+
+    }
   }, []);
 
   useEffect(() => {
@@ -70,16 +76,21 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
     "/missing",
     "/blog",
     "/marketplace",
+    "/crowdfunding",
   ];
   const showCarousel = allowedRoutes.includes(pathname);
   const showBanners = allowedRoutes.includes(pathname);
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
+         <div className="flex flex-col min-h-screen">
         <Navbar />
-        {showBanners && bannerImages.length > 0 && (
-          <Banners images={bannerImages} />
+        {showBanners && (
+          loadingBanners ? (
+            <SkeletonBanner height="h-[25rem]" />
+          ) : bannerImages.length > 0 ? (
+            <Banners images={bannerImages} />
+          ) : null
         )}
         {children}
       </div>

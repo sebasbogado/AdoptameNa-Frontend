@@ -1,0 +1,125 @@
+.custom-editor ul {
+  list-style-type: disc;
+  margin-left: 1.5em;
+  padding-left: 1.5em;
+}
+.custom-editor ol {
+  list-style-type: decimal;
+  margin-left: 1.5em;
+  padding-left: 1.5em;
+}
+.custom-editor li {
+  margin-bottom: 0.3em;
+}
+.custom-editor h1 {
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin: 0.9em 0 0.6em 0;
+}
+.custom-editor h2 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 0.7em 0 0.5em 0;
+}
+.custom-editor h3 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0.5em 0 0.4em 0;
+}
+.custom-editor h4 {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0.4em 0 0.3em 0;
+}
+.custom-editor h5 {
+  font-size: 1.0rem;
+  font-weight: bold;
+  margin: 0.3em 0 0.2em 0;
+}
+.custom-editor h6 {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 0.2em 0 0.1em 0;
+}
+.custom-editor p {
+  margin: 0.5em 0;
+}
+.custom-editor blockquote {
+  border-left: 4px solid #ccc;
+  padding-left: 1em;
+  margin: 0.5em 0;
+  color: #555;
+}
+.custom-editor .custom-toolbar {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem; /* Ajusta el espacio entre los elementos según sea necesario */
+  align-items: center;
+}
+.custom-editor .custom-toolbar button {
+  background: none;
+  border: none;
+  color: #333;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.custom-editor {
+  --accentBase: #f0f0f0;
+  --accentBg: #ffffff;
+  --accentText: #333333;
+  --accentBorder: #cccccc;
+  --accentBorderHover: #999999;
+  --accentBgHover: #e6e6e6;
+  --accentBgActive: #d9d9d9;
+  --accentSolid: #4a90e2;
+  --accentSolidHover: #357ab8;
+  --accentTextContrast: #ffffff;
+
+  --baseBg: #ffffff;
+  --baseText: #000000;
+  --baseBorder: #dddddd;
+  --baseBorderHover: #bbbbbb;
+  --baseSolid: #f5f5f5;
+  --baseSolidHover: #e0e0e0;
+  --baseTextContrast: #000000;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--baseText);
+}
+
+.custom-editor .mdxeditor-toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--accentBg);
+  border-bottom: 1px solid var(--accentBorder);
+}
+
+.custom-editor .mdxeditor-toolbar button {
+  background: none;
+  border: none;
+  color: var(--accentText);
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.custom-editor .mdxeditor-toolbar button:hover {
+  background-color: var(--accentBgHover);
+}
+
+.custom-editor .mdxeditor-toolbar button:active {
+  background-color: var(--accentBgActive);
+}
+
+.custom-editor-content {
+  padding: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.custom-editor div[aria-label="editable markdown"] {
+  min-height: 400px !important;
+}

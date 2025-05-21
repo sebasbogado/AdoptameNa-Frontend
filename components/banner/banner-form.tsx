@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from 'next/image';
-import { Upload, X, Loader2, Calendar, Check, Power, RadioTower, ArrowUp, } from 'lucide-react';
+import { Upload, X, Loader2, Calendar, Check, Power, RadioTower, ArrowUp, AlertTriangle, } from 'lucide-react';
 import { Alert } from '@material-tailwind/react';
 import { createBanner, updateBanner } from '@/utils/banner.http';
 import BannerImage from './banner-image';
@@ -68,7 +68,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
                 const response = await getActiveSponsors();
                 setSponsorImages(response.data);
             } catch (error) {
-                console.error('Error fetching sponsor images:', error);
             }
         };
 
@@ -163,7 +162,6 @@ export default function BannerForm({ banner }: BannerFormProps) {
                 router.push('/administration/settings/banner');
             }, 1500);
         } catch (error) {
-            console.error('Error al guardar el banner:', error);
             setAlertInfo({
                 open: true,
                 color: "red",
@@ -190,15 +188,27 @@ export default function BannerForm({ banner }: BannerFormProps) {
     };
 
     return (
-        <div className="bg-white p-6 border rounded-lg shadow-sm">
-            {alertInfo && alertInfo.open && (
+        <div className="bg-white p-6 border rounded-lg shadow-sm">            {alertInfo && alertInfo.open && (
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color}
-                    className="mb-4"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={
+                        alertInfo.color === "green" ? (
+                            <Check className="h-5 w-5" />
+                        ) : alertInfo.color === "red" ? (
+                            <X className="h-5 w-5" />
+                        ) : (
+                            <AlertTriangle className="h-5 w-5" />
+                        )
+                    }
                     onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                 >
-                    {alertInfo.message}
+                    <p className="text-sm">{alertInfo.message}</p>
                 </Alert>
             )}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

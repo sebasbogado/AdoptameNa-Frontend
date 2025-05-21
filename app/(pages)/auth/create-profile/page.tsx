@@ -6,12 +6,14 @@ import { WelcomeUser } from "@/components/profile/welcome-user";
 import { useAuth } from "@/contexts/auth-context";
 import { UpdateUserProfile } from "@/types/user-profile";
 import { updateUserProfile } from "@/utils/user-profile.http";
-import { profileSchema, ProfileValues } from "@/validations/user-profile";
+import { getProfileSchema, ProfileValues } from "@/validations/user-profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
+import { Check, X } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { USER_ROLE } from "@/types/auth";
 
 export default function CreateProfilePage() {
   const [error, setError] = useState("");
@@ -22,12 +24,18 @@ export default function CreateProfilePage() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting }, 
+    formState: { errors, isSubmitting },
     reset,
     getValues,
     trigger,
   } = useForm<ProfileValues>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(
+      getProfileSchema(
+        Object.values(USER_ROLE).includes(user?.role as USER_ROLE)
+          ? (user?.role as USER_ROLE)
+          : USER_ROLE.USER
+      )
+    ),
     defaultValues: {
       fullName: "",
       phoneNumber: null,
@@ -37,7 +45,7 @@ export default function CreateProfilePage() {
       addressCoordinates: undefined,
       description: "",
     },
-    mode: "onSubmit" 
+    mode: "onSubmit"
   });
   useEffect(() => {
     if (user) {
@@ -68,7 +76,7 @@ export default function CreateProfilePage() {
         departmentId: data.departmentId || null,
         districtId: data.districtId || null,
         neighborhoodId: data.neighborhoodId || null,
-        organizationName: "",
+        organizationName: data.organizationName ?? "",
         document: "",
         earnedPoints: 0,
         email: user?.email || "",
@@ -77,7 +85,7 @@ export default function CreateProfilePage() {
         latitude: data.addressCoordinates ? data.addressCoordinates[0] : null,
       };
 
-   
+
       await updateProfile(profileToUpdate);
     } catch (err) {
       setError("Error al procesar el formulario. Por favor intenta nuevamente.");
@@ -89,11 +97,11 @@ export default function CreateProfilePage() {
       setError("Error de autenticación. Por favor inicia sesión nuevamente.");
       return;
     }
-    
+
     setError("");
     try {
       const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
-      updateUserProfileCompletion(true); 
+      updateUserProfileCompletion(true);
       router.push("/profile");
     } catch (err: any) {
       if (err.message && err.message.includes("401")) {
@@ -126,13 +134,20 @@ export default function CreateProfilePage() {
     <div className="w-screen  flex justify-center items-center relative">
       <div className="w-full max-w-lg  p-8 bg-white text-center">
         <WelcomeUser />
-        <CreateProfile setValue={setValue} handleSubmit={handleSubmit} onSubmit={onSubmit} register={register} isSubmitting={isSubmitting} errors={errors} />
-        {error && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-            <Alert color="red" onClose={() => setError("")} className="text-sm px-4  w-fit flex items-center">
-              {error}
-            </Alert>
-          </div>
+        <CreateProfile setValue={setValue} handleSubmit={handleSubmit} onSubmit={onSubmit} register={register} isSubmitting={isSubmitting} errors={errors} />        {error && (
+          <Alert
+            open={true}
+            color="red"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<X className="h-5 w-5" />}
+            onClose={() => setError("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{error}</p>
+          </Alert>
         )}
       </div>
     </div>

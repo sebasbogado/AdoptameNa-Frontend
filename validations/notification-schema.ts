@@ -13,6 +13,7 @@ export const notificationSchema = z
       .max(500, "El mensaje no puede exceder 500 caracteres"),
     type: z.nativeEnum(NotificationType),
     targetRoleIds: z.array(z.number()).optional(),
+    targetUserIds: z.array(z.number()).optional(),
   })
   .refine(
     (data) => {

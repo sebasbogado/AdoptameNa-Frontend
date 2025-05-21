@@ -35,10 +35,10 @@ export default function ProfileLayout({ children }: RootLayoutProps) {
     }, [fetchBanners]);
 
     useEffect(() => {
-        if (!authLoading && !authToken) {
+        if (!authLoading && !authToken && pathname === '/profile') {
             router.push("/auth/login");
         }
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, pathname]);
 
     if (authLoading) {
         return <Loading />;

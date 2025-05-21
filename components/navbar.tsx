@@ -13,7 +13,8 @@ const navbarItems = [
     { name: "Adopción", path: "/adoption" },
     { name: "Extraviados", path: "/missing" },
     { name: "Blog", path: "/blog" },
-    { name: "Tienda", path: "/marketplace" }
+    { name: "Tienda", path: "/marketplace" },
+    { name: "Colecta", path: "/crowdfunding" }
 ];
 
 export default function Navbar() {
@@ -25,7 +26,7 @@ export default function Navbar() {
     const isReceivedPage = pathname.includes("/profile/received-request");
 
     return (
-        <header className="w-full border-b">
+        <header className="w-full border-b  bg-white">
             <nav className="w-full flex h-16 items-center justify-between px-4">
                 <Link href="/" className="flex items-center">
                     <Image

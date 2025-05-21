@@ -7,17 +7,74 @@ import { createNotification } from "@/utils/notifications.http";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { NotificationFormData, notificationSchema } from "@/validations/notification-schema";
-import { Bell, UsersRound, Globe } from "lucide-react";
+import { Bell, Check, UsersRound, Globe, X } from "lucide-react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { USER_ROLE } from "@/types/constants";
-
+import { useDebounce } from "@/hooks/use-debounce";
+import SearchBar from "@/components/search-bar";
+import { getUsers } from "@/utils/user.http";
+import { UserResponse } from "@/types/auth";
+import { profileQueryParams } from "@/types/pagination";
 
 export default function NotificationsAdminPage() {
   const { authToken, loading, user } = useAuth();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Búsqueda de usuarios
+  const [inputValue, setInputValue] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
+  const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
+
+  const debouncedSearch = useDebounce((value: string) => {
+    if ((/^\d+$/.test(value) && value.length >= 1) || value.length >= 3 || value === "") {
+      setSearchQuery(value);
+    }
+  }, 300);
+
+  const handleSearch = (query: string) => {
+    setInputValue(query);
+    debouncedSearch(query);
+  };
+
+  const handleClearSearch = () => {
+    setInputValue("");
+    setSearchQuery("");
+    setSelectedUser(null);
+    setSearchResults([]);
+  };
+
+  // Efecto para búsqueda combinada (ID, nombre, email, etc.)
+  useEffect(() => {
+    let cancelled = false;
+    const fetch = async () => {
+      setSearchResults([]);
+      const cleanSearch = searchQuery.trim();
+      if (!cleanSearch || (isNaN(Number(cleanSearch)) && cleanSearch.length < 2)) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const params: profileQueryParams = {
+          page: 0,
+          size: 1000,
+          search: cleanSearch,
+          sort: "id,asc"
+        };
+        const response = await getUsers(authToken || "", params);
+        if (!cancelled) {
+          setSearchResults(response.data);
+        }
+      } catch (error) {
+        if (!cancelled) setSearchResults([]);
+      }
+    };
+    fetch();
+    return () => { cancelled = true; };
+  }, [searchQuery, authToken]);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
@@ -54,18 +111,40 @@ export default function NotificationsAdminPage() {
 
       if (data.type === NotificationType.ROLE_BASED && data.targetRoleIds) {
         notificationData.targetRoleIds = data.targetRoleIds;
+      } else if (data.type === NotificationType.PERSONAL && selectedUser) {
+        notificationData.type = NotificationType.PERSONAL;
+        notificationData.targetUserId = selectedUser.id;
+        delete notificationData.targetRoleIds;
+      }
+
+      // Limpiar campos no usados
+      if (notificationData.type === NotificationType.ROLE_BASED) {
+        delete notificationData.targetUserId;
+      }
+      if (notificationData.type === NotificationType.PERSONAL) {
+        delete notificationData.targetRoleIds;
       }
 
       await createNotification(notificationData, authToken);
       setSuccessMessage("Notificación enviada correctamente");
       reset();
+      setSelectedUser(null);
+      handleClearSearch();
     } catch (error: any) {
-      console.error("Error al enviar notificación:", error);
       setErrorMessage(error.message || "Error al enviar notificación");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const filteredResults = searchResults.filter(user => {
+    const term = searchQuery.toLowerCase();
+    return (
+      (user.name && user.name.toLowerCase().includes(term)) ||
+      (user.email && user.email.toLowerCase().includes(term)) ||
+      (user.id && String(user.id).includes(term))
+    );
+  });
 
   if (loading) return <Loading />;
   if (!authToken || !user || user.role !== "admin") return <NotFound />;
@@ -74,21 +153,33 @@ export default function NotificationsAdminPage() {
     <div className="p-8">
       {successMessage && (
         <Alert
+          open={true}
           color="green"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
           onClose={() => setSuccessMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {successMessage}
+          <p className="text-sm">{successMessage}</p>
         </Alert>
       )}
 
       {errorMessage && (
         <Alert
+          open={true}
           color="red"
-          className="fixed top-4 right-4 w-72 shadow-lg z-[60]"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
           onClose={() => setErrorMessage(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
         >
-          {errorMessage}
+          <p className="text-sm">{errorMessage}</p>
         </Alert>
       )}
 
@@ -117,7 +208,6 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a usuarios con roles específicos</div>
                 </div>
               </label>
-              
               <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.GLOBAL ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'}`}>
                 <input
                   type="radio"
@@ -131,8 +221,71 @@ export default function NotificationsAdminPage() {
                   <div className="text-xs text-gray-500">Enviada a todos los usuarios</div>
                 </div>
               </label>
+              <label className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors ${notificationType === NotificationType.PERSONAL ? 'border-cyan-400 bg-cyan-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                <input
+                  type="radio"
+                  value={NotificationType.PERSONAL}
+                  {...register("type")}
+                  className="sr-only"
+                />
+                <UsersRound className="h-5 w-5 text-cyan-500 mr-2" />
+                <div>
+                  <div className="font-medium">Personal</div>
+                  <div className="text-xs text-gray-500">Enviada a un usuario específico</div>
+                </div>
+              </label>
             </div>
           </div>
+
+          {/* Selector de usuarios para PERSONAL */}
+          {notificationType === NotificationType.PERSONAL && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Seleccionar usuario</label>
+              <SearchBar
+                placeholder="Buscar por nombre, email o ID..."
+                value={inputValue}
+                onChange={handleSearch}
+                onClear={handleClearSearch}
+              />
+              {/* Mostrar lista solo si la búsqueda es válida */}
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && filteredResults.length > 0 && !selectedUser && (
+                <ul className="border rounded-md bg-white max-h-40 overflow-y-auto mb-2">
+                  {filteredResults.map(user => (
+                    <li
+                      key={user.id}
+                      className="p-2 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
+                      onClick={() => {
+                        setSelectedUser(user);
+                      }}
+                    >
+                      <span>
+                        {user.name} ({user.email})
+                      </span>
+                      <span className="text-xs text-gray-400">ID: {user.id}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {((/^\d+$/.test(searchQuery) && searchQuery.length > 0) || searchQuery.length >= 3) && filteredResults.length === 0 && !selectedUser && (
+                <div className="text-gray-400 p-2">No se encontraron resultados</div>
+              )}
+              {selectedUser && (
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded flex items-center">
+                    {selectedUser.name ? selectedUser.name : selectedUser.email}
+                    <button
+                      type="button"
+                      className="ml-1 text-blue-500 hover:text-red-500"
+                      onClick={() => {
+                        setSelectedUser(null);
+                        handleClearSearch();
+                      }}
+                    >✕</button>
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium mb-1">Título</label>
@@ -140,7 +293,7 @@ export default function NotificationsAdminPage() {
               id="title"
               type="text"
               {...register("title")}
-              className={`w-full border rounded-md p-2 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-100 ${errors.title ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Título de la notificación"
             />
             {errors.title && (
@@ -154,7 +307,7 @@ export default function NotificationsAdminPage() {
               id="message"
               rows={4}
               {...register("message")}
-              className={`w-full border rounded-md p-2 ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-100 ${errors.message ? 'border-red-500' : 'border-gray-300'}`}
               placeholder="Contenido del mensaje..."
             />
             {errors.message && (

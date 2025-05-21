@@ -1,9 +1,9 @@
 'use client'
 
-import { useAuth } from "@/contexts/auth-context";
 import { useState } from "react";
 import clsx from "clsx";
 import { Alert } from "@material-tailwind/react";
+import { Check, X } from "lucide-react";
 import { Product } from "@/types/product";
 import CardImage from "../petCard/card-image";
 import Link from "next/link";
@@ -17,35 +17,54 @@ type ProductCardProps = {
 export default function ProductCard({ product, className }: ProductCardProps) {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const { authToken } = useAuth(); // Hook de autenticación
 
     return (
  <div className={clsx(
             "snap-start shrink-0 w-[16rem]  h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
             className
-        )}>              <div className="relative">
-                {successMessage && (
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
-                    >
-                        {successMessage}
-                    </Alert>
-                )}
-                {errorMessage && (
-                    <Alert
-                        color="red"
-                        onClose={() => setErrorMessage("")}
-                        className="fixed bottom-4 right-0 m-2 z-50 w-60"
-                    >
-                        {errorMessage}
-                    </Alert>
-                )}
-            </div>
+        )}>
+            {successMessage && (
+                <Alert
+                    open={true}
+                    color="green"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<Check className="h-5 w-5" />}
+                    onClose={() => setSuccessMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{successMessage}</p>
+                </Alert>
+            )}
+            {errorMessage && (
+                <Alert
+                    open={true}
+                    color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
+                    onClose={() => setErrorMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{errorMessage}</p>
+                </Alert>
+            )}
 
             <Link href={`/marketplace/${product.id}`}>
-                <CardImage media={product.media[0]} />
+                {product.media[0]?.mimeType && product.media[0].mimeType.startsWith("video/") ? (
+                    <video
+                        className="w-full h-36 object-cover rounded-lg"
+                        src={product.media[0].url}
+                        muted
+                        playsInline
+                    />
+                ) : (
+                    <CardImage media={product.media[0]} />
+                )}
                 <CardText post={product} />
             </Link>
         </div>

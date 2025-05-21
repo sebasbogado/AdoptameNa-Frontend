@@ -6,6 +6,7 @@ export interface Post {
   id: number;
   userId: number;
   userFullName: string;
+  organizationName: string;
   title: string;
   content: string;
   locationCoordinates: string;
@@ -24,7 +25,7 @@ export interface CreatePost {
   tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
-  contactNumber: string;
+  contactNumber?: string; 
   userId: number;
   mediaIds: number[];
 }

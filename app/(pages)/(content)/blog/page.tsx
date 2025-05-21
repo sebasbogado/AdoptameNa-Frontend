@@ -1,9 +1,7 @@
 "use client";
 
-import Banners from "@/components/banners";
 import LabeledSelect from "@/components/labeled-selected";
 import Pagination from "@/components/pagination";
-import PetCard from "@/components/petCard/pet-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { POST_TYPEID } from "@/types/constants";
 import { Post } from "@/types/post";
@@ -11,7 +9,10 @@ import { getPosts } from "@/utils/posts.http";
 import { getTags } from "@/utils/tags";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import BlogCard from "@/components/blog/blog-card";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
+import { useDebounce } from "@/hooks/use-debounce";
+import SearchBar from "@/components/search-bar";
 export default function Page() {
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
@@ -24,22 +25,28 @@ export default function Page() {
 
     const [pageSize, setPageSize] = useState<number>();
 
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [inputValue, setInputValue] = useState<string>("");
+
     useEffect(() => {
         if (Object.keys(allAuthorsMap).length > 0 || Object.keys(allTagsMap).length > 0) {
-            const filters: Record<string, number> = {} ;
-            
+            const filters: Record<string, number|string> = {};
+
             if (selectedAutor && selectedAutor !== "Todos") {
                 filters["userId"] = allAuthorsMap[selectedAutor];
             }
-            
+
             if (selectedTag && selectedTag !== "Todos") {
                 filters["tagId"] = allTagsMap[selectedTag];
             }
-            
+             if (searchQuery) {
+                filters["search"] = searchQuery;
+            }
+
             updateFilters(filters);
             handlePageChange(1);
         }
-    }, [selectedAutor, selectedTag, allAuthorsMap, allTagsMap]);
+    }, [searchQuery, selectedAutor, selectedTag, allAuthorsMap, allTagsMap]);
 
     useEffect(() => {
         const fetchAuthorsAndTags = async () => {
@@ -79,11 +86,21 @@ export default function Page() {
         fetchAuthorsAndTags();
     }, []);
 
-    const resetFilters = () => {
-        setSelectedAutor(null);
-        setSelectedTag(null);
-        updateFilters({});
-    };
+   const debouncedSearch = useDebounce((value: string) => {
+         if (value.length >= 3 || value === "") {
+             setSearchQuery(value);
+         }
+     }, 500);
+ 
+     const handleSearch = (query: string) => {
+         setInputValue(query);
+         debouncedSearch(query);
+     };
+ 
+     const handleClearSearch = () => {
+         setInputValue("");
+         setSearchQuery("");
+     };
 
     const {
         data: posts,
@@ -98,9 +115,12 @@ export default function Page() {
             return await getPosts({
                 page,
                 size,
+                sort:"id,desc",
                 postTypeId: POST_TYPEID.BLOG,
                 userId: filters?.userId,
-                tagIds: filters?.tagId
+                tagIds: filters?.tagId,
+                search: filters?.search, 
+
             });
         },
         initialPage: 1,
@@ -108,9 +128,11 @@ export default function Page() {
     });
 
     return (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+
                     <LabeledSelect
                         label="Autor"
                         options={["Todos", ...authorOptions]}
@@ -124,7 +146,12 @@ export default function Page() {
                         selected={selectedTag}
                         setSelected={setSelectedTag}
                     />
-
+                    <div className="ml-16 mb-4">
+                    <div className="flex flex-col w-80 justify-center col-span-1">
+                        <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                        <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
+                    </div>
+                </div>
                 </div>
             </div>
 
@@ -146,18 +173,17 @@ export default function Page() {
                             <p className="text-gray-600">No se encontraron blogs</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-                            {posts.map((p) => (
-                                <PetCard
-                                    key={p.id}
-                                    post={p}
-                                    isPost={true}
-                                />
-                            ))}
+                        <div className="w-full max-w-6xl mx-auto flex flex-col gap-16 mt-2 p-4">
+                        {posts.map((p) => (
+                            <BlogCard key={p.id} post={p} />
+                        ))}
                         </div>
+
                     )
                 )}
             </div>
+
+            <FloatingActionButton />
 
             {/* Pagination */}
             <Pagination

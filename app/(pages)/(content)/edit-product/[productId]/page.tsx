@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import { Media } from "@/types/media";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
@@ -323,15 +323,40 @@ export default function Page() {
     }
 
     return (
-        <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <NewBanner
-                medias={selectedImages}
-            />
-            <div className="flex gap-2 mt-2 justify-center items-center">
-                {selectedImages.map((src, index) => (
-                    <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                        {src.url && (
-                            <>
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50 bg-cover bg-center"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                }}
+            >
+                <div className="absolute inset-0 bg-[#9747FF] opacity-60"></div>
+            </div>
+
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
+                        type="button"
+                        aria-label="Volver"
+                        onClick={() => router.push('/marketplace')}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Editar producto</h1>
+                </div>
+
+                <NewBanner
+                    medias={selectedImages}
+                />
+                <div className="flex gap-2 mt-2 justify-center items-center">
+                    {selectedImages.map((src, index) => (
+                        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
+                            {src.mimeType && src.mimeType.startsWith('image') ? (
                                 <Image
                                     src={src.url}
                                     alt="post-image"
@@ -340,208 +365,244 @@ export default function Page() {
                                     onClick={() => setCurrentImageIndex(index)}
                                     unoptimized
                                 />
-                                {/* Botón de eliminación */}
-                                <button
-                                    onClick={() => handleRemoveImage(index)}
-                                    className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                    title="Eliminar imagen"
-                                >
-                                    ✕
-                                </button>
-                            </>
-                        )}
-                    </div>
-                ))}
-                <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    id="fileInput"
-                    onChange={handleImageUpload}
-                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
-                />
-                <label
-                    htmlFor="fileInput"
-                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                        } bg-white`}
-                >
-                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-                </label>
-            </div>
-
-            {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setErrorMessage("")}>
-                        {errorMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {precautionMessage && (
-                <div>
-                    <Alert
-                        color="orange"
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-                        onClose={() => setPrecautionMessage("")}>
-                        {precautionMessage}
-                    </Alert>
-                </div>
-            )}
-
-            {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <label className="block text-sm font-medium">Título</label>
-                <input
-                    type="text"
-                    {...register("title")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`} />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-
-                <label className="block text-sm font-medium">Descripción</label>
-                <textarea {...register("content")} className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                />
-                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-                <label className="block text-sm font-medium">Tipo de animal</label>
-                <MultiSelect
-                    options={animals}
-                    selected={selectedAnimals}
-                    onChange={(selected) => {
-                        setSelectedAnimals(selected);
-                        setValue("animalsId", selected.map((animal) => animal.id));
-                    }}
-                    placeholder="Seleccionar animales"
-                />
-                {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
-
-
-                <label className="block text-sm font-medium">Estado</label>
-                <select {...register("condition")} className={`w-full p-2 border rounded mb-4 ${errors.condition ? 'border-red-500' : ''}`}>
-                    {Object.values(ProductCondition).map(cond => (
-                        <option key={cond} value={cond}>{capitalize(cond)}</option>
-                    ))}
-                </select>
-                {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
-
-                <label className="block text-sm font-medium">Categoría</label>
-                <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded mb-4 ${errors.categoryId ? 'border-red-500' : ''}`}>
-                    <option value={0}>Seleccionar categoría</option>
-                    {categories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                </select>
-                {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
-
-                <label className="text-sm font-medium">Contacto</label>
-                <input
-                    {...register("contactNumber")}
-                    className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                    onKeyDown={(e) => {
-                        if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
-                            e.preventDefault();
-                        }
-                    }
-                    }
-                />
-                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-                {/*--- Input de Precio --- */}
-                <Controller
-                    name="price" // El nombre del campo en tu schema/formValues
-                    control={control}
-                    render={({ field, fieldState }) => (
-                        <div> {/* Envuelve para posicionar el error correctamente */}
-                            <LabeledInput
-                                label="Precio" // Pasas la etiqueta como prop
-                                value={field.value} // Conectas el valor de RHF al componente
-                                onChange={field.onChange} // Conectas el onChange de RHF al componente
-                                placeholder="0"
-                            />
-                            {/* Muestras el error asociado a este campo desde RHF */}
-                            {fieldState.error && (
-                                <p className="text-red-500 text-sm mt-1">
-                                    {fieldState.error.message}
-                                </p>
+                            ) : src.mimeType && src.mimeType.startsWith('video') ? (
+                                <video
+                                    src={src.url}
+                                    className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    muted
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
+                                    Archivo no soportado
+                                </div>
                             )}
+                            {/* Botón de eliminación */}
+                            <button
+                                onClick={() => handleRemoveImage(index)}
+                                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                                title="Eliminar imagen"
+                            >
+                                ✕
+                            </button>
                         </div>
-                    )}
-                />
-
-                {/*Mapa */}
-                <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-                    <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                </div>
-                {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
-
-                {/*Buttons */}
-                <div className="flex justify-between items-center mt-6 gap-10">
-                    <Button
-                        type="button"
-                        variant="danger"
-                        size="md"
-                        className="rounded hover:bg-red-700"
-                        onClick={openDeleteModal}
-                        disabled={loading}
+                    ))}
+                    <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg, image/webp, video/webm, video/mp4"
+                        multiple
+                        className="hidden"
+                        id="fileInput"
+                        onChange={handleImageUpload}
+                        disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
+                    />
+                    <label
+                        htmlFor="fileInput"
+                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
+                            } bg-white`}
                     >
-                        {loading ? 'Eliminando...' : 'Eliminar publicación'}
-                    </Button>
+                        <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+                    </label>
+                </div>
+                {errorMessage && (
+                    <Alert
+                        open={true}
+                        color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
+                        onClose={() => setErrorMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{errorMessage}</p>
+                    </Alert>
+                )}
 
-                    <div className="flex gap-4">
+                {precautionMessage && (
+                    <Alert
+                        open={true}
+                        color="orange"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<AlertTriangle className="h-5 w-5" />}
+                        onClose={() => setPrecautionMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{precautionMessage}</p>
+                    </Alert>
+                )}
+
+                {successMessage && (
+                    <Alert
+                        open={true}
+                        color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        onClose={() => setSuccessMessage("")}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{successMessage}</p>
+                    </Alert>
+                )}
+
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Título</label>
+                        <input
+                            type="text"
+                            {...register("title")}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.title ? 'border-red-500' : ''}`} />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Descripción</label>
+                        <textarea 
+                            {...register("content")} 
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
+                        />
+                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    </div>
+
+                    <div className="w-full mb-2">
+                        <label className="block mb-1">Tipo de animal</label>
+                        <MultiSelect
+                            options={animals}
+                            selected={selectedAnimals}
+                            onChange={(selected) => {
+                                setSelectedAnimals(selected);
+                                setValue("animalsId", selected.map((animal) => animal.id));
+                            }}
+                            placeholder="Seleccionar animales"
+                        />
+                        {errors.animalsId && <p className="text-red-500 text-sm">{errors.animalsId.message}</p>}
+                    </div>
+
+                    <div className="w-1/3 mb-2">
+                        <label className="block mb-1">Estado</label>
+                        <select {...register("condition")} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.condition ? 'border-red-500' : ''}`}>
+                            {Object.values(ProductCondition).map(cond => (
+                                <option key={cond} value={cond}>{capitalize(cond)}</option>
+                            ))}
+                        </select>
+                        {errors.condition && <p className="text-red-500 text-sm">{errors.condition.message}</p>}
+                    </div>
+
+                    <div className="w-1/3 mb-2">
+                        <label className="block mb-1">Categoría</label>
+                        <select {...register("categoryId", { valueAsNumber: true })} className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.categoryId ? 'border-red-500' : ''}`}>
+                            <option value={0}>Seleccionar categoría</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
+                        {errors.categoryId && <p className="text-red-500 text-sm">{errors.categoryId.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <label className="block mb-1">Contacto</label>
+                        <input
+                            {...register("contactNumber")}
+                            className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.contactNumber ? 'border-red-500' : ''}`}
+                            onKeyDown={(e) => {
+                                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Enter") {
+                                    e.preventDefault();
+                                }
+                            }}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    </div>
+
+                    <div className="w-1/5 mb-2">
+                        <Controller
+                            name="price"
+                            control={control}
+                            render={({ field, fieldState }) => (
+                                <div>
+                                    <LabeledInput
+                                        label="Precio"
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="0"
+                                    />
+                                    {fieldState.error && (
+                                        <p className="text-red-500 text-sm mt-1">
+                                            {fieldState.error.message}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+                        />
+                    </div>
+
+                    <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                    </div>
+                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+
+                    <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
                             type="button"
-                            variant="tertiary"
-                            className="border rounded text-gray-700 hover:bg-gray-100"
-                            onClick={handleCancel}
+                            variant="danger"
+                            size="md"
+                            className="rounded hover:bg-red-700"
+                            onClick={openDeleteModal}
                             disabled={loading}
                         >
-                            Cancelar
+                            {loading ? 'Eliminando...' : 'Eliminar publicación'}
                         </Button>
-                        <Button
-                            type="submit"
-                            variant="cta"
-                            className="rounded hover:bg-purple-700"
-                            disabled={loading}
-                        >
-                            {loading ? "Editando..." : "Confirmar cambios"}
-                        </Button>
+
+                        <div className="flex gap-4">
+                            <Button
+                                type="button"
+                                variant="tertiary"
+                                className="border rounded text-gray-700 hover:bg-gray-100"
+                                onClick={handleCancel}
+                                disabled={loading}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="cta"
+                                className="rounded hover:bg-purple-700"
+                                disabled={loading}
+                            >
+                                {loading ? "Editando..." : "Confirmar cambios"}
+                            </Button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
 
-            {isEditModalOpen &&
-                <ConfirmationModal
-                    isOpen={isEditModalOpen}
-                    title="Confirmar cambios"
-                    message="¿Estás seguro de que deseas guardar los cambios del producto?"
-                    textConfirm="Confirmar cambios"
-                    confirmVariant="cta"
-                    onClose={closeModal}
-                    onConfirm={confirmSubmit}
-                />}
+                {isEditModalOpen &&
+                    <ConfirmationModal
+                        isOpen={isEditModalOpen}
+                        title="Confirmar cambios"
+                        message="¿Estás seguro de que deseas guardar los cambios del producto?"
+                        textConfirm="Confirmar cambios"
+                        confirmVariant="cta"
+                        onClose={closeModal}
+                        onConfirm={confirmSubmit}
+                    />}
 
-            {isDeleteModalOpen &&
-                <ConfirmationModal
-                    isOpen={isDeleteModalOpen}
-                    title="Confirmar eliminación"
-                    message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
-                    textConfirm="Eliminar"
-                    confirmVariant="danger"
-                    onClose={closeModal}
-                    onConfirm={handleDelete}
-                />}
+                {isDeleteModalOpen &&
+                    <ConfirmationModal
+                        isOpen={isDeleteModalOpen}
+                        title="Confirmar eliminación"
+                        message="¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer."
+                        textConfirm="Eliminar"
+                        confirmVariant="danger"
+                        onClose={closeModal}
+                        onConfirm={handleDelete}
+                    />}
+            </div>
         </div>
     );
 }

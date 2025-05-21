@@ -15,7 +15,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
         try {
             if (!authToken) return;
             const data = await getFavorites(authToken);
-            setFavorites(data);
+            setFavorites(data.data);
         } catch (error) {
             console.error("Error obteniendo favoritos:", error);
         }

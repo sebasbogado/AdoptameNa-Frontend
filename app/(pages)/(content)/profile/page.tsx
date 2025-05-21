@@ -21,17 +21,53 @@ import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { profileEditSchema, profileSchema } from '@/validations/user-profile';
+import { profileEditSchema } from '@/validations/user-profile';
 import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
 import ImageHeader from '@/components/image-header';
 import HeaderImage from '@/components/image-header';
+import { Product } from '@/types/product';
+import { getProducts } from '@/utils/product.http';
+import EditProfileModal from '@/components/profile/edit-profile-modal'
+
+type ErrorsType = {
+    user: boolean;
+    pets: boolean;
+    posts: boolean;
+    userProfile: boolean;
+    marketplacePosts: boolean;
+};
+const getProductsData = async (
+    setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    userId: string,
+) => {
+
+
+    try {
+        // Cargar posts del usuario
+        const queryParams = {
+            page: 0,
+            size: 5,
+            sort: "id,desc",
+            userId: Number(userId)
+        }; // Usamos el ID del usuario actual
+
+        const response = await getProducts(queryParams);
+        setMarketplacePosts(Array.isArray(response.data) ? response.data : []);
+    } catch (err) {
+        setErrors(prev => ({ ...prev, posts: true }));
+    } finally {
+        setLoading(false);
+    }
+};
 
 
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -40,7 +76,6 @@ const getUserProfileData = async (
         setUserProfile(profile);
 
     } catch (err) {
-        console.error("Error al cargar el perfil:", err);
         setErrors(prev => ({ ...prev, userProfile: true }));
     } finally {
         setLoading(false);
@@ -50,7 +85,7 @@ const getUserProfileData = async (
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -67,7 +102,6 @@ const getPostsData = async (
         const postData = await getPosts(postParams);
         setPosts(Array.isArray(postData.data) ? postData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, posts: true }));
     } finally {
         setLoading(false);
@@ -76,7 +110,7 @@ const getPostsData = async (
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-    setErrors: React.Dispatch<React.SetStateAction<{ pets: boolean; posts: boolean; userProfile: boolean }>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -92,7 +126,6 @@ const getPetsData = async (
         const petData = await getPets(postParams);
         setPets(Array.isArray(petData.data) ? petData.data : []);
     } catch (err) {
-        console.error("Error al cargar posts:", err);
         setErrors(prev => ({ ...prev, pets: true }));
     } finally {
         setLoading(false);
@@ -112,13 +145,18 @@ export default function ProfilePage() {
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isOpen, setIsOpen] = useState(false)
     const [errors, setErrors] = useState({
+        user: false,
         pets: false,
         posts: false,
-        userProfile: false
+        userProfile: false,
+        marketplacePosts: false,
     });
+
+    const [showEditModal, setShowEditModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [medias, setMedias] = useState<MediaDTO[]>([])
+    const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
 
     const updateProfile = async (profileToUpdate: UpdateUserProfile) => {
         if (authLoading || !authToken || !user?.id) return;
@@ -133,7 +171,6 @@ export default function ProfilePage() {
             const updatedProfile = await updateUserProfile(user.id, profileToUpdate, authToken);
             setUserProfile(updatedProfile); // Actualizamos el estado después de recibir la respuesta
         } catch (err) {
-            console.error("Error al actualizar el perfil:", err);
             setErrors(prev => ({ ...prev, userProfile: true }));
 
         } finally {
@@ -166,15 +203,9 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (!authLoading && !authToken) {
-            console.log("authLoading", authLoading);
-            console.log("authToken", authToken);
             router.push("/auth/login");
+            return;
         }
-
-    }, [authToken, authLoading, router]);
-
-
-    useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
 
@@ -182,22 +213,29 @@ export default function ProfilePage() {
             setUserProfile,
             setProfileLoading,
             setErrors,
-            user.id
+            String(user.id)
         );
-    }, [authToken, authLoading, user?.id]);
+    }, [authToken, authLoading, user?.id, router]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
         setErrors(prev => ({ ...prev, pets: false }));
-        getPetsData(setPets, setLoading, setErrors, user.id);
+        getPetsData(setPets, setLoading, setErrors, String(user.id)
+        );
 
     }, [authToken, authLoading, user?.id]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
-        console.log("authLoading", authLoading);
-        getPostsData(setPosts, setLoading, setErrors, user.id);
+        getPostsData(setPosts, setLoading, setErrors, String(user.id)
+        );
+    }, [authToken, authLoading, user?.id]);
+    useEffect(() => {
+        if (authLoading || !authToken || !user?.id) return;
+
+        getProductsData(setMarketplacePosts, setLoading, setErrors, String(user.id));
+
     }, [authToken, authLoading, user?.id]);
 
     const handleContactClick = () => {
@@ -274,25 +312,14 @@ export default function ProfilePage() {
                     />
 
                     {/* Action Buttons */}
-                    <div className="relative top-[-25vh] right-5 mr-10 mt-12 z-50 flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
+                    <div className="relative top-[-25vh] right-5 mr-10 mt-12  flex justify-end gap-2 items-center" style={{ position: 'absolute', top: '0%', right: '20px' }}>
 
                         <EditButton
                             size="lg"
-                            isEditing={isEditing}
-                            id='edit-button'
-                            onClick={handleEditButtonClick}
+                            isEditing={false}
+                            id="edit-button"
+                            onClick={() => setShowEditModal(true)}
                         />
-                        {isEditing && (
-                            <>
-                                <Button variant="cta" size="lg" onClick={handleSaveButtonClick}>
-                                    Guardar
-                                </Button>
-                            </>
-                        )}
-                        {!isEditing && (
-                            <MenuButton size="lg" />
-
-                        )}
                     </div>
 
                     <div className='w-[40vw] mt-[-30px] '>
@@ -312,16 +339,55 @@ export default function ProfilePage() {
 
                     {/* Posts Section (Con filtrado) */}
                     <Section
-                        title={`Publicaciones de ${isOrganization
-                            ? userProfile?.organizationName
-                            : user?.fullName?.split(' ')[0]
-                            }`}
+                        title={"Mis publicaciones"}
                         itemType="post"
                         postTypeName="Adopcion"
                         path={`/profile/my-posts/${user.id}`}
                         items={posts}
                         loading={loading}
                         error={errors.posts}
+                    />
+                    <Section
+                        title='Mis productos'
+                        path={`/profile/my-products/${user.id}`}
+                        itemType='product'
+                        postTypeName="Marketplace"
+                        items={marketplacePosts}
+                        loading={loading}
+                        error={errors.marketplacePosts}>
+                    </Section>
+
+
+                    <EditProfileModal
+                        open={showEditModal}
+                        onClose={() => setShowEditModal(false)}
+                        initialData={{
+                            fullName: userProfile?.fullName ?? "",
+                            phoneNumber: userProfile?.phoneNumber ?? null,
+                            address: userProfile?.address ?? null,
+                            gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
+                            birthdate: userProfile?.birthdate
+                                ? userProfile.birthdate.split("T")[0]
+                                : undefined,
+                            description: userProfile?.description ?? "",
+                            addressCoordinates: userProfile?.addressCoordinates
+                                ? userProfile.addressCoordinates.split(",").map(parseFloat)
+                                : undefined,
+                            departmentId: userProfile?.departmentId ?? undefined,
+                            districtId: userProfile?.districtId ?? undefined,
+                            neighborhoodId: userProfile?.neighborhoodId ?? undefined,
+                            organizationName: userProfile?.organizationName ?? "",
+                        }}
+                        onSuccess={() =>
+                            getUserProfileData(
+                                setUserProfile,
+                                setProfileLoading,
+                                setErrors,
+                                String(user.id)
+                            )
+                        }
+                        setSuccessMessage={setSuccessMessage}
+                        setErrorMessage={setErrorMessage}
                     />
                 </div>
             </div>

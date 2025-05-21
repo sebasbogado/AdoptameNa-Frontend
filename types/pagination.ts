@@ -18,7 +18,7 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
-
+  search?: string;
 };
 
 export type postQueryParams = queryParams & locationQueryParams  & {
@@ -96,6 +96,7 @@ export type userQueryParams = queryParams & {
 export type profileQueryParams = queryParams & {
   name?: string;
   role?: string;
+  search?: string;
 };
 
 export type adoptionsResponseQueryParams = queryParams & {
@@ -104,13 +105,24 @@ export type adoptionsResponseQueryParams = queryParams & {
   fullName?: string;
   email?: string;
   phone?: string;
-  isAccepted?: boolean
+  status?: "ACCEPTED" | "REJECTED" | "PENDING";
+  createdAfter?: string;
+  createdBefore?: string;
 };
+
 export type locationQueryParams = queryParams & {
   departmentId?: string;
   districtId?: string;
   neighborhoodId?: string;
   coordinates?: number[];
+};
+
+export type crowdfundingQueryParams = queryParams & {
+  userId?: number;
+  status?: string;
+  minGoal?: number;
+  maxGoal?: number;
+  keywords?: string;
 };
 
 export function buildQueryParams(params?: Record<string, any>): URLSearchParams {
