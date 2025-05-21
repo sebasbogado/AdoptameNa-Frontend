@@ -11,13 +11,11 @@ import { Bell, UsersRound, Globe } from "lucide-react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { USER_ROLE } from "@/types/constants";
-import { getAllFullUserProfile, getFullUser } from "@/utils/user-profile.http";
-import { UserProfile } from "@/types/user-profile";
 import { useDebounce } from "@/hooks/use-debounce";
 import SearchBar from "@/components/search-bar";
-import { usePagination } from "@/hooks/use-pagination";
 import { getUsers } from "@/utils/user.http";
 import { UserResponse } from "@/types/auth";
+import { profileQueryParams } from "@/types/pagination";
 
 export default function NotificationsAdminPage() {
   const { authToken, loading, user } = useAuth();
@@ -30,9 +28,6 @@ export default function NotificationsAdminPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<UserResponse | null>(null);
   const [searchResults, setSearchResults] = useState<UserResponse[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
-  const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce((value: string) => {
     if ((/^\d+$/.test(value) && value.length >= 1) || value.length >= 3 || value === "") {
@@ -52,57 +47,34 @@ export default function NotificationsAdminPage() {
     setSearchResults([]);
   };
 
-  // Paginación para búsqueda por nombre/email
-  const {
-    data: users,
-    loading: usersLoading,
-    updateFilters,
-  } = usePagination<UserProfile>({
-    fetchFunction: (page, size, filters) =>
-      getAllFullUserProfile(authToken || "", {
-        page,
-        size: 10,
-        search: filters?.search || undefined,
-      }),
-    initialPage: 1,
-    initialPageSize: 10,
-  });
-
   // Efecto para búsqueda combinada (ID, nombre, email, etc.)
   useEffect(() => {
     let cancelled = false;
     const fetch = async () => {
-      setSearchLoading(true);
       setSearchResults([]);
       const cleanSearch = searchQuery.trim();
       if (!cleanSearch || (isNaN(Number(cleanSearch)) && cleanSearch.length < 2)) {
-        setSearchLoading(false);
         setSearchResults([]);
         return;
       }
       try {
-        const params: any = {
-          page: page - 1,
-          size: 10,
+        const params: profileQueryParams = {
+          page: 0,
+          size: 1000,
           search: cleanSearch,
-          name: "",
-          role: "",
           sort: "id,asc"
         };
         const response = await getUsers(authToken || "", params);
         if (!cancelled) {
           setSearchResults(response.data);
-          setTotalPages(response.pagination?.totalPages || 1);
         }
       } catch (error) {
         if (!cancelled) setSearchResults([]);
-      } finally {
-        if (!cancelled) setSearchLoading(false);
       }
     };
     fetch();
     return () => { cancelled = true; };
-  }, [searchQuery, page, authToken]);
+  }, [searchQuery, authToken]);
 
   const { register, handleSubmit, watch, formState: { errors }, reset, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
