@@ -204,12 +204,8 @@ export default function ProfilePage() {
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
+            return;
         }
-
-    }, [authToken, authLoading, router]);
-
-
-    useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
         setLoading(true);
 
@@ -219,7 +215,7 @@ export default function ProfilePage() {
             setErrors,
             String(user.id)
         );
-    }, [authToken, authLoading, user?.id]);
+    }, [authToken, authLoading, user?.id, router]);
 
     useEffect(() => {
         if (authLoading || !authToken || !user?.id) return;
