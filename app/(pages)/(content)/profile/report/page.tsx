@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ReceivedRequestsPage() {
-    const { authToken, loading: authLoading } = useAuth();
+    const { authToken, loading: authLoading, user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export default function ReceivedRequestsPage() {
                         <p className="text-gray-600 text-center">Ver tus reportes de productos</p>
                     </div>
                 </Link>
-                <Link href="/profile/report">
+                <Link href={user ? `/profile/report/comments/${user.id}` : "#"}>
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className="p-4 rounded-full mb-4">
                             <MessageCircleX size={48} className="text-black" />

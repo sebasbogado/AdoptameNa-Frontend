@@ -70,11 +70,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         setLoadingCrowd(true);
         if (isOwner && isActive) {
           const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
-          console.log(userAuth)
           setCrowdfunding(data.data[0]);
         } else {
           const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
-          console.log(userProfile)
           setCrowdfunding(data.data[0]);
         }
 
