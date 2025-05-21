@@ -26,7 +26,7 @@ export const getSterilizedIcon = (vaccined: boolean) => {
 }
 
 export const getAnimalIcon = (str: string) => {
-  return str === "perro" ? "dog" : str === "Perros" ? "dog" : str === "gato" ? "cat" : str === "Gatos" ? "cat" : str === "tortuga" ? "turtle" : str === "conejo" ? "rabbit" : "generic";
+  return str === "perro" ? "dog" : str === "Perros" ? "dog" : str === "gato" ? "cat" : str === "Gatos" ? "cat" : str === "tortuga" ? "turtle" : str === "conejo" ? "rabbit" : str === "ave" ? "bird" : "generic";
 }
 
 export const getConditionIcon = (str: string) => {
