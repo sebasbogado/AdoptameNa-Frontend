@@ -227,10 +227,7 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
 
     try {
       setLoading(true);

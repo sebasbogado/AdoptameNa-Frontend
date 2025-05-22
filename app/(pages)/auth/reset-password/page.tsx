@@ -49,9 +49,6 @@ export default function ResetPasswordConfirm() {
     
     try {
       const response = await resetPassword(token, { newPassword: data.password });
-      if (response) {
-        console.log("Console responde: " + response.data);
-      }
       // Redirigir al login
       router.push("/auth/login");
     } catch (error: any) {

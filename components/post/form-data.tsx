@@ -173,7 +173,6 @@ export const FormData = ({ handleSubmit,
                         <Button
                             onClick={() => {
                                     setValue('content', editorContentRef.current)
-                                console.log(errors)
                             }}
                             variant="cta"
                             className={`rounded ${selectedTags.length >= MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}

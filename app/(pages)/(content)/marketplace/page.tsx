@@ -164,7 +164,6 @@ export default function Page() {
             ...locationFilters
         };
 
-        console.log("filters", filters);
 
         updateFilters(filters);
     }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
