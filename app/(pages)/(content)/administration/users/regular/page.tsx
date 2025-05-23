@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { deleteUser } from "@/utils/user.http"
 import { getAllFullUserProfile } from "@/utils/user-profile.http"
 import UserTable from "@/components/administration/user/user-table"
+import { SkeletonTable } from "@/components/ui/skeleton-table"
 import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
@@ -152,15 +153,24 @@ export default function RegularUsersPage() {
                 </div>
             </div>
 
-            <UserTable
-                title="Lista de Usuarios"
-                data={users}
-                loading={usersLoading}
-                onDelete={(id) => {
-                    setSelectedUser(id);
-                    setModalConfirmation(true);
-                }}
-            />
+            {usersLoading ? (
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-1">
+                        <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <SkeletonTable columns={9} rows={5} />
+                </div>
+            ) : (
+                <UserTable
+                    title="Lista de Usuarios"
+                    data={users}
+                    loading={usersLoading}
+                    onDelete={(id) => {
+                        setSelectedUser(id);
+                        setModalConfirmation(true);
+                    }}
+                />
+            )}
 
             {totalPages > 1 && (
                 <div className="flex justify-center mt-4 mb-8">
