@@ -24,5 +24,6 @@ setValue: UseFormSetValue<PostFormValues>
     MAX_IMAGES: number;
   MAX_TAGS: number;
   control: any;
+  onEditorImageUpload?: (mediaId: number) => void;
 
 };
