@@ -15,6 +15,7 @@ import { ConfirmationModal } from "@/components/form/modal";
 import Pagination from '@/components/pagination';
 import { usePagination } from '@/hooks/use-pagination';
 import SponsorCard from '@/components/sponsor/sponsor-card';
+import { SkeletonCard } from '@/components/ui/skeleton-card';
 
 interface SponsorApplication extends Sponsor {
     logoUrl?: string;
@@ -210,8 +211,15 @@ export default function AdminSponsorsPage() {
             </div>
 
             {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Spinner className="h-12 w-12" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                        <SkeletonCard
+                            key={idx}
+                            direction="horizontal"
+                            width="w-full"
+                            height="h-[200px]"
+                        />
+                    ))}
                 </div>
             ) : (
                 <>

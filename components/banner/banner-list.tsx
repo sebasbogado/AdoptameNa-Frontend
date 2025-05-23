@@ -14,6 +14,7 @@ import Pagination from '../pagination';
 import { useAuth } from '@/contexts/auth-context';
 import Loading from '@/app/loading';
 import { ConfirmationModal } from '@/components/form/modal';
+import BannerSkeleton from './banner-skeleton';
 
 export default function BannerList() {
     const { authToken, loading: userloading } = useAuth();
@@ -201,39 +202,33 @@ export default function BannerList() {
                 onToggleFilters={toggleFilters}
             />
 
-            {loading && (
-                <div className="flex flex-col items-center justify-center h-[50vh]">
-                    <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
-                    <p className="text-gray-500">Cargando banners</p>
-                </div>
-            )}
-
-            {!loading && banners.length === 0 && (
+            {loading ? (
+                <BannerSkeleton />
+            ) : banners.length === 0 ? (
                 <div className="flex flex-col items-center justify-center my-8 p-6 border border-gray-200 rounded-lg">
                     <p className="text-gray-500 text-lg">No se encontraron banners</p>
                     <p className="text-gray-400 text-sm mt-2">Intenta con otros filtros o crea un nuevo banner</p>
                 </div>
+            ) : (
+                <>
+                    <div className="mb-6 text-sm text-gray-500 text-right">
+                        Mostrando {banners.length} de {totalElements} banners
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {banners.map((banner) => (
+                            <BannerCard
+                                key={banner.id}
+                                banner={banner}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onActivate={handleActivate}
+                                onDeactivate={handleDeactivate}
+                            />
+                        ))}
+                    </div>
+                </>
             )}
-
-            {!loading && <>
-                <div className="mb-6 text-sm text-gray-500 text-right">
-                    Mostrando {banners.length} de {totalElements} banners
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {banners.map((banner) => (
-                        <BannerCard
-                            key={banner.id}
-                            banner={banner}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onActivate={handleActivate}
-                            onDeactivate={handleDeactivate}
-                        />
-                    ))}
-                </div>
-            </>
-            }
             {totalPages > 0 && (
                 <div className="mt-8">
                     <Pagination

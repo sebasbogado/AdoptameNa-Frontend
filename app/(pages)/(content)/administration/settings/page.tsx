@@ -15,6 +15,20 @@ import { Check, X } from "lucide-react";
 import { ConfirmationModal } from "@/components/form/modal";
 import PetBreeds from "@/components/pet-breeds";
 
+const SettingsSkeleton = () => {
+  return (
+    <div className="rounded-lg p-6">
+      <div className="flex justify-center gap-3">
+        <div className="w-[400px] h-[500px] bg-gray-200 rounded-lg animate-pulse" />
+        <div className="w-[400px] h-[500px] bg-gray-200 rounded-lg animate-pulse" />
+      </div>
+      <div className="flex justify-center mt-10">
+        <div className="w-[800px] h-[400px] bg-gray-200 rounded-lg animate-pulse" />
+      </div>
+    </div>
+  );
+};
+
 export default function Page() {
   const [modalReportReason, setModalReportReason] = useState(false);
   const [modalProductCategory, setModalProductCategory] = useState(false);
@@ -26,12 +40,14 @@ export default function Page() {
   const [deleteType, setDeleteType] = useState<"reportReason" | "productCategory" | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const { authToken, user } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!authToken || !user || user.role !== "admin") return;
+        setLoading(true);
         const reportReasonsRes = await getReportReasons();
         const productCategoriesRes = await getProductCategories();
         setReportReasons(reportReasonsRes.data);
@@ -39,6 +55,8 @@ export default function Page() {
       } catch (error: any) {
         console.error("Error al obtener datos:", error);
         setErrorMessage(error.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -157,9 +175,13 @@ export default function Page() {
     setModalProductCategory(true);
   };
 
+  if (loading) {
+    return <SettingsSkeleton />;
+  }
+
   return (
     <>
-    {successMessage && (
+      {successMessage && (
         <Alert
           open={true}
           color="green"
