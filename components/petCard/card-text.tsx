@@ -5,7 +5,7 @@ import { Tags } from "@/types/tags";
 import { Pet } from "@/types/pet";
 import { Product } from "@/types/product";
 
-import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorGender, getConditionIcon, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
+import { capitalizeFirstLetter, convertGenderToSpanish, getAge, getAnimalIcon, getColorGender, getConditionIcon, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
 import { Post } from "@/types/post";
 
 interface props {
@@ -74,6 +74,14 @@ const CardText = ({ post, /*className = ""*/ }: props) => {
                   postType={getPublicationTypeColor((post as Pet).petStatus.name)}
                   iconType={getVaccinatedIcon((post as Pet).isVaccinated)}
                   value={(post as Pet).isVaccinated ? "Vacunado" : ""} />
+              }
+
+              {post.birthdate &&
+                <PostsTags
+                  key={post.id + 4}
+                  postType={getPublicationTypeColor((post as Pet).petStatus.name)}
+                  iconType="age"
+                  value={getAge((post as Pet).birthdate)} />
               }
             </>
 
