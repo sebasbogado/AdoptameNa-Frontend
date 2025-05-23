@@ -1,27 +1,20 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React from "react";
 import PostsTags from "./tag";
-import { getPostType } from "@/utils/post-type-client";
-import { PostType } from "@/types/post-type";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/auth-context";
 import { Tags } from "@/types/tags";
 import { Pet } from "@/types/pet";
 import { Product } from "@/types/product";
 
-import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorAdoptionOrMissing, getColorGender, getConditionIcon, getGenderIcon, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
+import { capitalizeFirstLetter, convertGenderToSpanish, getAnimalIcon, getColorGender, getConditionIcon, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
+import { Post } from "@/types/post";
 
 interface props {
   post: any,
-  className?: string,
+  // className?: string,
   type?: string,
 }
 
-const CardText = ({ post, className = "" }: props) => {
-  const { authToken } = useAuth();
-  const [postTypes, setPostTypes] = useState<PostType | null>(null);
-  const [name, setName] = useState<string>("adoption");
-
+const CardText = ({ post, /*className = ""*/ }: props) => {
 
   const hardcodedTags = [
     { iconType: "race", value: "Animal" },
@@ -48,7 +41,7 @@ const CardText = ({ post, className = "" }: props) => {
             Object.values(post.tags).map((tagObject, index) => (
               <PostsTags
                 key={(tagObject as Tags).id || index}
-                postType="Voluntariado"
+                postType={getPublicationTypeColor((post as Post).postType.name)}
                 iconType={getAnimalIcon((tagObject as Tags).name)}
                 value={(tagObject as Tags).name}
               />
@@ -57,20 +50,20 @@ const CardText = ({ post, className = "" }: props) => {
             <>
               <PostsTags
                 key={post.id}
-                postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                postType={getPublicationTypeColor((post as Pet).petStatus.name)}
                 iconType={getAnimalIcon((post as Pet).animal.name)}
                 value={capitalizeFirstLetter((post as Pet).animal.name)} />
 
               <PostsTags
                 key={post.id + 1}
-                postType={(post as Pet).gender ? getColorGender((post as Pet).gender) : getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                postType={getColorGender((post as Pet).gender)}
                 iconType={getGenderIcon((post as Pet).gender)}
                 value={convertGenderToSpanish((post as Pet).gender)} />
 
               {post.isSterilized &&
                 <PostsTags
                   key={post.id + 2}
-                  postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                  postType={getPublicationTypeColor((post as Pet).petStatus.name)}
                   iconType={getSterilizedIcon((post as Pet).isSterilized)}
                   value={(post as Pet).isVaccinated ? "Esterilizado" : ""} />
               }
@@ -78,7 +71,7 @@ const CardText = ({ post, className = "" }: props) => {
               {post.isVaccinated &&
                 <PostsTags
                   key={post.id + 3}
-                  postType={getColorAdoptionOrMissing((post as Pet).petStatus.name)}
+                  postType={getPublicationTypeColor((post as Pet).petStatus.name)}
                   iconType={getVaccinatedIcon((post as Pet).isVaccinated)}
                   value={(post as Pet).isVaccinated ? "Vacunado" : ""} />
               }
@@ -88,18 +81,18 @@ const CardText = ({ post, className = "" }: props) => {
             <>
               <PostsTags
                 key={post.id}
-                postType="Marketplace"
+                postType={getPublicationTypeColor("Marketplace")}
                 iconType={"generic"}
                 value={(post as Product).category.name} />
               <PostsTags
                 key={post.id + 1}
-                postType="Marketplace"
+                postType={getPublicationTypeColor("Marketplace")}
                 iconType={getConditionIcon((post as Product).condition)}
                 value={capitalizeFirstLetter((post as Product).condition)} />
               {Object.values((post as Product).animals).map((animal, index) => (
                 <PostsTags
                   key={index}
-                  postType="Marketplace"
+                  postType={getPublicationTypeColor("Marketplace")}
                   iconType={getAnimalIcon(animal.name)}
                   value={capitalizeFirstLetter(animal.name)} />
               ))
