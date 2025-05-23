@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
 import { Post } from "@/types/post";
@@ -11,6 +11,7 @@ import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import NewBanner from "@/components/newBanner";
+import { POST_TYPEID } from "@/types/constants";
 
 const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -32,6 +33,8 @@ const PostPage = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const params = useParams();
+    const router = useRouter();
+    const [isRedirecting, setIsRedirecting] = useState(false); // Nuevo estado
 
     useEffect(() => {
         const postId = params.id;
@@ -52,7 +55,13 @@ const PostPage = () => {
         };
         fetchPosts();
     }, []);
+    useEffect(() => {
+        if (post && POST_TYPEID.BLOG === post.postType.id) {
+            setIsRedirecting(true);
 
+            router.push(`/blog/${post.id}`);
+        }
+    }, [post]);
     const handleShare = async () => {
         if (!post || !authToken) return;
 
@@ -70,7 +79,7 @@ const PostPage = () => {
         }
     };
 
-    if (loading) {
+    if (isRedirecting || loading) {
         return <Loading />;
     }
 
@@ -78,10 +87,12 @@ const PostPage = () => {
         return <NotFound />;
     }
 
+
     return (
         <>
+        
             <div>
-                <NewBanner medias={post?.media || []}/>
+                <NewBanner medias={post?.media || []} />
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader post={post as Post} />

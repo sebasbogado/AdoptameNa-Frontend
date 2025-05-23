@@ -11,8 +11,7 @@ import { getBreed } from "@/utils/breed.http";
 import { deletePet, getPet, updatePet } from "@/utils/pets.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
-import { ImagePlus } from "lucide-react";
-import { Maximize } from "lucide-react";
+import { ImagePlus, Maximize, Check, X, AlertTriangle } from "lucide-react";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
@@ -210,9 +209,9 @@ export default function Page() {
         setPrecautionMessage(`Solo puedes subir hasta 5 imágenes.`);
         return;
       }
-      const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+      const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4"];
       if (!allowedTypes.includes(file.type)) {
-        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+        setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG, WEBP y MP4.");
         return;
       }
       // Verificar el tamaño del archivo (1MB)
@@ -358,13 +357,24 @@ export default function Page() {
           <div className="flex gap-2 mt-2 justify-center items-center">
             {selectedImages.map((img, index) => (
               <div key={index} className="relative w-24 h-24 group">
-                {/* Imagen */}
-                <Image
-                  src={img.url}
-                  alt="Imagen de mascota"
-                  fill
-                  className="w-full h-full object-cover rounded-lg border"
-                />
+                {img.mimeType && img.mimeType.startsWith('image') ? (
+                  <Image
+                    src={img.url}
+                    alt="Imagen de mascota"
+                    fill
+                    className="w-full h-full object-cover rounded-lg border"
+                  />
+                ) : img.mimeType && img.mimeType.startsWith('video') ? (
+                  <video
+                    src={img.url}
+                    className="w-full h-full object-cover rounded-lg border"
+                    muted
+                  />
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
+                    Archivo no soportado
+                  </div>
+                )}
                 {/* Botón de eliminación */}
                 <button
                   onClick={() => handleRemoveImage(index)}
@@ -376,7 +386,7 @@ export default function Page() {
             ))}
             <input
               type="file"
-              accept="image/*"
+              accept="image/png, image/jpeg, image/jpg, image/webp, video/webm, video/mp4"
               multiple
               className="hidden"
               id="fileInput"
@@ -392,38 +402,52 @@ export default function Page() {
             </label>
           </div>
         </div>
-
         {errorMessage && (
-          <div>
-            <Alert
-              color="red"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setErrorMessage("")}>
-              {errorMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="red"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<X className="h-5 w-5" />}
+            onClose={() => setErrorMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{errorMessage}</p>
+          </Alert>
         )}
 
         {precautionMessage && (
-          <div>
-            <Alert
-              color="orange"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setPrecautionMessage("")}>
-              {precautionMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="orange"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<AlertTriangle className="h-5 w-5" />}
+            onClose={() => setPrecautionMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{precautionMessage}</p>
+          </Alert>
         )}
 
         {successMessage && (
-          <div>
-            <Alert
-              color="green"
-              onClose={() => setSuccessMessage("")}
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-              {successMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="green"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<Check className="h-5 w-5" />}
+            onClose={() => setSuccessMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{successMessage}</p>
+          </Alert>
         )}
 
         {/* Wrapped Card Component */}
@@ -518,6 +542,7 @@ export default function Page() {
                 className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
                 <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                {errors.addressCoordinates && <p className="text-red-500">{errors.addressCoordinates.message}</p>}
               </div>
 
               {/* Buttons */}

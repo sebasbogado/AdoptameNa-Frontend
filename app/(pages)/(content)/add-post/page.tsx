@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -30,7 +30,7 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -58,6 +58,7 @@ export default function Page() {
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
+    const params = useParams()
     const watchedPostTypeId = useWatch({
         control,
         name: "postTypeId", // El nombre del campo en tu formulario
@@ -167,7 +168,6 @@ export default function Page() {
     };
 
     const onSubmit = (data: PostFormValues) => {
-        // 'data' aquí ya está validado por Zod
         openConfirmationModal(data); // Pasa los datos validados al modal/handler
     };
 
@@ -185,11 +185,13 @@ export default function Page() {
             content: validatedData.content,
             tagIds: validatedData.tagIds || [],
             postTypeId: validatedData.postTypeId,
-            contactNumber: validatedData.contactNumber,
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
             mediaIds: validatedData.mediaIds || []
         };
-
+            // Solo incluir contactNumber si tiene valor real
+            if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
+                updatedFormData.contactNumber = validatedData.contactNumber;
+            }
         if (!authToken) {
             console.log("Usuario no autenticado");
             setLoading(false);
@@ -200,7 +202,12 @@ export default function Page() {
             const response = await createPost(updatedFormData, authToken);
             if (response && response.id) {
                 setSuccessMessage("Post creado exitosamente.")
-                router.push(`/posts/${response.id}`);
+
+                if (validatedData.postTypeId === POST_TYPEID.BLOG) {
+                router.push(`/blog/${response.id}`);
+                } else {
+                    router.push(`/posts/${response.id}`);
+                } 
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
                 router.push("/dashboard"); // O a donde sea apropiado como fallback
@@ -222,7 +229,7 @@ export default function Page() {
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
+        if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
             const fileData = new FormData();
             fileData.append("file", file);
@@ -231,9 +238,9 @@ export default function Page() {
                 throw new Error("El token de autenticación es requerido");
             }
 
-            const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+            const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4", "video/webm"];
             if (!allowedTypes.includes(file.type)) {
-                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten PNG, JPG y WEBP.");
+                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten imágenes PNG, JPG y WEBP o videos MP4 y WEBM.");
                 return;
             }
 
@@ -242,7 +249,7 @@ export default function Page() {
                 setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
                 return;
             }
-            // Verificar el tamaño del archivo (1MB)
+            // Verificar el tamaño del archivo (5MB)
             if (file.size > 5 * (1024 * 1024)) {
                 setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
                 return;
@@ -260,8 +267,8 @@ export default function Page() {
                     setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
                 }
             } catch (error) {
-                setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
-                console.error("Error al subir la imagen", error);
+                setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
+                console.error("Error al subir el archivo", error);
             } finally {
                 setLoading(false);
             }
@@ -308,8 +315,9 @@ export default function Page() {
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
                 MAX_TAGS={MAX_TAGS}
+                control  = {control}
             />
-
+            
             {isModalOpen &&
                 <ConfirmationModal
                     isOpen={isModalOpen}

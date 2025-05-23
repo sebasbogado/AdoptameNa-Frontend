@@ -4,17 +4,17 @@ import { useAuth } from "@/contexts/auth-context";
 import { User } from "@/types/auth";
 import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
-import { MapPin, PhoneIcon } from "lucide-react";
+import { MapPin, PhoneIcon, AlertTriangle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
-  createCrowdfunding,
   getCrowdfundings,
   updateCrowdfunding,
   updateCrowdfundingStatus
 } from "@/utils/crowfunding.http";
 import CrowdfundingModal from "@/components/crowfunding-modal";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
+import { Crowdfunding } from "@/types/crowfunding-type"
 import ConfirmationModal from "@/components/confirm-modal";
 import { DonationFormData } from "@/types/schemas/donation-schema";
 import DonationModal from "../donation-modal";
@@ -33,23 +33,33 @@ interface InputProps {
 }
 
 export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, setSuccessMessage, setErrorMessage }: InputProps) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [userProfile?.description]);
+
   const handleInputChange = (field: string, value: string) => {
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
 
-  const [crowdfunding, setCrowdfunding] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfunding, setCrowdfunding] = useState<Crowdfunding | null>(null);
   const [loadingCrowd, setLoadingCrowd] = useState(false);
   const isOrganization = !!userProfile?.organizationName?.trim();
   const displayName: string = userProfile?.organizationName?.trim() ? userProfile.organizationName : userProfile?.fullName ?? "";
   const { user: userAuth, authToken } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [crowdfundingToEdit, setCrowdfundingToEdit] = useState<Crowdfunding | null>(null);
   const [isConfirmFinishOpen, setIsConfirmFinishOpen] = useState(false);
   const [openDonationModal, setOpenDonationModal] = useState(false);
-  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<ResponseCrowdfundingDTO | null>(null);
+  const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<Crowdfunding | null>(null);
   const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
 
+  const isActive = crowdfunding?.status === "ACTIVE";
 
   useEffect(() => {
     if (userAuth && userProfile?.id) {
@@ -67,12 +77,17 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
       try {
         setLoadingCrowd(true);
-        const data = await getCrowdfundings(authToken, 0, 1, userProfile.id);
-        if (data?.data?.length > 0) {
+        if (isOwner && isActive) {
+          const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
+          setCrowdfunding(data.data[0]);
+        } else {
+          const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
           setCrowdfunding(data.data[0]);
         }
+
+
       } catch (err) {
-        console.error("Error al obtener crowdfunding:", err);
+        setErrorMessage?.("Ocurrió un error al obtener la colecta.");
       } finally {
         setLoadingCrowd(false);
       }
@@ -92,11 +107,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     let rawPhone = userProfile?.phoneNumber || "";
 
     // Limpia el número (quitar espacios, guiones, etc.)
-    rawPhone = rawPhone.replace(/\D/g, "");
-
-    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    rawPhone = rawPhone.replace(/\D/g, "");    // Si está vacío o tiene menos de 8 dígitos, muestra error
     if (!rawPhone || rawPhone.length < 8) {
-      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      setErrorMessage("Este usuario no tiene un número de teléfono válido para WhatsApp.");
       return;
     }
 
@@ -127,7 +140,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       );
       setCrowdfunding(updated);
     } catch (err) {
-      console.error("Error al actualizar la recaudación", err);
+      setErrorMessage?.("Ocurrió un error al actualizar la colecta.");
     }
   };
 
@@ -138,17 +151,15 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       setCrowdfunding({ ...crowdfunding, status: "CLOSED" });
       setSuccessMessage?.("Colecta finalizada con éxito.");
     } catch (err) {
-      console.error("Error al cerrar la recaudación", err);
       setErrorMessage?.("Ocurrió un error al finalizar la colecta.");
     }
   };
 
 
+
   const renderCrowdfunding = () => {
     if (!isOrganization || loadingCrowd) return null;
 
-
-    const isActive = crowdfunding?.status === "ACTIVE";
     const isVisible = crowdfunding !== null;
     const metaAlcanzada = crowdfunding && crowdfunding.currentAmount >= crowdfunding.goal;
 
@@ -158,7 +169,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
 
     //Fase 1: Organizacion sin colecta Activa
-    if (!isVisible && isOwner && !isActive) {
+    if (isVisible && isOwner && !isActive) {
       return (
         <div className="mt-8">
           <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
@@ -208,17 +219,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                 >
                   Finalizar
                 </button>
-
-                {/* <button
-                type="button"
-                className="bg-[#4781ff] hover:bg-[#3569e6] text-white px-6 py-2.5 rounded-lg text-lg font-extrabold"
-                onClick={() => {
-                  setCrowdfundingToEdit(crowdfunding);
-                  setIsModalOpen(true);
-                }}
-              >
-                Modificar
-              </button> */}
 
                 <button
                   type="button"
@@ -277,8 +277,6 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   };
 
 
-
-
   return (
     <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
       <form>
@@ -297,51 +295,78 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
         {/* Descripción */}
         <textarea
+          ref={textareaRef}
           disabled={isDisable}
           value={
             isDisable && !userProfile?.description
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-            } focus:outline-none w-full resize-none`}
+          className={`text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            } focus:outline-none w-full resize-none overflow-hidden`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
+          style={{ minHeight: '60px' }}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
+        
         {/* Teléfono */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+        {(!isDisable || userProfile?.phoneNumber) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
+              {isDisable && userProfile?.phoneNumber && <PhoneIcon className="text-gray-500" />}
+              <input
+                type="text"
+                disabled={isDisable}
+                value={userProfile?.phoneNumber ?? ""}
+                className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
+              />
+              {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
+            </div>
+          </>
         )}
-
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <PhoneIcon className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.phoneNumber ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
-          />
-          {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
-
-        </div>
-        {/* Direccion */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+        
+        {/* Dirección */}
+        {(!isDisable || userProfile?.address || userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full relative`}>
+              {isDisable && (userProfile?.address || userProfile?.neighborhoodName) && <MapPin className="text-gray-500" />}
+              <div className="flex flex-col w-full">
+                {isDisable ? (
+                  // Modo visualización
+                  <div className={`text-3xl text-gray-700`}>
+                    {userProfile?.address && (
+                      <p>{userProfile.address}</p>
+                    )}
+                    {(userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+                      <p className="text-lg text-gray-500">
+                        {[
+                          userProfile.neighborhoodName,
+                          userProfile.districtName,
+                          userProfile.departmentName
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  // Modo edición
+                  <input
+                    type="text"
+                    disabled={isDisable}
+                    value={userProfile?.address ?? ""}
+                    className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
+                  />
+                )}
+                {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
+              </div>
+            </div>
+          </>
         )}
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <MapPin className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.address ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
-          />
-          {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
-        </div>
 
         {renderCrowdfunding()}
 
@@ -361,8 +386,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           setIsModalOpen(false);
           setCrowdfundingToEdit(null);
         }}
-        setSuccessMessage={(msg) => console.log("✅", msg)}
-        setErrorMessage={(msg) => console.error("❌", msg)}
+        setSuccessMessage={() => { }}
+        setErrorMessage={(msg) => console.error(msg)}
       />
 
       <ConfirmationModal
@@ -395,8 +420,8 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             setCrowdfunding(updated);
             setIsUpdateAmountOpen(false);
           }}
-          setSuccessMessage={(msg) => console.log("✅", msg)}
-          setErrorMessage={(msg) => console.error("❌", msg)}
+          setSuccessMessage={() => { }}
+          setErrorMessage={(msg) => console.error(msg)}
         />
       )}
     </div>

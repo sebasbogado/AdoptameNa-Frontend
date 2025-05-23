@@ -14,7 +14,9 @@ import { getPetStatus } from "@/utils/pet-statuses.http";
 import { PetStatus } from "@/types/pet-status";
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
-import { LocationFilters } from "@/types/location-filter";
+import { LocationFilters, LocationFilterType } from "@/types/location-filter";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
+import { capitalizeFirstLetter } from "@/utils/Utils";
 
 export default function Page() {
   const { user } = useAuth();
@@ -28,6 +30,7 @@ export default function Page() {
   const [selectedPetStatus, setSelectedPetStatus] = useState("");
   const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
   const [filterChanged, setFilterChanged] = useState(false);
+  const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
 
   const {
     data: pets,
@@ -54,7 +57,7 @@ export default function Page() {
   const fetchData = async () => {
     try {
       const animals = await getAnimals();
-      setAnimalList(["Todos", ...animals.data.map((animal: { name: string }) => animal.name)]);
+      setAnimalList(animals.data.map((animal: { name: string }) => capitalizeFirstLetter(animal.name)));
       setAnimals(animals.data);
 
       const petStatus = await getPetStatus();
@@ -81,7 +84,7 @@ export default function Page() {
 
   useEffect(() => {
     let filters: any = {};
-    
+
     if (selectedAnimal && selectedAnimal !== "Todos") {
       const selectedAnimalObj = animals.find(
         (animal) => animal.name.toLowerCase() === selectedAnimal.toLowerCase()
@@ -90,7 +93,7 @@ export default function Page() {
         filters.animalId = selectedAnimalObj.id;
       }
     }
-    
+
     if (selectedPetStatus && selectedPetStatus !== "Todos") {
       const selectedStatusObj = petStatuses.find(
         (status) => status.name.toLowerCase() === selectedPetStatus.toLowerCase()
@@ -101,7 +104,7 @@ export default function Page() {
     } else {
       filters.petStatusId = [PET_STATUS.MISSING, PET_STATUS.FOUND];
     }
-    
+
     filters = {
       ...filters,
       ...locationFilters
@@ -113,33 +116,35 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-5">
       <div className="w-full max-w-7xl mx-auto p-4">
-        <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2 lg:gap-3">
+        <div
+          className={`
+            grid grid-cols-1 md:grid-cols-2
+            ${user?.location ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}
+            gap-x-6 gap-y-6
+            px-4 md:px-0
+          `}>
           {user?.location ? (
-            <div className="w-full md:w-64 lg:w-1/3 flex-shrink-0">
-              <LocationFilter 
-                user={user} 
-                onFilterChange={handleLocationFilterChange} 
-              />
-            </div>
+            <LocationFilter
+              user={user}
+              locationType={locationType}
+              setLocationType={setLocationType}
+              onFilterChange={handleLocationFilterChange}
+            />
           ) : (
-            <div className="hidden lg:block lg:w-1/3 flex-shrink-0"></div>
+            <div className="hidden lg:w-1/2 flex-shrink-0"></div>
           )}
-          <div className="w-full md:w-64 lg:w-1/3 flex-shrink-0">
-            <LabeledSelect
-              label="Estado"
-              options={petStatusesList}
-              selected={selectedPetStatus}
-              setSelected={setSelectedPetStatus}
-            />
-          </div>
-          <div className="w-full md:w-64 lg:w-1/3 flex-shrink-0">
-            <LabeledSelect
-              label="Tipo de mascota"
-              options={animalList}
-              selected={selectedAnimal}
-              setSelected={setSelectedAnimal}
-            />
-          </div>
+          <LabeledSelect
+            label="Estado"
+            options={petStatusesList}
+            selected={selectedPetStatus}
+            setSelected={setSelectedPetStatus}
+          />
+          <LabeledSelect
+            label="Tipo de mascota"
+            options={animalList}
+            selected={selectedAnimal}
+            setSelected={setSelectedAnimal}
+          />
         </div>
       </div>
 
@@ -166,6 +171,8 @@ export default function Page() {
           </div>
         )}
       </div>
+
+      <FloatingActionButton />
 
       <Pagination
         totalPages={totalPages}

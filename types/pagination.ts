@@ -18,7 +18,7 @@ export type queryParams = {
   page?: number;
   size?: number;
   sort?: string;
-
+  search?: string;
 };
 
 export type postQueryParams = queryParams & locationQueryParams  & {
@@ -96,6 +96,7 @@ export type userQueryParams = queryParams & {
 export type profileQueryParams = queryParams & {
   name?: string;
   role?: string;
+  search?: string;
 };
 
 export type adoptionsResponseQueryParams = queryParams & {

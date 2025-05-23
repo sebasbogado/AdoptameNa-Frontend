@@ -1,5 +1,5 @@
 "use client"
-import { PawPrint, FileX, MessageCircleX } from "lucide-react";
+import { PawPrint, FileX, MessageCircleX, PackageX } from "lucide-react";
 import Link from "next/link";
 import Loading from "@/app/loading";
 import { useAuth } from "@/contexts/auth-context";
@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ReceivedRequestsPage() {
-    const { authToken, loading: authLoading } = useAuth();
+    const { authToken, loading: authLoading, user } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -42,7 +42,16 @@ export default function ReceivedRequestsPage() {
                         <p className="text-gray-600 text-center">Ver tus reportes de publicaciones</p>
                     </div>
                 </Link>
-                <Link href="/profile/report">
+                <Link href="/profile/report/products">
+                    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+                        <div className="p-4 rounded-full mb-4">
+                            <PackageX size={48} className="text-black" />
+                        </div>
+                        <h2 className="text-xl font-semibold mb-2">Productos</h2>
+                        <p className="text-gray-600 text-center">Ver tus reportes de productos</p>
+                    </div>
+                </Link>
+                <Link href={user ? `/profile/report/comments/${user.id}` : "#"}>
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className="p-4 rounded-full mb-4">
                             <MessageCircleX size={48} className="text-black" />
