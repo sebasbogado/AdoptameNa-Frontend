@@ -1,4 +1,4 @@
-describe("Admin Panel - Búsqueda de usuario - TC-ADMIN-01", () => {
+describe("Admin Panel - Ver detalles de un reporte - TC-ADMIN-01", () => {
     it("Debería iniciar sesión, ir a mis reportes y ver el detalle del primer card, verificando que se muestre el detalle del mismo.", () => {
 
     // 1. Login con credenciales válidas de admin

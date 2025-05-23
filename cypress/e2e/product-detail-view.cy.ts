@@ -1,4 +1,4 @@
-describe("Admin Panel - Búsqueda de usuario - TC-ADMIN-01", () => {
+describe("Admin Panel - Ver detalle de un producto - TC-ADMIN-01", () => {
     it("Debería iniciar sesión, buscar el primer card de la tienda y ver su detalle, verificando que se muestre el precio.", () => {
 
     // 1. Login con credenciales válidas de admin
