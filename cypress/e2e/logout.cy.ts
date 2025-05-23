@@ -3,7 +3,7 @@ describe("Logout Functionality - TC-REG-O-07", () => {
     // 1. Login con credenciales válidas
     cy.visit("/auth/login");
     cy.get('input[name="email"]').type("rodrigo.maidana2019@fiuni.edu.py", { delay: 100 });
-    cy.get('input[name="password"]').type("Contraseña123", { delay: 100 });
+    cy.get('input[name="password"]').type("Rodrigo29", { delay: 100 });
     cy.get('button[type="submit"]').click();
 
     // 2. Verificar login exitoso (redireccionado al dashboard)

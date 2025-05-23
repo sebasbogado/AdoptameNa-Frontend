@@ -7,29 +7,29 @@ describe("Pruebas de Login - TypeScript", () => {
 
   it("TC-LGN-01: El usuario inicia sesión exitosamente y es redirigido al dashboard", () => {
     cy.log("Interceptando la solicitud de inicio de sesión...");
-    cy.intercept("POST", "**/api/auth/login", {
-      statusCode: 200,
-      body: {
-        token: "fake-token",
-        user: {
-          id: 1,
-          name: "Test User",
-          email: "test@example.com",
-        },
-      },
-    }).as("loginRequest");
+    //cy.intercept("POST", "**/api/auth/login", {
+    //  statusCode: 200,
+    //  body: {
+    //    token: "fake-token",
+    //    user: {
+    //      id: 1,
+    //     name: "Test User",
+    //      email: "test@example.com",
+    //    },
+    //  },
+    //}).as("loginRequest");
 
     cy.get('input[name="email"]').type("rodrigo.maidana2019@fiuni.edu.py", { delay: 100 });
-    cy.get('input[name="password"]').type("Contraseña123", { delay: 100 });
+    cy.get('input[name="password"]').type("Rodrigo29", { delay: 100 });
     cy.log(
-      "Formulario completado con email: rodrigo.maidana2019@fiuni.edu.py y contraseña: Contraseña123"
+      "Formulario completado con email: rodrigo.maidana2019@fiuni.edu.py y contraseña: Rodrigo29"
     );
 
     cy.log("Haciendo clic en el botón de inicio de sesión...");
     cy.get('button[type="submit"]').click();
 
-    cy.wait("@loginRequest");
-    cy.log("Respuesta de inicio de sesión recibida.");
+   // cy.wait("@loginRequest");
+   // cy.log("Respuesta de inicio de sesión recibida.");
 
     cy.wait(5000);
 
@@ -51,7 +51,7 @@ describe("Pruebas de Login - TypeScript", () => {
       body: { message: "Correo o contraseña incorrectos" },
     }).as("loginRequest");
 
-    cy.get('input[name="email"]').type("cymtop@mailto.plus", { delay: 100 });
+    cy.get('input[name="email"]').type("rodrigo.maidana2019@fiuni.edu.py", { delay: 100 });
     cy.get('input[name="password"]').type("wrongPassword");
     cy.get('button[type="submit"]').click();
 
