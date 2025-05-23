@@ -33,10 +33,16 @@ export const getConditionIcon = (str: string) => {
   return str === "USADO" ? "old" : str === "NUEVO" ? "new" : str;
 }
 
-export const getColorAdoptionOrMissing = (str: string) => {
-  return str === "En Adopción" ? "Adopcion" : str === "Perdido" ? "Extraviados" : "Extraviados";
+export const getPublicationTypeColor = (str: string) => {
+  return str === "En Adopción" ? "Adoption" 
+  : str === "Perdido" ? "Missing" 
+  : str === "Encontrado" ? "Found"
+  : str == "En Casa" ? "MyPet"
+  : str == "Voluntariado" ? "Volunteering"
+  : str == "Blog" ? "Blog" 
+  : "Marketplace";
 }
 
 export const getColorGender = (str: string) => {
-  return str === "MALE" ? "Hembra" : str === "FEMALE" ? "Macho" : "Adoption";
+  return str === "MALE" ? "Female" : "Male";
 }
