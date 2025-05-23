@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useParams, useRouter } from "next/navigation";
+import {  useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -30,7 +29,7 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -55,18 +54,19 @@ export default function Page() {
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const MAX_IMAGES = 5; //Tam max de imagenes
+    const MAX_IMAGES = 5; 
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
-    const params = useParams()
+    const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
+
     const watchedPostTypeId = useWatch({
         control,
-        name: "postTypeId", // El nombre del campo en tu formulario
+        name: "postTypeId", 
     });
 
     const handlePositionChange = (newPosition: [number, number]) => {
-        setPosition(newPosition); // Actualiza el estado local
-        setValue("locationCoordinates", newPosition); // Actualiza el formulario
+        setPosition(newPosition);
+        setValue("locationCoordinates", newPosition); 
     };
 
     const handleRemoveImage = async (index: number) => {
@@ -89,9 +89,24 @@ export default function Page() {
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
 
-            const updatedMediaIds = updatedImages.map(img => img.id);
-            setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
-            setSuccessMessage("Imagen eliminada exitosamente.")
+             const handleRemoveImage = async (index: number) => {
+        const imageToRemove = selectedImages[index];
+
+        if (!authToken) {
+            console.log("El token de autenticación es requerido");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            if (imageToRemove.id) {
+                await deleteMedia(imageToRemove.id, authToken);
+            }
+ const updatedImages = selectedImages.filter((_, i) => i !== index);
+  setSelectedImages(updatedImages);
+  syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
+
 
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
@@ -101,7 +116,25 @@ export default function Page() {
         }
     };
 
-
+        } catch (error) {
+            console.error("Error al eliminar la imagen", error);
+            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleEditorImageUpload = (mediaId: number) => {
+        setEditorMediaIds(prev => {
+            if (prev.includes(mediaId)) return prev;
+            const next = [...prev, mediaId];
+            const combinedMediaIds = [
+                ...selectedImages.map(img => img.id),
+                ...next
+            ].filter((v, i, arr) => arr.indexOf(v) === i);
+            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
+            return next;
+        });
+    };
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -227,7 +260,13 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-
+    function syncAllMediaIds(selectedImages: Media[], editorMediaIds: number[], setValue: any) {
+    const combined = [
+        ...selectedImages.map(img => img.id),
+        ...editorMediaIds
+    ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
+    setValue("mediaIds", combined, { shouldValidate: true });
+    }   
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
@@ -259,13 +298,11 @@ export default function Page() {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
 
-                if (response) {
-                    const newSelectedImages = [...selectedImages, response];
-                    setSelectedImages(newSelectedImages);
-                    // Actualiza react-hook-form con TODOS los IDs actuales
-                    const updatedMediaIds = newSelectedImages.map(img => img.id);
-                    setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
-                }
+            if (response) {
+            const newSelectedImages = [...selectedImages, response];
+            setSelectedImages(newSelectedImages);
+            syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
+        } 
             } catch (error) {
                 setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
                 console.error("Error al subir el archivo", error);
@@ -286,7 +323,7 @@ export default function Page() {
                 setCurrentImageIndex={setCurrentImageIndex}
                 handleRemoveImage={handleRemoveImage}
                 handleImageUpload={handleImageUpload}
-                MAX_IMAGES={MAX_IMAGES}
+                MAX_IMAGES={POST_TYPEID.BLOG == watchedPostTypeId ? 1 : MAX_IMAGES  }
                 errorMessage={errorMessage}
                 setErrorMessage={setErrorMessage}
                 precautionMessage={precautionMessage}
@@ -296,6 +333,7 @@ export default function Page() {
             />
 
            <FormDataPost
+                onEditorImageUpload={handleEditorImageUpload} 
                 handleSubmit={handleSubmit}
                 onSubmit={onSubmit}
                 register={register}

@@ -31,11 +31,14 @@ export const FormData = ({ handleSubmit,
     MAX_TAGS,
     MAX_IMAGES,
     control,
+    onEditorImageUpload
+    
 
 }: FormDataProps) => {
     const postTypeId = watch("postTypeId");
     const editorContentRef = useRef('')
     const [initialContent] = useState('') // Si necesitas contenido inicial
+
 
 
     return (
@@ -96,12 +99,13 @@ export const FormData = ({ handleSubmit,
                             control={control}
                             render={(
                                 field
-                            ) => <ForwardRefEditor
-                             IsCreateBlog={true} 
+                            ) =>    <ForwardRefEditor
+                                    IsCreateBlog={true}
                                     markdown={initialContent}
                                     onChange={(value: string) => {
-                                        editorContentRef.current = value // No renderiza nada
+                                        editorContentRef.current = value
                                     }}
+                                    onImageUpload={onEditorImageUpload} // <-- PASA EL PROP AQUÍ
                                     className="border-2 rounded-lg border-gray"
                                 />}
                         > 

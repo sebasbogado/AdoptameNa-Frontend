@@ -49,6 +49,8 @@ const UploadImages = ({ selectedImages,
                         </button>
                     </div>
                 ))}
+             {selectedImages.length < MAX_IMAGES && (
+            <>
                 <input
                     type="file"
                     accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
@@ -56,15 +58,15 @@ const UploadImages = ({ selectedImages,
                     className="hidden"
                     id="fileInput"
                     onChange={handleImageUpload}
-                    disabled={selectedImages.length >= MAX_IMAGES} // Deshabilita cuando se llega al límite
                 />
                 <label
                     htmlFor="fileInput"
-                    className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                        } bg-white`}
+                    className="cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 border-blue-500 hover:border-blue-700 bg-white"
                 >
-                    <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
+                    <ImagePlus size={20} className="text-blue-500" />
                 </label>
+            </>
+)}
             </div>
             {errorMessage && (
                 <Alert
