@@ -33,6 +33,89 @@ const MapWithNoSSR = dynamic<MapProps>(
   { ssr: false }
 );
 
+const FormSkeleton = () => {
+  return (
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+      {/* Fondo de imagen + overlay violeta */}
+      <div
+        className="fixed inset-0 -z-50 bg-cover bg-center"
+        style={{
+          backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+        }}
+      >
+        <div className="absolute inset-0 bg-[#9747FF] opacity-60"></div>
+      </div>
+
+      {/* Card del formulario */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-2 mb-16">
+          <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Banner Skeleton */}
+        <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse mb-8"></div>
+
+        {/* Image Upload Skeleton */}
+        <div className="flex gap-2 mt-2 justify-center items-center mb-8">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="w-24 h-24 bg-gray-200 rounded-md animate-pulse"></div>
+          ))}
+        </div>
+
+        {/* Form Fields Skeleton */}
+        <div className="flex flex-col gap-6">
+          {/* Title Input Skeleton */}
+          <div className="w-full mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Description Textarea Skeleton */}
+          <div className="w-full mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-32 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Animal Type MultiSelect Skeleton */}
+          <div className="w-full mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Condition Select Skeleton */}
+          <div className="w-1/3 mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Category Select Skeleton */}
+          <div className="w-1/3 mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Contact Number Input Skeleton */}
+          <div className="w-1/5 mb-2">
+            <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+            <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          {/* Map Skeleton */}
+          <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse"></div>
+
+          {/* Buttons Skeleton */}
+          <div className="flex justify-end gap-4 mt-8">
+            <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+            <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Page() {
   const {
     register,
@@ -62,7 +145,7 @@ export default function Page() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, authToken, loading: authLoading } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedImages, setSelectedImages] = useState<Media[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
@@ -73,26 +156,24 @@ export default function Page() {
   const [validatedData, setValidatedData] = useState<ProductFormValues | null>(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchInitialData = async () => {
       try {
-        const data = await getProductCategories();
-        setCategories(data.data);
+        setLoading(true);
+        const [categoriesData, animalsData] = await Promise.all([
+          getProductCategories(),
+          getAnimals()
+        ]);
+        setCategories(categoriesData.data);
+        setAnimals(animalsData.data);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching initial data:", error);
+        setErrorMessage("Error al cargar los datos iniciales");
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchAnimals = async () => {
-      try {
-        const data = await getAnimals();
-        setAnimals(data.data);
-      } catch (error) {
-        console.error("Error fetching animals:", error);
-      }
-    };
-
-    fetchCategories();
-    fetchAnimals();
+    fetchInitialData();
   }, []);
 
   useEffect(() => {
@@ -258,6 +339,10 @@ export default function Page() {
 
   const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
+
+  if (loading) {
+    return <FormSkeleton />;
   }
 
   return (

@@ -22,6 +22,63 @@ import UploadImages from "@/components/post/upload-images";
 import {FormData as FormDataPost} from "@/components/post/form-data";
 import { MAX_TAGS } from "@/validations/post-schema";
 
+const FormSkeleton = () => {
+  return (
+    <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
+      {/* Banner Skeleton */}
+      <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse mb-8"></div>
+
+      {/* Image Upload Skeleton */}
+      <div className="flex gap-2 mt-2 justify-center items-center mb-8">
+        {[...Array(5)].map((_, index) => (
+          <div key={index} className="w-24 h-24 bg-gray-200 rounded-md animate-pulse"></div>
+        ))}
+      </div>
+
+      {/* Form Fields Skeleton */}
+      <div className="flex flex-col gap-6">
+        {/* Post Type Select Skeleton */}
+        <div className="w-1/3 mb-2">
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Title Input Skeleton */}
+        <div className="mb-2">
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Content Textarea Skeleton */}
+        <div className="mb-2">
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-full h-32 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Tags MultiSelect Skeleton */}
+        <div className="mb-2">
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Contact Number Input Skeleton */}
+        <div className="mb-2">
+          <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="w-1/3 h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Map Skeleton */}
+        <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse"></div>
+
+        {/* Buttons Skeleton */}
+        <div className="flex justify-end gap-4 mt-8">
+          <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Page() {
     const {
@@ -274,6 +331,10 @@ export default function Page() {
             }
         }
     };
+
+    if (loading) {
+        return <FormSkeleton />;
+    }
 
    return (
  <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">

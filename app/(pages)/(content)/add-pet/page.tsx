@@ -26,14 +26,100 @@ import { Media } from "@/types/media";
 import { CreatePet } from "@/types/pet";
 import NewBanner from "@/components/newBanner";
 
-
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
   { ssr: false }
 );
 
-export default function Page() {
+const FormSkeleton = () => {
+  return (
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+      <div className="fixed inset-0 -z-50 bg-gray-200 opacity-60"></div>
+      <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+        <div className="flex items-center gap-2 mb-16">
+          <div className="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+          <div className="w-48 h-8 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        
+        {/* Banner Skeleton */}
+        <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse mb-8"></div>
 
+        <div className="p-8">
+          <div className="flex flex-col gap-6">
+            {/* Status Select Skeleton */}
+            <div className="w-1/3 mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Animal Type Select Skeleton */}
+            <div className="w-1/3 mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Breed Select Skeleton */}
+            <div className="w-1/3 mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Name Input Skeleton */}
+            <div className="mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-full h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Description Textarea Skeleton */}
+            <div className="mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-full h-32 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Birthday Input Skeleton */}
+            <div className="mb-2">
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse mb-2"></div>
+              <div className="w-1/5 h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Gender Radio Skeleton */}
+            <div className="flex gap-4 items-center mb-2">
+              <div className="flex gap-2">
+                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className="flex gap-2">
+                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="w-16 h-4 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+
+            {/* Checkboxes Skeleton */}
+            <div className="flex gap-2 items-center mb-2">
+              <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="flex gap-2 items-center mb-2">
+              <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-32 h-4 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+
+            {/* Map Skeleton */}
+            <div className="w-full h-[300px] bg-gray-200 rounded-xl animate-pulse"></div>
+
+            {/* Buttons Skeleton */}
+            <div className="flex justify-end gap-4 mt-8">
+              <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-24 h-10 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [breed, setBreed] = useState<Breed[]>([]);
@@ -73,12 +159,11 @@ export default function Page() {
   const [validatedData, setValidatedData] = useState<PetFormValues | null>(null);
 
   const onSubmit = (data: PetFormValues) => {
-    // 'data' aquí ya está validado por Zod
-    openConfirmationModal(data); // Pasa los datos validados al modal/handler
+    openConfirmationModal(data);
   };
 
   const openConfirmationModal = (data: PetFormValues) => {
-    setValidatedData(data); // Guardamos los datos validados
+    setValidatedData(data);
     setIsModalOpen(true);
   };
   const closeModal = () => {
@@ -111,6 +196,15 @@ export default function Page() {
   useEffect(() => {
     fetchInitialData();
   }, []);
+
+  useEffect(() => {
+    if (authLoading || !authToken || !user?.id) return;
+    console.log("authLoading", authLoading);
+  }, [authToken, authLoading, user?.id]);
+
+  if (loading) {
+    return <FormSkeleton />;
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -192,11 +286,6 @@ export default function Page() {
     setPosition(newPosition);
     setValue("addressCoordinates", newPosition);
   };
-
-  useEffect(() => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log("authLoading", authLoading);
-  }, [authToken, authLoading, user?.id]);
 
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

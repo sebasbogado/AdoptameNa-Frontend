@@ -10,6 +10,23 @@ import CrowdfundingCard from '@/components/crowdfundingCard/crowdfunding-card';
 import { Alert } from "@material-tailwind/react";
 import { ConfirmationModal } from '@/components/form/modal';
 
+const CrowdfundingSkeleton = () => {
+    return (
+        <div className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+            <div className="h-48 bg-gray-200 rounded-lg mb-4"></div>
+            <div className="space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                <div className="flex justify-between mt-4">
+                    <div className="h-8 bg-gray-200 rounded w-24"></div>
+                    <div className="h-8 bg-gray-200 rounded w-24"></div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const STATUS_OPTIONS = [
     { value: '', label: 'Todos' },
     { value: 'ACTIVE', label: 'Activos' },
@@ -162,8 +179,10 @@ export default function CrowfundingPage() {
             </div>
 
             {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <span className="text-lg">Cargando...</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 gap-y-6">
+                    {[...Array(6)].map((_, index) => (
+                        <CrowdfundingSkeleton key={index} />
+                    ))}
                 </div>
             ) : (
                 crowdfundings.length > 0 ? (

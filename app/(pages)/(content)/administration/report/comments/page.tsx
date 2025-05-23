@@ -6,6 +6,27 @@ import { useEffect } from "react";
 import { ITEM_TYPE } from "@/types/constants";
 import ReportListPage from "@/components/administration/report/report-list-page";
 import { getReportedComments } from "@/utils/report-client";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+
+const ReportSkeleton = () => {
+  return (
+    <div className="p-6">
+      <div className="w-full max-w-6xl mx-auto p-4">
+        <div className="h-10 bg-gray-200 rounded animate-pulse mb-8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-2 p-2">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <SkeletonCard
+              key={idx}
+              direction="horizontal"
+              width="w-full"
+              height="h-[200px]"
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
@@ -20,6 +41,10 @@ export default function Page() {
     }
   }, [authToken, authLoading, router]);
 
+  if (authLoading) {
+    return <ReportSkeleton />;
+  }
+
   return (
     <div className="p-6">
       <ReportListPage
@@ -30,11 +55,9 @@ export default function Page() {
           }
           return await getReportedComments(authToken, { page, size });
         }}
-
         pageSize={pageSize}
         isPost={false}
       />
     </div>
-
   );
 }

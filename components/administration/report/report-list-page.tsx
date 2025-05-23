@@ -10,6 +10,7 @@ import CardReport from "@/components/administration/report/card-button";
 import { ITEM_TYPE } from '@/types/constants';
 import clsx from 'clsx';
 import { useEffect } from "react";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
@@ -48,8 +49,20 @@ export default function ReportListPage<T>({
       )}
 
       {loading ? (
-        <div className="flex justify-center items-center">
-          <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+        <div className={clsx(
+          "grid gap-8 mt-2 p-2",
+          type === "comment"
+            ? "grid-cols-1 sm:grid-cols-2"
+            : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5"
+        )}>
+          {Array.from({ length: pageSize || 6 }).map((_, idx) => (
+            <SkeletonCard
+              key={idx}
+              direction={type === "comment" ? "horizontal" : "vertical"}
+              width={type === "comment" ? "w-full" : "w-[250px]"}
+              height={type === "comment" ? "h-[200px]" : "h-[400px]"}
+            />
+          ))}
         </div>
       ) : data.length !== 0 ? (
         <div

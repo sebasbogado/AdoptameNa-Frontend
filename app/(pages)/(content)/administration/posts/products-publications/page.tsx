@@ -10,6 +10,7 @@ import { Product } from "@/types/product";
 import { getProducts } from "@/utils/product.http";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
 import { ITEM_TYPE } from "@/types/constants";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -88,6 +89,29 @@ export default function Page() {
         updateFilters({ categoryId });
         handlePageChange(1);
     }, [selectedCategory]);
+
+    if (loading) {
+        return (
+            <div className="p-6">
+                <div className="w-full max-w-6xl mx-auto p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="h-10 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-10 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
+                    {Array.from({ length: 10 }).map((_, idx) => (
+                        <SkeletonCard
+                            key={idx}
+                            direction="vertical"
+                            width="w-[250px]"
+                            height="h-[400px]"
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6">
