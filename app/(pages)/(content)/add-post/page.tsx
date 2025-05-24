@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
 import {  useRouter } from "next/navigation";
@@ -232,13 +232,13 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-    function syncAllMediaIds(selectedImages: Media[], editorMediaIds: number[], setValue: any) {
+   const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
         const combined = [
             ...selectedImages.map(img => img.id),
             ...editorMediaIds
-        ].filter((id, idx, arr) => arr.indexOf(id) === idx);
+        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
         setValue("mediaIds", combined, { shouldValidate: true });
-    }
+    }, [setValue]);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
@@ -273,18 +273,7 @@ export default function Page() {
         }
     };
 
-    function areImagesValidForType(typeId: number, images: { mimeType?: string }[]) {
-        if (typeId === POST_TYPEID.BLOG) {
-
-            return images.every(img =>
-                allowedImageTypes.includes(img.mimeType || "")
-            );
-        }
-        return images.every(img =>
-            allowedAllTypes.includes(img.mimeType || "")
-        );
-
-    }
+ 
     const prevPostTypeId = useRef(watchedPostTypeId);
     function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
         const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
@@ -329,7 +318,7 @@ export default function Page() {
                 setCurrentImageIndex={setCurrentImageIndex}
                 handleRemoveImage={handleRemoveImage}
                 handleImageUpload={handleImageUpload}
-                MAX_IMAGES={POST_TYPEID.BLOG == watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
+                MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
                 errorMessage={errorMessage}
                 setErrorMessage={setErrorMessage}
                 precautionMessage={precautionMessage}
