@@ -1,4 +1,4 @@
-import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormTrigger, Control, UseFormWatch } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormSetValue,  Control, UseFormWatch } from "react-hook-form";
 import { PostFormValues } from "@/validations/post-schema";
 import { PostType } from "@/types/post-type";
 import { Tags } from "@/types/tags";
