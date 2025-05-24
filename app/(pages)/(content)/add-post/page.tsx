@@ -20,7 +20,7 @@ import { POST_TYPEID } from "@/types/constants";
 import UploadImages from "@/components/post/upload-images";
 import { FormData as FormDataPost } from "@/components/post/form-data";
 import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
-import { allowedImageTypes, allowedAllTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
+import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 
 export default function Page() {
     const {
