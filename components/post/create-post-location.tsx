@@ -26,15 +26,11 @@ export const CreatePostLocation = ({
   const [mapCenter, setMapCenter] = useState<[number, number]>(
     PARAGUAY_DEFAULT_COORDINATES
   );
-
   const handlePositionChange = async (newPosition: [number, number]) => {
     setLocationError(null);
-    setIsLoadingLocation(true);
-
-    try {
+    setIsLoadingLocation(true);    try {
       await getLocationByCoordinates(newPosition[0], newPosition[1]);
       setPosition(newPosition);
-      setMapCenter(newPosition);
     } catch (error) {
       setLocationError("Por favor, selecciona un punto dentro de Paraguay.");
       setPosition(null);
