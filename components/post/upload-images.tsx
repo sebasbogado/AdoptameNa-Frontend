@@ -1,8 +1,10 @@
 import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { Alert } from "@material-tailwind/react";
-
+import { allowedAllTypes, allowedImageTypes } from "@/utils/file-schema";
 import { UploadImageProps } from "@/types/props/posts/UploadImagesProps";
+import { POST_TYPEID } from "@/types/constants";
+
 const UploadImages = ({ selectedImages,
     currentImageIndex,
     setCurrentImageIndex,
@@ -14,8 +16,11 @@ const UploadImages = ({ selectedImages,
     precautionMessage,
     setPrecautionMessage,
     successMessage,
+    watch,
     setSuccessMessage,
 }: UploadImageProps) => {
+        const postTypeId = watch("postTypeId");
+
     return (
         <div>
             <div className="flex gap-2 mt-2 justify-center items-center">
@@ -53,7 +58,11 @@ const UploadImages = ({ selectedImages,
             <>
                 <input
                     type="file"
-                    accept="image/png, image/jpeg, image/webp, video/mp4, video/webm"
+                    accept={
+                        postTypeId === POST_TYPEID.BLOG
+                            ? allowedImageTypes.join(",")
+                            : allowedAllTypes.join(",")
+                    }
                     multiple
                     className="hidden"
                     id="fileInput"
