@@ -1,5 +1,7 @@
 // types/form/UploadImageProps.ts
 import { Media } from "@/types/media";
+import { PostFormValues } from "@/validations/post-schema";
+import { UseFormWatch } from "react-hook-form";
 
 export type UploadImageProps = {
   selectedImages: Media[];
@@ -14,4 +16,5 @@ export type UploadImageProps = {
   setPrecautionMessage: (msg: string) => void;
   successMessage: string;
   setSuccessMessage: (msg: string) => void;
+  watch: UseFormWatch<PostFormValues>
 };
