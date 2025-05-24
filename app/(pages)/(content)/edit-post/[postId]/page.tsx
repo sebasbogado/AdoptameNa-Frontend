@@ -11,8 +11,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,11 +24,9 @@ import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
+// Map is imported via CreatePostLocation component
 
 // Asegurémonos de que el tipo Media incluya la propiedad type
 interface ExtendedMedia extends Media {
@@ -54,7 +50,7 @@ export default function Page() {
         setValue,
         reset,
         control,
-        formState: { errors, isSubmitting }
+        formState: { errors }
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -576,13 +572,14 @@ export default function Page() {
                             className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
                         />
                         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-                    </div>
-
-                    {/* Mapa */}
+                    </div>                    {/* Mapa */}
                     <div className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                        <CreatePostLocation 
+                            position={position} 
+                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                            error={errors.locationCoordinates}
+                        />
                     </div>
-                    {errors.locationCoordinates && <p className="text-red-500 text-sm">{errors.locationCoordinates.message}</p>}
 
                     <div className="flex justify-between items-center mt-6 gap-10">
                         <Button

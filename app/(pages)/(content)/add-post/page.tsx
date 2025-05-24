@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -30,7 +29,7 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -58,16 +57,17 @@ export default function Page() {
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
-    const params = useParams()
     const watchedPostTypeId = useWatch({
         control,
         name: "postTypeId", // El nombre del campo en tu formulario
     });
 
-    const handlePositionChange = (newPosition: [number, number]) => {
-        setPosition(newPosition); // Actualiza el estado local
-        setValue("locationCoordinates", newPosition); // Actualiza el formulario
-    };
+     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+        setPosition(newPosition);
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [setValue]);
 
     const handleRemoveImage = async (index: number) => {
         const imageToRemove = selectedImages[index];
