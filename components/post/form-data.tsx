@@ -180,8 +180,8 @@ export const FormData = ({ handleSubmit,
                                 console.log(errors)
                             }}
                             variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_TAGS}
+                            className={`rounded ${selectedTags.length   >  MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            disabled={loading || selectedTags.length > MAX_TAGS}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
                         </Button>
