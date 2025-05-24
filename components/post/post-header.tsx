@@ -45,9 +45,9 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                         Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.organizationName || post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
                         <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                     </span> :
-                    <div className="flex flex-center flex-col">
+                    <div className="flex flex-center flex-col mt-2">
                         <span className="text-xl">Publicado por <Link className="text-[#4781FF]" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName} </Link></span>
-                        <div className="mt-8 flex flex-wrap gap-3">
+                        <div className="mt-4 flex flex-wrap gap-3">
                             <PostsTags
                                 postType={getPublicationTypeColor((pet as Pet).petStatus.name)}
                                 iconType={getAnimalIcon((pet as Pet).animal.name)}
