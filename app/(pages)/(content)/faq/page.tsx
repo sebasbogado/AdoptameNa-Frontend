@@ -7,11 +7,13 @@ import faqData from '@/lib/faq.json';
 import { useEffect, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import ImageComponent from '@/components/image-component';
+import SkeletonStaticPage from '@/components/skeleton-static-page';
 
 export default function Page() {
   const [questions, setQuestions] = useState<string[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [openIndex, setOpenIndex] = useState<number>(0); 
+  const [isLoading, setIsLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState<string>(''); 
   const [filteredData, setFilteredData] = useState<typeof faqData>(faqData); 
@@ -37,8 +39,16 @@ export default function Page() {
     const intervalId = setInterval(() => {
       setCurrentQuestionIndex((prevIndex) => (prevIndex + 1) % allQuestions.length);
     }, 3000);
+
+    // Simulate a small loading time to ensure smooth transition
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timer);
+    };
   }, []);
 
   
@@ -97,6 +107,10 @@ export default function Page() {
       inputRef.current.focus();
     }
   };
+
+  if (isLoading) {
+    return <SkeletonStaticPage />;
+  }
 
   return (
     <div className="w-full px-12">

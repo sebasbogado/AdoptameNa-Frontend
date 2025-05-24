@@ -1,7 +1,26 @@
+'use client'
+
 import { AlertTriangle } from "lucide-react"
 import ImageComponent from '@/components/image-component';
+import SkeletonStaticPage from '@/components/skeleton-static-page';
+import { useEffect, useState } from 'react';
 
 export default function Page() {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading time
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isLoading) {
+        return <SkeletonStaticPage />;
+    }
+
     return (
         <div className="w-full px-12">
 

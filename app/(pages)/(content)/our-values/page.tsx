@@ -1,5 +1,9 @@
+'use client'
+
 import SectionBody from "@/components/about-us/about-body";
 import Footer from "@/components/footer";
+import SkeletonStaticPage from '@/components/skeleton-static-page';
+import { useEffect, useState } from 'react';
 
 // Datos de las secciones Misión, Visión y Valores
 const bodyData = [
@@ -29,7 +33,22 @@ const bodyData = [
     },
   ];
 
-  export default function Page(){
+export default function Page(){
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading time
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (isLoading) {
+        return <SkeletonStaticPage />;
+    }
+
     return(<>
     {/* Secciones de Misión, Visión y Valores */}
     <div className="space-y-16 md:space-y-24 py-8 md:py-12">
@@ -46,4 +65,4 @@ const bodyData = [
   </div>
   </>
   );
-  }
+}

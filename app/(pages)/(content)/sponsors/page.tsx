@@ -8,6 +8,7 @@ import SponsorsCarousel from "@/components/sponsorsCarousel";
 import { useCallback, useEffect, useState } from "react";
 import { getActiveSponsors } from '@/utils/sponsor.http';
 import { ActiveSponsor } from '@/types/sponsor';
+import SkeletonStaticPage from '@/components/skeleton-static-page';
 
 interface SponsorImage {
   id: number;
@@ -18,9 +19,11 @@ export default function Page() {
   const router = useRouter();
   const { user } = useAuth();
   const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchSponsors = useCallback(async () => {
     try {
+      setIsLoading(true);
       const sponsorsData = await getActiveSponsors();
       const sponsorsArray = sponsorsData.data;
 
@@ -37,6 +40,8 @@ export default function Page() {
     } catch (error) {
       console.error('Error al cargar sponsors activos:', error);
       setSponsorImages([]);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -46,6 +51,10 @@ export default function Page() {
 
   function handleFormSponsors() {
     router.push('/sponsors/create')
+  }
+
+  if (isLoading) {
+    return <SkeletonStaticPage />;
   }
 
   return (

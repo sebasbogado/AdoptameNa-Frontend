@@ -1,11 +1,24 @@
+'use client'
 import donationsData from '@/lib/donations.json'
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { TriangleAlert } from 'lucide-react';
 import ImageComponent from '@/components/image-component';
+import SkeletonStaticPage from '@/components/skeleton-static-page';
+import { useEffect, useState } from 'react';
 
 export default function Page() {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate a small loading time to ensure smooth transition
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const renderers = {
         a: (props: any) => {
@@ -23,7 +36,11 @@ export default function Page() {
             </a>
           );
         },
-      };
+    };
+
+    if (isLoading) {
+        return <SkeletonStaticPage />;
+    }
     
     return (
         <div className="w-full px-12">
