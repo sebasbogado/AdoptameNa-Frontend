@@ -20,11 +20,43 @@ import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { capitalizeFirstLetter } from "@/utils/Utils";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+
+const MarketplaceSkeleton = () => {
+    return (
+        <div className="flex flex-col gap-5">
+            <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="mx-80 mb-4">
+                    <div className="flex flex-col col-span-1">
+                        <div className="h-5 bg-gray-200 rounded w-20 mb-1 animate-pulse" />
+                        <div className="h-10 bg-gray-200 rounded animate-pulse" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6 px-4 md:px-0">
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+            </div>
+
+            <div className="w-full flex flex-col items-center justify-center mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                    {[...Array(10)].map((_, index) => (
+                        <SkeletonCard key={index} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Page() {
     const { user } = useAuth();
 
     const [pageSize, setPageSize] = useState<number>();
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -64,47 +96,30 @@ export default function Page() {
     };
 
     useEffect(() => {
-        const fetchPrices = async () => {
+        const fetchInitialData = async () => {
             try {
-                const response = await getProducts({});
-                setPageSize(response.pagination.size)
-            } catch (error) {
-                console.error("Error al obtener los precios:", error);
-            }
-        };
+                const [productsResponse, categoriesData, animalsResponse] = await Promise.all([
+                    getProducts({}),
+                    getProductCategories(),
+                    getAnimals()
+                ]);
 
-        fetchPrices();
-    }, []);
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const data = await getProductCategories();
-                setCategories(data.data);
-            } catch (error) {
-                console.error("Error al obtener categorías:", error);
-            }
-        };
-
-        fetchCategories();
-    }, []);
-
-    useEffect(() => {
-        const fetchAnimals = async () => {
-            try {
-                const response = await getAnimals();
-                const capitalizedAnimals = response.data.map((animal: { id: number, name: string }) => ({
+                setPageSize(productsResponse.pagination.size);
+                setCategories(categoriesData.data);
+                
+                const capitalizedAnimals = animalsResponse.data.map((animal: { id: number, name: string }) => ({
                     ...animal,
                     name: capitalizeFirstLetter(animal.name),
                 }));
-
                 setAvailableAnimals(capitalizedAnimals);
             } catch (error) {
-                console.error("Error al obtener animales:", error);
+                console.error("Error al obtener datos iniciales:", error);
+            } finally {
+                setIsInitialLoading(false);
             }
         };
 
-        fetchAnimals();
+        fetchInitialData();
     }, []);
 
     useEffect(() => {
@@ -191,9 +206,11 @@ export default function Page() {
         setFilterChanged(false);
     };
 
+    if (isInitialLoading) {
+        return <MarketplaceSkeleton />;
+    }
 
     if (!pageSize) return <Loading />;
-
 
     return (
         <div className="flex flex-col gap-5">

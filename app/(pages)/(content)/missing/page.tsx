@@ -17,6 +17,29 @@ import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { capitalizeFirstLetter } from "@/utils/Utils";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+
+const MissingPetsSkeleton = () => {
+    return (
+        <div className="flex flex-col gap-5">
+            <div className="w-full max-w-7xl mx-auto p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-6 px-4 md:px-0">
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                    <div className="h-12 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+            </div>
+
+            <div className="w-full flex flex-col items-center justify-center mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                    {[...Array(10)].map((_, index) => (
+                        <SkeletonCard key={index} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Page() {
   const { user } = useAuth();
@@ -31,6 +54,7 @@ export default function Page() {
   const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   const {
     data: pets,
@@ -70,6 +94,8 @@ export default function Page() {
       ]);
     } catch (err: any) {
       console.error(err.message);
+    } finally {
+      setIsInitialLoading(false);
     }
   }
 
@@ -112,6 +138,10 @@ export default function Page() {
 
     updateFilters(filters);
   }, [selectedAnimal, selectedPetStatus, locationFilters, filterChanged]);
+
+  if (isInitialLoading) {
+    return <MissingPetsSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-5">
