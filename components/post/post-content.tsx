@@ -19,7 +19,7 @@ const PostContent = ({ post, pet }: PostContentProps) => {
     return (
         <section>
             <div className="left-10 pl-12 text-gray-700">
-                <p className="text-3xl mt-4">
+                <p className="text-sm lg:text-3xl mt-4">
                     {post?.content || pet?.description}
                 </p>
             </div>
