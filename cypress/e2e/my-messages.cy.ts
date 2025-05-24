@@ -1,5 +1,5 @@
 describe("Enviar un mensaje al primer chat. ", () => {
-    it("Debería iniciar sesión, ir a chats, y enviar un mensaje al primer chat.", () => {
+    it("Debería iniciar sesión, ir a chats, y buscar un usuario y enviar un mensaje.", () => {
 
     // 1. Login con credenciales válidas de admin
       cy.visit("/auth/login");
@@ -17,8 +17,12 @@ describe("Enviar un mensaje al primer chat. ", () => {
       cy.wait(7000);
       cy.url().should('include', '/chats');
 
+      cy.get('input[placeholder="Buscar conversación..."]').type('William', { force: true });
+
+      cy.get('div').contains('William').click();
+
       cy.get('input[placeholder="Escribe un mensaje..."]')
-  .type('Hola, este es un mensaje de prueba con Cypress.', { force: true });
+        .type('Hola, este es un mensaje de prueba con Cypress.');
 
       cy.get('button[type="submit"]').should('not.be.disabled');
 
