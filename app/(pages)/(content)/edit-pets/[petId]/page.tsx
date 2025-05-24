@@ -25,6 +25,7 @@ import { Breed } from "@/types/breed";
 import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
 import NewBanner from "@/components/newBanner";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -318,6 +319,10 @@ export default function Page() {
       setLoading(false);
     }
   };
+
+  if (loading || authLoading) {
+    return <FormSkeleton />;
+  }
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">

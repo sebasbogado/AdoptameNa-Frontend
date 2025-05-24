@@ -26,6 +26,7 @@ import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -201,8 +202,9 @@ export default function Page() {
         }
     }, [post, user?.id]);
 
-    if (authLoading) return Loading();
-    if (loading) return Loading();
+    if (loading || authLoading) {
+        return <FormSkeleton />;
+    }
     if (!post) return NotFound();
 
     const openConfirmationModalEdit = (data: PostFormValues) => {

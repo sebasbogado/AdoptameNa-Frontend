@@ -27,6 +27,7 @@ import { getProductCategories } from "@/utils/product-category.http";
 import { getAnimals } from "@/utils/animals.http";
 import { Product, UpdateProduct } from "@/types/product";
 import LabeledInput from "@/components/inputs/labeled-input";
+import { FormSkeleton } from "@/components/ui/form-skeleton";
 
 const MapWithNoSSR = dynamic<MapProps>(
     () => import('@/components/ui/map'),
@@ -160,8 +161,9 @@ export default function Page() {
         fetchInitialData();
     }, [authToken, authLoading, user?.id, productId, router, reset]); // reset añadido como dependencia
 
-    if (authLoading) return Loading();
-    if (loading) return Loading();
+    if (loading || authLoading) {
+        return <FormSkeleton />;
+    }
     if (!product) return NotFound();
 
     const openConfirmationModalEdit = (data: ProductFormValues) => {
