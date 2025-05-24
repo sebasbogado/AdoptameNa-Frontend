@@ -13,6 +13,8 @@ import BlogCard from "@/components/blog/blog-card";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { useDebounce } from "@/hooks/use-debounce";
 import SearchBar from "@/components/search-bar";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+
 export default function Page() {
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
@@ -164,8 +166,32 @@ export default function Page() {
                 )}
 
                 {loading ? (
-                    <div className="flex justify-center items-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    <div className="w-full max-w-6xl mx-auto flex flex-col gap-16 mt-2 p-4">
+                        {Array.from({ length: 3 }).map((_, idx) => (
+                            <div key={idx} className="relative flex flex-col md:flex-row bg-white shadow-[0_0_10px_rgba(0,0,0,0.1)] rounded-2xl overflow-hidden w-full h-96 sm:h-96 md:h-64 lg:h-64 xl:h-64">
+                                <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
+                                    <div className="w-full h-full bg-gray-200 animate-pulse" />
+                                </div>
+                                <div className="p-4 md:p-6 flex flex-col w-full flex-grow">
+                                    <div className="flex flex-col gap-2 overflow-hidden max-h-[calc(100%-4rem)]">
+                                        <div className="h-8 bg-gray-200 rounded animate-pulse w-3/4" />
+                                        <div className="flex flex-wrap gap-1">
+                                            <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
+                                            <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded animate-pulse w-full" />
+                                            <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6" />
+                                            <div className="h-4 bg-gray-200 rounded animate-pulse w-4/6" />
+                                        </div>
+                                    </div>
+                                    <div className="mt-auto flex justify-between items-center">
+                                        <div className="h-4 bg-gray-200 rounded animate-pulse w-32" />
+                                        <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 ) : (
                     posts.length === 0 ? (

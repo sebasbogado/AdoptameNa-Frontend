@@ -7,6 +7,7 @@ import { Crowdfunding } from "@/types/crowfunding-type"
 import { getCrowdfundings } from "@/utils/crowfunding.http";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
@@ -40,8 +41,15 @@ export default function Page() {
         <div className="flex flex-col gap-5">
             <div className="w-full flex flex-col items-center justify-center mb-6">
                 {loading ? (
-                    <div className="flex justify-center items-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                        {Array.from({ length: pageSize || 5 }).map((_, idx) => (
+                            <SkeletonCard
+                                key={idx}
+                                direction="vertical"
+                                width="w-[250px]"
+                                height="h-[290px]"
+                            />
+                        ))}
                     </div>
                 ) : crowdfunding.length === 0 ? (
                     <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">

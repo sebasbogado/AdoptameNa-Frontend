@@ -16,6 +16,7 @@ import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { Animal } from "@/types/animal";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { capitalizeFirstLetter } from "@/utils/Utils";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export default function Page() {
     const { user } = useAuth();
@@ -179,8 +180,15 @@ export default function Page() {
                 )}
 
                 {loading ? (
-                    <div className="flex justify-center items-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-10 mt-2 p-2">
+                        {Array.from({ length: 10 }).map((_, idx) => (
+                            <SkeletonCard
+                                key={idx}
+                                direction="vertical"
+                                width="w-[250px]"
+                                height="h-[290px]"
+                            />
+                        ))}
                     </div>
                 ) : (
                     pets.length === 0 ? (
