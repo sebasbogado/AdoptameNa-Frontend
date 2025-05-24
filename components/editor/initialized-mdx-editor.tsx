@@ -27,6 +27,7 @@ import { Image } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { blogFileSchema } from '@/utils/file-schema'; // Asegúrate de importar tu schema de validación
 import { X, Loader2, Check, AlertTriangle } from 'lucide-react';
+import { Alert } from '@material-tailwind/react';
 
 interface InitializedMDXEditorProps extends MDXEditorProps {
   editorRef?: React.Ref<MDXEditorMethods>;
@@ -44,24 +45,17 @@ export default function InitializedMDXEditor({
   const localEditorRef = useRef<MDXEditorMethods>(null);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const refToUse = (editorRef ?? localEditorRef) as React.RefObject<MDXEditorMethods>;
- 
+ const [errorMessage, setErrorMessage] = useState('');
+const [precautionMessage, setPrecautionMessage] = useState('');
   
     const [uploading, setUploading] = useState(false);
-  const [alertInfo, setAlertInfo] = useState<{
-    open: boolean;
-    color: "green" | "red" | "blue";
-    message: string;
-  } | null>(null);
 
-  useEffect(() => {
-    if (alertInfo?.open) {
-      const timer = setTimeout(() => {
-        setAlertInfo(prev => prev ? { ...prev, open: false } : null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [alertInfo]);
-
+useEffect(() => {
+  if (errorMessage) {
+    const timer = setTimeout(() => setErrorMessage(''), 3500);
+    return () => clearTimeout(timer);
+  }
+}, [errorMessage]);
   // Plugins base
   const basePlugins = [
     headingsPlugin(),
@@ -70,22 +64,6 @@ export default function InitializedMDXEditor({
     thematicBreakPlugin(),
     markdownShortcutPlugin(),
     imagePlugin(),
-    codeBlockPlugin({ defaultCodeBlockLanguage: 'js' }),
-    codeMirrorPlugin({
-      codeBlockLanguages: {
-        js: 'JavaScript',
-        ts: 'TypeScript',
-        jsx: 'JSX',
-        tsx: 'TSX',
-        css: 'CSS',
-        html: 'HTML',
-        bash: 'Bash',
-        json: 'JSON',
-        md: 'Markdown',
-        python: 'Python',
-        java: 'Java',
-      }
-    }),
   ];
 
   if (IsCreateBlog) {
@@ -101,7 +79,6 @@ export default function InitializedMDXEditor({
             <Separator />
             <ListsToggle />
             <Separator />
-            <InsertCodeBlock />
             <button
               type="button"
               title="Subir imagen"
@@ -126,13 +103,13 @@ export default function InitializedMDXEditor({
 
     const result = blogFileSchema.safeParse(file);
     if (!result.success) {
-      setAlertInfo({ open: true, color: "red", message: result.error.errors[0].message });
+    setPrecautionMessage(result.error.errors[0].message);
       e.target.value = '';
       return;
     }
 
     if (!authToken) {
-      setAlertInfo({ open: true, color: "red", message: "No autenticado. Por favor, inicia sesión." });
+    setErrorMessage("No autenticado. Por favor, inicia sesión.");
       e.target.value = '';
       return;
     }
@@ -156,7 +133,7 @@ export default function InitializedMDXEditor({
       }
 
     } catch (error: any) {
-      setAlertInfo({ open: true, color: "red", message: `Error al subir la imagen. Por favor, inténtalo de nuevo. ${error?.message || ''}` });
+    setErrorMessage(`Error al subir la imagen. Por favor, inténtalo de nuevo. ${error?.message || ''}`);
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -164,19 +141,7 @@ export default function InitializedMDXEditor({
   };
   return (
       <div className="flex flex-col gap-2 custom-editor">
-      {/* Feedback visual */}
-      {alertInfo && alertInfo.open && (
-        <div className={`fixed top-4 right-4 px-4 py-2 rounded shadow-lg z-[10001] 
-          ${alertInfo.color === "red" ? "bg-red-500 text-white"
-            : "bg-blue-500 text-white"}`}>
-          <div className="flex gap-2 items-center">
-            {alertInfo.color === "green" && <Check size={18} />}
-            {alertInfo.color === "red" && <X size={18} />}
-            {alertInfo.color === "blue" && <AlertTriangle size={18} />}
-            <span className="text-sm">{alertInfo.message}</span>
-          </div>
-        </div>
-      )}
+
       {/* Input oculto para subir imagen */}
       <input
         type="file"
@@ -185,6 +150,38 @@ export default function InitializedMDXEditor({
         style={{ display: 'none' }}
         onChange={handleImageUpload}
       />
+      {errorMessage && (
+  <Alert
+    open={true}
+    color="red"
+    animate={{
+      mount: { y: 0 },
+      unmount: { y: -100 },
+    }}
+    icon={<X className="h-5 w-5" />}
+    onClose={() => setErrorMessage("")}
+    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+  >
+    <p className="text-sm">{errorMessage}</p>
+  </Alert>
+)}
+
+{precautionMessage && (
+  <Alert
+    open={true}
+    color="orange"
+    animate={{
+      mount: { y: 0 },
+      unmount: { y: -100 },
+    }}
+    icon={<AlertTriangle className="h-5 w-5" />}
+    onClose={() => setPrecautionMessage("")}
+    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+  >
+    <p className="text-sm">{precautionMessage}</p>
+  </Alert>
+)}
+
       <MDXEditor
         ref={refToUse}
         plugins={basePlugins}
