@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import {  useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -63,12 +63,12 @@ export default function Page() {
         name: "postTypeId",
     });
 
-    const handlePositionChange = (newPosition: [number, number]) => {
+     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
-        setValue("locationCoordinates", newPosition);
-    };
-
-
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [setValue]);
     const handleEditorImageUpload = (mediaId: number) => {
         setEditorMediaIds(prev => {
             if (prev.includes(mediaId)) return prev;
@@ -81,6 +81,7 @@ export default function Page() {
             return next;
         });
     };
+
     const handleRemoveImage = async (index: number) => {
         const imageToRemove = selectedImages[index];
 

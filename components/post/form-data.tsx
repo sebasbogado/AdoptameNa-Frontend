@@ -1,17 +1,11 @@
 import { MultiSelect } from "@/components/multi-select";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import Button from "../buttons/button";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
 import ForwardRefEditor from "../editor/forward-ref-editor";
-import { POST_TYPEID } from "@/types/constants"; // <-- AGREGA ESTO
+import { POST_TYPEID } from "@/types/constants";
 import { useRef, useState } from "react";
 import { Controller } from "react-hook-form";
-
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
+import { CreatePostLocation } from "./create-post-location";
 
 export const FormData = ({ handleSubmit,
     onSubmit,
@@ -143,14 +137,15 @@ export const FormData = ({ handleSubmit,
                         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                     </div>
-                )}
-
-                {postTypeId !== POST_TYPEID.BLOG && (
+                )}                {postTypeId !== POST_TYPEID.BLOG && (
                     <div
                         className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                     >
-                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                        {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
+                        <CreatePostLocation 
+                            position={position} 
+                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                            error={errors.locationCoordinates}
+                        />
                     </div>
                 )}
                 <div className="flex justify-between items-center mt-6 gap-10">
