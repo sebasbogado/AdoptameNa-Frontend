@@ -12,6 +12,7 @@ const pageItems = [
             href: "/add-post",
             label: "Publicación",
             icon: <PawPrintIcon className="flex text-right h-5 w-5" />,
+            id: "add-post",
         },
         {
             href: "/add-pet",
@@ -123,6 +124,7 @@ const FloatingActionButton = () => {
                         {page.options.map((option, index) => (
                             <Link key={option.href} href={option.href} legacyBehavior>
                                 <a
+                                    id={(option as any).id}
                                     onClick={handleLinkClick}
                                     style={{
                                         transitionDelay: isOpen

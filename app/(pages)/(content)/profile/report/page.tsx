@@ -24,7 +24,7 @@ export default function ReceivedRequestsPage() {
         <div className="p-8">
             <h1 className="text-2xl font-bold mb-8">Mis Reportes</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Link href="/profile/report/pets">
+                <Link href="/profile/report/pets" id="my-pets-report">
                     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
                         <div className=" p-4 rounded-full mb-4">
                             <PawPrint size={48} className="text-black" />

@@ -124,7 +124,7 @@ const ChatButton = () => {
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
           <button className="relative outline-none flex items-center justify-center">
-            <MessageCircle className="text-amber-500 w-6 h-6" />
+            <MessageCircle className="text-amber-500 w-6 h-6" id="message-circle"/>
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">
                 {unreadCount > 9 ? "9+" : unreadCount}

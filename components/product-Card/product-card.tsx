@@ -54,7 +54,7 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                 </Alert>
             )}
 
-            <Link href={`/marketplace/${product.id}`}>
+            <Link href={`/marketplace/${product.id}`} data-cy={`ver-detalles-produtos-${product.id}`}>
                 {product.media[0]?.mimeType && product.media[0].mimeType.startsWith("video/") ? (
                     <video
                         className="w-full h-36 object-cover rounded-lg"

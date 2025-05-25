@@ -82,7 +82,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
             {/* Mis reportes */}
             <div>
               <Link href="/profile/report" className="flex items-center gap-2">
-                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer">
+                <DropdownMenu.Item className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#3E3E3E] hover:bg-gray-100 rounded-md outline-none cursor-pointer" id= "my-report-button">
                 <FileX2 className="w-5 h-5" strokeWidth={2}/>
                 Mis reportes
                 </DropdownMenu.Item>

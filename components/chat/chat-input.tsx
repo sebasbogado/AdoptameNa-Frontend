@@ -34,6 +34,7 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
         className="flex-1 min-w-0 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 truncate"
         disabled={disabled}
         maxLength={1000}
+        id="message-content-input"
       />
       <button
         type="submit"

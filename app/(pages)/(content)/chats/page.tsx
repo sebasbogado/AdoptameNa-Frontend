@@ -86,7 +86,8 @@ export default function ChatsPage() {
         {/* Lista de Chats */}
         <div className="w-full md:w-1/4 md:min-w-[250px] md:max-w-[300px] bg-white border-r flex flex-col">
           <div className="p-3 border-b">
-            <input 
+            <input
+              id="search-contact-input" 
               type="text" 
               placeholder="Buscar conversación..." 
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"

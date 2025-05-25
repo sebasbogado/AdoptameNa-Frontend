@@ -55,7 +55,7 @@ export default function UserReportCardButtons({
                 : `${pathname}/${post.id}`
             }
           >
-            <Button size="sm" className="flex items-center justify-center">
+            <Button size="sm" className="flex items-center justify-center" data-cy={`btn-ver-reportes-${post.id}`}>
               <EyeIcon className="w-5 h-5 mr-2 text-white" strokeWidth={3} />
               Ver Reportes
             </Button>
