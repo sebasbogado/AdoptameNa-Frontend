@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getPostsType } from "@/utils/post-type.http";
 import { useAuth } from "@/contexts/auth-context";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { createPost } from "@/utils/posts.http";
 import { PostType } from "@/types/post-type";
 import { CreatePost } from "@/types/post";
@@ -19,9 +18,9 @@ import NewBanner from "@/components/newBanner";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import UploadImages from "@/components/post/upload-images";
-import {FormData as FormDataPost} from "@/components/post/form-data";
-import { MAX_TAGS } from "@/validations/post-schema";
-
+import { FormData as FormDataPost } from "@/components/post/form-data";
+import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
+import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 const FormSkeleton = () => {
   return (
     <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
@@ -87,7 +86,7 @@ export default function Page() {
         setValue,
         watch,
         control,
-        formState: { errors, isSubmitting },
+        formState: { errors },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -112,43 +111,53 @@ export default function Page() {
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
-    const params = useParams()
+    const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
+
     const watchedPostTypeId = useWatch({
         control,
-        name: "postTypeId", // El nombre del campo en tu formulario
+        name: "postTypeId",
     });
 
-    const handlePositionChange = (newPosition: [number, number]) => {
-        setPosition(newPosition); // Actualiza el estado local
-        setValue("locationCoordinates", newPosition); // Actualiza el formulario
+     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+        setPosition(newPosition);
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [setValue]);
+    const handleEditorImageUpload = (mediaId: number) => {
+        setEditorMediaIds(prev => {
+            if (prev.includes(mediaId)) return prev;
+            const next = [...prev, mediaId];
+            const combinedMediaIds = [
+                ...selectedImages.map(img => img.id),
+                ...next
+            ].filter((v, i, arr) => arr.indexOf(v) === i);
+            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
+            return next;
+        });
     };
 
     const handleRemoveImage = async (index: number) => {
         const imageToRemove = selectedImages[index];
 
         if (!authToken) {
-            console.log("El token de autenticación es requerido");
+             setErrorMessage("No se pudo obtener el token de authenticación!");
+
             return;
         }
 
         try {
             setLoading(true);
 
-            // Llamar a la API para eliminar la imagen
             if (imageToRemove.id) {
                 await deleteMedia(imageToRemove.id, authToken);
             }
-
-            // Eliminar del estado local
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
+            syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
 
-            const updatedMediaIds = updatedImages.map(img => img.id);
-            setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
-            setSuccessMessage("Imagen eliminada exitosamente.")
 
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
@@ -157,8 +166,6 @@ export default function Page() {
             setLoading(false);
         }
     };
-
-
     useEffect(() => {
         if (!authLoading && !authToken) {
             router.push("/auth/login");
@@ -245,12 +252,11 @@ export default function Page() {
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
             mediaIds: validatedData.mediaIds || []
         };
-            // Solo incluir contactNumber si tiene valor real
-            if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
-                updatedFormData.contactNumber = validatedData.contactNumber;
-            }
+        if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
+            updatedFormData.contactNumber = validatedData.contactNumber;
+        }
         if (!authToken) {
-            console.log("Usuario no autenticado");
+          setErrorMessage("No se pudo obtener el token de authenticación!");
             setLoading(false);
             return;
         }
@@ -261,10 +267,10 @@ export default function Page() {
                 setSuccessMessage("Post creado exitosamente.")
 
                 if (validatedData.postTypeId === POST_TYPEID.BLOG) {
-                router.push(`/blog/${response.id}`);
+                    router.push(`/blog/${response.id}`);
                 } else {
                     router.push(`/posts/${response.id}`);
-                } 
+                }
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
                 router.push("/dashboard"); // O a donde sea apropiado como fallback
@@ -284,7 +290,13 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-
+   const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
+        const combined = [
+            ...selectedImages.map(img => img.id),
+            ...editorMediaIds
+        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
+        setValue("mediaIds", combined, { shouldValidate: true });
+    }, [setValue]);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
@@ -294,24 +306,13 @@ export default function Page() {
             if (!authToken) {
                 throw new Error("El token de autenticación es requerido");
             }
+            const schema = watchedPostTypeId === POST_TYPEID.BLOG ? blogFileSchema : fileSchema;
+            const result = schema.safeParse(file);
 
-            const allowedTypes = ["image/png", "image/jpeg", "image/webp", "video/mp4", "video/webm"];
-            if (!allowedTypes.includes(file.type)) {
-                setPrecautionMessage("Tipo de archivo no permitido. Solo se permiten imágenes PNG, JPG y WEBP o videos MP4 y WEBM.");
+            if (!result.success) {
+                setPrecautionMessage(result.error.errors[0].message);
                 return;
             }
-
-            // Verifica la cantidad de imagens que se pueden subir
-            if (selectedImages.length >= 5) {
-                setPrecautionMessage("Solo puedes subir hasta 5 imágenes.");
-                return;
-            }
-            // Verificar el tamaño del archivo (5MB)
-            if (file.size > 5 * (1024 * 1024)) {
-                setPrecautionMessage("El archivo es demasiado grande. Tamaño máximo: 5MB.");
-                return;
-            }
-
             try {
                 setLoading(true);
                 const response = await postMedia(fileData, authToken);
@@ -319,9 +320,7 @@ export default function Page() {
                 if (response) {
                     const newSelectedImages = [...selectedImages, response];
                     setSelectedImages(newSelectedImages);
-                    // Actualiza react-hook-form con TODOS los IDs actuales
-                    const updatedMediaIds = newSelectedImages.map(img => img.id);
-                    setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
+                    syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
                 }
             } catch (error) {
                 setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
@@ -332,31 +331,67 @@ export default function Page() {
         }
     };
 
-    if (loading) {
+ 
+    const prevPostTypeId = useRef(watchedPostTypeId);
+    function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
+        const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
+        if (firstImage) return [firstImage];
+        if (images.length > 0) return [images[0]];
+        return [];
+    }
+
+    useEffect(() => {
+        if (
+            prevPostTypeId.current !== undefined &&
+            prevPostTypeId.current !== watchedPostTypeId
+        ) {
+            if (watchedPostTypeId === POST_TYPEID.BLOG) {
+                if (selectedImages.length > MAX_BLOG_IMAGES) {
+                    const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
+                    setSelectedImages(limitedImages);
+                    setCurrentImageIndex(0);
+                    setValue(
+                        "mediaIds",
+                        limitedImages.map(img => img.id),
+                        { shouldValidate: true }
+                    );
+                    setPrecautionMessage(
+                        `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
+                    );
+                }
+            }
+            setValue("content", "");
+
+        }
+        prevPostTypeId.current = watchedPostTypeId;
+    }, [watchedPostTypeId, selectedImages, setValue]);
+     if (loading) {
         return <FormSkeleton />;
     }
 
    return (
- <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
+        <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
             <NewBanner
                 medias={selectedImages}
             />
-            <UploadImages 
+            <UploadImages
                 selectedImages={selectedImages}
                 currentImageIndex={currentImageIndex}
                 setCurrentImageIndex={setCurrentImageIndex}
                 handleRemoveImage={handleRemoveImage}
                 handleImageUpload={handleImageUpload}
-                MAX_IMAGES={MAX_IMAGES}
+                MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
                 errorMessage={errorMessage}
                 setErrorMessage={setErrorMessage}
                 precautionMessage={precautionMessage}
                 setPrecautionMessage={setPrecautionMessage}
                 successMessage={successMessage}
                 setSuccessMessage={setSuccessMessage}
+                watch={watch}
             />
 
-           <FormDataPost
+            <FormDataPost
+                onEditorImageUpload={handleEditorImageUpload}
                 handleSubmit={handleSubmit}
                 onSubmit={onSubmit}
                 register={register}
@@ -376,9 +411,10 @@ export default function Page() {
                 confirmSubmit={confirmSubmit}
                 MAX_IMAGES={MAX_IMAGES}
                 MAX_TAGS={MAX_TAGS}
-                control  = {control}
+                control={control}
+
             />
-            
+
             {isModalOpen &&
                 <ConfirmationModal
                     isOpen={isModalOpen}
@@ -391,6 +427,6 @@ export default function Page() {
                 />
             }
         </div>
-);
+    );
 
 }

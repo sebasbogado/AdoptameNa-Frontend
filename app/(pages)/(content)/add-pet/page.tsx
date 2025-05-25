@@ -2,9 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import dynamic from 'next/dynamic';
 import Image from "next/image";
-import { MapProps } from "@/types/map-props";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
 import { getBreed } from "@/utils/breed.http";
@@ -25,6 +23,7 @@ import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
 import { CreatePet } from "@/types/pet";
 import NewBanner from "@/components/newBanner";
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -130,7 +129,7 @@ export default function Page() {
   const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const MAX_IMAGES = 5; //Tam max de imagenes
+  const MAX_IMAGES = 5;
   const {
     register,
     handleSubmit,
@@ -282,10 +281,16 @@ export default function Page() {
     }
   };
 
-  const handlePositionChange = (newPosition: [number, number]) => {
-    setPosition(newPosition);
-    setValue("addressCoordinates", newPosition);
-  };
+  const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+        setPosition(newPosition);
+        if (newPosition) {
+            setValue("addressCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [setValue]);
+  useEffect(() => {
+    if (authLoading || !authToken || !user?.id) return;
+    console.log("authLoading", authLoading);
+  }, [authToken, authLoading, user?.id]);
 
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -555,8 +560,11 @@ export default function Page() {
               <div
                 className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
-                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                {errors.addressCoordinates && (<p className="text-red-500">{errors.addressCoordinates.message}</p>)}
+                <CreatePostLocation
+                  position={position}
+                  setPosition={handlePositionChange}
+                  error={errors.addressCoordinates ? { message: errors.addressCoordinates.message } : undefined}
+                />
               </div>
 
               {/* Buttons */}

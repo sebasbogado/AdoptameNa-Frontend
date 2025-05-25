@@ -48,7 +48,7 @@ const PostPage = () => {
         const fetchPets = async () => {
             const pets = await getPets({
                 size: 5,
-                petStatusId: idStatus
+                petStatusId: [idStatus]
             });
             setPets(pets.data);
         };

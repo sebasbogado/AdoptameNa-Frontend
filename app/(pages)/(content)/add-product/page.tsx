@@ -9,9 +9,6 @@ import { getAnimals } from "@/utils/animals.http";
 import { getProductCategories } from "@/utils/product-category.http";
 import { Animal } from "@/types/animal";
 import { ProductCategory } from "@/types/product-category";
-import Banners from "@/components/banners";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
 import { ConfirmationModal } from "@/components/form/modal";
@@ -27,11 +24,7 @@ import { AlertTriangle, Check, ImagePlus, X } from "lucide-react";
 import { MultiSelect } from "@/components/multi-select";
 import LabeledInput from "@/components/inputs/labeled-input";
 import NewBanner from "@/components/newBanner";
-
-const MapWithNoSSR = dynamic<MapProps>(
-  () => import('@/components/ui/map'),
-  { ssr: false }
-);
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
 const FormSkeleton = () => {
   return (
@@ -569,12 +562,16 @@ export default function Page() {
                 </div>
               )}
             />
+          </div>          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+            <CreatePostLocation
+              position={position}
+              setPosition={(newPosition) => {
+                setPosition(newPosition);
+                setValue("locationCoordinates", newPosition || [0, 0]);
+              }}
+              error={errors.locationCoordinates ? { message: errors.locationCoordinates.message } : undefined}
+            />
           </div>
-
-          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-            <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-          </div>
-          {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
           <div className="flex justify-end items-center mt-6 gap-10">
             <div className="flex gap-4">

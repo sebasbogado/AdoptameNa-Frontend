@@ -7,8 +7,6 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
@@ -28,11 +26,7 @@ import { getAnimals } from "@/utils/animals.http";
 import { Product, UpdateProduct } from "@/types/product";
 import LabeledInput from "@/components/inputs/labeled-input";
 import { FormSkeleton } from "@/components/ui/form-skeleton";
-
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
 export default function Page() {
     const { productId } = useParams();
@@ -70,16 +64,18 @@ export default function Page() {
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [selectedImages, setSelectedImages] = useState<Media[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const MAX_IMAGES = 5; //Tam max de imagenes
+    const MAX_IMAGES = 5;
     const [validatedData, setValidatedData] = useState<ProductFormValues | null>(null);
     const [categories, setCategories] = useState<ProductCategory[]>([]);
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [selectedAnimals, setSelectedAnimals] = useState<Animal[]>([]);
     const selectedAnimalsIds = selectedAnimals.map((animal) => animal.id);
 
-    const handlePositionChange = useCallback((newPosition: [number, number]) => {
+    const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
-        setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
     }, [setValue]);
 
     useEffect(() => {
@@ -542,12 +538,13 @@ export default function Page() {
                                 </div>
                             )}
                         />
+                    </div>                    <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+                        <CreatePostLocation
+                            position={position}
+                            setPosition={handlePositionChange}
+                            error={errors.locationCoordinates ? { message: errors.locationCoordinates.message } : undefined}
+                        />
                     </div>
-
-                    <div className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                    </div>
-                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                     <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
