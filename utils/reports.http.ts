@@ -36,3 +36,18 @@ export const getUserReports = async (token: string, queryParams?: reportQueryPar
   }
 }
 
+export const getReportedComments = async (token: string, page = 0, size = 25) => {
+  try {
+    const response = await axios.get(`${API_URL}/reported-comments`, {
+      params: { page, size },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Accept": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || "Error al obtener comentarios reportados");
+  }
+};
+

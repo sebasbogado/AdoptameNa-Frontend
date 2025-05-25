@@ -48,3 +48,10 @@ export type UserResponse = {
   role: string;
   name?: string;
 };
+
+//NO PONER ESTOS CON NINGUNA MAYUS O MUERE
+export enum USER_ROLE {
+  ADMIN = 'admin',
+  USER = 'user',
+  ORGANIZATION = 'organization',
+}

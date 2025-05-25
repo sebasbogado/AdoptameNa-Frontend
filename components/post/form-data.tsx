@@ -1,13 +1,11 @@
 import { MultiSelect } from "@/components/multi-select";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import Button from "../buttons/button";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
-
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
+import ForwardRefEditor from "../editor/forward-ref-editor";
+import { POST_TYPEID } from "@/types/constants";
+import { useRef, useState } from "react";
+import { Controller } from "react-hook-form";
+import { CreatePostLocation } from "./create-post-location";
 
 export const FormData = ({ handleSubmit,
     onSubmit,
@@ -26,8 +24,17 @@ export const FormData = ({ handleSubmit,
     handlePositionChange,
     MAX_TAGS,
     MAX_IMAGES,
+    control,
+    onEditorImageUpload
     
-}:FormDataProps) => {
+
+}: FormDataProps) => {
+    const postTypeId = watch("postTypeId");
+    const editorContentRef = useRef('')
+    const [initialContent] = useState('') // Si necesitas contenido inicial
+
+
+
     return (
         <>
 
@@ -38,8 +45,8 @@ export const FormData = ({ handleSubmit,
                     <select
                         {...register("postTypeId", { valueAsNumber: true })}
                         className={`w-fit p-2 border rounded mb-4 
-                        ${errors.postTypeId ? 'border-red-500' : ''} 
-                        ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
+                            ${errors.postTypeId ? 'border-red-500' : ''} 
+                            ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
                     >
 
                         <option disabled value={0}>Seleccione un tipo</option>
@@ -78,41 +85,69 @@ export const FormData = ({ handleSubmit,
                 </div>
                 {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
 
-                {/* Descripción */}
                 <div className="flex flex-col gap-2">
-                    <label className="block">Descripción <span className="text-red-500">*</span></label>
-                    <textarea
-                        {...register("content")}
-                        placeholder="Descripción"
-                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                    />
-                </div>
-                {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                  
+                    {postTypeId === POST_TYPEID.BLOG ? (
+                        <Controller
+                            name="content"
+                            control={control}
+                            render={(
+                                field
+                            ) =>    <ForwardRefEditor
+                                    IsCreateBlog={true}
+                                    markdown={initialContent}
+                                    onChange={(value: string) => {
+                                        editorContentRef.current = value
+                                    }}
+                                    onImageUpload={onEditorImageUpload} // <-- PASA EL PROP AQUÍ
+                                    className="border-2 rounded-lg border-gray"
+                                />}
+                        > 
 
-                {/* Contacto */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Número de contacto <span className="text-red-500">*</span></label>
-                    <input
-                        type="text"
-                        placeholder="0000123456"
-                        {...register("contactNumber")}
-                        className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                    />
-                </div>
-                {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                        </Controller>
 
-                {/* Mapa */}
-                <div
-                    className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                >
-                    {/* Mapa */}
+                    ) : (
+                        <>
+                          <label className="block">
+                        Descripción <span className="text-red-500">*</span>
+                    </label>
+
+                        <textarea
+                            {...register("content")}
+                            placeholder="Descripción"
+                            className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+                        />
+                                                </>
+
+                    )}
+                </div>
+                {errors.content && (
+                    <p className="text-red-500 text-sm">{errors.content.message}</p>
+                )}
+
+                {postTypeId !== POST_TYPEID.BLOG && (
+                    <div className="flex flex-col gap-2">
+                        <label className="block">Número de contacto <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            placeholder="0000123456"
+                            {...register("contactNumber")}
+                            className={`w-1/4 p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+
+                    </div>
+                )}                {postTypeId !== POST_TYPEID.BLOG && (
                     <div
                         className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                     >
-                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                        <CreatePostLocation 
+                            position={position} 
+                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                            error={errors.locationCoordinates}
+                        />
                     </div>
-                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}                </div>
-            
+                )}
                 <div className="flex justify-between items-center mt-6 gap-10">
                     <Button
                         type="button"
@@ -135,10 +170,15 @@ export const FormData = ({ handleSubmit,
                             Cancelar
                         </Button>
                         <Button
-                            type="submit"
+                            onClick={() => {
+                                if(POST_TYPEID.BLOG === postTypeId){
+                                   setValue('content', editorContentRef.current)
+                                }
+                              
+                            }}
                             variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_TAGS}
+                            className={`rounded ${selectedTags.length   >  MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            disabled={loading || selectedTags.length > MAX_TAGS}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
                         </Button>
@@ -146,7 +186,7 @@ export const FormData = ({ handleSubmit,
                 </div>
             </form>
 
-           
+
         </>
     )
 }

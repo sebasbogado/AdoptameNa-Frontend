@@ -12,6 +12,7 @@ import {
   Radio,
   Alert,
 } from "@material-tailwind/react";
+import { Check, X, AlertTriangle } from 'lucide-react';
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import { useForm } from "react-hook-form";
@@ -342,18 +343,34 @@ export default function Page() {
         </form>
       </Card>
       {errorMessage && (
-        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto'>
-          <Alert className='text-sm px-4 py-2 w-fit flex items-center'>
-            {errorMessage}
-          </Alert>
-        </div>
+        <Alert
+          open={true}
+          color="red"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
+          onClose={() => setErrorMessage("")}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{errorMessage.replace("❌ ", "")}</p>
+        </Alert>
       )}
       {successMessage && (
-        <div className='fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto'>
-          <Alert className='text-sm px-4 py-2 w-fit flex items-center'>
-            {successMessage}
-          </Alert>
-        </div>
+        <Alert
+          open={true}
+          color="green"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
+          onClose={() => setSuccessMessage("")}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{successMessage.replace("✅ ", "")}</p>
+        </Alert>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import LabeledSelect from "@/components/labeled-selected";
 import {  LocationFilterType } from "@/types/location-filter";
 import { User } from "@/types/auth";

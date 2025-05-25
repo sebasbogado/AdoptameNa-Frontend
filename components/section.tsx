@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { Product } from "@/types/product";
 import ProductCard from "./product-Card/product-card";
 import BlogCard from "./blog/blog-card";
+import { SkeletonCard } from "./ui/skeleton-card";
 
 interface SectionProps {
     title: string;
@@ -26,55 +27,65 @@ export function Section({ title, postTypeName, path, items, loading, error, item
     const insertAddButton = itemType === "pet" && pathName === "/profile";
 
     return (
-<div
-  className={`
+        <div
+            className={`
     w-full 
     mt-6  md:mt-12
     ${itemType === "blog" ? "bg-white shadow-[0_0_20px_rgba(0,0,0,0.1)] rounded-2xl p-6" : "ml-6"}
   `}
->            <Title title={title} postType={postTypeName} path={path} />
+        >            <Title title={title} postType={postTypeName} path={path} />
 
             {loading ? (
-                <p className="text-gray-500">Cargando {title.toLowerCase()}...</p>
-            ) : error ? (
+                <div className="flex gap-11 overflow-x-auto p-2">
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                    <SkeletonCard
+                        key={idx}
+                     direction={itemType === "blog" ? "horizontal" : "vertical"}
+                    width={itemType === "blog" ? "w-[600px]" : "w-[250px]"}
+                    height="h-[290px]"
+                    />               
+                         ))}
+                    </div>            ) : error ? (
                 <p className="text-red-500">No se pudieron cargar los datos</p>
             ) : (
                 <>
-                   {itemType === "blog" && (
-            <div
-                className="
-                flex 
-                overflow-x-auto  
-                gap-10
-                mt-2
-                p-2
-                snap-x 
-                snap-mandatory
-                flex-nowrap    
-                scrollbar-light
-                "
-            >
+                    {itemType === "blog" && (
+
+                        <div
+                            className="
+                                        flex 
+                                        overflow-x-hidden  
+                                        gap-6
+                                        mt-2
+                                        p-2
+                                        snap-x 
+                                        snap-mandatory
+                                        scrollbar-light
+                                        max-w-full
+                                "
+                        >
                             {items.map((item) => (
-                            <div key={item. id} className="snap-start min-w-[clamp(180px,50%,640px)]">
-                                    <BlogCard post={item as Post}  />
+                                <div key={item.id} className="snap-start min-w-[clamp(180px,50%,640px)]">
+                                    <BlogCard post={item as Post} />
                                 </div>
                             ))}
                         </div>
                     )}
+             
 
                     {/* Para el resto: carrusel horizontal con tarjetas específicas */}
                     {itemType !== "blog" && (
                         <div
                             className="
-                flex 
-                overflow-x-auto 
-                gap-10
-                mt-2 
-                p-2 
-                scrollbar-hide 
-                snap-x 
-                snap-mandatory
-              "
+                                flex 
+                                overflow-x-auto 
+                                gap-10
+                                mt-2 
+                                p-2 
+                                scrollbar-hide 
+                                snap-x 
+                                snap-mandatory
+                            "
                         >
                             {items.map((item) => {
                                 if (itemType === "post") {

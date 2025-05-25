@@ -11,7 +11,7 @@ import { usePagination } from "@/hooks/use-pagination"
 import SearchBar from "@/components/search-bar"
 import Pagination from "@/components/pagination"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Check, X } from "lucide-react"
 import Link from "next/link"
 import Loading from "@/app/loading"
 import NotFound from "@/app/not-found"
@@ -94,24 +94,34 @@ export default function RegularUsersPage() {
     return (
         <div className="p-8">
             {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
+                <Alert
+                    open={true}
+                    color="green"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<Check className="h-5 w-5" />}
+                    onClose={() => setSuccessMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{successMessage}</p>
+                </Alert>
             )}
             {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        onClose={() => setErrorMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {errorMessage}
-                    </Alert>
-                </div>
+                <Alert
+                    open={true}
+                    color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
+                    onClose={() => setErrorMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{errorMessage}</p>
+                </Alert>
             )}
 
             <ConfirmationModal
