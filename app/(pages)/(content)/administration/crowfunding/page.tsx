@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { getCrowdfundings, deleteCrowdfunding, updateCrowdfundingStatus, rejectCrowdfunding } from '@/utils/crowfunding.http';
 import { Crowdfunding } from '@/types/crowfunding-type';
 import Pagination from '@/components/pagination';
-import CrowdfundingCard from '@/components/crowdfundingCard/crowdfunding-card';
+import { RequestCard } from '@/components/request/request-card';
 import { Alert } from "@material-tailwind/react";
 import { ConfirmationModal } from '@/components/form/modal';
 
@@ -99,9 +99,15 @@ export default function CrowfundingPage() {
             setAlertInfo({ open: true, color: 'red', message: 'Solo puedes eliminar campañas que estén cerradas.' });
             return;
         }
-        setCrowdfundingToDeleteId(id);
-        setIsConfirmModalOpen(true);
-        setIsDefinitiveDelete(true);
+        if (!authToken || id == null) return;
+        deleteCrowdfunding(authToken, id)
+            .then(() => {
+                setAlertInfo({ open: true, color: 'green', message: 'Colecta eliminada.' });
+                fetchCrowdfundings();
+            })
+            .catch(() => {
+                setAlertInfo({ open: true, color: 'red', message: 'Error al eliminar.' });
+            });
     };
 
     const confirmRejectOrDelete = async () => {
@@ -140,7 +146,7 @@ export default function CrowfundingPage() {
                 <Alert
                     open={alertInfo.open}
                     color={alertInfo.color === 'green' ? 'green' : 'red'}
-                    onClose={() => setAlertInfo(null)}
+                    onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                     className="mb-4 fixed top-4 right-4 w-auto z-50"
                     animate={{ mount: { y: 0 }, unmount: { y: -100 } }}
                 >
@@ -169,13 +175,13 @@ export default function CrowfundingPage() {
                 crowdfundings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 gap-y-6">
                         {crowdfundings.map((item) => (
-                            <CrowdfundingCard
+                            <RequestCard
                                 key={item.id}
-                                item={item}
+                                application={item}
                                 isAdmin={true}
                                 onApprove={handleApprove}
                                 onReject={handleReject}
-                                onDelete={handleDelete}
+                                onDeleted={handleDelete}
                             />
                         ))}
                     </div>
@@ -189,16 +195,6 @@ export default function CrowfundingPage() {
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 size="md"
-            />
-
-            <ConfirmationModal
-                isOpen={isConfirmModalOpen}
-                title={isDefinitiveDelete ? "Eliminar Colecta" : "Confirmar Rechazo"}
-                message={isDefinitiveDelete ? "¿Estás seguro de que deseas eliminar definitivamente esta campaña?" : "¿Estás seguro de que deseas rechazar (eliminar) esta campaña?"}
-                textConfirm={isDefinitiveDelete ? "Eliminar" : "Rechazar"}
-                confirmVariant={isDefinitiveDelete ? "danger" : "danger"}
-                onClose={closeModal}
-                onConfirm={confirmRejectOrDelete}
             />
 
             <ConfirmationModal

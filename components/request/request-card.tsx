@@ -16,9 +16,12 @@ interface RequestCardProps {
     onEdited?: (updated: Crowdfunding) => void;
     onDeleted?: (id: number) => void;
     resetFilters?: () => void;
+    isAdmin?: boolean;
+    onApprove?: (id: number) => void;
+    onReject?: (id: number) => void;
 }
 
-export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited, onDeleted, resetFilters }) => {
+export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited, onDeleted, resetFilters, isAdmin = false, onApprove, onReject }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
 
@@ -108,55 +111,72 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                     {application.description}
                 </p>
                 <div className="grid grid-cols-2 gap-4 w-full mb-2">
-                    <div className="flex items-center gap-2 text-gray-500 text-sm truncate">
-                        <Calendar size={16} className="text-gray-400 shrink-0" />
-                        <span className="truncate">
-                            {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
-                            {application.endDate ? ` al ${formatMediumDate(application.endDate)}` : ""}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <BadgeDollarSign size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <TrendingUp size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <Coins size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Duración:</span> {application.durationDays} días
-                        </span>
-                    </div>
+                    {application.status === "ACTIVE" ? (
+                        <>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm truncate">
+                                <Calendar size={16} className="text-gray-400 shrink-0" />
+                                <span className="truncate">
+                                    {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
+                                    {application.endDate ? ` al ${formatMediumDate(application.endDate)}` : ""}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <BadgeDollarSign size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
+                                </span>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <Coins size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Duración:</span> {application.durationDays} días
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <TrendingUp size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
+                                </span>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             {/* Footer */}
             <div className="flex justify-between items-center border-t border-gray-200 px-6 py-4 min-h-[56px]">
                 <div>{renderStatus(application.status)}</div>
-
                 <div className="flex gap-2">
-                    {(application.status === "PENDING") && (
-
-                        <EditButton isEditing={false} size="sm" onClick={() => setModalOpen(true)}>
-                            Editar
-                        </EditButton>
+                    {isAdmin && application.status === "PENDING" && (
+                        <>
+                            <button
+                                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                                onClick={() => onApprove?.(application.id)}
+                            >
+                                Aceptar
+                            </button>
+                            <button
+                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                                onClick={() => onReject?.(application.id)}
+                            >
+                                Rechazar
+                            </button>
+                        </>
                     )}
-
-
-                    {(application.status !== "ACTIVE" &&  application.status !== "PENDING" ) && (
+                    {isAdmin && application.status === "CLOSED" && (
                         <TrashButton
                             size="sm"
                             onClick={() => setIsConfirmModalOpen(true)}
                         />
                     )}
-
+                    {!isAdmin && application.status === "PENDING" && (
+                        <EditButton isEditing={false} size="sm" onClick={() => setModalOpen(true)}>
+                            Editar
+                        </EditButton>
+                    )}
                 </div>
-
             </div>
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
