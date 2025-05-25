@@ -9,6 +9,8 @@ import {
   Flag,
   Settings,
   Users,
+  Menu as MenuIcon,
+  X as CloseIcon,
 } from "lucide-react";
 
 const navbarAdminItems = [
@@ -62,6 +64,7 @@ export default function NavbarAdmin() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
 
   const handleClick = (path: string) => {
     router.push(path);
@@ -119,24 +122,69 @@ export default function NavbarAdmin() {
           }
         }
       }
-    }; document.addEventListener('mousedown', handleClickOutside);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [openIndex]);
 
+  useEffect(() => {
+    setOpenIndex(null);
+  }, [pathname]);
+
   return (
-    <nav className="flex items-center gap-2 md:gap-4 overflow-x-auto pb-2 w-full md:pb-0 md:justify-center">
-      {navbarAdminItems.map((item, index) =>
-        item.isDropdown ? (
+    <nav className="w-full bg-white shadow px-2 py-2 relative z-20 flex flex-col">
+      <div className="flex items-center w-full justify-between">
+        <div className="flex items-center">
+        </div>
+        <div className="flex items-center gap-2">
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 sm:hidden mt-2">
+        {navbarAdminItems.map((item, index) => (
+          <div key={index} className="border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setOpenAccordion(openAccordion === index ? null : index)}
+              className={`w-full flex items-center justify-between px-4 py-2 text-base font-medium bg-white hover:bg-purple-50 transition-colors ${openAccordion === index ? 'text-purple-600' : 'text-gray-700'}`}
+            >
+              <span className="flex items-center">{item.icon}{item.name}</span>
+              <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${openAccordion === index ? 'rotate-180' : ''}`} />
+            </button>
+            {openAccordion === index && (
+              <div className="flex flex-col bg-white border-t">
+                {item.items.map((subItem: any) => (
+                  <button
+                    key={subItem.path}
+                    onClick={() => {
+                      handleClick(subItem.path);
+                      setOpenAccordion(null);
+                    }}
+                    className={`w-full text-left px-6 py-2 text-sm hover:bg-gray-50 ${isActiveMenuItem(subItem.path)
+                      ? 'bg-purple-50 text-purple-600'
+                      : 'text-gray-700'
+                    }`}
+                  >
+                    {subItem.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <div
+        className="hidden sm:flex sm:flex-row sm:gap-4 sm:justify-center sm:w-full mt-2"
+      >
+        {navbarAdminItems.map((item, index) => (
           <div key={index} className="relative">
             <button
               ref={el => { buttonRefs.current[index] = el; }}
               onClick={() => toggleDropdown(index)}
-              className={`flex items-center text-base font-medium px-3 py-2 rounded-lg hover:bg-purple-100 hover:text-purple-600 transition-colors ${isActiveRoute(item)
-                  ? "bg-purple-100 text-purple-600"
-                  : "text-gray-700"
-                }`}
+              className={`flex items-center text-base font-medium px-3 py-2 rounded-lg hover:bg-purple-100 hover:text-purple-600 transition-colors w-full sm:w-auto ${isActiveRoute(item)
+                ? "bg-purple-100 text-purple-600"
+                : "text-gray-700"
+              }`}
               aria-expanded={openIndex === index}
               aria-haspopup="true"
               type="button"
@@ -144,18 +192,12 @@ export default function NavbarAdmin() {
               {item.icon}
               {item.name}
               <ChevronDown
-                className={`ml-1 h-4 w-4 transition-transform ${openIndex === index ? "rotate-180" : ""
-                  }`}
+                className={`ml-1 h-4 w-4 transition-transform ${openIndex === index ? "rotate-180" : ""}`}
               />
             </button>
-
             {openIndex === index && (
               <div
-                className="fixed z-50 w-60 bg-white rounded-md shadow-lg border border-gray-200"
-                style={{
-                  top: `${dropdownPosition.top}px`,
-                  left: `${dropdownPosition.left}px`,
-                }}
+                className={`z-50 w-60 bg-white rounded-md shadow-lg border border-gray-200 mt-1 absolute left-0 top-full`}
                 role="menu"
               >
                 {item.items.map((subItem: any) => (
@@ -164,10 +206,11 @@ export default function NavbarAdmin() {
                     onClick={() => {
                       handleClick(subItem.path);
                       setOpenIndex(null);
-                    }} className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${isActiveMenuItem(subItem.path)
-                        ? "bg-purple-50 text-purple-600"
-                        : "text-gray-700"
-                      }`}
+                    }}
+                    className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-50 ${isActiveMenuItem(subItem.path)
+                      ? "bg-purple-50 text-purple-600"
+                      : "text-gray-700"
+                    }`}
                     role="menuitem"
                   >
                     {subItem.name}
@@ -176,20 +219,8 @@ export default function NavbarAdmin() {
               </div>
             )}
           </div>
-        ) : (
-          <button
-            key={item.path}
-            onClick={() => handleClick(item.path || "")}
-            className={`flex items-center text-base font-medium px-3 py-2 rounded-lg hover:bg-purple-100 hover:text-purple-600 transition-colors ${isActiveRoute(item)
-                ? "bg-purple-100 text-purple-600"
-                : "text-gray-700"
-              }`}
-          >
-            {item.icon}
-            {item.name}
-          </button>
-        )
-      )}
+        ))}
+      </div>
     </nav>
   );
 }
