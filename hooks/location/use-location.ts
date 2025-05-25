@@ -1,5 +1,4 @@
-import { useState, useReducer } from 'react';
-import { LocationState, LocationAction } from '@/types/location-selector';
+import { useReducer } from 'react';
 import { initialLocationState, locationReducer } from './use-location-reducer';
 import { useLocationData } from './use-location-data';
 import { useLocationHandlers } from './use-location-handlers';
