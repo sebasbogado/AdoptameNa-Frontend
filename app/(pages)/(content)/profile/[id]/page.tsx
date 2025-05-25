@@ -32,7 +32,7 @@ type ErrorsType = {
 const getProductsData = async (
     setMarketplacePosts: React.Dispatch<React.SetStateAction<Product[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -59,7 +59,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 const getUserProfileData = async (
     setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
 
@@ -77,7 +77,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 const getPostsData = async (
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -100,7 +100,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 const getPetsData = async (
     setPets: React.Dispatch<React.SetStateAction<Pet[]>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -121,7 +121,7 @@ setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
 
 const getUserData = async (setUser: React.Dispatch<React.SetStateAction<User | undefined>>,
     setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
+    setErrors: React.Dispatch<React.SetStateAction<ErrorsType>>,
     userId: string,
 ) => {
     try {
@@ -153,7 +153,7 @@ export default function ProfilePage() {
         marketplacePosts: false,
     });
     const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
-    
+
     const handleContactClick = () => {
 
         const destinatario = userProfile?.email;
@@ -220,7 +220,7 @@ export default function ProfilePage() {
             userId.toString()
         );
     }, []);
-      useEffect(() => {
+    useEffect(() => {
         const userId = param.id;
         if (!userId) {
             setErrors(prevErrors => ({ ...prevErrors, userProfile: true }));
@@ -282,7 +282,7 @@ export default function ProfilePage() {
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <ReportButton size="lg" />
-                        <DropdownMenuButtons handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
+                        <DropdownMenuButtons variant='cta' size='lg' handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
                         <MenuButton size="lg" />
                     </div>
 
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                         loading={loading}
                         error={errors.posts}
                     />
-                     <Section
+                    <Section
                         title={`Productos de ${isOrganization ? userProfile?.organizationName : userProfile?.fullName?.split(' ')[0]}`}
                         path={`/profile/my-products/${user?.id ?? ''}`}
                         itemType='product'
@@ -326,7 +326,7 @@ export default function ProfilePage() {
                         items={marketplacePosts}
                         loading={loading}
                         error={errors.marketplacePosts}>
-                      </Section>
+                    </Section>
 
                 </div>
 

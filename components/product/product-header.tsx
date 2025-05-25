@@ -5,7 +5,7 @@ import ReportButton from "../buttons/report-button";
 import EditButton from "../buttons/edit-button";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
-import DropdownContactButton from '@/components/product/dropdown-contact-button';
+import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import { UserProfile } from '@/types/user-profile';
 
 interface ProductHeaderProps {
@@ -44,7 +44,7 @@ export const ProductHeader = ({ product, userProfile }: ProductHeaderProps) => {
       </div>
       <div className="gap-3 flex justify-end">
         {!isOwner && (
-          <DropdownContactButton variant="cta" size="md" className="mt-4" handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
+          <DropdownMenuButtons variant="cta" size="md" className="mt-4" handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
         )}
         <ReportButton size="md" idProduct={product?.id.toString()} className="mt-4" />
         {isOwner && (
