@@ -24,6 +24,8 @@ import { Media } from "@/types/media";
 import { CreatePet } from "@/types/pet";
 import NewBanner from "@/components/newBanner";
 import { CreatePostLocation } from "@/components/post/create-post-location";
+import dynamic from "next/dynamic";
+import { MapProps } from "@/types/map-props";
 
 const MapWithNoSSR = dynamic<MapProps>(
   () => import('@/components/ui/map'),
@@ -151,11 +153,22 @@ export default function Page() {
       gender: "MALE",
     },
   });
-
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [validatedData, setValidatedData] = useState<PetFormValues | null>(null);
+
+  const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+    setPosition(newPosition);
+    if (newPosition) {
+      setValue("addressCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [setValue]);
+
+  useEffect(() => {
+    if (authLoading || !authToken || !user?.id) return;
+    console.log("authLoading", authLoading);
+  }, [authToken, authLoading, user?.id]);
 
   const onSubmit = (data: PetFormValues) => {
     openConfirmationModal(data);
@@ -195,11 +208,6 @@ export default function Page() {
   useEffect(() => {
     fetchInitialData();
   }, []);
-
-  useEffect(() => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log("authLoading", authLoading);
-  }, [authToken, authLoading, user?.id]);
 
   if (loading) {
     return <FormSkeleton />;
@@ -280,17 +288,6 @@ export default function Page() {
       setLoading(false);
     }
   };
-
-  const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
-        setPosition(newPosition);
-        if (newPosition) {
-            setValue("addressCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
-        }
-    }, [setValue]);
-  useEffect(() => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log("authLoading", authLoading);
-  }, [authToken, authLoading, user?.id]);
 
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
