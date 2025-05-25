@@ -309,62 +309,89 @@ export default function Page() {
         prevPostTypeId.current = watchedPostTypeId;
     }, [watchedPostTypeId, selectedImages, setValue]);
     return (
-        <div className="w-2/4 mx-auto p-8 bg-white rounded-lg">
-            <NewBanner
-                medias={selectedImages}
-            />
-            <UploadImages
-                selectedImages={selectedImages}
-                currentImageIndex={currentImageIndex}
-                setCurrentImageIndex={setCurrentImageIndex}
-                handleRemoveImage={handleRemoveImage}
-                handleImageUpload={handleImageUpload}
-                MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
-                errorMessage={errorMessage}
-                setErrorMessage={setErrorMessage}
-                precautionMessage={precautionMessage}
-                setPrecautionMessage={setPrecautionMessage}
-                successMessage={successMessage}
-                setSuccessMessage={setSuccessMessage}
-                watch={watch}
-            />
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',          
+                }}
+            >
+                <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
+            </div>
 
-            <FormDataPost
-                onEditorImageUpload={handleEditorImageUpload}
-                handleSubmit={handleSubmit}
-                onSubmit={onSubmit}
-                register={register}
-                errors={errors}
-                watch={watch}
-                postTypes={postTypes}
-                filteredTags={filteredTags}
-                selectedTags={selectedTags}
-                setSelectedTags={setSelectedTags}
-                setValue={setValue}
-                isModalOpen={isModalOpen}
-                position={position}
-                loading={loading}
-                handleCancel={handleCancel}
-                handlePositionChange={handlePositionChange}
-                closeModal={closeModal}
-                confirmSubmit={confirmSubmit}
-                MAX_IMAGES={MAX_IMAGES}
-                MAX_TAGS={MAX_TAGS}
-                control={control}
-
-            />
-
-            {isModalOpen &&
-                <ConfirmationModal
-                    isOpen={isModalOpen}
-                    title="Confirmar creación"
-                    message="¿Estás seguro de que deseas crear esta publicación?"
-                    textConfirm="Confirmar"
-                    confirmVariant="cta"
-                    onClose={closeModal}
-                    onConfirm={confirmSubmit}
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
+                        type="button"
+                        aria-label="Volver"
+                        onClick={() => router.push('/dashboard')}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
+                </div>
+                <NewBanner
+                    medias={selectedImages}
                 />
-            }
+                <UploadImages
+                    selectedImages={selectedImages}
+                    currentImageIndex={currentImageIndex}
+                    setCurrentImageIndex={setCurrentImageIndex}
+                    handleRemoveImage={handleRemoveImage}
+                    handleImageUpload={handleImageUpload}
+                    MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
+                    errorMessage={errorMessage}
+                    setErrorMessage={setErrorMessage}
+                    precautionMessage={precautionMessage}
+                    setPrecautionMessage={setPrecautionMessage}
+                    successMessage={successMessage}
+                    setSuccessMessage={setSuccessMessage}
+                    watch={watch}
+                />
+
+                <FormDataPost
+                    onEditorImageUpload={handleEditorImageUpload}
+                    handleSubmit={handleSubmit}
+                    onSubmit={onSubmit}
+                    register={register}
+                    errors={errors}
+                    watch={watch}
+                    postTypes={postTypes}
+                    filteredTags={filteredTags}
+                    selectedTags={selectedTags}
+                    setSelectedTags={setSelectedTags}
+                    setValue={setValue}
+                    isModalOpen={isModalOpen}
+                    position={position}
+                    loading={loading}
+                    handleCancel={handleCancel}
+                    handlePositionChange={handlePositionChange}
+                    closeModal={closeModal}
+                    confirmSubmit={confirmSubmit}
+                    MAX_IMAGES={MAX_IMAGES}
+                    MAX_TAGS={MAX_TAGS}
+                    control={control}
+                />
+
+                {isModalOpen &&
+                    <ConfirmationModal
+                        isOpen={isModalOpen}
+                        title="Confirmar creación"
+                        message="¿Estás seguro de que deseas crear esta publicación?"
+                        textConfirm="Confirmar"
+                        confirmVariant="cta"
+                        onClose={closeModal}
+                        onConfirm={confirmSubmit}
+                    />
+                }
+            </div>
         </div>
     );
 
