@@ -12,17 +12,17 @@ describe("Admin Panel - Ver detalles de un reporte - TC-ADMIN-01", () => {
 
       cy.get("#avatar").should("be.visible").click();
 
-      cy.contains("Mis reportes").click();
+      cy.get("#my-report-button").click();
 
       cy.wait(4000);
 
       cy.url().should("include", "/profile/report");
 
-      cy.get('a[href="/profile/report/pets"]').click();
+      cy.get('#my-pets-report').click();
 
-      cy.wait(4000);
+      cy.wait(7000);
 
-      cy.get('a[href="/profile/report/pets/16"] button').first().contains('Ver Reportes').click();
+      cy.get('[data-cy^="btn-ver-reportes-"]').first().click();
     
       cy.url().should('match', /\/profile\/report\/pets\/\d+$/);
 

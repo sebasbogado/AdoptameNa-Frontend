@@ -16,7 +16,7 @@ describe("Admin Panel - Ver detalle de un producto - TC-ADMIN-01", () => {
       cy.url().should("include", "/marketplace");
 
       cy.wait(2000);
-      cy.get('a[href^="/marketplace/"]').first().click();
+      cy.get('[data-cy^="ver-detalles-produtos-"]').first().click();
       cy.wait(5000);
 
       //regex para buscar el precio.

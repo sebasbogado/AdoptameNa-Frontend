@@ -10,21 +10,20 @@ describe("Enviar un mensaje al primer chat. ", () => {
       cy.wait(7000);
       cy.url().should("include", "/dashboard");
 
-      cy.get('svg.lucide-message-circle').parents('button').click();
+      cy.get('#message-circle').click();
 
       cy.contains('a', 'Ver todos los mensajes').click();
 
       cy.wait(7000);
       cy.url().should('include', '/chats');
 
-      cy.get('input[placeholder="Buscar conversación..."]').type('William', { force: true });
+      cy.get('#search-contact-input').type('William', { force: true });
 
       cy.get('div').contains('William').click();
 
-      cy.get('input[placeholder="Escribe un mensaje..."]')
+      cy.get('#message-content-input')
         .type('Hola, este es un mensaje de prueba con Cypress.');
 
-      cy.get('button[type="submit"]').should('not.be.disabled');
+      cy.get('button[type="submit"]').should('not.be.disabled').click();
 
-      cy.get('button[type="submit"]').click();
     })})
