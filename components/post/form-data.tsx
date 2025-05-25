@@ -25,11 +25,14 @@ export const FormData = ({ handleSubmit,
     MAX_TAGS,
     MAX_IMAGES,
     control,
+    onEditorImageUpload
+    
 
 }: FormDataProps) => {
     const postTypeId = watch("postTypeId");
     const editorContentRef = useRef('')
     const [initialContent] = useState('') // Si necesitas contenido inicial
+
 
 
     return (
@@ -90,12 +93,13 @@ export const FormData = ({ handleSubmit,
                             control={control}
                             render={(
                                 field
-                            ) => <ForwardRefEditor
-                             IsCreateBlog={true} 
+                            ) =>    <ForwardRefEditor
+                                    IsCreateBlog={true}
                                     markdown={initialContent}
                                     onChange={(value: string) => {
-                                        editorContentRef.current = value // No renderiza nada
+                                        editorContentRef.current = value
                                     }}
+                                    onImageUpload={onEditorImageUpload} // <-- PASA EL PROP AQUÍ
                                     className="border-2 rounded-lg border-gray"
                                 />}
                         > 
@@ -167,12 +171,14 @@ export const FormData = ({ handleSubmit,
                         </Button>
                         <Button
                             onClick={() => {
-                                    setValue('content', editorContentRef.current)
-                                console.log(errors)
+                                if(POST_TYPEID.BLOG === postTypeId){
+                                   setValue('content', editorContentRef.current)
+                                }
+                              
                             }}
                             variant="cta"
-                            className={`rounded ${selectedTags.length >= MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                            disabled={loading || selectedTags.length >= MAX_TAGS}
+                            className={`rounded ${selectedTags.length   >  MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            disabled={loading || selectedTags.length > MAX_TAGS}
                         >
                             {loading ? "Creando..." : "Crear publicación"}
                         </Button>
