@@ -1,7 +1,5 @@
-import { Favorites } from '@/types/favorites';
 import { buildQueryParams, queryParams } from '@/types/pagination';
 import axios from 'axios';
-import build from 'next/dist/build';
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/favorites`;
 

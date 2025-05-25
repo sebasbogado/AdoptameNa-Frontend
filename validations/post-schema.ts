@@ -1,7 +1,8 @@
 import { POST_TYPEID } from "@/types/constants";
 import { z } from "zod";
 export const MAX_TAGS = 5;
-
+export const MAX_BLOG_IMAGES = 1
+export const MAX_IMAGES = 5
 export const postSchema = z.object({
   postTypeId: z.number().min(1, "Seleccione un tipo de publicación"),
   title: z.string()

@@ -12,17 +12,20 @@ const Editor = dynamic(() => import('./initialized-mdx-editor'), {
 
 interface ForwardRefEditorProps extends MDXEditorProps {
   IsCreateBlog?: boolean; 
+    onImageUpload?: (mediaId: number) => void; // AGREGA ESTO
+
 }
 
 export default function ForwardRefEditor({
   IsCreateBlog = false, 
+    onImageUpload,
   ...props
 }: ForwardRefEditorProps) {
   const editorRef = useRef<MDXEditorMethods>(null);
   return (
     <div className='custom-editor'>
       {/* Le pasas la prop */}
-      <Editor editorRef={editorRef} IsCreateBlog={IsCreateBlog} {...props} />
+            <Editor editorRef={editorRef} IsCreateBlog={IsCreateBlog} onImageUpload={onImageUpload} {...props} />
     </div>
   );
 }
