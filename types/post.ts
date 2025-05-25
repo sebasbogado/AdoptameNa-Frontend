@@ -25,7 +25,7 @@ export interface CreatePost {
   tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
-  contactNumber: string;
+  contactNumber?: string; 
   userId: number;
   mediaIds: number[];
 }

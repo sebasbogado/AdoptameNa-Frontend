@@ -11,26 +11,27 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import { Media } from "@/types/media";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
-const MapWithNoSSR = dynamic<MapProps>(
-    () => import('@/components/ui/map'),
-    { ssr: false }
-);
+// Map is imported via CreatePostLocation component
+
+// Asegurémonos de que el tipo Media incluya la propiedad type
+interface ExtendedMedia extends Media {
+    type?: string;
+}
 
 export default function Page() {
     const { postId } = useParams();
@@ -49,7 +50,7 @@ export default function Page() {
         setValue,
         reset,
         control,
-        formState: { errors, isSubmitting }
+        formState: { errors }
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
@@ -66,7 +67,7 @@ export default function Page() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [position, setPosition] = useState<[number, number] | null>(null);
-    const [selectedImages, setSelectedImages] = useState<Media[]>([]);
+    const [selectedImages, setSelectedImages] = useState<ExtendedMedia[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
@@ -380,57 +381,117 @@ export default function Page() {
 
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-4">
-                <button
-                    onClick={() => router.push(`/posts/${postId}`)}
-                    className="text-gray-600 hover:text-gray-800"
-                >
-                    ← Volver
-                </button>
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
+            {/* Fondo de imagen + overlay violeta */}
+            <div
+                className="fixed inset-0 -z-50"
+                style={{
+                    backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                }}
+            >
+                <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
             </div>
-            <div className="w-2/4 mx-auto p-6 bg-white rounded-lg">
-                <NewBanner medias={selectedImages} />
-            </div>
-            {successMessage && (
-                <Alert className="mb-4" color="green">
-                    {successMessage}
-                </Alert>
-            )}
-            {errorMessage && (
-                <Alert className="mb-4" color="red">
-                    {errorMessage}
-                </Alert>
-            )}
-            {precautionMessage && (
-                <Alert className="mb-4" color="amber">
-                    {precautionMessage}
-                </Alert>
-            )}
-            <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+
+            {/* Card del formulario */}
+            <div className="relative z-10 w-full max-w-5xl mx-auto px-24 py-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+                <div className="flex items-center gap-2 mb-16">
+                    <button
+                        type="button"
+                        aria-label="Volver"
+                        onClick={() => router.push(`/posts/${postId}`)}
+                        className="text-text-primary hover:text-gray-700 focus:outline-none"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+                    <h1 className="text-2xl font-bold text-text-primary">Editar publicación</h1>
+                </div>
+
+                <div className="w-full mb-8">
+                    <NewBanner medias={selectedImages} />
+                </div>
+                {successMessage && (
+                    <Alert
+                        open={true}
+                        color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        onClose={() => setSuccessMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{successMessage}</p>
+                    </Alert>
+                )}
+                {errorMessage && (
+                    <Alert
+                        open={true}
+                        color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
+                        onClose={() => setErrorMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{errorMessage}</p>
+                    </Alert>
+                )}
+                {precautionMessage && (
+                    <Alert
+                        open={true}
+                        color="amber"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<AlertTriangle className="h-5 w-5" />}
+                        onClose={() => setPrecautionMessage(null)}
+                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                    >
+                        <p className="text-sm">{precautionMessage}</p>
+                    </Alert>
+                )}
+
                 <div className="flex gap-2 mt-2 justify-center items-center">
                     {selectedImages.map((src, index) => (
                         <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                            {src.url && (
-                                <>
-                                    <Image
-                                        src={src.url}
-                                        alt="post-image"
-                                        fill
-                                        className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                        onClick={() => setCurrentImageIndex(index)}
-                                        unoptimized
-                                    />
-                                    {/* Botón de eliminación */}
-                                    <button
-                                        onClick={() => handleRemoveImage(index)}
-                                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                        title="Eliminar imagen"
-                                    >
-                                        ✕
-                                    </button>
-                                </>
+                            {src.mimeType && src.mimeType.startsWith('image') ? (
+                                <Image
+                                    src={src.url}
+                                    alt="post-image"
+                                    fill
+                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    unoptimized
+                                />
+                            ) : src.mimeType && src.mimeType.startsWith('video') ? (
+                                <video
+                                    src={src.url}
+                                    className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    muted
+                                    playsInline
+                                    loop
+                                />
+                            ) : (
+                                <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
+                                    Archivo no soportado
+                                </div>
                             )}
+                            <button
+                                onClick={() => handleRemoveImage(index)}
+                                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
+                                title="Eliminar archivo"
+                            >
+                                ✕
+                            </button>
                         </div>
                     ))}
                     <input
@@ -444,72 +505,81 @@ export default function Page() {
                     />
                     <label
                         htmlFor="fileInput"
-                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"
-                            } bg-white`}
+                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"} bg-white`}
                     >
                         <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
                     </label>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-8">
                     {/* Tipo de publicación */}
-                    <select
-                        {...register("postTypeId", { valueAsNumber: true })}
-                        className={`w-full p-2 border rounded mb-4 ${errors.postTypeId ? 'border-red-500' : ''}`}
-                    >
-                        <option value={0}>Seleccione un tipo</option>
-                        {postTypes.map((type) => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                        ))}
-                    </select>
-                    {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+                    <div className="w-1/3 mb-2">
+                        <label className="block mb-1">Tipo de publicación</label>
+                        <select
+                            {...register("postTypeId", { valueAsNumber: true })}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                        >
+                            <option value={0}>Seleccione un tipo</option>
+                            {postTypes.map((type) => (
+                                <option key={type.id} value={type.id}>{type.name}</option>
+                            ))}
+                        </select>
+                        {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
+                    </div>
 
                     {/* Título */}
-                    <label className="block text-sm font-medium">Título <span className="text-red-500">*</span></label>
-                    <input
-                        type="text"
-                        {...register("title")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.title ? 'border-red-500' : ''}`}
-                    />
-                    {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    <div className="mb-2">
+                        <label className="block mb-1">Título <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            {...register("title")}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                        />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+                    </div>
 
                     {/* Tags (MultiSelect) */}
-                    <label className="block text-sm font-medium">Tags</label>
-                    <MultiSelect
-                        options={filteredTags} // <-- Usa los tags filtrados
-                        selected={selectedTags}
-                        onChange={(selected) => {
-                            setSelectedTags(selected);
-                            setValue("tagIds", selected.map((animal) => animal.id));
-                        }}
-                        placeholder="Seleccionar tags"
-                    />
-                    {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
+                    <div className="mb-2">
+                        <label className="block mb-1">Tags</label>
+                        <MultiSelect
+                            options={filteredTags}
+                            selected={selectedTags}
+                            onChange={(selected) => {
+                                setSelectedTags(selected);
+                                setValue("tagIds", selected.map((animal) => animal.id));
+                            }}
+                            placeholder="Seleccionar tags"
+                        />
+                        {errors.tagIds && <p className="text-red-500 text-sm">{errors.tagIds.message}</p>}
+                    </div>
 
                     {/* Descripción */}
-                    <label className="block text-sm font-medium">Descripción <span className="text-red-500">*</span></label>
-                    <textarea
-                        {...register("content")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                    />
-                    {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    <div className="mb-2">
+                        <label className="block mb-1">Descripción <span className="text-red-500">*</span></label>
+                        <textarea
+                            {...register("content")}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                        />
+                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
+                    </div>
 
                     {/* Contacto */}
-                    <label className="block text-sm font-medium">Número de contacto <span className="text-red-500">*</span></label>
-                    <input
-                        type="text"
-                        {...register("contactNumber")}
-                        className={`w-full p-2 border rounded mb-4 ${errors.contactNumber ? 'border-red-500' : ''}`}
-                    />
-                    {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-
-                    {/* Mapa */}
-                    <div
-                        className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
-                    >
-                        <MapWithNoSSR position={position} setPosition={handlePositionChange} />
+                    <div className="mb-2">
+                        <label className="block mb-1">Número de contacto <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            {...register("contactNumber")}
+                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
+                    </div>                    {/* Mapa */}
+                    <div className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+                        <CreatePostLocation 
+                            position={position} 
+                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                            error={errors.locationCoordinates}
+                        />
                     </div>
-                    {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
                     <div className="flex justify-between items-center mt-6 gap-10">
                         <Button
@@ -536,8 +606,8 @@ export default function Page() {
                             <Button
                                 type="submit"
                                 variant="cta"
-                                className={`rounded ${selectedTags.length >= MAX_IMAGES ? "bg-gray-400" : "hover:bg-purple-700"}`}
-                                disabled={loading || selectedTags.length >= MAX_IMAGES}
+                                className="rounded hover:bg-purple-700"
+                                disabled={loading}
                             >
                                 {loading ? "Editando..." : "Confirmar cambios"}
                             </Button>

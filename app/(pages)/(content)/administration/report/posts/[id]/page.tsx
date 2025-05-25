@@ -11,6 +11,7 @@ import { Post } from "@/types/post";
 import NotFound from "@/app/not-found";
 import Loading from "@/app/loading";
 import { Alert } from "@material-tailwind/react";
+import { Check, X } from "lucide-react";
 import { ITEM_TYPE } from "@/types/constants";
 
 export default function ReportsPost() {
@@ -107,22 +108,36 @@ export default function ReportsPost() {
       />
 
       {/* Mensajes de feedback */}
-      <div className="w-full flex justify-end">
-        {successMessage && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-            <Alert color="green" onClose={() => setSuccessMessage("")}>
-              {successMessage}
-            </Alert>
-          </div>
-        )}
-        {errorMessage && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-auto">
-            <Alert color="red" onClose={() => setErrorMessage("")}>
-              {errorMessage}
-            </Alert>
-          </div>
-        )}
-      </div>
+      {successMessage && (
+        <Alert
+          open={true}
+          color="green"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: 100 },
+          }}
+          icon={<Check className="h-5 w-5" />}
+          onClose={() => setSuccessMessage("")}
+          className="fixed bottom-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{successMessage}</p>
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert
+          open={true}
+          color="red"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: 100 },
+          }}
+          icon={<X className="h-5 w-5" />}
+          onClose={() => setErrorMessage("")}
+          className="fixed bottom-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{errorMessage}</p>
+        </Alert>
+      )}
     </div>
   );
 }

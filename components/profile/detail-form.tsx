@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { User } from "@/types/auth";
 import { Post } from "@/types/post";
 import { UserProfile } from "@/types/user-profile";
-import { MapPin, PhoneIcon } from "lucide-react";
+import { MapPin, PhoneIcon, AlertTriangle } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   donateToCrowdfunding,
@@ -33,6 +33,15 @@ interface InputProps {
 }
 
 export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, validationErrors, setSuccessMessage, setErrorMessage }: InputProps) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [userProfile?.description]);
+
   const handleInputChange = (field: string, value: string) => {
     setUserProfile((prev) => (prev ? { ...prev, [field]: value } : null));
   };
@@ -70,11 +79,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
         setLoadingCrowd(true);
         if (isOwner && isActive) {
           const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
-          console.log(userAuth)
           setCrowdfunding(data.data[0]);
         } else {
           const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
-          console.log(userProfile)
           setCrowdfunding(data.data[0]);
         }
 
@@ -100,11 +107,9 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     let rawPhone = userProfile?.phoneNumber || "";
 
     // Limpia el número (quitar espacios, guiones, etc.)
-    rawPhone = rawPhone.replace(/\D/g, "");
-
-    // Si está vacío o tiene menos de 8 dígitos, muestra error
+    rawPhone = rawPhone.replace(/\D/g, "");    // Si está vacío o tiene menos de 8 dígitos, muestra error
     if (!rawPhone || rawPhone.length < 8) {
-      alert("Este usuario no tiene un número de teléfono válido para WhatsApp.");
+      setErrorMessage("Este usuario no tiene un número de teléfono válido para WhatsApp.");
       return;
     }
 
@@ -290,51 +295,78 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
         {/* Descripción */}
         <textarea
+          ref={textareaRef}
           disabled={isDisable}
           value={
             isDisable && !userProfile?.description
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`mt-2 text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-            } focus:outline-none w-full resize-none`}
+          className={`text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+            } focus:outline-none w-full resize-none overflow-hidden`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
+          style={{ minHeight: '60px' }}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
+        
         {/* Teléfono */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>
+        {(!isDisable || userProfile?.phoneNumber) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Teléfono</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
+              {isDisable && userProfile?.phoneNumber && <PhoneIcon className="text-gray-500" />}
+              <input
+                type="text"
+                disabled={isDisable}
+                value={userProfile?.phoneNumber ?? ""}
+                className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
+              />
+              {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
+            </div>
+          </>
         )}
-
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <PhoneIcon className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.phoneNumber ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
-          />
-          {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
-
-        </div>
-        {/* Direccion */}
-        {!isDisable && (
-          <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>
+        
+        {/* Dirección */}
+        {(!isDisable || userProfile?.address || userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+          <>
+            {!isDisable && <label className="text-gray-700 font-medium text-sm block mb-1">Dirección</label>}
+            <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full relative`}>
+              {isDisable && (userProfile?.address || userProfile?.neighborhoodName) && <MapPin className="text-gray-500" />}
+              <div className="flex flex-col w-full">
+                {isDisable ? (
+                  // Modo visualización
+                  <div className={`text-3xl text-gray-700`}>
+                    {userProfile?.address && (
+                      <p>{userProfile.address}</p>
+                    )}
+                    {(userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
+                      <p className="text-lg text-gray-500">
+                        {[
+                          userProfile.neighborhoodName,
+                          userProfile.districtName,
+                          userProfile.departmentName
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  // Modo edición
+                  <input
+                    type="text"
+                    disabled={isDisable}
+                    value={userProfile?.address ?? ""}
+                    className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
+                  />
+                )}
+                {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
+              </div>
+            </div>
+          </>
         )}
-        <div className={`flex ${isDisable ? "items-center gap-3" : "flex-col"} w-full`}>
-          {isDisable && <MapPin className="text-gray-500" />}
-          <input
-            type="text"
-            disabled={isDisable}
-            value={userProfile?.address ?? ""}
-            className={` text-foreground  text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
-              } focus:outline-none w-full`}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
-          />
-          {validationErrors.address && <p className="text-red-500 text-sm mt-1">{validationErrors.address}</p>}
-        </div>
 
         {renderCrowdfunding()}
 

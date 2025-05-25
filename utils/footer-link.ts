@@ -1,10 +1,13 @@
 // links para el footer
 
+import { getSupportEmailLink } from "./email-support-config";
+
 export const footerSections = [
     {
       title: "Ayuda",
       links: [
-        { name: "Preguntas frecuentes", path: "/faq" }
+        { name: "Preguntas frecuentes", path: "/faq" },
+        { name: "Contactar con soporte", path: getSupportEmailLink() }
       ],
     },
     {
