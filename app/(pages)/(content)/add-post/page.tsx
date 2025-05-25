@@ -63,10 +63,12 @@ export default function Page() {
         name: "postTypeId",
     });
 
-    const handlePositionChange = (newPosition: [number, number]) => {
+     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
-        setValue("locationCoordinates", newPosition);
-    };
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+        }
+    }, [setValue]);
 
 
     const handleEditorImageUpload = (mediaId: number) => {
