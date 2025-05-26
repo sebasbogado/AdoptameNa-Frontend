@@ -49,6 +49,10 @@ const ProductPage = () => {
     }
     fetchProducts();
   }, [])
+
+  const handleProductUpdate = (updatedProduct: Product) => {
+    setProduct(updatedProduct);
+  };
   
   if (loading) {
     return <Loading />;
@@ -61,7 +65,7 @@ const ProductPage = () => {
   return (
     <div>
       <div className="mt-6">
-        <ProductHeader product={product as Product} />
+        <ProductHeader product={product as Product} onProductUpdate={handleProductUpdate} />
         <ProductSpecification product={product as Product} />
         <div className="grid grid-cols-2 mb-2">
           <div>
