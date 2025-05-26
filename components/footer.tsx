@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
                         <ul className="decoration-transparent p-0 flex flex-col gap-1">
                             {section.links.map((link) => (
                                 <li key={link.name}>
-                                    <Link href={link.path} className="decoration-transparent">
+                                    <Link href={link.path} className="decoration-transparent" id={link.testId ? link.testId : undefined}>
                                         {link.name}
                                     </Link>
                                 </li>

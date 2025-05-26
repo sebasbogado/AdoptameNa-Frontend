@@ -7,7 +7,7 @@ export const footerSections = [
       title: "Ayuda",
       links: [
         { name: "Preguntas frecuentes", path: "/faq" },
-        { name: "Contactar con soporte", path: getSupportEmailLink() }
+        { name: "Contactar con soporte", path: getSupportEmailLink(), testId: "contact-to-support-link" }
       ],
     },
     {
