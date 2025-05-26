@@ -7,7 +7,6 @@ import { getCrowdfundings, deleteCrowdfunding, updateCrowdfundingStatus, rejectC
 import { Crowdfunding } from '@/types/crowfunding-type';
 import Pagination from '@/components/pagination';
 import { RequestCard } from '@/components/request/request-card';
-import { Alert } from "@material-tailwind/react";
 import { ConfirmationModal } from '@/components/form/modal';
 
 const STATUS_OPTIONS = [
@@ -93,21 +92,18 @@ export default function CrowfundingPage() {
         setIsDefinitiveDelete(false);
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         const crowdfunding = crowdfundings.find(c => c.id === id);
-        if (crowdfunding && crowdfunding.status !== 'CLOSED') {
-            setAlertInfo({ open: true, color: 'red', message: 'Solo puedes eliminar campañas que estén cerradas.' });
+        if (crowdfunding && (crowdfunding.status === 'ACTIVE' || crowdfunding.status === 'PENDING')) {
             return;
         }
         if (!authToken || id == null) return;
-        deleteCrowdfunding(authToken, id)
-            .then(() => {
-                setAlertInfo({ open: true, color: 'green', message: 'Colecta eliminada.' });
-                fetchCrowdfundings();
-            })
-            .catch(() => {
-                setAlertInfo({ open: true, color: 'red', message: 'Error al eliminar.' });
-            });
+        try {
+            await deleteCrowdfunding(authToken, id);
+            fetchCrowdfundings();
+        } catch (error) {
+            // Manejo de error opcional
+        }
     };
 
     const confirmRejectOrDelete = async () => {
@@ -141,18 +137,6 @@ export default function CrowfundingPage() {
         <div className="container mx-auto p-6">
             <h1 className="text-2xl font-semibold mb-2">Administración de Colectas</h1>
             <p className="text-gray-600 mb-6">Gestiona las campañas de colectas: aprobar, rechazar o eliminar.</p>
-
-            {alertInfo && (
-                <Alert
-                    open={alertInfo.open}
-                    color={alertInfo.color === 'green' ? 'green' : 'red'}
-                    onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-                    className="mb-4 fixed top-4 right-4 w-auto z-50"
-                    animate={{ mount: { y: 0 }, unmount: { y: -100 } }}
-                >
-                    {alertInfo.message}
-                </Alert>
-            )}
 
             <div className="mb-6 w-full sm:w-72">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
