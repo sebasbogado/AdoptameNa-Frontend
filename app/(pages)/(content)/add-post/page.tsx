@@ -323,7 +323,7 @@ export default function Page() {
             </div>
 
             {/* Card del formulario */}
-            <div className="relative z-10 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+            <div className="relative z-0 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
                 <div className="flex items-center gap-2 mb-16">
                     <button
                         type="button"
