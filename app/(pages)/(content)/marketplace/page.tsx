@@ -198,8 +198,8 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
-                <div className="mx-80 mb-4">
-                    <div className="flex flex-col col-span-1">
+                <div className="w-full max-w-lg mx-auto mb-4 px-2">
+                    <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
                         <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
                     </div>
