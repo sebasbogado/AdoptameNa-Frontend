@@ -178,6 +178,8 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
                   src={item.url} 
                   muted
                   loop
+                  autoPlay
+                  playsInline
                   controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
                   disablePictureInPicture
                   className="h-full w-full object-contain rounded-lg bg-black"
@@ -236,6 +238,8 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
                   src={item.url} 
                   muted
                   loop
+                  autoPlay
+                  playsInline
                   controlsList="nodownload noplaybackrate noremoteplayback nofullscreen"
                   disablePictureInPicture
                   className="h-full w-full object-contain rounded-lg bg-black"
