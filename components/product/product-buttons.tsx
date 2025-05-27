@@ -15,16 +15,18 @@ export function ProductButtons({ product, onProductUpdate }: { product: any, onP
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    if (!product || !authToken) return;
+    if (!product) return;
     try {
-      await shareProduct(String(product.id), authToken);
+      if (authToken) {
+        await shareProduct(String(product.id), authToken);
+        const updatedProduct = {
+          ...product,
+          sharedCounter: (product.sharedCounter || 0) + 1
+        };
+        if (onProductUpdate) onProductUpdate(updatedProduct);
+      }
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      const updatedProduct = {
-        ...product,
-        sharedCounter: (product.sharedCounter || 0) + 1
-      };
-      if (onProductUpdate) onProductUpdate(updatedProduct);
       setTimeout(() => setCopied(false), 3000);
     } catch (error) {
       console.error("Error sharing product:", error);
