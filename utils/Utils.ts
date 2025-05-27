@@ -67,28 +67,26 @@ export const getAge = (birthdate: string): string => {
   const currentMonth = today.getUTCMonth() + 1;
   const currentDay = today.getUTCDate();
 
-  // Check if the person was born in the current year
-  if (currentYear - birthYear === 0) {
+  const yearDiff = currentYear - birthYear;
+
+  // Check if the pet is less than 1 year old (before first birthday)
+  if (yearDiff === 0 || (yearDiff === 1 && (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)))) {
     // Calculate total months
-    let totalMonths = currentMonth - birthMonth;
+    let totalMonths = (yearDiff * 12) + currentMonth - birthMonth;
     
     // Adjust if current day is before birth day
     if (currentDay < birthDay) {
       totalMonths--;
     }
 
-    // Ensure non-negative months
-    totalMonths = Math.max(0, totalMonths);
-
-    // Return empty string if totalMonths is 0
-    if (totalMonths === 0) {
+    if (totalMonths <= 0) {
       return "Peque";
     }
 
     return `${totalMonths} ${totalMonths === 1 ? 'mes' : 'meses'}`;
   } else {
     // Calculate years with month/day adjustment
-    let age = currentYear - birthYear;
+    let age = yearDiff;
 
     if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)) {
       age--;
