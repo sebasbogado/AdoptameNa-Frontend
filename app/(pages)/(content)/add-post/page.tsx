@@ -21,6 +21,7 @@ import UploadImages from "@/components/post/upload-images";
 import { FormData as FormDataPost } from "@/components/post/form-data";
 import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
 import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
+import { ChevronLeftIcon } from "lucide-react";
 
 export default function Page() {
     const {
@@ -331,9 +332,7 @@ export default function Page() {
                         onClick={() => router.push('/dashboard')}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                        </svg>
+                    <ChevronLeftIcon    className="w-6 h-6" />
                     </button>
                     <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
                 </div>
