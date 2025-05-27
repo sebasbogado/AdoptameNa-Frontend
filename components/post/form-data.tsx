@@ -143,7 +143,7 @@ export const FormData = ({ handleSubmit,
                     >
                         <CreatePostLocation 
                             position={position} 
-                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                            setPosition={handlePositionChange}
                             error={errors.locationCoordinates}
                         />
                     </div>
