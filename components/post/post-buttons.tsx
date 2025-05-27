@@ -21,6 +21,7 @@ import { Pet } from "@/types/pet";
 import { useParams, useRouter } from "next/navigation";
 import { AdoptionFormData } from "@/types/schemas/adoption-schema";
 import ChangeStatusModal from "@/components/change-status-modal";
+import { PetStatus } from "@/types/pet-status";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -28,9 +29,10 @@ interface PostButtonsProps {
     onShare?: () => void;
     postIdUser?: number; //id user owner
     sizeButton?: "xs" | "sm" | "md" | "lg";
+    petStatus?: PetStatus;
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, petStatus }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -53,6 +55,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
     const [menuOpen, setMenuOpen] = useState(false);
     const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
 
+    const isAdoptable = isPet && petStatus?.id === 4; //4 es el id de En Adopcion
 
     useEffect(() => {
         const checkIfPetIsMine = async () => {
@@ -159,14 +162,14 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
     };
     return (
         <div className=" gap-3 flex justify-end relative pr-12">
-            {isPet && !isMyPets && (
+            {isAdoptable && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
                 </Button>
             )}
-            
+
             {!isEditing && (
-            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
+                <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
             )}
             {isEditing && (
                 <div className="relative inline-block text-left">
@@ -225,7 +228,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
             )}
 
             <div className="relative">
-                <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
+                <SendButton size={sizeButton} onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
                         open={true}
