@@ -102,7 +102,7 @@ export default function CrowfundingPage() {
             await deleteCrowdfunding(authToken, id);
             fetchCrowdfundings();
         } catch (error) {
-            // Manejo de error opcional
+            setAlertInfo({ open: true, color: 'red', message: 'Error al eliminar la colecta.' });
         }
     };
 
