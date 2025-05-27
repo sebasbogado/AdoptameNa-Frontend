@@ -3,11 +3,22 @@
 import { Pet } from "@/types/pet";
 import { Post } from "@/types/post";
 import Link from "next/link";
-import PostsTags from "../petCard/tag";
-import { capitalizeFirstLetter, convertGenderToSpanish, getAge, getAnimalIcon, getColorGender, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
+import PostsTags from "../petCard/tag"; // Asegúrate que la ruta sea correcta
+import {
+    capitalizeFirstLetter,
+    convertGenderToSpanish,
+    getAge,
+    getAnimalIcon,
+    getColorGender,
+    getGenderIcon,
+    getPublicationTypeColor,
+    getSterilizedIcon,
+    getVaccinatedIcon
+} from "@/utils/Utils";
+
 interface PostHeaderProps {
     post?: Post;
-    pet?: Pet
+    pet?: Pet;
 }
 
 export const PostHeader = ({ post, pet }: PostHeaderProps) => {
@@ -25,73 +36,83 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                 return "bg-gray-300 text-black";
         }
     };
+
     return (
-        <div className="relative p-6 left-10 bg-white shadow-lg rounded-xl font-roboto z-50  mt-[-50px] w-[55vw]">
-            <div className="flex items-center gap-4">
-                <h1 className="text-5xl font-black">
+        <div className="relative p-4 md:p-6 bg-white shadow-lg rounded-xl font-roboto z-50 mt-[-50px] 
+                       w-[90vw] mx-auto md:w-[55vw] md:left-10 md:mx-0">
+            {/* Contenedor para título y etiqueta de estado */}
+            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4 mb-3 md:mb-2">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black break-words w-full md:w-auto">
                     {post?.title || pet?.name}
                 </h1>
                 {pet?.petStatus?.name && (
                     <span
-                        className={`${getStatusTagStyle(pet.petStatus.name)} text-lg font-semibold px-4 py-[10px] rounded-md leading-none flex items-center`}
+                        className={`${getStatusTagStyle(pet.petStatus.name)} 
+                                   text-sm md:text-lg font-semibold px-3 py-1.5 md:px-4 md:py-[10px] 
+                                   rounded-md leading-none flex items-center whitespace-nowrap`}
                     >
                         {pet.petStatus.name}
                     </span>
                 )}
             </div>
-            <div className="text-2xl text-gray-700">
-                {post ?
-                    <span className="text-xl">
-                        Publicado por <Link className="text-[#4781FF]" href={`/profile/${post.userId}`}>{post?.organizationName || post?.userFullName} </Link> el {new Date(post?.publicationDate).toLocaleDateString()}
+
+            {/* Contenedor para información de publicación o detalles de mascota */}
+            <div className="text-gray-700">
+                {post ? (
+                    <span className="text-sm md:text-xl">
+                        Publicado por <Link className="text-[#4781FF] hover:underline" href={`/profile/${post.userId}`}>{post?.organizationName || post?.userFullName}</Link> el {new Date(post?.publicationDate).toLocaleDateString()}
                         <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
-                    </span> :
-                    <div className="flex flex-center flex-col mt-2">
-                        <span className="text-xl">Publicado por <Link className="text-[#4781FF]" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName} </Link></span>
-                        <div className="mt-4 flex flex-wrap gap-3">
-                            <PostsTags
-                                postType={getPublicationTypeColor((pet as Pet).petStatus.name)}
-                                iconType={getAnimalIcon((pet as Pet).animal.name)}
-                                value={capitalizeFirstLetter((pet as Pet).animal.name)}
-                                large
-                            />
-
-                            <PostsTags
-                                postType={getColorGender((pet as Pet).gender)}
-                                iconType={getGenderIcon((pet as Pet).gender)}
-                                value={convertGenderToSpanish((pet as Pet).gender)}
-                                large
-                            />
-
-                            {(pet as Pet).isSterilized &&
-                                <PostsTags
-                                    postType={getPublicationTypeColor((pet as Pet).petStatus.name)}
-                                    iconType={getSterilizedIcon((pet as Pet).isSterilized)}
-                                    value={(pet as Pet).isVaccinated ? "Esterilizado" : ""}
-                                    large
-                                />
-                            }
-
-                            {(pet as Pet).isVaccinated &&
-                                <PostsTags
-                                    postType={getPublicationTypeColor((pet as Pet).petStatus.name)}
-                                    iconType={getVaccinatedIcon((pet as Pet).isVaccinated)}
-                                    value={(pet as Pet).isVaccinated ? "Vacunado" : ""}
-                                    large
-                                />
-                            }
-
-                            {(pet as Pet).birthdate &&
-                                <PostsTags
-                                    postType={getPublicationTypeColor((pet as Pet).petStatus.name)}
-                                    iconType="age"
-                                    value={getAge((pet as Pet).birthdate)} 
-                                    large
-                                />
-                            }
+                    </span>
+                ) : (
+                    <div className="flex flex-col items-start mt-1 md:mt-2">
+                        <span className="text-sm md:text-xl mb-2 md:mb-0">
+                            Publicado por <Link className="text-[#4781FF] hover:underline" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName}</Link>
+                        </span>
+                        <div className="mt-2 md:mt-4 flex flex-wrap gap-2 md:gap-3">
+                            {pet && ( // Añadido chequeo para asegurar que pet existe antes de acceder a sus propiedades
+                                <>
+                                    <PostsTags
+                                        postType={getPublicationTypeColor(pet.petStatus.name)}
+                                        iconType={getAnimalIcon(pet.animal.name)}
+                                        value={capitalizeFirstLetter(pet.animal.name)}
+                                        large
+                                    />
+                                    <PostsTags
+                                        postType={getColorGender(pet.gender)}
+                                        iconType={getGenderIcon(pet.gender)}
+                                        value={convertGenderToSpanish(pet.gender)}
+                                        large
+                                    />
+                                    {pet.isSterilized &&
+                                        <PostsTags
+                                            postType={getPublicationTypeColor(pet.petStatus.name)}
+                                            iconType={getSterilizedIcon(pet.isSterilized)}
+                                            value={pet.isSterilized ? "Esterilizado" : ""} // Simplificado, aunque isSterilized ya es true
+                                            large
+                                        />
+                                    }
+                                    {pet.isVaccinated &&
+                                        <PostsTags
+                                            postType={getPublicationTypeColor(pet.petStatus.name)}
+                                            iconType={getVaccinatedIcon(pet.isVaccinated)}
+                                            value={pet.isVaccinated ? "Vacunado" : ""} // Simplificado
+                                            large
+                                        />
+                                    }
+                                    {pet.birthdate &&
+                                        <PostsTags
+                                            postType={getPublicationTypeColor(pet.petStatus.name)}
+                                            iconType="age"
+                                            value={getAge(pet.birthdate)}
+                                            large
+                                        />
+                                    }
+                                </>
+                            )}
                         </div>
                     </div>
-                }
+                )}
             </div>
-        </div >
+        </div>
     );
 };
