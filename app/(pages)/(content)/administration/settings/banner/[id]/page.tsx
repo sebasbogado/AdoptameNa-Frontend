@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Alert } from '@material-tailwind/react';
+import { ArrowLeft, Loader2, X } from 'lucide-react';
 import { getBannerById } from '@/utils/banner.http';
 import { useAuth } from '@/contexts/auth-context';
 import Loading from '@/app/loading';
@@ -13,34 +14,36 @@ import BannerForm from '@/components/banner/banner-form';
 export default function EditBannerPage() {
     const { authToken, loading: userloading } = useAuth();
     const router = useRouter();
-
-    if (userloading) return <Loading />;
-    if (!authToken) {
-        router.push('/login');
-        return <Loading />;
-    }
-
-    const params = useParams();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [banner, setBanner] = useState<Banner | null>(null);
     const [loading, setLoading] = useState(true);
+    const params = useParams();
     const bannerId = params.id as string;
 
     useEffect(() => {
+        if (!authToken) return;
+        
         const fetchBanner = async () => {
             try {
                 const data = await getBannerById(bannerId, authToken);
                 setBanner(data);
             } catch (error) {
                 console.error('Error al cargar el banner:', error);
-                alert('Error al cargar el banner. Por favor, inténtalo de nuevo.');
-                router.push('/administration/settings/banner');
+                setErrorMessage('Error al cargar el banner. Por favor, inténtalo de nuevo.');
+                setTimeout(() => router.push('/administration/settings/banner'), 3000);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchBanner();
-    }, [bannerId, router]);
+    }, [bannerId, router, authToken]);
+
+    if (userloading) return <Loading />;
+    if (!authToken) {
+        router.push('/login');
+        return <Loading />;
+    }
 
     if (loading) {
         return (
@@ -53,6 +56,22 @@ export default function EditBannerPage() {
 
     return (
         <div className="space-y-6">
+            {errorMessage && (
+                <Alert
+                    open={true}
+                    color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
+                    onClose={() => setErrorMessage(null)}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{errorMessage}</p>
+                </Alert>
+            )}
+
             <div className="flex items-center gap-4">
                 <Link href="/administration/settings/banner">
                     <button className="p-2 rounded-md hover:bg-gray-100">

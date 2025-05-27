@@ -11,6 +11,7 @@ import { addFavorite, deleteFavorite } from '@/utils/favorites-posts.http';
 import { useAuth } from '@/contexts/auth-context';
 import { useFavorites } from '@/contexts/favorites-context';
 import { Favorites } from '@/types/favorites';
+import { getAnimalIcon } from '@/utils/Utils';
 
 interface BlogCardProps {
   post: Post;
@@ -94,7 +95,7 @@ className={`relative flex flex-col md:flex-row bg-white shadow-[0_0_10px_rgba(0,
           <PostsTags
             key={tag.id || idx}
             postType={post.postType?.name || 'Blog'}
-            iconType="race"
+            iconType={getAnimalIcon(tag.name)}
             value={tag.name}
           />
         ))}

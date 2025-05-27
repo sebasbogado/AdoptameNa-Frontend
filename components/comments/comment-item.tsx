@@ -7,6 +7,7 @@ import { UserAvatar } from "../ui/user-avatar";
 import { Comment } from "@/types/comment";
 import { Alert } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
+import { X } from 'lucide-react';
 import { formatTimeAgo } from "@/utils/date-format";
 
 interface CommentItemProps {
@@ -59,6 +60,7 @@ export function CommentItem({
 
     const routeUserProfile = () => {
         router.push(`/profile/${comment.user.id}`);
+
     };
 
     const isCurrentUserComment = currentUser && comment.user.id === currentUser.id;
@@ -177,14 +179,19 @@ export function CommentItem({
                     </div>
                 )}
             </div>
-
             {showAlert && (
                 <Alert
+                    open={true}
                     color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
                     onClose={() => setShowAlert(false)}
-                    className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
                 >
-                    Debes estar logueado para dar like, reportar o responder.
+                    <p className="text-sm">Debes estar logueado para dar like, reportar o responder.</p>
                 </Alert>
             )}
         </div>
