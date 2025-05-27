@@ -13,13 +13,13 @@ import { useCallback, useEffect, useState } from "react";
 import { X } from 'lucide-react';
 import { getAnimals } from "@/utils/animals.http";
 import LabeledInput from "@/components/inputs/labeled-input";
-import Link from "next/link";
 import SearchBar from "@/components/search-bar";
 import { useDebounce } from '@/hooks/use-debounce';
 import { useAuth } from "@/contexts/auth-context";
 import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { capitalizeFirstLetter } from "@/utils/Utils";
+import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 
 export default function Page() {
     const { user } = useAuth();
@@ -198,8 +198,8 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
-                <div className="mx-80 mb-4">
-                    <div className="flex flex-col col-span-1">
+                <div className="w-full max-w-lg mx-auto mb-4 px-2">
+                    <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
                         <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
                     </div>
@@ -289,20 +289,14 @@ export default function Page() {
                 )}
             </div>
 
+            <FloatingActionButton />
+
             <Pagination
                 totalPages={totalPages}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
                 size="md"
             />
-            <Link href="/add-product">
-                <div className="fixed bottom-5 right-5 z-10">
-                    <button className="group flex items-center gap-2 bg-[#FFAE34] text-white px-4 py-2 rounded-full shadow-lg hover:px-6 transition-all duration-500">
-                        <span className="text-lg transition-all duration-500 group-hover:hidden">+</span>
-                        <span className="hidden group-hover:inline transition-all duration-500">+ Crear publicación</span>
-                    </button>
-                </div>
-            </Link>
         </div>
     );
 }
