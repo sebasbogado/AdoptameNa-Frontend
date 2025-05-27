@@ -27,7 +27,7 @@ import { CreatePostLocation } from "@/components/post/create-post-location";
 
 export default function Page() {
 
-  const { authToken, user, loading: authLoading } = useAuth();
+  const { authToken, user, loading: authLoading, } = useAuth();
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [breed, setBreed] = useState<Breed[]>([]);
   const [petsStatus, setPetsStatus] = useState<PetStatus[]>([]);
@@ -182,15 +182,19 @@ export default function Page() {
   };
 
   const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
-        setPosition(newPosition);
-        if (newPosition) {
-            setValue("addressCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
-        }
-    }, [setValue]);
+    setPosition(newPosition);
+    if (newPosition) {
+      setValue("addressCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [setValue]);
   useEffect(() => {
-    if (authLoading || !authToken || !user?.id) return;
-    console.log("authLoading", authLoading);
-  }, [authToken, authLoading, user?.id]);
+    if (!authLoading && (!authToken || !user?.id)) {
+      // Usuario no logueado, guardar redirección actual
+      sessionStorage.setItem("redirectTo", window.location.pathname);
+      router.push("/auth/login");
+    }
+  }, [authLoading, authToken, user?.id, router]);
+
 
   const confirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,7 +246,7 @@ export default function Page() {
         style={{
           backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',          
+          backgroundPosition: 'center',
         }}
       >
         <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
@@ -433,18 +437,18 @@ export default function Page() {
               {/* Género */}
               <div className="flex gap-4 items-center mb-2">
                 <div className="flex gap-2">
-                <input type="radio" value="MALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
-                <label>Macho</label>
+                  <input type="radio" value="MALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
+                  <label>Macho</label>
                 </div>
                 <div className="flex gap-2">
-                <input type="radio" value="FEMALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
-                <label>Hembra</label>
+                  <input type="radio" value="FEMALE" className="focus:ring-2 focus:ring-[#9747FF]" {...register("gender")} />
+                  <label>Hembra</label>
                 </div>
               </div>
 
               {/* isVaccinated */}
               <div className="flex gap-2 items-center mb-2">
-              <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isVaccinated")} />
+                <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isVaccinated")} />
                 <label>Está desparasitado</label>
                 {errors.isVaccinated && <p className="text-red-500">{errors.isVaccinated.message}</p>}
               </div>
