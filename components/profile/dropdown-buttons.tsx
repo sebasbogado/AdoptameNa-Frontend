@@ -1,8 +1,10 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Button from "../buttons/button";
 import { UserProfile } from "@/types/user-profile";
-import { MailIcon, PhoneIcon } from "lucide-react";
+import { MailIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import DirectMessageButton from "../chat/direct-message-button";
+
+
 
 interface Props {
   variant?: "primary" | "secondary" | "danger" | "tertiary" | "action" | "cta";
@@ -11,6 +13,7 @@ interface Props {
   handleContactClick: () => void;
   handleWhatsAppClick: () => void;
   userProfile: UserProfile | null;
+  isLoggedIn: boolean;
 }
 
 export const DropdownMenuButtons: React.FC<Props> = ({
@@ -20,6 +23,7 @@ export const DropdownMenuButtons: React.FC<Props> = ({
   handleContactClick,
   handleWhatsAppClick,
   userProfile,
+  isLoggedIn,
 }: Props) => {
   return (
     <DropdownMenu.Root>
@@ -78,13 +82,30 @@ export const DropdownMenuButtons: React.FC<Props> = ({
             </span>
           </button>
         </DropdownMenu.Item>
-        {userProfile?.id && (
-          <DirectMessageButton
-            userId={userProfile.id}
-            userName={userProfile.fullName}
-            userEmail={userProfile.email}
-          />
-        )}
+        <DropdownMenu.Item asChild>
+          {userProfile ? (
+            isLoggedIn ? (
+              <DirectMessageButton
+                userId={userProfile.id}
+                userName={userProfile.fullName}
+                userEmail={userProfile.email}
+              />
+            ) : (
+              <button
+                disabled
+                className="flex items-center gap-x-2 w-full px-3 py-2 rounded-md 
+          opacity-50 cursor-not-allowed text-gray-500 bg-gray-100 w-full text-left"
+              >
+                <MessageCircleIcon />
+                <span className="text-sm font-medium">
+                  Debe estar logueado para enviar mensaje
+                </span>
+              </button>
+            )
+          ) : (
+            <div className="text-sm text-gray-400 px-3 py-2">Cargando perfil...</div>
+          )}
+        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

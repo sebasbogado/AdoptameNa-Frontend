@@ -153,6 +153,7 @@ export default function ProfilePage() {
         marketplacePosts: false,
     });
     const [marketplacePosts, setMarketplacePosts] = useState<Product[]>([]);
+    const isLoggedIn = !!userAuth?.id;
 
     const handleContactClick = () => {
 
@@ -282,7 +283,7 @@ export default function ProfilePage() {
 
                     <div className=" relative md:top-[-20rem]  lg:top-[-12rem] mr-16  flex justify-end gap-2 items-center ">
                         <ReportButton size="lg" />
-                        <DropdownMenuButtons variant='cta' size='lg' handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
+                        <DropdownMenuButtons variant='cta' size='lg' handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} isLoggedIn={isLoggedIn} />
                         <MenuButton size="lg" />
                     </div>
 

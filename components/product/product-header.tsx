@@ -14,8 +14,10 @@ interface ProductHeaderProps {
 }
 
 export const ProductHeader = ({ product, userProfile }: ProductHeaderProps) => {
+  const { user: userAuth } = useAuth();
   const { user } = useAuth();
   const isOwner = user?.id === product?.userId;
+  const isLoggedIn = !!userAuth?.id;
 
   const handleWhatsAppClick = () => {
     const url = `https://api.whatsapp.com/send?phone=${userProfile.phoneNumber}&text=${encodeURIComponent("Hola, estoy interesado en tu producto")}`;
@@ -23,7 +25,6 @@ export const ProductHeader = ({ product, userProfile }: ProductHeaderProps) => {
   };
 
   const handleContactClick = () => {
-
     const destinatario = userProfile?.email;
     const asunto = "Consulta desde Adoptamena";
     const mensaje = "Hola, tengo una consulta sobre...";
@@ -44,7 +45,7 @@ export const ProductHeader = ({ product, userProfile }: ProductHeaderProps) => {
       </div>
       <div className="gap-3 flex justify-end">
         {!isOwner && (
-          <DropdownMenuButtons variant="cta" size="md" className="mt-4" handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} />
+          <DropdownMenuButtons variant="cta" size="md" className="mt-4" handleContactClick={handleContactClick} handleWhatsAppClick={handleWhatsAppClick} userProfile={userProfile} isLoggedIn={isLoggedIn} />
         )}
         <ReportButton size="md" idProduct={product?.id.toString()} className="mt-4" />
         {isOwner && (
