@@ -331,6 +331,7 @@ export default function ProfilePage() {
                     <Section
                         title="Mis Mascotas"
                         itemType="pet"
+                        postTypeName="Adopcion"
                         path={`/profile/my-pets/${user.id}`}
                         items={pets}
                         loading={loading}
