@@ -104,13 +104,8 @@ export default function RegularUsersPage() {
 
             // 2) Llamar a updateUser manteniendo TODO igual excepto el role
             await updateUser(authToken, u.id, {
-                email: existing.email,
-                creationDate: existing.creationDate,
-                role: newRole,                    // <-- sólo cambia el rol
-                isVerified: existing.isVerified,
-                unreadMessagesCount: existing.unreadMessagesCount ?? 0,
-                name: existing.fullName,
-                online: existing.online ?? false,
+                ...existing, // copia todo lo que tenga el usuario actual
+                role: newRole, // sobreescribe solo el campo 'role'
             });
 
             // 3) Refrescar / notificar éxito

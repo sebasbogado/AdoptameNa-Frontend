@@ -57,15 +57,7 @@ export const deleteUser = async (token: string, id: number) => {
 export const updateUser = async (
   token: string,
   id: number,
-  userData: {
-    email: string;
-    creationDate: string;
-    role: string;
-    isVerified: boolean;
-    unreadMessagesCount: number;
-    name: string;
-    online: boolean;
-  }
+  userData: UserResponse
 ) => {
   try {
     const { data } = await axios.put(
@@ -80,6 +72,10 @@ export const updateUser = async (
     );
     return data;
   } catch (error: any) {
-    throw new Error(error.response?.data?.message || error.message || "Error al actualizar el usuario");
+    throw new Error(
+      error.response?.data?.message ||
+      error.message ||
+      "Error al actualizar el usuario"
+    );
   }
 };
