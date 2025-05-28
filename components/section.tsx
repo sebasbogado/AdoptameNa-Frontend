@@ -4,9 +4,7 @@ import Title from "./title";
 import { titleText } from "../types/title"
 import { Post } from "@/types/post";
 import { Pet } from "@/types/pet";
-import AddPet from "./buttons/add-pet";
-import AddPost from "./buttons/add-post";
-import AddProduct from "./buttons/add-product";
+import AddCardButton from "./buttons/add-card-button";
 import { usePathname } from "next/navigation";
 import { Product } from "@/types/product";
 import ProductCard from "./product-Card/product-card";
@@ -109,24 +107,20 @@ export function Section({ title, postTypeName, path, items, loading, error, item
                             "
                         >
                             {items.map((item) => {
-                                if (itemType === "post") {
-                                    return <PetCard post={item} isPost key={item.id} />;
-                                } else if (itemType === "pet") {
-                                    return <PetCard post={item} key={item.id} />;
-                                } else if (itemType === "product") {
-                                    return <ProductCard product={item as Product} key={item.id} />;
+                                switch (itemType) {
+                                    case "post":
+                                        return <PetCard post={item as Post} isPost key={item.id} />;
+                                    case "pet":
+                                        return <PetCard post={item as Pet} key={item.id} />;
+                                    case "product":
+                                        return <ProductCard product={item as Product} key={item.id} />;
+                                    default:
+                                        return null;
                                 }
-                                return null;
                             })}
 
-                            {insertAddButton && (
-                                itemType === "pet" ? (
-                                    <AddPet className={addButtonColor} />
-                                ) : itemType === "post" ? (
-                                    <AddPost className={addButtonColor} />
-                                ) : itemType === "product" ? (
-                                    <AddProduct className={addButtonColor} />
-                                ) : null
+                            {insertAddButton && itemType && (
+                                <AddCardButton type={itemType} className={addButtonColor} />
                             )}
                         </div>
                     )}
