@@ -18,7 +18,7 @@ setValue: UseFormSetValue<PostFormValues>
   position: [number, number] | null;
   loading: boolean;
   handleCancel: () => void;
-  handlePositionChange: (pos: [number, number]) => void;
+  handlePositionChange: (pos: [number, number] | null) => void;
   closeModal: () => void;
   confirmSubmit: () => void;
     MAX_IMAGES: number;
