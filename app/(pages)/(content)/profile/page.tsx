@@ -259,12 +259,22 @@ export default function ProfilePage() {
     };
 
     useEffect(() => {
-        userProfile && setMedias(userProfile.media ?? [])
-    }, [userProfile?.media])
+        if (userProfile) {
+            setMedias(userProfile.media ?? []);
+        }
+    }, [userProfile?.media]);
+
     if (authLoading || loading) {
         return <Loading />;
     }
-    if (!user) return;
+
+    if (!user) {
+        if (typeof window !== "undefined") {
+            sessionStorage.setItem("redirectTo", window.location.pathname);
+        }
+        router.push("/auth/login");
+        return;
+      }
 
     const isOrganization = !!userProfile?.organizationName?.trim();
 

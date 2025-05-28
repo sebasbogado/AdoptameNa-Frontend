@@ -112,6 +112,7 @@ export default function Page() {
     };
     useEffect(() => {
         if (!authLoading && !authToken) {
+            sessionStorage.setItem("redirectTo", window.location.pathname);
             router.push("/auth/login");
         }
     }, [authToken, authLoading, router]);
