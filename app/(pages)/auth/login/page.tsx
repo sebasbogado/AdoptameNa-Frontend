@@ -160,6 +160,7 @@ export default function Login() {
               type="button"
               onClick={() => router.push("/dashboard")}
               className="w-full border border-gray-400 text-gray-600 py-3 rounded-xl bg-transparent hover:bg-gray-100"
+              id="init-w-login"
             >
               Seguir sin registrarse
             </button>
