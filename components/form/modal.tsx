@@ -37,6 +37,7 @@ export function ConfirmationModal({ isOpen, title, textConfirm, message, confirm
             size="md"
             className="border rounded text-gray-700 hover:bg-gray-100"
             onClick={onClose}
+            id="confirmation-button"
           >
             Cancelar
           </Button>
