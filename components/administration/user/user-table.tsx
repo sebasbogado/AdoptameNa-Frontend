@@ -2,7 +2,6 @@
 import { UserProfile } from "@/types/user-profile";
 import { Loader2, Trash2, UserCircle, ShieldUser } from "lucide-react";
 import Link from "next/link";
-import ChangeRoleModal from "@/components/administration/user/change-role-modal"
 
 interface Props {
   title: string;

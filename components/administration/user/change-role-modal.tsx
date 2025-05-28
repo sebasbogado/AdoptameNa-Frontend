@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Modal from "@/components/modal";
-import Button from "../../buttons/button";
+import Button from "@/components/buttons/button";
 
 interface ChangeRoleModalProps {
     isOpen: boolean;
     onClose: () => void;
     userFullName: string;
     userEmail: string;
-    currentRole: string;
-    roles: string[];
-    onSave: (newRole: string) => void;
+    currentRole: string; // "regular" o "admin"
+    roles: string[];      // ej. ["regular", "admin"]
+    onSave: (newRole: string) => void; // se llama al hacer clic en Guardar
 }
 
 const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
@@ -24,9 +24,7 @@ const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
     const [selectedRole, setSelectedRole] = useState<string>(currentRole);
 
     useEffect(() => {
-        if (isOpen) {
-            setSelectedRole(currentRole);
-        }
+        if (isOpen) setSelectedRole(currentRole);
     }, [isOpen, currentRole]);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -34,6 +32,10 @@ const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
         onSave(selectedRole);
         onClose();
     };
+
+    const mapDisplayRoleToDb = (displayRole: string) =>
+        displayRole === "admin" ? "admin" : "user";
+
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Editar rol de usuario">
@@ -67,9 +69,16 @@ const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
                     <Button variant="secondary" size="md" onClick={onClose} type="button">
                         Cancelar
                     </Button>
-                    <Button variant="cta" size="md" type="submit" disabled={selectedRole === currentRole}>
+                    <Button
+                        variant="cta"
+                        size="md"
+                        type="submit"
+                        disabled={mapDisplayRoleToDb(selectedRole) === currentRole}
+                        className={mapDisplayRoleToDb(selectedRole) === currentRole ? "opacity-50 cursor-not-allowed" : ""}
+                    >
                         Guardar
                     </Button>
+
                 </div>
             </form>
         </Modal>

@@ -28,7 +28,7 @@ export default function RegularUsersPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
     const pageSize = 10;
-    const [modalUser, setModalUser] = useState<UserProfile | null>(null);
+    const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
 
     if (loading) return <Loading />
@@ -98,20 +98,19 @@ export default function RegularUsersPage() {
     const handleUpdate = async (u: User, newRole: string) => {
         if (!authToken) return;
 
+        const newDbRole = newRole === "regular" ? "user" : "admin";
+
+        // Solo proceder si realmente cambia el rol
+        if (u.role === newDbRole) return;
+
         try {
-            // 1) Traer la info completa actual del usuario
             const existing = await getUser(String(u.id));
-
-            // 2) Llamar a updateUser manteniendo TODO igual excepto el role
             await updateUser(authToken, u.id, {
-                ...existing, // copia todo lo que tenga el usuario actual
-                role: newRole, // sobreescribe solo el campo 'role'
+                ...existing,
+                role: newDbRole,
             });
-
-            // 3) Refrescar / notificar éxito
             setSuccessMessage("Rol actualizado correctamente");
             setRefreshTrigger(x => x + 1);
-
         } catch (err: any) {
             console.error("Error al actualizar rol:", err);
             setErrorMessage(err.message || "Error al actualizar el usuario");
@@ -182,17 +181,17 @@ export default function RegularUsersPage() {
                 </div>
             </div>
 
-            {modalUser && (
-                <ChangeRoleModal
-                    isOpen={openModal}
-                    onClose={() => setOpenModal(false)}
-                    userFullName={modalUser.fullName}
-                    userEmail={modalUser.email}
-                    currentRole={modalUser.roleName}
-                    roles={["regular", "admin"]}
-                    onSave={(newRole: string) => handleUpdate(modalUser as User, newRole)}
-                />
-            )}
+            <ChangeRoleModal
+                isOpen={openModal}
+                onClose={() => setOpenModal(false)}
+                userFullName={modalUser?.fullName ?? ""}
+                userEmail={modalUser?.email ?? ""}
+                currentRole={modalUser?.role ?? "user"}
+                roles={["regular", "admin"]}
+                onSave={(newDisplayRole: string) =>
+                    handleUpdate(modalUser as User, newDisplayRole)
+                }
+            />
 
             <UserTable
                 title="Lista de Usuarios"
