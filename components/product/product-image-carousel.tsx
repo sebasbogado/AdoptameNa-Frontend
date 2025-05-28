@@ -154,7 +154,7 @@ export default function ProductImageCarousel({ media, className = "" }: ProductI
   }
 
   return (
-    <div className={`flex flex-col md:flex-row gap-4 px-6 ${className}`}>
+    <div className={`flex flex-col md:flex-row gap-4 w-full ${className}`}>
       {/* Miniaturas */}
       {mediaItems.length > 1 && (
         <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto gap-2 md:h-96 md:w-24 pb-2 md:pb-0 md:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
