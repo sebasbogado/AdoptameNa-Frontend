@@ -3,7 +3,7 @@ import Button from "../buttons/button";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
 import ForwardRefEditor from "../editor/forward-ref-editor";
 import { POST_TYPEID } from "@/types/constants";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import { CreatePostLocation } from "./create-post-location";
 
@@ -25,36 +25,62 @@ export const FormData = ({ handleSubmit,
     MAX_TAGS,
     MAX_IMAGES,
     control,
-    onEditorImageUpload
-    
+    onEditorImageUpload,
+    isEditMode,
+    openDeleteModal,
+    trigger
+
 
 }: FormDataProps) => {
     const postTypeId = watch("postTypeId");
     const editorContentRef = useRef('')
-    const [initialContent] = useState('') // Si necesitas contenido inicial
+    const content = watch("content");
 
-
-
+    const [initialContent, setInitialContent] = useState("");
+    const handleSubmitValid = async (e: React.FormEvent<HTMLFormElement>) => {
+                    e.preventDefault();
+                    if (postTypeId === POST_TYPEID.BLOG) {
+                        setValue("content", editorContentRef.current, { shouldValidate: true });
+                    }
+                    const isValid = await trigger(); // <- forza validación con los nuevos valores
+                    if (isValid) {
+                        handleSubmit(onSubmit)();
+                    }
+                }
+    useEffect(() => {
+        if (postTypeId === POST_TYPEID.BLOG && content) {
+            setInitialContent(content);
+            editorContentRef.current = content;
+        }
+    }, [postTypeId, content]);
     return (
         <>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 p-8">
-                {/* Tipo de publicación */}
-                <div className="flex flex-col gap-2">
-                    <label className="block">Tipo de publicación <span className="text-red-500">*</span></label>
-                    <select
-                        {...register("postTypeId", { valueAsNumber: true })}
-                        className={`w-fit p-2 border rounded mb-4 
+            <form
+                onSubmit= {handleSubmitValid}
+                className="flex flex-col gap-6 p-8"
+            >                {/* Tipo de publicación */}
+                <Controller
+                    name="postTypeId"
+                    control={control}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            value={field.value}
+                            className={`w-fit p-2 border rounded mb-4 
                             ${errors.postTypeId ? 'border-red-500' : ''} 
-                            ${watch("postTypeId") === 0 ? 'text-gray-500' : 'text-black'}`}
-                    >
-
-                        <option disabled value={0}>Seleccione un tipo</option>
-                        {postTypes.map((type) => (
-                            <option key={type.id} value={type.id}>{type.name}</option>
-                        ))}
-                    </select>
-                </div>
+                            ${field.value === 0 ? 'text-gray-500' : 'text-black'}`}
+                        >
+                            <option disabled value={0}>Seleccione un tipo</option>
+                            {postTypes.map((type) => (
+                                <option key={type.id} value={type.id}>
+                                    {type.name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
+                />
                 {errors.postTypeId && <p className="text-red-500">{errors.postTypeId.message}</p>}
 
                 {/* Tags (MultiSelect) */}
@@ -137,9 +163,10 @@ export const FormData = ({ handleSubmit,
                         {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
 
                     </div>
-                )}                {postTypeId !== POST_TYPEID.BLOG && (
+                )}
+                {postTypeId && postTypeId !== POST_TYPEID.BLOG && (
                     <div
-                        className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                        className={`h-full  transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                     >
                         <CreatePostLocation 
                             position={position} 
@@ -162,6 +189,16 @@ export const FormData = ({ handleSubmit,
                     <div className="flex gap-4">
                         <Button
                             type="button"
+                            variant="danger"
+                            size="md"
+                            className="rounded hover:bg-red-700"
+                            onClick={openDeleteModal}
+                            disabled={loading}
+                        >
+                            {loading ? 'Eliminando...' : 'Eliminar publicación'}
+                        </Button>
+                        <Button
+                            type="button"
                             variant="tertiary"
                             className="border rounded text-gray-700 hover:bg-gray-100"
                             onClick={handleCancel}
@@ -169,18 +206,20 @@ export const FormData = ({ handleSubmit,
                         >
                             Cancelar
                         </Button>
+                    
                         <Button
-                            onClick={() => {
-                                if(POST_TYPEID.BLOG === postTypeId){
-                                   setValue('content', editorContentRef.current)
-                                }
-                              
-                            }}
+                            type="submit"
                             variant="cta"
-                            className={`rounded ${selectedTags.length   >  MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
+                            className={`rounded ${selectedTags.length > MAX_TAGS ? "bg-gray-400" : "hover:bg-purple-700"}`}
                             disabled={loading || selectedTags.length > MAX_TAGS}
                         >
-                            {loading ? "Creando..." : "Crear publicación"}
+                            {isEditMode
+                                ? loading
+                                    ? "Editando..."
+                                    : "Editar publicación"
+                                : loading
+                                    ? "Creando..."
+                                    : "Crear publicación"}
                         </Button>
                     </div>
                 </div>
