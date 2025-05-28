@@ -32,7 +32,7 @@ export const postSchema = z.object({
     .max(MAX_TAGS, `Máximo ${MAX_TAGS} tags permitidos`)
     .optional(),
 }).superRefine((data, ctx) => {
-  // Si NO es blog, locationCoordinates es obligatorio y válido
+console.log("Validando POST:", data.postTypeId, POST_TYPEID.BLOG)
   if (data.postTypeId !== POST_TYPEID.BLOG) {
     if (!data.locationCoordinates) {
       ctx.addIssue({

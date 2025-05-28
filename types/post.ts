@@ -35,8 +35,8 @@ export interface UpdatePost {
   content: string;
   tagIds: number[];
   postTypeId: number;
-  locationCoordinates: string;
-  contactNumber: string;
+  locationCoordinates?: string;
+  contactNumber?: string;
   userId: number;
   mediaIds: number[];
 }
