@@ -30,6 +30,7 @@ export default function Page() {
         setValue,
         watch,
         control,
+        trigger,
         formState: { errors },
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
@@ -377,6 +378,7 @@ export default function Page() {
                     MAX_IMAGES={MAX_IMAGES}
                     MAX_TAGS={MAX_TAGS}
                     control={control}
+                    trigger = {trigger}
                 />
 
                 {isModalOpen &&

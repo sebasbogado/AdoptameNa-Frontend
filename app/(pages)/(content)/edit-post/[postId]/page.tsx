@@ -3,11 +3,13 @@
 import Loading from "@/app/loading";
 import { useAuth } from "@/contexts/auth-context";
 import { Post, UpdatePost } from "@/types/post";
+import { FormData as FormDataPost } from "@/components/post/form-data";
+
 import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
@@ -17,7 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert } from "@material-tailwind/react";
 import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle, ChevronLeftIcon } from "lucide-react";
 import { Media } from "@/types/media";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
@@ -25,6 +27,9 @@ import { Tags } from "@/types/tags";
 import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
 import { CreatePostLocation } from "@/components/post/create-post-location";
+import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
+import UploadImages from "@/components/post/upload-images";
+import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 
 // Map is imported via CreatePostLocation component
 
@@ -41,15 +46,17 @@ export default function Page() {
     const [loading, setLoading] = useState<boolean>(true);
     const [postError, setPostError] = useState<string | null>(null);
     const router = useRouter();
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [precautionMessage, setPrecautionMessage] = useState<string | null>(null);
-    const {
+ const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [precautionMessage, setPrecautionMessage] = useState("");
+        const {
         register,
         handleSubmit,  // Renombramos el handleSubmit de useForm
         setValue,
         reset,
         control,
+        watch,
+        trigger,
         formState: { errors }
     } = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
@@ -61,15 +68,17 @@ export default function Page() {
             contactNumber: "",
             mediaIds: [],
             tagIds: [],
+            
         }
     });
+    
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
 
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [selectedImages, setSelectedImages] = useState<ExtendedMedia[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const MAX_IMAGES = 5; //Tam max de imagenes
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [allTags, setAllTags] = useState<Tags[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
@@ -78,10 +87,7 @@ export default function Page() {
         name: "postTypeId", // El nombre del campo en tu formulario
     });
 
-    const handlePositionChange = useCallback((newPosition: [number, number]) => {
-        setPosition(newPosition);
-        setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
-    }, [setValue]);
+
 
     useEffect(() => {
         if (!authLoading && !authToken) {
@@ -98,7 +104,6 @@ export default function Page() {
         }
     }, [post, user?.id]);
 
-    // --- Carga de Datos Iniciales (Post, Tipos, Tags) ---
     useEffect(() => {
         const fetchInitialData = async () => {
             if (authLoading || !authToken || !user?.id || !postId) return;
@@ -142,7 +147,8 @@ export default function Page() {
 
                 // Usa reset para poblar eficientemente el formulario
                 reset({
-                    postTypeId: postData.postType?.id || 0,
+                      postTypeId: Number(postData.postType?.id) || 0,
+                    
                     title: postData.title || "",
                     content: postData.content || "",
                     locationCoordinates: initialCoords,
@@ -170,74 +176,13 @@ export default function Page() {
         };
 
         fetchInitialData();
-    }, [authToken, authLoading, user?.id, postId, router, reset]); // reset añadido como dependencia
-
-    const filteredTags = useMemo(() => {
-        if (!allTags || allTags.length === 0) {
-            return [];
+    }, [authToken, authLoading, user?.id, postId, router, reset]); 
+ const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+        setPosition(newPosition);
+        if (newPosition) {
+            setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
         }
-
-        // Siempre incluye los tags generales (postTypeId === 0)
-        const generalTags = allTags.filter(tag => tag.postTypeId === null);
-
-        // Incluye tags específicos si se selecciona un tipo (1 o 2)
-        let specificTags: Tags[] = [];
-        if (watchedPostTypeId === POST_TYPEID.BLOG || watchedPostTypeId === POST_TYPEID.VOLUNTEERING) {
-            specificTags = allTags.filter(tag => tag.postTypeId === watchedPostTypeId);
-        }
-
-        return [...generalTags, ...specificTags];
-
-    }, [allTags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
-
-    useEffect(() => {
-        if (!post || !user?.id) return;
-        if ((postError !== null) || (String(post.userId) !== String(user.id))) {
-            router.push("/");
-        }
-    }, [post, user?.id]);
-
-    if (authLoading) return Loading();
-    if (loading) return Loading();
-    if (!post) return NotFound();
-
-    const openConfirmationModalEdit = (data: PostFormValues) => {
-        setValidatedData(data); // Guardamos los datos validados
-        setIsEditModalOpen(true);
-    };
-
-    const onSubmit = (data: PostFormValues) => {
-        // 'data' aquí ya está validado por Zod
-        openConfirmationModalEdit(data); // Pasa los datos validados al modal/handler
-    };
-
-    const confirmSubmit = async () => {
-        setIsEditModalOpen(false);
-        if (!post || !authToken || !validatedData) return;
-
-        const updatedFormData = {
-            ...validatedData,
-            userId: Number(user?.id),
-            locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
-        };
-
-        setLoading(true);
-        try {
-            await updatePost(String(post.id), updatedFormData as UpdatePost, authToken);
-            setSuccessMessage('¡Publicación actualizada con éxito!');
-            setTimeout(() => {
-                router.push(`/posts/${post.id}`); // Redirige a la vista del post
-            }, 1500);
-        } catch (error) {
-            console.error('Error al actualizar la publicación', error);
-            setErrorMessage('Hubo un problema al actualizar la publicación.');
-        } finally {
-            setLoading(false);
-            setValidatedData(null); // Limpia los datos guardados
-        }
-    };
-
-    // --- Lógica de Eliminación ---
+    }, [setValue]);
     const openDeleteModal = () => setIsDeleteModalOpen(true);
 
     const handleDelete = async () => {
@@ -264,7 +209,7 @@ export default function Page() {
 
     // --- Otros Handlers ---
     const closeModal = () => {
-        setIsEditModalOpen(false);
+        setIsModalOpen(false);
         setIsDeleteModalOpen(false);
         setValidatedData(null); // Limpia datos si se cierra el modal de edición
     };
@@ -276,101 +221,45 @@ export default function Page() {
             router.push(`/posts/${post.id}`);
         }
     };
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || e.target.files.length === 0) return;
+    const openConfirmationModal = (data: PostFormValues) => {
         
-        const files = Array.from(e.target.files);
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/jpg",
-            "image/webp",
-            "video/mp4",
-            "video/webm",
-            "video/ogg",
-            "video/x-matroska",
-            "audio/mpeg"
-        ];
-        
-        // Verificar cantidad de archivos
-        if (selectedImages.length + files.length > MAX_IMAGES) {
-            setPrecautionMessage(`Solo puedes subir hasta ${MAX_IMAGES} archivos en total.`);
-            e.target.value = '';
-            return;
-        }
+          console.log("Datos validados:", data);
 
-        setLoading(true);
-        setErrorMessage(null);
-        setPrecautionMessage(null);
-
-        if (!authToken) {
-            setErrorMessage("Error de autenticación. Por favor, inicia sesión nuevamente.");
-            e.target.value = '';
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const uploadPromises = files.map(async (file) => {
-                // Validar tipo de archivo
-                if (!allowedTypes.includes(file.type)) {
-                    throw new Error(`Tipo de archivo no permitido: ${file.name}. Solo se permiten JPG, PNG, WEBP, MP4, WEBM, OGG, MKV y MP3.`);
-                }
-
-                // Verificar el tamaño del archivo (50MB para videos/audio, 5MB para imágenes)
-                const maxSize = file.type.startsWith('video/') || file.type.startsWith('audio/') 
-                    ? 50 * (1024 * 1024) 
-                    : 5 * (1024 * 1024);
-                if (file.size > maxSize) {
-                    const maxSizeMB = file.type.startsWith('video/') || file.type.startsWith('audio/') ? 50 : 5;
-                    throw new Error(`El archivo ${file.name} es demasiado grande. Tamaño máximo: ${maxSizeMB}MB.`);
-                }
-
-                const fileData = new FormData();
-                fileData.append("file", file);
-                return await postMedia(fileData, authToken);
-            });
-
-            const responses = await Promise.all(uploadPromises);
-            const successfulUploads = responses.filter(response => response !== null);
-            
-            if (successfulUploads.length > 0) {
-                const newSelectedImages = [...selectedImages, ...successfulUploads];
-                setSelectedImages(newSelectedImages);
-                const updatedMediaIds = newSelectedImages.map(img => img.id);
-                setValue("mediaIds", updatedMediaIds, { shouldValidate: true });
-                setSuccessMessage(`${successfulUploads.length} archivo(s) subido(s) correctamente.`);
-                setTimeout(() => setSuccessMessage(null), 2000);
-            }
-        } catch (error: any) {
-            console.error("Error al subir los archivos", error);
-            setErrorMessage(error.message || "Error al subir los archivos. Intenta nuevamente.");
-        } finally {
-            setLoading(false);
-            e.target.value = '';
-        }
+        setValidatedData(data); // Guardamos los datos validados
+        setIsModalOpen(true);
     };
+  const onSubmit = async (data: PostFormValues) => {
+  // Limpieza de campos para BLOG
+  if (data.postTypeId === POST_TYPEID.BLOG) {
+    data.contactNumber = undefined;
+    data.locationCoordinates = undefined;
+  }
 
+  console.log("Datos validados:", data);
+  const isValid = await trigger();
+  console.log("Errores actuales:", errors); // <-- aquí deberían mostrarse
+  openConfirmationModal(data);
+};
     const handleRemoveImage = async (index: number) => {
-        if (!authToken) return;
         const imageToRemove = selectedImages[index];
 
-        setLoading(true);
-        setErrorMessage(null);
+        if (!authToken) {
+             setErrorMessage("No se pudo obtener el token de authenticación!");
+
+            return;
+        }
 
         try {
-            await deleteMedia(imageToRemove.id, authToken);
+            setLoading(true);
+
+            if (imageToRemove.id) {
+                await deleteMedia(imageToRemove.id, authToken);
+            }
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
-            // Actualiza RHF con los IDs restantes
-            setValue("mediaIds", updatedImages.map(img => img.id), { shouldValidate: true, shouldDirty: true });
-            setSuccessMessage("Imagen eliminada.");
-            // Ajusta el índice de la imagen actual si se elimina la última o una anterior
-            if (currentImageIndex >= updatedImages.length) {
-                setCurrentImageIndex(Math.max(0, updatedImages.length - 1));
-            }
-            setTimeout(() => setSuccessMessage(null), 2000);
+            syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
+
+
         } catch (error) {
             console.error("Error al eliminar la imagen", error);
             setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
@@ -378,7 +267,147 @@ export default function Page() {
             setLoading(false);
         }
     };
+   const handleEditorImageUpload = (mediaId: number) => {
+        setEditorMediaIds(prev => {
+            if (prev.includes(mediaId)) return prev;
+            const next = [...prev, mediaId];
+            const combinedMediaIds = [
+                ...selectedImages.map(img => img.id),
+                ...next
+            ].filter((v, i, arr) => arr.indexOf(v) === i);
+            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
+            return next;
+        });
+    };
 
+const filteredTags = useMemo(() => {
+    if (!allTags || allTags.length === 0) return [];
+
+    const generalTags = allTags.filter(tag => tag.postTypeId === null);
+    const specificTags = allTags.filter(tag => tag.postTypeId === watchedPostTypeId);
+
+    return [...generalTags, ...specificTags];
+}, [allTags, watchedPostTypeId]);
+useEffect(() => {
+    const validSelectedTags = selectedTags.filter(selectedTag =>
+        filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
+    );
+
+    if (validSelectedTags.length !== selectedTags.length) {
+        setSelectedTags(validSelectedTags);
+        setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
+    }
+}, [filteredTags]);
+
+  const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
+        const combined = [
+            ...selectedImages.map(img => img.id),
+            ...editorMediaIds
+        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
+        setValue("mediaIds", combined, { shouldValidate: true });
+    }, [setValue]);
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            const fileData = new FormData();
+            fileData.append("file", file);
+
+            if (!authToken) {
+                throw new Error("El token de autenticación es requerido");
+            }
+            const schema = watchedPostTypeId === POST_TYPEID.BLOG ? blogFileSchema : fileSchema;
+            const result = schema.safeParse(file);
+
+            if (!result.success) {
+                setPrecautionMessage(result.error.errors[0].message);
+                return;
+            }
+            try {
+                setLoading(true);
+                const response = await postMedia(fileData, authToken);
+
+                if (response) {
+                    const newSelectedImages = [...selectedImages, response];
+                    setSelectedImages(newSelectedImages);
+                    syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
+                }
+            } catch (error) {
+                setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
+                console.error("Error al subir el archivo", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+const confirmSubmit = async () => {
+  if (!authToken || !user?.id || !validatedData || !post?.id) {
+    setPrecautionMessage("Faltan datos requeridos.");
+    return;
+  }
+
+  setIsModalOpen(false);
+  setLoading(true);
+
+  const isBlog = validatedData.postTypeId === POST_TYPEID.BLOG;
+
+  const updatedFormData: UpdatePost = {
+    userId: Number(user?.id),
+    title: validatedData.title,
+    content: validatedData.content,
+    tagIds: validatedData.tagIds || [],
+    postTypeId: validatedData.postTypeId,
+    mediaIds: validatedData.mediaIds || [],
+    ...(isBlog ? {} : {
+      locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
+  contactNumber: validatedData.contactNumber?.trim() || "",
+})
+  };
+
+  try {
+    const result = await updatePost(String(post.id), updatedFormData, authToken);
+    if (result) {
+      setSuccessMessage("Post actualizado exitosamente.");
+      router.push(`/posts/${post.id}`);
+    }
+  } catch (error) {
+    setErrorMessage("Error al actualizar la publicación.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+    const prevPostTypeId = useRef(watchedPostTypeId);
+    function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
+        const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
+        if (firstImage) return [firstImage];
+        if (images.length > 0) return [images[0]];
+        return [];
+    }
+useEffect(() => {
+        if (
+            prevPostTypeId.current !== undefined &&
+            prevPostTypeId.current !== watchedPostTypeId
+        ) {
+            if (watchedPostTypeId === POST_TYPEID.BLOG) {
+                if (selectedImages.length > MAX_BLOG_IMAGES) {
+                    const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
+                    setSelectedImages(limitedImages);
+                    setCurrentImageIndex(0);
+                    setValue(
+                        "mediaIds",
+                        limitedImages.map(img => img.id),
+                        { shouldValidate: true }
+                    );
+                    setPrecautionMessage(
+                        `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
+                    );
+                }
+            }
+            setValue("content", "");
+
+        }
+        prevPostTypeId.current = watchedPostTypeId;
+    }, [watchedPostTypeId, selectedImages, setValue]);
 
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
@@ -388,244 +417,82 @@ export default function Page() {
                 style={{
                     backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundPosition: 'center',          
                 }}
             >
                 <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
             </div>
 
             {/* Card del formulario */}
-            <div className="relative z-10 w-full max-w-5xl mx-auto px-24 py-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
+            <div className="relative z-0 w-full max-w-5xl mx-auto p-16 bg-white rounded-3xl shadow-lg overflow-y-auto my-24">
                 <div className="flex items-center gap-2 mb-16">
                     <button
                         type="button"
                         aria-label="Volver"
-                        onClick={() => router.push(`/posts/${postId}`)}
+                        onClick={() => router.push('/dashboard')}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                        </svg>
+                    <ChevronLeftIcon    className="w-6 h-6" />
                     </button>
-                    <h1 className="text-2xl font-bold text-text-primary">Editar publicación</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
                 </div>
+                <NewBanner
+                    medias={selectedImages}
+                />
+                    <UploadImages
+                    selectedImages={selectedImages}
+                    currentImageIndex={currentImageIndex}
+                    setCurrentImageIndex={setCurrentImageIndex}
+                    handleRemoveImage={handleRemoveImage}
+                    handleImageUpload={handleImageUpload}
+                    MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
+                    errorMessage={errorMessage}
+                    setErrorMessage={setErrorMessage}
+                    precautionMessage={precautionMessage}
+                    setPrecautionMessage={setPrecautionMessage}
+                    successMessage={successMessage}
+                    setSuccessMessage={setSuccessMessage}
+                    watch={watch}
+                />
 
-                <div className="w-full mb-8">
-                    <NewBanner medias={selectedImages} />
-                </div>
-                {successMessage && (
-                    <Alert
-                        open={true}
-                        color="green"
-                        animate={{
-                            mount: { y: 0 },
-                            unmount: { y: -100 },
-                        }}
-                        icon={<Check className="h-5 w-5" />}
-                        onClose={() => setSuccessMessage(null)}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
-                    >
-                        <p className="text-sm">{successMessage}</p>
-                    </Alert>
-                )}
-                {errorMessage && (
-                    <Alert
-                        open={true}
-                        color="red"
-                        animate={{
-                            mount: { y: 0 },
-                            unmount: { y: -100 },
-                        }}
-                        icon={<X className="h-5 w-5" />}
-                        onClose={() => setErrorMessage(null)}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
-                    >
-                        <p className="text-sm">{errorMessage}</p>
-                    </Alert>
-                )}
-                {precautionMessage && (
-                    <Alert
-                        open={true}
-                        color="amber"
-                        animate={{
-                            mount: { y: 0 },
-                            unmount: { y: -100 },
-                        }}
-                        icon={<AlertTriangle className="h-5 w-5" />}
-                        onClose={() => setPrecautionMessage(null)}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
-                    >
-                        <p className="text-sm">{precautionMessage}</p>
-                    </Alert>
-                )}
-
-                <div className="flex gap-2 mt-2 justify-center items-center">
-                    {selectedImages.map((src, index) => (
-                        <div key={index} className="relative w-[95px] h-[95px] cursor-pointer">
-                            {src.mimeType && src.mimeType.startsWith('image') ? (
-                                <Image
-                                    src={src.url}
-                                    alt="post-image"
-                                    fill
-                                    className={`object-cover rounded-md ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    unoptimized
-                                />
-                            ) : src.mimeType && src.mimeType.startsWith('video') ? (
-                                <video
-                                    src={src.url}
-                                    className={`object-cover rounded-md w-full h-full ${index === currentImageIndex ? 'border-2 border-blue-500' : ''}`}
-                                    onClick={() => setCurrentImageIndex(index)}
-                                    muted
-                                    playsInline
-                                    loop
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center w-full h-full bg-gray-200 rounded-md">
-                                    Archivo no soportado
-                                </div>
-                            )}
-                            <button
-                                onClick={() => handleRemoveImage(index)}
-                                className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-gray-700/60 text-white/80 text-xs hover:bg-red-600 hover:text-white transition-colors duration-150"
-                                title="Eliminar archivo"
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    ))}
-                    <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/jpg,image/webp,video/mp4,video/webm,video/ogg,video/x-matroska,audio/mpeg"
-                        multiple
-                        className="hidden"
-                        id="fileInput"
-                        onChange={handleImageUpload}
-                        disabled={selectedImages.length >= MAX_IMAGES}
-                    />
-                    <label
-                        htmlFor="fileInput"
-                        className={`cursor-pointer flex items-center justify-center w-24 h-24 rounded-lg border-2 transition ${selectedImages.length >= MAX_IMAGES ? "border-gray-400 cursor-not-allowed" : "border-blue-500 hover:border-blue-700"} bg-white`}
-                    >
-                        <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
-                    </label>
-                </div>
-
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 mt-8">
-                    {/* Tipo de publicación */}
-                    <div className="w-1/3 mb-2">
-                        <label className="block mb-1">Tipo de publicación</label>
-                        <select
-                            {...register("postTypeId", { valueAsNumber: true })}
-                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        >
-                            <option value={0}>Seleccione un tipo</option>
-                            {postTypes.map((type) => (
-                                <option key={type.id} value={type.id}>{type.name}</option>
-                            ))}
-                        </select>
-                        {errors.postTypeId && <p className="text-red-500 text-sm">{errors.postTypeId.message}</p>}
-                    </div>
-
-                    {/* Título */}
-                    <div className="mb-2">
-                        <label className="block mb-1">Título <span className="text-red-500">*</span></label>
-                        <input
-                            type="text"
-                            {...register("title")}
-                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                        {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-                    </div>
-
-                    {/* Tags (MultiSelect) */}
-                    <div className="mb-2">
-                        <label className="block mb-1">Tags</label>
-                        <MultiSelect
-                            options={filteredTags}
-                            selected={selectedTags}
-                            onChange={(selected) => {
-                                setSelectedTags(selected);
-                                setValue("tagIds", selected.map((animal) => animal.id));
-                            }}
-                            placeholder="Seleccionar tags"
-                        />
-                        {errors.tagIds && <p className="text-red-500 text-sm">{errors.tagIds.message}</p>}
-                    </div>
-
-                    {/* Descripción */}
-                    <div className="mb-2">
-                        <label className="block mb-1">Descripción <span className="text-red-500">*</span></label>
-                        <textarea
-                            {...register("content")}
-                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                        {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
-                    </div>
-
-                    {/* Contacto */}
-                    <div className="mb-2">
-                        <label className="block mb-1">Número de contacto <span className="text-red-500">*</span></label>
-                        <input
-                            type="text"
-                            {...register("contactNumber")}
-                            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF]"
-                        />
-                        {errors.contactNumber && <p className="text-red-500 text-sm">{errors.contactNumber.message}</p>}
-                    </div>                    {/* Mapa */}
-                    <div className={`h-full relative ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-                        <CreatePostLocation 
-                            position={position} 
-                            setPosition={(pos) => pos !== null && handlePositionChange(pos)}
-                            error={errors.locationCoordinates}
-                        />
-                    </div>
-
-                    <div className="flex justify-between items-center mt-6 gap-10">
-                        <Button
-                            type="button"
-                            variant="danger"
-                            size="md"
-                            className="rounded hover:bg-red-700"
-                            onClick={openDeleteModal}
-                            disabled={loading}
-                        >
-                            {loading ? 'Eliminando...' : 'Eliminar publicación'}
-                        </Button>
-
-                        <div className="flex gap-4">
-                            <Button
-                                type="button"
-                                variant="tertiary"
-                                className="border rounded text-gray-700 hover:bg-gray-100"
-                                onClick={handleCancel}
-                                disabled={loading}
-                            >
-                                Cancelar
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="cta"
-                                className="rounded hover:bg-purple-700"
-                                disabled={loading}
-                            >
-                                {loading ? "Editando..." : "Confirmar cambios"}
-                            </Button>
-                        </div>
-                    </div>
-                </form>
-
-                {isEditModalOpen &&
+                <FormDataPost
+                    onEditorImageUpload={handleEditorImageUpload}
+                    handleSubmit={handleSubmit}
+                    onSubmit={onSubmit}
+                    register={register}
+                    errors={errors}
+                    watch={watch}
+                    postTypes={postTypes}
+                    filteredTags={filteredTags}
+                    selectedTags={selectedTags}
+                    setSelectedTags={setSelectedTags}
+                    setValue={setValue}
+                    isModalOpen={isModalOpen}
+                    position={position}
+                    loading={loading}
+                    handleCancel={handleCancel}
+                    handlePositionChange={handlePositionChange}
+                    closeModal={closeModal}
+                    confirmSubmit={confirmSubmit}
+                    MAX_IMAGES={MAX_IMAGES}
+                    MAX_TAGS={MAX_TAGS}
+                    control={control}
+                    isEditMode={true}
+                    openDeleteModal={openDeleteModal}
+                    trigger = {trigger}
+                />
+            {isModalOpen &&
                     <ConfirmationModal
-                        isOpen={isEditModalOpen}
+                        isOpen={isModalOpen}
                         title="Confirmar cambios"
-                        message="¿Estás seguro de que deseas guardar los cambios en esta publicación?"
-                        textConfirm="Confirmar cambios"
+                        message="¿Estás seguro de que deseas editar esta publicación?"
+                        textConfirm="Confirmar"
                         confirmVariant="cta"
                         onClose={closeModal}
                         onConfirm={confirmSubmit}
-                    />}
-
+                    />
+                }
+               
                 {isDeleteModalOpen &&
                     <ConfirmationModal
                         isOpen={isDeleteModalOpen}
