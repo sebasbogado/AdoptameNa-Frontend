@@ -37,12 +37,14 @@ describe("Crear un post. ", () => {
       cy.get('.leaflet-container', { timeout: 10000 }).should('exist');
 
       // Hacer clic en coordenadas dentro del mapa
-      cy.get('.leaflet-container').click(300, 350);
+      cy.get('.leaflet-container').click(492, 277);
 
       // Verificar que se haya agregado un marcador
       cy.get('.leaflet-marker-icon').should('exist');
 
-      //cy.contains('button', 'Crear publicación').click();
+      cy.get('#crear-post').click();
+
+     // cy.get('#confirmation-button').click({ force: true });
 
 
     })})

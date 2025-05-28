@@ -92,6 +92,16 @@ describe("Pruebas de Login - TypeScript", () => {
       cy.get("@loginRequest.all").should("have.length", 0);
     });
   });
+
+  it("Deberia acceder al dashboard, haciendo  clic en el boton correspondiente.", () => {
+    cy.get("#init-w-login").click();
+
+    cy.wait(5000);
+
+    cy.url().should("include", "/dashboard");
+
+    
+  })
 /*
   it("TC-LGN-05: Login: Cuenta no verificada muestra mensaje especial", () => {
     cy.intercept(
