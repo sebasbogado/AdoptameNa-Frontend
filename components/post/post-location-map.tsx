@@ -22,8 +22,8 @@ const PostLocationMap = ({ location, isPreciseLocation: precisedLocation = false
         !isNaN(coordinates[1]);
 
     return (
-        <div className="mt-10 left-10 pl-12 text-gray-700">
-            <h2 className="text-4xl text-gray-800 mt-8">
+        <div className="mt-10 px-4 sm:px-12 text-gray-700">
+            <h2 className="text-2xl sm:text-4xl text-gray-800 mt-8">
                 Ubicación
             </h2>
             {validCoordinates ?
