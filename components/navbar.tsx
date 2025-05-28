@@ -30,20 +30,34 @@ export default function Navbar() {
 
     return (
         <header className="w-full border-b  bg-white">
-            <nav className="w-full flex h-16 items-center justify-between px-4 relative">
-                <Link href="/" className="flex items-center">
-                    <Image
-                        src="/logo.png"
-                        alt="Adoptamena logo"
-                        width={140}
-                        height={40}
-                        className="h-10 w-auto"
-                        priority
-                    />
-                </Link>
+            <nav className={`w-full h-16 items-center px-4 relative flex ${user ? 'justify-between md:justify-between' : 'justify-between'}`}>
+                {/* Botón hamburguesa solo en móvil y usuario logueado */}
+                {!isAdminPage && !isReceivedPage && user && (
+                    <button
+                        className="md:hidden p-2 absolute left-4 top-1/2 -translate-y-1/2"
+                        onClick={() => setMenuOpen((prev) => !prev)}
+                        aria-label="Abrir menú"
+                    >
+                        {menuOpen ? <CloseIcon className="w-7 h-7" /> : <MenuIcon className="w-7 h-7" />}
+                    </button>
+                )}
 
-                {/* Botón hamburguesa solo en móvil */}
-                {!isAdminPage && !isReceivedPage && (
+                {/* Logo centrado en móvil cuando el usuario está logueado */}
+                <div className={`${user ? 'flex-1 flex justify-center md:static md:justify-start md:flex-none' : ''}`}>
+                    <Link href="/" className="flex items-center">
+                        <Image
+                            src="/logo.png"
+                            alt="Adoptamena logo"
+                            width={140}
+                            height={40}
+                            className="h-10 w-auto"
+                            priority
+                        />
+                    </Link>
+                </div>
+
+                {/* Botón hamburguesa solo en móvil y usuario NO logueado */}
+                {!isAdminPage && !isReceivedPage && !user && (
                     <button
                         className="md:hidden p-2 ml-2"
                         onClick={() => setMenuOpen((prev) => !prev)}
@@ -71,7 +85,7 @@ export default function Navbar() {
 
                 {/* Enlaces de navegación en móvil (menú hamburguesa) */}
                 {!isAdminPage && !isReceivedPage && menuOpen && (
-                    <div className="absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start gap-2 px-4 py-4 z-30 md:hidden animate-fade-in">
+                    <div className="absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start gap-2 px-4 py-4 z-[100] md:hidden animate-fade-in">
                         {navbarItems.map(({ name, path }) => (
                             <Link
                                 key={path}
@@ -82,13 +96,30 @@ export default function Navbar() {
                                 {name}
                             </Link>
                         ))}
+                        {!user && (
+                            <div className="w-full flex flex-col gap-2 mt-4 items-center">
+                                <Link href="/auth/register" className="w-full max-w-xs">
+                                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition w-full">
+                                        Crear Cuenta
+                                    </button>
+                                </Link>
+                                <Link href="/auth/login" className="w-full max-w-xs">
+                                    <button className="bg-white text-blue-500 border border-blue-500 px-4 py-2 rounded-lg hover:bg-blue-100 transition w-full">
+                                        Iniciar Sesión
+                                    </button>
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 )}
 
+                {/* UserHeader siempre visible en la barra principal */}
                 {user ? (
-                    <UserHeader currentUser={user} />
+                    <div className="flex items-center">
+                        <UserHeader currentUser={user} />
+                    </div>
                 ) : (
-                    <div className="flex space-x-4">
+                    <div className="hidden md:flex space-x-4 items-center">
                         <Link href="/auth/register">
                             <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition">
                                 Crear Cuenta
