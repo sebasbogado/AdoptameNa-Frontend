@@ -12,6 +12,8 @@ import PostComments from "@/components/post/post-comments";
 import { useAuth } from "@/contexts/auth-context";
 import Loading from "@/app/loading";
 import NotFound from "@/app/not-found";
+import { getUserProfile } from '@/utils/user-profile.http';
+import { UserProfile } from '@/types/user-profile';
 
 const fetchProduct = async (id: string, setProduct: React.Dispatch<React.SetStateAction<Product | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
   try {
@@ -31,6 +33,7 @@ const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const params = useParams();
 
   useEffect(() => {
@@ -43,14 +46,21 @@ const ProductPage = () => {
   }, []);
 
   useEffect(() => {
+    if (!product) return;
+    getUserProfile(product.userId.toString())
+      .then(profile => setUserProfile(profile))
+      .catch(console.error);
+  }, [product]);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       const products = await getProducts({ size: 4, page: 0 });
       setProducts(products.data);
     }
     fetchProducts();
   }, [])
-  
-  if (loading) {
+
+  if (loading || !userProfile) {
     return <Loading />;
   }
 
@@ -61,15 +71,15 @@ const ProductPage = () => {
   return (
     <div>
       <div className="mt-6">
-        <ProductHeader product={product as Product} />
+        <ProductHeader product={product as Product} userProfile={userProfile} />
         <ProductSpecification product={product as Product} />
         <div className="grid grid-cols-2 mb-2">
           <div>
             <ProductDetail product={product as Product} />
-            <PostComments 
-              user={user} 
-              userLoading={userLoading} 
-              referenceId={product?.id as number} 
+            <PostComments
+              user={user}
+              userLoading={userLoading}
+              referenceId={product?.id as number}
               referenceType="PRODUCT"
               authToken={authToken ?? undefined}
             />
