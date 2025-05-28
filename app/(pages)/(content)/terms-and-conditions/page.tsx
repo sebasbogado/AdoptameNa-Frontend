@@ -1,5 +1,4 @@
 import ImageComponent from '@/components/image-component';
-import Image from 'next/image';
 
 export default function Page() {
     return (

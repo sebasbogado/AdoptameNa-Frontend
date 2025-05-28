@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { LoginFormValues, loginSchema } from "@/validations/login-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleLoginButton from "@/components/buttons/google-login-button";
-import {  EyeIcon,  EyeOffIcon, Loader2Icon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon } from "lucide-react";
 
 export default function Login() {
   const { login, user, loading } = useAuth();
@@ -32,7 +32,9 @@ export default function Login() {
 
   useEffect(() => {
     if (user && !loading && user.isProfileCompleted) {
-      router.push("/dashboard");
+      const redirectTo = sessionStorage.getItem("redirectTo") || "/dashboard";
+      sessionStorage.removeItem("redirectTo");
+      router.push(redirectTo);
     }
   }, [user, loading, router]);
 
@@ -103,9 +105,9 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                 <EyeOffIcon  className="w-5 h-5"/>
+                  <EyeOffIcon className="w-5 h-5" />
                 ) : (
-                  <EyeIcon className="w-5 h-5"/>
+                  <EyeIcon className="w-5 h-5" />
                 )}
               </div>
             </div>
@@ -130,7 +132,7 @@ export default function Login() {
               {isSubmitting ? (
                 <div className="flex items-center justify-center">
                   <Loader2Icon className=" animate-spin mr-2"
-                
+
                   />
                   Procesando...
                 </div>
@@ -154,6 +156,13 @@ export default function Login() {
             >
               Crear cuenta
             </Link>
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="w-full border border-gray-400 text-gray-600 py-3 rounded-xl bg-transparent hover:bg-gray-100"
+            >
+              Seguir sin registrarse
+            </button>
           </div>
         </form>
       </div>

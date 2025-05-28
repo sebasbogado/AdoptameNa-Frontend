@@ -1,11 +1,7 @@
 'use client';
 
-import Button from '@/components/buttons/button';
 import EditButton from '@/components/buttons/edit-button';
-import MenuButton from '@/components/buttons/menu-button';
-import Banners from '@/components/banners';
 import { useEffect, useState } from 'react';
-import Footer from '@/components/footer';
 import { Section } from '@/components/section';
 import { ConfirmationModal } from "@/components/form/modal";
 
@@ -17,14 +13,10 @@ import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-import { Mail, Phone, SplineIcon } from 'lucide-react';
 import Loading from '@/app/loading';
 import { Detail } from '@/components/profile/detail-form';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { profileEditSchema } from '@/validations/user-profile';
-import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
 import PostLocationMap from '@/components/post/post-location-map';
-import ImageHeader from '@/components/image-header';
 import HeaderImage from '@/components/image-header';
 import { Product } from '@/types/product';
 import { getProducts } from '@/utils/product.http';
@@ -267,12 +259,22 @@ export default function ProfilePage() {
     };
 
     useEffect(() => {
-        userProfile && setMedias(userProfile.media ?? [])
-    }, [userProfile?.media])
+        if (userProfile) {
+            setMedias(userProfile.media ?? []);
+        }
+    }, [userProfile?.media]);
+
     if (authLoading || loading) {
         return <Loading />;
     }
-    if (!user) return;
+
+    if (!user) {
+        if (typeof window !== "undefined") {
+            sessionStorage.setItem("redirectTo", window.location.pathname);
+        }
+        router.push("/auth/login");
+        return;
+      }
 
     const isOrganization = !!userProfile?.organizationName?.trim();
 
