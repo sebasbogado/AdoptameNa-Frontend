@@ -7,7 +7,6 @@ import NavbarAdmin from "@/components/navbar-admin";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 import { useEffect } from "react";
-const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"] });
 
 
 interface RootLayoutProps {
