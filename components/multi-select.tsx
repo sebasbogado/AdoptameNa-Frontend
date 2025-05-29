@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Check } from 'lucide-react';
 
 interface BaseOption {
@@ -22,6 +22,20 @@ export function MultiSelect<T extends BaseOption>({
   maxSelected,
 }: MultiSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const toggleOption = (option: T) => {
     const alreadySelected = selected.some((s) => s.id === option.id);
@@ -39,7 +53,7 @@ export function MultiSelect<T extends BaseOption>({
   const isSelected = (option: T) => selected.some((s) => s.id === option.id);
 
   return (
-    <div className="w-full relative mb-3">
+    <div className="w-full relative mb-3" ref={containerRef}>
       <button
         type="button"
         className="w-full border border-gray-300 bg-white rounded-lg px-4 py-2 text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
