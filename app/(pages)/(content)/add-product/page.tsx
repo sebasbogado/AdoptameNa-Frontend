@@ -90,23 +90,25 @@ export default function Page() {
 
   useEffect(() => {
     if (!authLoading && !authToken) {
+      sessionStorage.setItem("redirectTo", window.location.pathname);
       router.push("/auth/login");
     } else {
       const fetchUserData = async () => {
         if (!user?.id) return;
         try {
           const response = await getFullUser(user?.id.toString());
-          let userPhone = response.phoneNumber;
+          const userPhone = response.phoneNumber;
           if (userPhone) {
             setValue("contactNumber", userPhone);
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
         }
-      }
+      };
       fetchUserData();
     }
   }, [authToken, authLoading, router, user?.id]);
+
 
   const handleCancel = useCallback(() => {
     router.push("/marketplace");
@@ -401,8 +403,8 @@ export default function Page() {
 
           <div className="w-full mb-2">
             <label className="block mb-1">Descripción</label>
-            <textarea 
-              {...register("content")} 
+            <textarea
+              {...register("content")}
               className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
             />
             {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
