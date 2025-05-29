@@ -90,15 +90,24 @@ const PostPage = () => {
 
     return (
         <>
-        
             <div>
                 <NewBanner medias={post?.media || []} />
-                <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
-                    <div className="grid grid-cols-2 gap-4 p-6">
-                        <PostHeader post={post as Post} />
-                        <PostButtons postId={String(post?.id)} onShare={handleShare} postIdUser={post?.userId} />
-                        <PostContent post={post} />
-                        <PostSidebar posts={posts} />
+                <div className="bg-white rounded-t-[60px] -mt-10 md:-mt-12 relative z-10 shadow-2xl shadow-gray-800">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start col-span-1 md:col-span-2 gap-4 sm:gap-0">
+                            <PostHeader post={post as Post} />
+                            <PostButtons
+                                postId={String(post?.id)}
+                                onShare={handleShare}
+                                postIdUser={post?.userId}
+                            />
+                        </div>
+                        <div className="col-span-1 md:col-span-1">
+                            <PostContent post={post} />
+                        </div>
+                        <div className="hidden md:block md:col-span-1">
+                            <PostSidebar posts={posts} />
+                        </div>
                     </div>
                 </div>
             </div>

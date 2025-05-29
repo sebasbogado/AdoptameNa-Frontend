@@ -38,18 +38,22 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
     };
 
     return (
-        <div className="relative p-4 md:p-6 bg-white shadow-lg rounded-xl font-roboto z-50 mt-[-50px] 
-                       w-[90vw] mx-auto md:w-[55vw] md:left-10 md:mx-0">
+        <div className="relative p-4 bg-white shadow-lg rounded-xl font-roboto z-20 
+                   mt-[-60px] sm:mt-[-50px]
+                   w-full max-w-md mx-auto sm:max-w-none sm:w-[calc(100%-2rem)]
+                   md:w-[50vw] md:left-10 md:mx-0 
+                   transform md:-translate-x-0
+                   ">
             {/* Contenedor para título y etiqueta de estado */}
-            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4 mb-3 md:mb-2">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black break-words w-full md:w-auto">
+            <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:gap-4 mb-3">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl font-black break-words w-full md:w-auto">
                     {post?.title || pet?.name}
                 </h1>
                 {pet?.petStatus?.name && (
                     <span
                         className={`${getStatusTagStyle(pet.petStatus.name)} 
-                                   text-sm md:text-lg font-semibold px-3 py-1.5 md:px-4 md:py-[10px] 
-                                   rounded-md leading-none flex items-center whitespace-nowrap`}
+                               text-xs sm:text-sm md:text-lg font-semibold px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-[10px] 
+                               rounded-md leading-none flex items-center whitespace-nowrap mt-2 md:mt-0`}
                     >
                         {pet.petStatus.name}
                     </span>
@@ -59,23 +63,23 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
             {/* Contenedor para información de publicación o detalles de mascota */}
             <div className="text-gray-700">
                 {post ? (
-                    <span className="text-sm md:text-xl">
+                    <span className="text-xs sm:text-sm md:text-xl">
                         Publicado por <Link className="text-[#4781FF] hover:underline" href={`/profile/${post.userId}`}>{post?.organizationName || post?.userFullName}</Link> el {new Date(post?.publicationDate).toLocaleDateString()}
-                        <span className="ml-2">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span>
+                        <span className="block sm:inline sm:ml-2 mt-1 sm:mt-0">• Compartido {post.sharedCounter || 0} {post.sharedCounter === 1 ? 'vez' : 'veces'}</span> {/* 'Compartido' en nueva línea en mobile */}
                     </span>
                 ) : (
-                    <div className="flex flex-col items-start mt-1 md:mt-2">
-                        <span className="text-sm md:text-xl mb-2 md:mb-0">
+                    <div className="flex flex-col items-start mt-1">
+                        <span className="text-xs sm:text-sm md:text-xl mb-2">
                             Publicado por <Link className="text-[#4781FF] hover:underline" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName}</Link>
                         </span>
-                        <div className="mt-2 md:mt-4 flex flex-wrap gap-2 md:gap-3">
-                            {pet && ( // Añadido chequeo para asegurar que pet existe antes de acceder a sus propiedades
+                        <div className="mt-2 flex flex-wrap gap-1.5 md:gap-3">
+                            {pet && (
                                 <>
                                     <PostsTags
                                         postType={getPublicationTypeColor(pet.petStatus.name)}
                                         iconType={getAnimalIcon(pet.animal.name)}
                                         value={capitalizeFirstLetter(pet.animal.name)}
-                                        large
+                                        large 
                                     />
                                     <PostsTags
                                         postType={getColorGender(pet.gender)}
@@ -87,7 +91,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                                         <PostsTags
                                             postType={getPublicationTypeColor(pet.petStatus.name)}
                                             iconType={getSterilizedIcon(pet.isSterilized)}
-                                            value={pet.isSterilized ? "Esterilizado" : ""} // Simplificado, aunque isSterilized ya es true
+                                            value="Esterilizado"
                                             large
                                         />
                                     }
@@ -95,7 +99,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                                         <PostsTags
                                             postType={getPublicationTypeColor(pet.petStatus.name)}
                                             iconType={getVaccinatedIcon(pet.isVaccinated)}
-                                            value={pet.isVaccinated ? "Vacunado" : ""} // Simplificado
+                                            value="Vacunado"
                                             large
                                         />
                                     }

@@ -161,7 +161,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
         }
     };
     return (
-        <div className=" gap-3 flex justify-end relative pr-12">
+        <div className="flex flex-wrap justify-end gap-2 sm:gap-3 px-2 sm:px-4 md:px-0 md:pr-4 lg:pr-12 relative mt-4 sm:mt-0"> {/* Añadido mt-4 sm:mt-0 para cuando está debajo del PostHeader en mobile */}
             {isAdoptable && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
@@ -238,7 +238,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
                             unmount: { y: -100 },
                         }}
                         icon={<Check className="h-5 w-5" />}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
                         onClose={() => setCopied(false)}
                     >
                         <p className="text-sm">¡Enlace copiado al portapapeles!</p>
@@ -247,12 +247,15 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
             </div>
 
 
-            <div className="relative">
+            <div className="relative"> {/* Contenedor para FavoriteButton y sus alertas */}
                 {!isPet && (
                     <FavoriteButton
                         variant={isFavorite ? "active" : "desactivated"}
                         size="xl"
-                        className="relative top-[-60px] shadow-md left-[40px]"
+                        className="relative shadow-md 
+                            top-[-20px] right-1
+                            sm:top-[-120px] sm:left-[20px] 
+                            md:top-[-60px] md:left-[40px]"
                         onClick={handleFavoriteClick}
                     />
                 )}
@@ -266,7 +269,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
                         }}
                         icon={<Check className="h-5 w-5" />}
                         onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
                     >
                         <p className="text-sm">{successMessage}</p>
                     </Alert>
@@ -281,14 +284,13 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
                         }}
                         icon={<X className="h-5 w-5" />}
                         onClose={() => setErrorMessage("")}
-                        className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
                     >
                         <p className="text-sm">{errorMessage}</p>
                     </Alert>
                 )}
             </div>
 
-            {/* Change Status Modal */}
             {openChangeStatusModal && (
                 <ChangeStatusModal
                     isOpen={openChangeStatusModal}
