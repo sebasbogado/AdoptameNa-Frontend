@@ -96,11 +96,13 @@ const PostPage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start col-span-1 md:col-span-2 gap-4 sm:gap-0">
                             <PostHeader post={post as Post} />
-                            <PostButtons
-                                postId={String(post?.id)}
-                                onShare={handleShare}
-                                postIdUser={post?.userId}
-                            />
+                            <div className="ml-auto">
+                                <PostButtons
+                                    postId={String(post?.id)}
+                                    onShare={handleShare}
+                                    postIdUser={post?.userId}
+                                />
+                            </div>
                         </div>
                         <div className="col-span-1 md:col-span-1">
                             <PostContent post={post} />
