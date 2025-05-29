@@ -2,16 +2,20 @@
 
 import { Loader2 } from 'lucide-react';
 import Pagination from '@/components/pagination';
-import React from 'react';
+import React, { useState } from 'react';
 import SectionAdmin from '../section';
 import CardDeleted from './card-deleted';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { Product } from '@/types/product';
-import { restorePost } from '@/utils/posts.http';
-// import { restorePet } from '@/utils/pets.http';
+import { unbanPost } from '@/utils/posts.http';
+import { unbanPet } from '@/utils/pets.http';
+import { unbanProduct } from '@/utils/product.http';
 import { useAuth } from '@/contexts/auth-context';
 import { ITEM_TYPE } from '@/types/constants';
+import { ConfirmationModal } from '@/components/form/modal';
+import { Alert } from '@material-tailwind/react';
+import { X } from 'lucide-react';
 
 interface Props<T> {
   items: T[];
@@ -22,6 +26,7 @@ interface Props<T> {
   handlePageChange: (page: number) => void;
   itemType: ITEM_TYPE;
   disabled?: boolean;
+  updateFilters?: (filters: Record<string, any>) => void;
 }
 
 export default function DeletedListPage<T extends Post | Pet | Product>({
@@ -33,42 +38,63 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
   handlePageChange,
   itemType,
   disabled = false,
+  updateFilters,
 }: Props<T>) {
 
   const { authToken } = useAuth();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [restoreId, setRestoreId] = useState<string | null>(null);
+  const [restoreType, setRestoreType] = useState<string | null>(null);
+  const [errorAlert, setErrorAlert] = useState<string | null>(null);
 
   const handleRestore = async (id: string, type: string) => {
     if (!authToken) { return; }
 
     try {
-      const payload = { isDeleted: false };
-
-      // Usa el tipo para llamar a la API correcta
       switch (type) {
         case 'post':
-          // await restorePost(id, payload, authToken);
+          await unbanPost(id, authToken);
           break;
         case 'pet':
-          // await restorePet(id, payload, authToken);
+          await unbanPet(id, authToken);
           break;
         case 'product':
-          //await updateProduct(id, payload, authToken);
+          await unbanProduct(id, authToken);
           break;
         default:
           console.error(`Tipo desconocido: ${type}`);
           throw new Error("Tipo de item no soportado");
       }
-      // handlePageChange(currentPage); // O refresca datos como lo hacías antes
-
+      // Forzar una recarga completa de los datos
+      if (updateFilters) {
+        updateFilters({});
+        // Esperar un momento para asegurar que la API ha procesado el cambio
+        setTimeout(() => {
+          handlePageChange(1);
+        }, 100);
+      }
     } catch (error) {
-      console.error(`Error restaurando ${type} ID ${id}:`, error);
-      // Notificación de error
+      setErrorAlert('Ocurrió un error al restaurar la publicación.');
+    }
+  };
+
+  const handleRestoreClick = (id: string, type: string) => {
+    setRestoreId(id);
+    setRestoreType(type);
+    setModalOpen(true);
+  };
+
+  const handleConfirmRestore = async () => {
+    if (restoreId && restoreType) {
+      await handleRestore(restoreId, restoreType);
+      setModalOpen(false);
     }
   };
 
   return (
     <div>
-      <SectionAdmin title="Restaurar Publicaciones">Todas la publicaciones eliminadas se encuentra acá y pueden ser restauradas en caso de ser necesario</SectionAdmin>
+      <SectionAdmin title="Restaurar Publicaciones">Todas la publicaciones reportadas se encuentran acá y pueden ser restauradas en caso de ser necesario</SectionAdmin>
 
       {/* Muestra el error si existe */}
       {error && (
@@ -89,7 +115,7 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
               key={(item as any)?.id || index}
               item={item}
               itemType={itemType}
-              onRestore={() => handleRestore(String(item.id), itemType)}
+              onRestore={() => handleRestoreClick(String(item.id), itemType)}
               disabled={disabled}
             />
           ))}
@@ -108,6 +134,31 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
           onPageChange={handlePageChange}
           size="md"
         />
+      )}
+
+      {/* Modal de confirmación */}
+      <ConfirmationModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleConfirmRestore}
+        title="¿Restaurar publicación?"
+        message="¿Estás seguro de que deseas restaurar esta publicación?"
+        confirmVariant="cta"
+        textConfirm="Confirmar"
+      />
+
+      {/* Alerta de error */}
+      {errorAlert && (
+        <Alert
+          open={!!errorAlert}
+          color="red"
+          animate={{ mount: { y: 0 }, unmount: { y: -100 } }}
+          icon={<X className="h-5 w-5" />}
+          onClose={() => setErrorAlert(null)}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{errorAlert}</p>
+        </Alert>
       )}
     </div>
   );
