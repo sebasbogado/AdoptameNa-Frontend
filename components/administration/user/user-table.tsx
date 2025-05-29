@@ -1,6 +1,6 @@
 "use client";
 import { UserProfile } from "@/types/user-profile";
-import { Loader2, Trash2, UserCircle } from "lucide-react";
+import { Loader2, Trash2, UserCircle, ShieldUser } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -8,9 +8,10 @@ interface Props {
   data: UserProfile[];
   onDelete: (id: number) => void;
   loading?: boolean;
+  onPromote?: (user: UserProfile) => void;
 }
 
-export default function UserTable({ title, data, onDelete, loading = false }: Props) {
+export default function UserTable({ title, data, onDelete, loading = false, onPromote }: Props) {
 
   const formatDate = (dateString: string): string => {
     if (!dateString) return "-";
@@ -75,6 +76,15 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
                       >
                         <UserCircle size={20} />
                       </Link>
+                      {onPromote && (
+                        <button
+                          onClick={() => onPromote(user)}
+                          className="text-yellow-600 hover:text-yellow-800 p-1 rounded hover:bg-yellow-100"
+                          title="Cambiar rol"
+                        >
+                          <ShieldUser size={20} />
+                        </button>
+                      )}
                       <button
                         onClick={() => onDelete(user.id)}
                         className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-100"
