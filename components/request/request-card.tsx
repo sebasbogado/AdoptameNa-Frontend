@@ -1,6 +1,5 @@
 import { Crowdfunding } from "@/types/crowfunding-type";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BadgeDollarSign, Calendar, Check, Clock, Coins, MinusCircle, TrendingUp, X } from "lucide-react";
 import { formatPrice } from "@/utils/price-format";
@@ -10,17 +9,24 @@ import EditButton from "../buttons/edit-button";
 import { Alert } from "@material-tailwind/react";
 import TrashButton from "../buttons/trash-button";
 import {ConfirmationModal} from "../form/modal";
+import { getUserProfile } from "@/utils/user-profile.http";
+import { Media } from "@/types/media";
 
 interface RequestCardProps {
     application: Crowdfunding;
     onEdited?: (updated: Crowdfunding) => void;
     onDeleted?: (id: number) => void;
     resetFilters?: () => void;
+    isAdmin?: boolean;
+    onApprove?: (id: number) => void;
+    onReject?: (id: number) => void;
 }
 
-export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited, onDeleted, resetFilters }) => {
+export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited, onDeleted, resetFilters, isAdmin = false, onApprove, onReject }) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+    const [authorName, setAuthorName] = useState("");
+    const [authorImage, setAuthorImage] = useState<Media[]>([]);
 
     const [toast, setToast] = useState<{ show: boolean; message: string; color: "purple" | "red" }>({
         show: false,
@@ -34,6 +40,20 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
             return () => clearTimeout(timer);
         }
     }, [toast.show]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            if (!application.userId) return;
+            try {
+                const response = await getUserProfile(application.userId.toString());
+                setAuthorName(response.fullName);
+                setAuthorImage(response.media);
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
+            }
+        };
+        fetchUserData();
+    }, [application.userId]);
 
     const renderStatus = (status: string) => {
         switch (status) {
@@ -99,8 +119,16 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
         >
             <div className="flex-1 flex flex-col mt-4 items-center px-6">
                  <div className="flex justify-center mb-4">
-                                    <Image src="/logo.png" alt="Logo" width={80} height={80} />
-                                </div>
+                    <div className="w-[130px] h-[100px] flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
+                        <Image
+                            src={authorImage[0]?.url || "/logo.png"}
+                            alt="Foto de perfil"
+                            width={130}
+                            height={100}
+                            className="object-cover w-full h-full"
+                        />
+                    </div>
+                </div>
                 <h3 className="text-lg font-bold text-gray-700 text-center mt-2 w-full line-clamp-2">
                     {application.title}
                 </h3>
@@ -108,55 +136,72 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                     {application.description}
                 </p>
                 <div className="grid grid-cols-2 gap-4 w-full mb-2">
-                    <div className="flex items-center gap-2 text-gray-500 text-sm truncate">
-                        <Calendar size={16} className="text-gray-400 shrink-0" />
-                        <span className="truncate">
-                            {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
-                            {application.endDate ? ` al ${formatMediumDate(application.endDate)}` : ""}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <BadgeDollarSign size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <TrendingUp size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <Coins size={16} className="text-gray-400" />
-                        <span>
-                            <span className="font-medium text-gray-700">Duración:</span> {application.durationDays} días
-                        </span>
-                    </div>
+                    {application.status === "ACTIVE" ? (
+                        <>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm truncate">
+                                <Calendar size={16} className="text-gray-400 shrink-0" />
+                                <span className="truncate">
+                                    {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
+                                    {application.endDate ? ` al ${formatMediumDate(application.endDate)}` : ""}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <BadgeDollarSign size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
+                                </span>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <Coins size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Duración:</span> {application.durationDays} días
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                <TrendingUp size={16} className="text-gray-400" />
+                                <span>
+                                    <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
+                                </span>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             {/* Footer */}
             <div className="flex justify-between items-center border-t border-gray-200 px-6 py-4 min-h-[56px]">
                 <div>{renderStatus(application.status)}</div>
-
                 <div className="flex gap-2">
-                    {(application.status === "PENDING") && (
-
-                        <EditButton isEditing={false} size="sm" onClick={() => setModalOpen(true)}>
-                            Editar
-                        </EditButton>
+                    {isAdmin && application.status === "PENDING" && (
+                        <>
+                            <button
+                                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                                onClick={() => onApprove?.(application.id)}
+                            >
+                                Aceptar
+                            </button>
+                            <button
+                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                                onClick={() => onReject?.(application.id)}
+                            >
+                                Rechazar
+                            </button>
+                        </>
                     )}
-
-
-                    {(application.status !== "ACTIVE" &&  application.status !== "PENDING" ) && (
+                    {isAdmin && application.status !== "ACTIVE" && application.status !== "PENDING" && (
                         <TrashButton
                             size="sm"
                             onClick={() => setIsConfirmModalOpen(true)}
                         />
                     )}
-
+                    {!isAdmin && application.status === "PENDING" && (
+                        <EditButton isEditing={false} size="sm" onClick={() => setModalOpen(true)}>
+                            Editar
+                        </EditButton>
+                    )}
                 </div>
-
             </div>
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
