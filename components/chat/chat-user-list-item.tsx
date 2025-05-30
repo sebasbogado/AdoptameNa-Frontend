@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { UserAvatar } from '@/components/ui/user-avatar';
+import { Check } from 'lucide-react';
 
 interface ChatUserListItemProps {
   id: number;
@@ -71,9 +72,7 @@ const ChatUserListItem: React.FC<ChatUserListItemProps> = ({
           className="ml-2 text-xs text-purple-600 hover:text-purple-800 p-1 hover:bg-gray-200 rounded-full"
         >
           <span className="sr-only">Marcar como leído</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+          <Check size={16} />
         </button>
       )}
     </div>

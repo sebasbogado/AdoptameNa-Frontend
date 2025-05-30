@@ -1,7 +1,7 @@
 "use client";
 import { useNotifications } from "@/contexts/notification-context";
 import { Notification, NotificationType } from "@/types/notification";
-import { Check, Clock } from "lucide-react";
+import { Check, CheckCheck, Clock } from "lucide-react";
 import clsx from "clsx";
 import Pagination from "@/components/pagination";
 import Title from "@/components/title";
@@ -153,7 +153,7 @@ const NotificationsPage = () => {
 
         {notification.isRead && (
           <span className="text-sm text-green-600 flex items-center gap-1">
-            <Check className="w-4 h-4" /> Leído
+            <CheckCheck className="w-4 h-4" /> Leído
           </span>
         )}
       </div>
