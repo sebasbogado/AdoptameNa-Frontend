@@ -1,4 +1,4 @@
-import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormTrigger, Control } from "react-hook-form";
+import { UseFormRegister, FieldErrors, UseFormSetValue,  Control, UseFormWatch } from "react-hook-form";
 import { PostFormValues } from "@/validations/post-schema";
 import { PostType } from "@/types/post-type";
 import { Tags } from "@/types/tags";
@@ -8,7 +8,7 @@ export type FormDataProps = {
   onSubmit: (data: PostFormValues) => void;
   register: UseFormRegister<PostFormValues>;
   errors: FieldErrors<PostFormValues>;
-  watch: any;
+  watch: UseFormWatch<PostFormValues>
   postTypes: PostType[];
   filteredTags: Tags[];
   selectedTags: Tags[];
@@ -18,11 +18,12 @@ setValue: UseFormSetValue<PostFormValues>
   position: [number, number] | null;
   loading: boolean;
   handleCancel: () => void;
-  handlePositionChange: (pos: [number, number]) => void;
+  handlePositionChange: (pos: [number, number] | null) => void;
   closeModal: () => void;
   confirmSubmit: () => void;
     MAX_IMAGES: number;
   MAX_TAGS: number;
-  control: any;
+  control:  Control<PostFormValues>;
+  onEditorImageUpload?: (mediaId: number) => void;
 
 };

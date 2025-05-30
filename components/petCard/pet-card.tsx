@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import CardImage from "@/components/petCard/card-image";
 import CardText from "./card-text";
@@ -8,17 +8,17 @@ import { Post } from "@/types/post";
 import { Pet } from "@/types/pet";
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
-import { addFavorite, deleteFavorite, getFavorites } from "@/utils/favorites-posts.http";
+import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 import { Alert } from "@material-tailwind/react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import MissingTags from "./missing-tags";
-import { Check, X, AlertTriangle } from "lucide-react";
+import { Check, X} from "lucide-react";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
 type PetCardProps = {
-    post: any;
+    post: Post | Pet;
     className?: string
     isPost?: boolean;
     disabled?: boolean;
@@ -129,7 +129,7 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                         postType={(post as Pet).petStatus?.name}
                     />
                     <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
-                    <CardText post={post} />
+                    <CardText post={isPost ? (post as Post) : (post as Pet)} />
                 </Link>
             )}
 

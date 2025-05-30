@@ -9,9 +9,6 @@ import { getAnimals } from "@/utils/animals.http";
 import { getProductCategories } from "@/utils/product-category.http";
 import { Animal } from "@/types/animal";
 import { ProductCategory } from "@/types/product-category";
-import Banners from "@/components/banners";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
 import { ConfirmationModal } from "@/components/form/modal";
@@ -27,11 +24,7 @@ import { AlertTriangle, Check, ImagePlus, X } from "lucide-react";
 import { MultiSelect } from "@/components/multi-select";
 import LabeledInput from "@/components/inputs/labeled-input";
 import NewBanner from "@/components/newBanner";
-
-const MapWithNoSSR = dynamic<MapProps>(
-  () => import('@/components/ui/map'),
-  { ssr: false }
-);
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
 export default function Page() {
   const {
@@ -97,23 +90,25 @@ export default function Page() {
 
   useEffect(() => {
     if (!authLoading && !authToken) {
+      sessionStorage.setItem("redirectTo", window.location.pathname);
       router.push("/auth/login");
     } else {
       const fetchUserData = async () => {
         if (!user?.id) return;
         try {
           const response = await getFullUser(user?.id.toString());
-          let userPhone = response.phoneNumber;
+          const userPhone = response.phoneNumber;
           if (userPhone) {
             setValue("contactNumber", userPhone);
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
         }
-      }
+      };
       fetchUserData();
     }
   }, [authToken, authLoading, router, user?.id]);
+
 
   const handleCancel = useCallback(() => {
     router.push("/marketplace");
@@ -408,8 +403,8 @@ export default function Page() {
 
           <div className="w-full mb-2">
             <label className="block mb-1">Descripción</label>
-            <textarea 
-              {...register("content")} 
+            <textarea
+              {...register("content")}
               className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
             />
             {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
@@ -484,12 +479,16 @@ export default function Page() {
                 </div>
               )}
             />
+          </div>          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+            <CreatePostLocation
+              position={position}
+              setPosition={(newPosition) => {
+                setPosition(newPosition);
+                setValue("locationCoordinates", newPosition || [0, 0]);
+              }}
+              error={errors.locationCoordinates ? { message: errors.locationCoordinates.message } : undefined}
+            />
           </div>
-
-          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-            <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-          </div>
-          {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
           <div className="flex justify-end items-center mt-6 gap-10">
             <div className="flex gap-4">
