@@ -28,11 +28,13 @@ describe("Crear un post. ", () => {
         cy.contains('li', tag).click();
       });
 
-      cy.get('input[name="title"]').type('Mi publicación de prueba', { force: true });
+      cy.get('body').click(0, 0);
 
-      cy.get('textarea[name="content"]').type('Esta es la descripción del post.', { force: true });
+      cy.get('input[name="title"]').click().type('Mi publicación de prueba con cypress');
 
-      cy.get('input[name="contactNumber"]').type('0981123456', { force: true });
+      cy.get('textarea[name="content"]').type('Esta es la descripción del post con cypress.');
+
+      cy.get('input[name="contactNumber"]').type('0981123456');
 
       cy.get('.leaflet-container', { timeout: 10000 }).should('exist');
 
@@ -44,7 +46,10 @@ describe("Crear un post. ", () => {
 
       cy.get('#crear-post').click();
 
-     // cy.get('#confirmation-button').click({ force: true });
+      cy.get('#confirmation-button').click({ force: true });
 
+      cy.wait(7000);
+
+      cy.url().should('match', /\/posts\/\d+$/);
 
     })})

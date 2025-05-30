@@ -17,12 +17,12 @@ describe("Enviar un mensaje al primer chat. ", () => {
       cy.wait(7000);
       cy.url().should('include', '/chats');
 
-      cy.get('#search-contact-input').type('William', { force: true });
+      cy.get('#search-contact-input').type('William');
 
       cy.get('div').contains('William').click();
 
       cy.get('#message-content-input')
-        .type('Hola, este es un mensaje de prueba con Cypress.');
+        .type('Hola, este es un mensaje de prueba con Cypress. Ya debe funcionar correctamente.');
 
       cy.get('button[type="submit"]').should('not.be.disabled').click();
 

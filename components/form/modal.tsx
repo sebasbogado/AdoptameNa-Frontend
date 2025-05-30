@@ -37,7 +37,6 @@ export function ConfirmationModal({ isOpen, title, textConfirm, message, confirm
             size="md"
             className="border rounded text-gray-700 hover:bg-gray-100"
             onClick={onClose}
-            id="confirmation-button"
           >
             Cancelar
           </Button>
@@ -47,6 +46,7 @@ export function ConfirmationModal({ isOpen, title, textConfirm, message, confirm
             size="md"
             className={`rounded ${confirmVariant === "cta" ? "hover:#9747FF" : "hover:bg-red-900"}`}
             onClick={onConfirm}
+            id="confirmation-button"
           >
             {textConfirm}
           </Button>
