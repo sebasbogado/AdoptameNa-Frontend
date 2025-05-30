@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { deleteUser } from "@/utils/user.http"
+import { deleteUser, updateUser, getUser } from "@/utils/user.http"
 import { getAllFullUserProfile } from "@/utils/user-profile.http"
 import UserTable from "@/components/administration/user/user-table"
 import { UserProfile } from "@/types/user-profile"
@@ -15,6 +15,8 @@ import { ArrowLeft, Check, X } from "lucide-react"
 import Link from "next/link"
 import Loading from "@/app/loading"
 import NotFound from "@/app/not-found"
+import { User } from "@/types/auth";
+import ChangeRoleModal from "@/components/administration/user/change-role-modal"
 
 export default function RegularUsersPage() {
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -26,6 +28,8 @@ export default function RegularUsersPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
     const pageSize = 10;
+    const [modalUser, setModalUser] = useState<User | null>(null);
+    const [openModal, setOpenModal] = useState(false);
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -91,6 +95,31 @@ export default function RegularUsersPage() {
         }
     }
 
+    const handleUpdate = async (u: User, newRole: string) => {
+        if (!authToken) return;
+
+        const newDbRole = newRole === "regular" ? "user" : "admin";
+
+        // Solo proceder si realmente cambia el rol
+        if (u.role === newDbRole) return;
+
+        try {
+            const existing = await getUser(String(u.id));
+            await updateUser(authToken, u.id, {
+                ...existing,
+                role: newDbRole,
+            });
+            setSuccessMessage("Rol actualizado correctamente");
+            setRefreshTrigger(x => x + 1);
+        } catch (err: any) {
+            console.error("Error al actualizar rol:", err);
+            setErrorMessage(err.message || "Error al actualizar el usuario");
+        } finally {
+            setOpenModal(false);
+            setModalUser(null);
+        }
+    };
+
     return (
         <div className="p-8">
             {successMessage && (
@@ -152,6 +181,18 @@ export default function RegularUsersPage() {
                 </div>
             </div>
 
+            <ChangeRoleModal
+                isOpen={openModal}
+                onClose={() => setOpenModal(false)}
+                userFullName={modalUser?.fullName ?? ""}
+                userEmail={modalUser?.email ?? ""}
+                currentRole={modalUser?.role ?? "user"}
+                roles={["regular", "admin"]}
+                onSave={(newDisplayRole: string) =>
+                    handleUpdate(modalUser as User, newDisplayRole)
+                }
+            />
+
             <UserTable
                 title="Lista de Usuarios"
                 data={users}
@@ -159,6 +200,10 @@ export default function RegularUsersPage() {
                 onDelete={(id) => {
                     setSelectedUser(id);
                     setModalConfirmation(true);
+                }}
+                onPromote={(u) => {
+                    setModalUser(u);
+                    setOpenModal(true);
                 }}
             />
 
