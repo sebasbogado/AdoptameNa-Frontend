@@ -21,8 +21,6 @@ setValue: UseFormSetValue<PostFormValues>
   handlePositionChange: (pos: [number, number] | null) => void;
   closeModal: () => void;
   confirmSubmit: () => void;
-    MAX_IMAGES: number;
-  MAX_TAGS: number;
   control:  Control<PostFormValues>;
   onEditorImageUpload?: (mediaId: number) => void;
   isEditMode?: boolean;

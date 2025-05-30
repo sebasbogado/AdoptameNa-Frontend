@@ -6,7 +6,7 @@ import { POST_TYPEID } from "@/types/constants";
 import { useEffect, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import { CreatePostLocation } from "./create-post-location";
-
+import { MAX_TAGS, MAX_IMAGES } from "@/validations/post-schema";
 export const FormData = ({ handleSubmit,
     onSubmit,
     register,
@@ -22,7 +22,6 @@ export const FormData = ({ handleSubmit,
     loading,
     handleCancel,
     handlePositionChange,
-    MAX_TAGS,
     control,
     onEditorImageUpload,
     isEditMode,

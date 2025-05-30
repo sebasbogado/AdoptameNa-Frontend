@@ -23,93 +23,52 @@ import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema
 import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 import { ChevronLeftIcon } from "lucide-react";
 import Loading from "@/app/loading";
+import { usePostForm } from "@/hooks/use-post-form";
+import { set } from "zod";
 
 export default function Page() {
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        watch,
-        control,
-        trigger,
-        formState: { errors },
-    } = useForm<PostFormValues>({
-        resolver: zodResolver(postSchema),
-        defaultValues: {
-            postTypeId: 0,
-            title: "",
-            content: "",
-            locationCoordinates: [0, 0],
-            contactNumber: "",
-            mediaIds: [],
-            tagIds: [],
-            blogImages: [],
-        }
-    });
     const { authToken, user, loading: authLoading } = useAuth();
-    const [loading, setLoading] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [saveLoading, setSaveLoading] = useState<boolean>(false);
     const [precautionMessage, setPrecautionMessage] = useState("");
+
+     const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    watch,
+    control,
+    trigger,
+    errors,
+    watchedPostTypeId,
+    selectedImages,
+    setSelectedImages,
+    editorMediaIds,
+    setEditorMediaIds,
+    handleEditorImageUpload,
+    handleRemoveImage,
+    currentImageIndex,
+    setCurrentImageIndex,
+    syncAllMediaIds,
+    handleImageUpload,
+  } = usePostForm(setSaveLoading, setErrorMessage, setPrecautionMessage, authToken);                  
+    const [loading, setLoading] = useState<boolean>(true);
+    const [successMessage, setSuccessMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedImages, setSelectedImages] = useState<Media[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
-    const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
-    const [saveLoading, setSaveLoading] = useState<boolean>(false);
-
-    const watchedPostTypeId = useWatch({
-        control,
-        name: "postTypeId",
-    });
-
     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
         if (newPosition) {
             setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
         }
     }, [setValue]);
-    const handleEditorImageUpload = (mediaId: number) => {
-        setEditorMediaIds(prev => {
-            if (prev.includes(mediaId)) return prev;
-            const next = [...prev, mediaId];
-            setValue("blogImages", next, { shouldValidate: true });
-            return next;
-        });
-    };
 
-    const handleRemoveImage = async (index: number) => {
-        const imageToRemove = selectedImages[index];
-
-        if (!authToken) {
-            setErrorMessage("No se pudo obtener el token de authenticación!");
-
-            return;
-        }
-
-        try {
-            setLoading(true);
-
-            if (imageToRemove.id) {
-                await deleteMedia(imageToRemove.id, authToken);
-            }
-            const updatedImages = selectedImages.filter((_, i) => i !== index);
-            setSelectedImages(updatedImages);
-             setValue("mediaIds", updatedImages.map(img => img.id), { shouldValidate: true });
-
-
-        } catch (error) {
-            console.error("Error al eliminar la imagen", error);
-            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
-        } finally {
-            setLoading(false);
-        }
-    };
     useEffect(() => {
         if (!authLoading && !authToken) {
             sessionStorage.setItem("redirectTo", window.location.pathname);
@@ -142,10 +101,8 @@ export default function Page() {
             return [];
         }
 
-        // Siempre incluye los tags generales (postTypeId === 0)
         const generalTags = tags.filter(tag => tag.postTypeId === null);
 
-        // Incluye tags específicos si se selecciona un tipo (1 o 2)
         let specificTags: Tags[] = [];
         if (watchedPostTypeId === POST_TYPEID.BLOG || watchedPostTypeId === POST_TYPEID.VOLUNTEERING) {
             specificTags = tags.filter(tag => tag.postTypeId === watchedPostTypeId);
@@ -153,31 +110,26 @@ export default function Page() {
 
         return [...generalTags, ...specificTags];
 
-    }, [tags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
+    }, [tags, watchedPostTypeId]); 
 
     useEffect(() => {
-        // Cuando las opciones filtradas cambian, debemos asegurarnos
-        // de que los tags seleccionados actualmente todavía están en la lista de opciones válidas.
         const validSelectedTags = selectedTags.filter(selectedTag =>
             filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
         );
 
-        // Si la lista de seleccionados válidos es diferente a la actual, actualiza
         if (validSelectedTags.length !== selectedTags.length) {
             setSelectedTags(validSelectedTags);
             setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
         }
-        // Queremos que esto se ejecute solo cuando las *opciones* filtradas cambien.
-    }, [filteredTags, setValue]);
+     }, [filteredTags, setValue]);
 
-    // Abre el modal cuando el formulario es válido
     const openConfirmationModal = (data: PostFormValues) => {
-        setValidatedData(data); // Guardamos los datos validados
+        setValidatedData(data); 
         setIsModalOpen(true);
     };
 
     const onSubmit = (data: PostFormValues) => {
-        openConfirmationModal(data); // Pasa los datos validados al modal/handler
+        openConfirmationModal(data); 
     };
 
     const confirmSubmit = async () => {
@@ -219,7 +171,7 @@ export default function Page() {
                 }
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
-                router.push("/dashboard"); // O a donde sea apropiado como fallback
+                router.push("/dashboard");
             }
         } catch (error: any) {
             setErrorMessage("Error al crear la publicación");
@@ -236,75 +188,7 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
- 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const file = e.target.files[0];
-            const fileData = new FormData();
-            fileData.append("file", file);
-
-            if (!authToken) {
-                throw new Error("El token de autenticación es requerido");
-            }
-            const schema = watchedPostTypeId === POST_TYPEID.BLOG ? blogFileSchema : fileSchema;
-            const result = schema.safeParse(file);
-
-            if (!result.success) {
-                setPrecautionMessage(result.error.errors[0].message);
-                return;
-            }
-            try {
-                setLoading(true);
-                const response = await postMedia(fileData, authToken);
-
-                if (response) {
-                    const newSelectedImages = [...selectedImages, response];
-                    setSelectedImages(newSelectedImages);
-                    setValue("mediaIds", newSelectedImages.map(img => img.id), { shouldValidate: true });
-                }
-            } catch (error) {
-                setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
-                console.error("Error al subir el archivo", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
-
-    const prevPostTypeId = useRef(watchedPostTypeId);
-    function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
-        const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
-        if (firstImage) return [firstImage];
-        if (images.length > 0) return [images[0]];
-        return [];
-    }
-
-    useEffect(() => {
-        if (
-            prevPostTypeId.current !== undefined &&
-            prevPostTypeId.current !== watchedPostTypeId
-        ) {
-            if (watchedPostTypeId === POST_TYPEID.BLOG) {
-                if (selectedImages.length > MAX_BLOG_IMAGES) {
-                    const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
-                    setSelectedImages(limitedImages);
-                    setCurrentImageIndex(0);
-                    setValue(
-                        "mediaIds",
-                        limitedImages.map(img => img.id),
-                        { shouldValidate: true }
-                    );
-                    setPrecautionMessage(
-                        `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
-                    );
-                }
-            }
-            setValue("content", "");
-
-        }
-        prevPostTypeId.current = watchedPostTypeId;
-    }, [watchedPostTypeId, selectedImages, setValue]);
+  
     function shouldShowCoverImage(content: string, images: Media[]): boolean {
   if (!images || images.length === 0) return false;
 
@@ -313,9 +197,11 @@ export default function Page() {
 
   return !content.includes(firstImageUrl);
 }
- if (authLoading || loading) {
-        return <Loading/>;
-    }
+const wrappedHandleRemoveImage = (index: number) =>
+  handleRemoveImage(index, deleteMedia);
+
+const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
+  handleImageUpload(e, watchedPostTypeId);
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -352,10 +238,10 @@ export default function Page() {
                 />
                 <UploadImages
                     selectedImages={selectedImages}
-                        currentImageIndex={currentImageIndex}
+                    currentImageIndex={currentImageIndex}
                     setCurrentImageIndex={setCurrentImageIndex}
-                    handleRemoveImage={handleRemoveImage}
-                    handleImageUpload={handleImageUpload}
+                    handleRemoveImage={wrappedHandleRemoveImage}
+                    handleImageUpload={wrappedHandleImageUpload}
                     MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
                     errorMessage={errorMessage}
                     setErrorMessage={setErrorMessage}
@@ -385,8 +271,6 @@ export default function Page() {
                     handlePositionChange={handlePositionChange}
                     closeModal={closeModal}
                     confirmSubmit={confirmSubmit}
-                    MAX_IMAGES={MAX_IMAGES}
-                    MAX_TAGS={MAX_TAGS}
                     control={control}
                     trigger={trigger}
                 />
