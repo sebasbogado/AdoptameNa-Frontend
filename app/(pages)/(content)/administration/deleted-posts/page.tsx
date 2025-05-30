@@ -13,7 +13,7 @@ export default function Page() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-8">Administrar de Publicaciones Eliminadas</h1>
+      <h1 className="text-2xl font-bold mb-8">Administrar de Publicaciones Bloqueadas</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link href="/administration/deleted-posts/posts-publications">
@@ -22,7 +22,7 @@ export default function Page() {
               <BookX size={48} className="text-blue-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Publicaciones</h2>
-            <p className="text-gray-600 text-center">Gestionar publicaciones eliminadas</p>
+            <p className="text-gray-600 text-center">Gestionar publicaciones bloqueadas</p>
           </div>
         </Link>
 
@@ -32,7 +32,7 @@ export default function Page() {
               <Cat size={48} className="text-purple-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Mascotas</h2>
-            <p className="text-gray-600 text-center">Gestionar mascotas eliminadas</p>
+            <p className="text-gray-600 text-center">Gestionar mascotas bloqueadas</p>
           </div>
         </Link>
 
@@ -42,7 +42,7 @@ export default function Page() {
               <PackageSearch size={48} className="text-amber-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Productos</h2>
-            <p className="text-gray-600 text-center">Gestionar productos eliminados</p>
+            <p className="text-gray-600 text-center">Gestionar productos bloqueadas</p>
           </div>
         </Link>
       </div>

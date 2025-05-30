@@ -123,7 +123,7 @@ export default function DeletedListPage<T extends Post | Pet | Product>({
       ) : (
         // Muestra mensaje si no hay datos y no está cargando
         <div className="text-center p-10 bg-gray-50 rounded-lg mt-4">
-          <p className="text-gray-600">No se encontraron publicaciones eliminadas {error ? 'debido a un error.' : 'con los filtros seleccionados.'}</p>
+          <p className="text-gray-600">No se encontraron publicaciones bloqueadas {error ? 'debido a un error.' : 'con los filtros seleccionados.'}</p>
         </div>
       )}
 

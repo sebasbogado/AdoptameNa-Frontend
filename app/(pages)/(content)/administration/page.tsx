@@ -54,7 +54,7 @@ export default function Page() {
                     <Link href="/administration/deleted-posts">
                         <button className="w-full sm:w-auto bg-cyan-100 hover:bg-cyan-200 text-cyan-800 py-3 px-5 rounded-lg flex items-center">
                             <Trash2 className="mr-2 h-5 w-5" />
-                            Publicaciones Eliminadas
+                            Publicaciones Bloqueadas
                         </button>
                     </Link>
                 </div>
