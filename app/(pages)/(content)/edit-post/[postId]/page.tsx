@@ -47,10 +47,10 @@ export default function Page() {
     const [postError, setPostError] = useState<string | null>(null);
     const router = useRouter();
     const [saveLoading, setSaveLoading] = useState<boolean>(false);
- const [errorMessage, setErrorMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [precautionMessage, setPrecautionMessage] = useState("");
-        const {
+    const {
         register,
         handleSubmit,  // Renombramos el handleSubmit de useForm
         setValue,
@@ -69,13 +69,14 @@ export default function Page() {
             contactNumber: "",
             mediaIds: [],
             tagIds: [],
-            
+            blogImages: [],
+
         }
     });
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
-    
+
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [selectedImages, setSelectedImages] = useState<ExtendedMedia[]>([]);
@@ -148,19 +149,21 @@ export default function Page() {
 
                 // Usa reset para poblar eficientemente el formulario
                 reset({
-                      postTypeId: Number(postData.postType?.id) || 0,
-                    
+                    postTypeId: Number(postData.postType?.id) || 0,
+
                     title: postData.title || "",
                     content: postData.content || "",
-                      locationCoordinates: postData.postType?.id !== POST_TYPEID.BLOG ? initialCoords : undefined,
+                    locationCoordinates: postData.postType?.id !== POST_TYPEID.BLOG ? initialCoords : undefined,
 
                     contactNumber: postData.contactNumber || "",
-                    mediaIds: postData.media?.map(m => m.id) || [],
-                    tagIds: postData.tags?.map(t => t.id) || [], // Si usas tags
+                    mediaIds: postData.media?.map((m: Media) => m.id) || [],
+                    tagIds: postData.tags?.map((t: Tags) => t.id) || [], // Si usas tags
+                    blogImages: postData.blogImages?.map((img: Media) => img.id) || [], // <-- AGREGÁ ESTO
+
                 });
                 console.log("reset() ejecutado con:", {
-                content: postData.content,
-                postTypeId: postData.postType?.id,
+                    content: postData.content,
+                    postTypeId: postData.postType?.id,
                 });
 
                 // Poblar estado local de imágenes
@@ -182,8 +185,8 @@ export default function Page() {
         };
 
         fetchInitialData();
-    }, [authToken, authLoading, user?.id, postId, router, reset]); 
- const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+    }, [authToken, authLoading, user?.id, postId, router, reset]);
+    const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
         if (newPosition) {
             setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
@@ -232,29 +235,29 @@ export default function Page() {
         }
     };
     const openConfirmationModal = (data: PostFormValues) => {
-        
-          console.log("Datos validados:", data);
+
+        console.log("Datos validados:", data);
 
         setValidatedData(data); // Guardamos los datos validados
         setIsModalOpen(true);
     };
-  const onSubmit = async (data: PostFormValues) => {
-  // Limpieza de campos para BLOG
-  if (data.postTypeId === POST_TYPEID.BLOG) {
-    data.contactNumber = undefined;
-    data.locationCoordinates = undefined;
-  }
+    const onSubmit = async (data: PostFormValues) => {
+        // Limpieza de campos para BLOG
+        if (data.postTypeId === POST_TYPEID.BLOG) {
+            data.contactNumber = undefined;
+            data.locationCoordinates = undefined;
+        }
 
-  console.log("Datos validados:", data);
-  const isValid = await trigger();
-  console.log("Errores actuales:", errors); // <-- aquí deberían mostrarse
-  openConfirmationModal(data);
-};
+        console.log("Datos validados:", data);
+        const isValid = await trigger();
+        console.log("Errores actuales:", errors); // <-- aquí deberían mostrarse
+        openConfirmationModal(data);
+    };
     const handleRemoveImage = async (index: number) => {
         const imageToRemove = selectedImages[index];
 
         if (!authToken) {
-             setErrorMessage("No se pudo obtener el token de authenticación!");
+            setErrorMessage("No se pudo obtener el token de authenticación!");
 
             return;
         }
@@ -267,7 +270,7 @@ export default function Page() {
             }
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
-            syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
+            setValue("mediaIds", updatedImages.map(img => img.id), { shouldValidate: true });
 
 
         } catch (error) {
@@ -277,43 +280,44 @@ export default function Page() {
             setLoading(false);
         }
     };
-   const handleEditorImageUpload = (mediaId: number) => {
-        setEditorMediaIds(prev => {
+    const handleEditorImageUpload = (mediaId: number) => {
+        setEditorMediaIds((prev) => {
             if (prev.includes(mediaId)) return prev;
             const next = [...prev, mediaId];
-            const combinedMediaIds = [
-                ...selectedImages.map(img => img.id),
-                ...next
-            ].filter((v, i, arr) => arr.indexOf(v) === i);
-            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
+
+            const current = watch("blogImages") || [];
+
+            const merged = [...new Set([...current, mediaId])];
+
+            setValue("blogImages", merged, { shouldValidate: true });
             return next;
         });
     };
 
-const filteredTags = useMemo(() => {
-    if (!allTags || allTags.length === 0) return [];
+    const filteredTags = useMemo(() => {
+        if (!allTags || allTags.length === 0) return [];
 
-    const generalTags = allTags.filter(tag => tag.postTypeId === null);
-    const specificTags = allTags.filter(tag => tag.postTypeId === watchedPostTypeId);
+        const generalTags = allTags.filter(tag => tag.postTypeId === null);
+        const specificTags = allTags.filter(tag => tag.postTypeId === watchedPostTypeId);
 
-    return [...generalTags, ...specificTags];
-}, [allTags, watchedPostTypeId]);
-useEffect(() => {
-    const validSelectedTags = selectedTags.filter(selectedTag =>
-        filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
-    );
+        return [...generalTags, ...specificTags];
+    }, [allTags, watchedPostTypeId]);
+    useEffect(() => {
+        const validSelectedTags = selectedTags.filter(selectedTag =>
+            filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
+        );
 
-    if (validSelectedTags.length !== selectedTags.length) {
-        setSelectedTags(validSelectedTags);
-        setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
-    }
-}, [filteredTags]);
+        if (validSelectedTags.length !== selectedTags.length) {
+            setSelectedTags(validSelectedTags);
+            setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
+        }
+    }, [filteredTags]);
 
-  const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
+    const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
         const combined = [
             ...selectedImages.map(img => img.id),
             ...editorMediaIds
-        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
+        ].filter((id, idx, arr) => arr.indexOf(id) === idx);
         setValue("mediaIds", combined, { shouldValidate: true });
     }, [setValue]);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -339,7 +343,7 @@ useEffect(() => {
                 if (response) {
                     const newSelectedImages = [...selectedImages, response];
                     setSelectedImages(newSelectedImages);
-                    syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
+                    setValue("mediaIds", newSelectedImages.map(img => img.id), { shouldValidate: true });
                 }
             } catch (error) {
                 setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
@@ -349,45 +353,45 @@ useEffect(() => {
             }
         }
     };
-const confirmSubmit = async () => {
-  if (!authToken || !user?.id || !validatedData || !post?.id) {
-    setPrecautionMessage("Faltan datos requeridos.");
-    return;
-  }
+    const confirmSubmit = async () => {
+        if (!authToken || !user?.id || !validatedData || !post?.id) {
+            setPrecautionMessage("Faltan datos requeridos.");
+            return;
+        }
 
-  setIsModalOpen(false);
-setSaveLoading(true);
-  const isBlog = validatedData.postTypeId === POST_TYPEID.BLOG;
+        setIsModalOpen(false);
+        setSaveLoading(true);
+        const isBlog = validatedData.postTypeId === POST_TYPEID.BLOG;
 
-  const updatedFormData: UpdatePost = {
-    userId: Number(user?.id),
-    title: validatedData.title,
-    content: validatedData.content,
-    tagIds: validatedData.tagIds || [],
-    postTypeId: validatedData.postTypeId,
-    mediaIds: validatedData.mediaIds || [],
-    ...(isBlog ? {} : {
-      locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
-  contactNumber: validatedData.contactNumber?.trim() || "",
-})
-  };
+        const updatedFormData: UpdatePost = {
+            userId: Number(user?.id),
+            title: validatedData.title,
+            content: validatedData.content,
+            tagIds: validatedData.tagIds || [],
+            postTypeId: validatedData.postTypeId,
+            mediaIds: validatedData.mediaIds || [],
+            ...(isBlog ? { blogImages: validatedData.blogImages || [], } : {
+                locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
+                contactNumber: validatedData.contactNumber?.trim() || "",
+            })
+        };
 
-  try {
-    const result = await updatePost(String(post.id), updatedFormData, authToken);
-    if (result) {
-      setSuccessMessage("Post actualizado exitosamente.");
-      if (post?.postType?.id === POST_TYPEID.BLOG) {
-                router.push(`/blog/${post.id}`);
-            } else {
-                router.push(`/posts/${post.id}`);
+        try {
+            const result = await updatePost(String(post.id), updatedFormData, authToken);
+            if (result) {
+                setSuccessMessage("Post actualizado exitosamente.");
+                if (post?.postType?.id === POST_TYPEID.BLOG) {
+                    router.push(`/blog/${post.id}`);
+                } else {
+                    router.push(`/posts/${post.id}`);
+                }
             }
-    }
-  } catch (error) {
-    setErrorMessage("Error al actualizar la publicación.");
-  } finally {
-    setLoading(false);
-  }
-};
+        } catch (error) {
+            setErrorMessage("Error al actualizar la publicación.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const prevPostTypeId = useRef(watchedPostTypeId);
     function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
@@ -396,7 +400,7 @@ setSaveLoading(true);
         if (images.length > 0) return [images[0]];
         return [];
     }
-useEffect(() => {
+    useEffect(() => {
         if (
             prevPostTypeId.current !== undefined &&
             prevPostTypeId.current !== watchedPostTypeId
@@ -416,7 +420,7 @@ useEffect(() => {
                     );
                 }
             }
-            
+
 
         }
         prevPostTypeId.current = watchedPostTypeId;
@@ -425,11 +429,11 @@ useEffect(() => {
         return <Loading />;
     }
     const editorImageIds = new Set(editorMediaIds);
-const previewImages = selectedImages.filter((img) => !editorImageIds.has(img.id));
-const imagesForUploadComponent =
-  watchedPostTypeId === POST_TYPEID.BLOG
-    ? previewImages.slice(0, 1)
-    : previewImages;
+    const previewImages = selectedImages.filter((img) => !editorImageIds.has(img.id));
+    const imagesForUploadComponent =
+        watchedPostTypeId === POST_TYPEID.BLOG
+            ? previewImages.slice(0, 1)
+            : previewImages;
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -438,7 +442,7 @@ const imagesForUploadComponent =
                 style={{
                     backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',          
+                    backgroundPosition: 'center',
                 }}
             >
                 <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
@@ -453,18 +457,18 @@ const imagesForUploadComponent =
                         onClick={() => router.push('/dashboard')}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                    <ChevronLeftIcon    className="w-6 h-6" />
+                        <ChevronLeftIcon className="w-6 h-6" />
                     </button>
                     <h1 className="text-2xl font-bold text-text-primary">Editar publicación</h1>
                 </div>
                 <NewBanner
-                       medias={
+                    medias={
                         watchedPostTypeId === POST_TYPEID.BLOG
                             ? selectedImages.slice(0, 1)
                             : selectedImages
                     }
                 />
-                    <UploadImages
+                <UploadImages
                     selectedImages={imagesForUploadComponent}
                     currentImageIndex={currentImageIndex}
                     setCurrentImageIndex={setCurrentImageIndex}
@@ -504,9 +508,9 @@ const imagesForUploadComponent =
                     control={control}
                     isEditMode={true}
                     openDeleteModal={openDeleteModal}
-                    trigger = {trigger}
+                    trigger={trigger}
                 />
-            {isModalOpen &&
+                {isModalOpen &&
                     <ConfirmationModal
                         isOpen={isModalOpen}
                         title="Confirmar cambios"
@@ -517,7 +521,7 @@ const imagesForUploadComponent =
                         onConfirm={confirmSubmit}
                     />
                 }
-               
+
                 {isDeleteModalOpen &&
                     <ConfirmationModal
                         isOpen={isDeleteModalOpen}

@@ -45,6 +45,8 @@ export const FormData = ({ handleSubmit,
                     if (isValid) {
                         handleSubmit(onSubmit)();
                     }
+                    trigger();
+                    console.log(errors);
                 }
     useEffect(() => {
         if (postTypeId === POST_TYPEID.BLOG && content) {

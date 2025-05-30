@@ -31,6 +31,8 @@ export const postSchema = z.object({
     .array(z.number())
     .max(MAX_TAGS, `Máximo ${MAX_TAGS} tags permitidos`)
     .optional(),
+  blogImages: z.array(z.number()).optional(),
+
 }).superRefine((data, ctx) => {
 console.log("Validando POST:", data.postTypeId, POST_TYPEID.BLOG)
   if (data.postTypeId !== POST_TYPEID.BLOG) {
@@ -57,6 +59,7 @@ console.log("Validando POST:", data.postTypeId, POST_TYPEID.BLOG)
         message: "El número de contacto es requerido",
       });
     }
+
   }
   // Si es blog, los campos pueden ser omitidos
 });

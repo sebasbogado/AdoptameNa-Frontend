@@ -22,6 +22,7 @@ import { FormData as FormDataPost } from "@/components/post/form-data";
 import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
 import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 import { ChevronLeftIcon } from "lucide-react";
+import Loading from "@/app/loading";
 
 export default function Page() {
     const {
@@ -42,6 +43,7 @@ export default function Page() {
             contactNumber: "",
             mediaIds: [],
             tagIds: [],
+            blogImages: [],
         }
     });
     const { authToken, user, loading: authLoading } = useAuth();
@@ -76,11 +78,7 @@ export default function Page() {
         setEditorMediaIds(prev => {
             if (prev.includes(mediaId)) return prev;
             const next = [...prev, mediaId];
-            const combinedMediaIds = [
-                ...selectedImages.map(img => img.id),
-                ...next
-            ].filter((v, i, arr) => arr.indexOf(v) === i);
-            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
+            setValue("blogImages", next, { shouldValidate: true });
             return next;
         });
     };
@@ -102,7 +100,7 @@ export default function Page() {
             }
             const updatedImages = selectedImages.filter((_, i) => i !== index);
             setSelectedImages(updatedImages);
-            syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
+             setValue("mediaIds", updatedImages.map(img => img.id), { shouldValidate: true });
 
 
         } catch (error) {
@@ -196,7 +194,9 @@ export default function Page() {
             tagIds: validatedData.tagIds || [],
             postTypeId: validatedData.postTypeId,
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
-            mediaIds: validatedData.mediaIds || []
+            mediaIds: validatedData.mediaIds || [],
+            blogImages: validatedData.blogImages || [],
+
         };
         if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
             updatedFormData.contactNumber = validatedData.contactNumber;
@@ -236,13 +236,7 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-    const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
-        const combined = [
-            ...selectedImages.map(img => img.id),
-            ...editorMediaIds
-        ].filter((id, idx, arr) => arr.indexOf(id) === idx);
-        setValue("mediaIds", combined, { shouldValidate: true });
-    }, [setValue]);
+ 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0];
@@ -266,7 +260,7 @@ export default function Page() {
                 if (response) {
                     const newSelectedImages = [...selectedImages, response];
                     setSelectedImages(newSelectedImages);
-                    syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
+                    setValue("mediaIds", newSelectedImages.map(img => img.id), { shouldValidate: true });
                 }
             } catch (error) {
                 setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
@@ -319,6 +313,9 @@ export default function Page() {
 
   return !content.includes(firstImageUrl);
 }
+ if (authLoading || loading) {
+        return <Loading/>;
+    }
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}

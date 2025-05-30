@@ -17,6 +17,7 @@ export interface Post {
   postType: PostType;
   media: Media[];
   tags: Tags[];
+  blogImages: Media[];
 }
 
 export interface CreatePost {
@@ -28,6 +29,7 @@ export interface CreatePost {
   contactNumber?: string; 
   userId: number;
   mediaIds: number[];
+  blogImages?: number[]; // Optional field for blog images
 }
 
 export interface UpdatePost {
@@ -39,6 +41,8 @@ export interface UpdatePost {
   contactNumber?: string;
   userId: number;
   mediaIds: number[];
+  blogImages?: number[]; // Optional field for blog images
+
 }
 
 export interface RestorePost {
