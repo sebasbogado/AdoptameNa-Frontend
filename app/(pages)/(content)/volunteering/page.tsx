@@ -62,7 +62,10 @@ export default function Page() {
         } catch (err: any) {
             console.error('Error fetching data:', err.message);
         } finally {
-            setFilterLoading(false);
+
+            setTimeout(() => {
+                setFilterLoading(false);
+            }, 200);
         }
     };
 
@@ -99,7 +102,7 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             {filterLoading ?
-                <SkeletonFilters numFilters={2}/>
+                <SkeletonFilters numFilters={7}/>
                 :
                 <div className="w-full max-w-7xl mx-auto p-4">
                     <div
