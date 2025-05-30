@@ -111,15 +111,15 @@ const ImageModal = ({
         </>
       )}{" "}
       {/* Image container */}
-      <div className='relative max-w-[95vw] max-h-[90vh] flex items-center justify-center'>
+      <div className='relative w-[95vw] h-[90vh] flex items-center justify-center'>
         <Image
           src={images[currentIndex].url}
           alt={`Imagen ${currentIndex + 1} de ${images.length}`}
-          width={1200}
-          height={800}
-          className='max-w-full max-h-full object-contain rounded-lg shadow-2xl'
+          fill
+          className='object-contain rounded-lg shadow-2xl'
           priority
           unoptimized
+          sizes="95vw"
         />
       </div>
       {/* Image counter - only show if multiple images */}

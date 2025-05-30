@@ -76,10 +76,11 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
                     <Image
                       src={media.url}
                       alt="Imagen compartida"
-                      width={200}
-                      height={200}
+                      width={0}
+                      height={0}
+                      sizes="100vw"
                       className={clsx(
-                        "object-cover w-full h-auto max-w-[200px] max-h-[200px]",
+                        "w-auto h-auto max-w-[200px] max-h-[200px] object-cover",
                         message.media.length === 1 ? "rounded-lg" : "rounded-md"
                       )}
                       onError={() => handleImageError(index)}
