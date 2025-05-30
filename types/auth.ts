@@ -47,6 +47,8 @@ export type UserResponse = {
   isVerified: boolean;
   role: string;
   name?: string;
+  unreadMessagesCount: number;
+  online: boolean;
 };
 
 //NO PONER ESTOS CON NINGUNA MAYUS O MUERE

@@ -14,10 +14,6 @@ const roboto = Roboto({ subsets: ["latin"], weight: ["300", "400", "500", "700"]
 export const metadata: Metadata = {
   title: "AdoptameNa",
   description: "Proyecto de IngeSoft 2",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1.0,
-  },
 };
 
 interface RootLayoutProps {

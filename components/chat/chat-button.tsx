@@ -144,6 +144,7 @@ const ChatButton = () => {
               <Link
                 href="/chats"
                 className="text-xs text-amber-600 hover:text-amber-800"
+                onClick={() => setOpen(false)}
               >
                 Ver todos
               </Link>
@@ -213,6 +214,7 @@ const ChatButton = () => {
             <Link
               href="/chats"
               className="block w-full text-center p-2 text-sm text-amber-600 hover:bg-amber-50 rounded-md mt-1"
+              onClick={() => setOpen(false)}
             >
               Ver todos los mensajes
             </Link>
