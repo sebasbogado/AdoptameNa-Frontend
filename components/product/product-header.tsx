@@ -1,12 +1,8 @@
 'use client'
 
 import { Product } from "@/types/product";
-import ReportButton from "../buttons/report-button";
-import EditButton from "../buttons/edit-button";
 import Link from "next/link";
 import { ProductButtons } from "./product-buttons";
-import { DropdownMenuButtons } from '@/components/profile/dropdown-buttons';
-import { UserProfile } from '@/types/user-profile';
 
 interface ProductHeaderProps {
   product: Product;
