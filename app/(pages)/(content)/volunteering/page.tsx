@@ -29,9 +29,7 @@ export default function Page() {
     const [filterChanged, setFilterChanged] = useState(false);
     const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
     const [filterLoading, setFilterLoading] = useState(true);
-    useEffect(() => {
-        console.log(filterLoading);
-    }, [filterLoading]);
+
 
     const {
         data: posts,
@@ -101,7 +99,7 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             {filterLoading ?
-                <SkeletonFilters />
+                <SkeletonFilters numFilters={2}/>
                 :
                 <div className="w-full max-w-7xl mx-auto p-4">
                     <div
