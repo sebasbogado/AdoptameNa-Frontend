@@ -46,6 +46,7 @@ export default function Page() {
     const [loading, setLoading] = useState<boolean>(true);
     const [postError, setPostError] = useState<string | null>(null);
     const router = useRouter();
+    const [saveLoading, setSaveLoading] = useState<boolean>(false);
  const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [precautionMessage, setPrecautionMessage] = useState("");
@@ -74,7 +75,7 @@ export default function Page() {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
-
+    
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [selectedImages, setSelectedImages] = useState<ExtendedMedia[]>([]);
@@ -151,10 +152,15 @@ export default function Page() {
                     
                     title: postData.title || "",
                     content: postData.content || "",
-                    locationCoordinates: initialCoords,
+                      locationCoordinates: postData.postType?.id !== POST_TYPEID.BLOG ? initialCoords : undefined,
+
                     contactNumber: postData.contactNumber || "",
                     mediaIds: postData.media?.map(m => m.id) || [],
                     tagIds: postData.tags?.map(t => t.id) || [], // Si usas tags
+                });
+                console.log("reset() ejecutado con:", {
+                content: postData.content,
+                postTypeId: postData.postType?.id,
                 });
 
                 // Poblar estado local de imágenes
@@ -218,7 +224,11 @@ export default function Page() {
         if (!post?.id) {
             router.push("/dashboard"); // Fallback si no hay ID
         } else {
-            router.push(`/posts/${post.id}`);
+            if (post?.postType?.id === POST_TYPEID.BLOG) {
+                router.push(`/blog/${post.id}`);
+            } else {
+                router.push(`/posts/${post.id}`);
+            }
         }
     };
     const openConfirmationModal = (data: PostFormValues) => {
@@ -346,8 +356,7 @@ const confirmSubmit = async () => {
   }
 
   setIsModalOpen(false);
-  setLoading(true);
-
+setSaveLoading(true);
   const isBlog = validatedData.postTypeId === POST_TYPEID.BLOG;
 
   const updatedFormData: UpdatePost = {
@@ -367,7 +376,11 @@ const confirmSubmit = async () => {
     const result = await updatePost(String(post.id), updatedFormData, authToken);
     if (result) {
       setSuccessMessage("Post actualizado exitosamente.");
-      router.push(`/posts/${post.id}`);
+      if (post?.postType?.id === POST_TYPEID.BLOG) {
+                router.push(`/blog/${post.id}`);
+            } else {
+                router.push(`/posts/${post.id}`);
+            }
     }
   } catch (error) {
     setErrorMessage("Error al actualizar la publicación.");
@@ -403,12 +416,20 @@ useEffect(() => {
                     );
                 }
             }
-            setValue("content", "");
+            
 
         }
         prevPostTypeId.current = watchedPostTypeId;
     }, [watchedPostTypeId, selectedImages, setValue]);
-
+    if (authLoading || loading) {
+        return <Loading />;
+    }
+    const editorImageIds = new Set(editorMediaIds);
+const previewImages = selectedImages.filter((img) => !editorImageIds.has(img.id));
+const imagesForUploadComponent =
+  watchedPostTypeId === POST_TYPEID.BLOG
+    ? previewImages.slice(0, 1)
+    : previewImages;
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -434,13 +455,17 @@ useEffect(() => {
                     >
                     <ChevronLeftIcon    className="w-6 h-6" />
                     </button>
-                    <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">Editar publicación</h1>
                 </div>
                 <NewBanner
-                    medias={selectedImages}
+                       medias={
+                        watchedPostTypeId === POST_TYPEID.BLOG
+                            ? selectedImages.slice(0, 1)
+                            : selectedImages
+                    }
                 />
                     <UploadImages
-                    selectedImages={selectedImages}
+                    selectedImages={imagesForUploadComponent}
                     currentImageIndex={currentImageIndex}
                     setCurrentImageIndex={setCurrentImageIndex}
                     handleRemoveImage={handleRemoveImage}
@@ -469,7 +494,7 @@ useEffect(() => {
                     setValue={setValue}
                     isModalOpen={isModalOpen}
                     position={position}
-                    loading={loading}
+                    loading={saveLoading}
                     handleCancel={handleCancel}
                     handlePositionChange={handlePositionChange}
                     closeModal={closeModal}

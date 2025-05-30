@@ -59,13 +59,14 @@ export default function Page() {
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
     const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
+    const [saveLoading, setSaveLoading] = useState<boolean>(false);
 
     const watchedPostTypeId = useWatch({
         control,
         name: "postTypeId",
     });
 
-     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+    const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
         if (newPosition) {
             setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
@@ -88,7 +89,7 @@ export default function Page() {
         const imageToRemove = selectedImages[index];
 
         if (!authToken) {
-             setErrorMessage("No se pudo obtener el token de authenticación!");
+            setErrorMessage("No se pudo obtener el token de authenticación!");
 
             return;
         }
@@ -186,8 +187,7 @@ export default function Page() {
             return;
         }
         setIsModalOpen(false);
-        setLoading(true);
-
+        setSaveLoading(true);
         const updatedFormData: CreatePost = {
             userId: Number(user?.id),
             title: validatedData.title,
@@ -201,7 +201,7 @@ export default function Page() {
             updatedFormData.contactNumber = validatedData.contactNumber;
         }
         if (!authToken) {
-          setErrorMessage("No se pudo obtener el token de authenticación!");
+            setErrorMessage("No se pudo obtener el token de authenticación!");
             setLoading(false);
             return;
         }
@@ -235,11 +235,11 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-   const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
+    const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
         const combined = [
             ...selectedImages.map(img => img.id),
             ...editorMediaIds
-        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
+        ].filter((id, idx, arr) => arr.indexOf(id) === idx);
         setValue("mediaIds", combined, { shouldValidate: true });
     }, [setValue]);
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,7 +276,7 @@ export default function Page() {
         }
     };
 
- 
+
     const prevPostTypeId = useRef(watchedPostTypeId);
     function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
         const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
@@ -310,6 +310,14 @@ export default function Page() {
         }
         prevPostTypeId.current = watchedPostTypeId;
     }, [watchedPostTypeId, selectedImages, setValue]);
+    function shouldShowCoverImage(content: string, images: Media[]): boolean {
+  if (!images || images.length === 0) return false;
+
+  const firstImageUrl = images[0]?.url;
+  if (!firstImageUrl) return false;
+
+  return !content.includes(firstImageUrl);
+}
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -318,7 +326,7 @@ export default function Page() {
                 style={{
                     backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',          
+                    backgroundPosition: 'center',
                 }}
             >
                 <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
@@ -333,16 +341,20 @@ export default function Page() {
                         onClick={() => router.push('/dashboard')}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                    <ChevronLeftIcon    className="w-6 h-6" />
+                        <ChevronLeftIcon className="w-6 h-6" />
                     </button>
                     <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
                 </div>
                 <NewBanner
-                    medias={selectedImages}
+                medias={
+                    watchedPostTypeId === POST_TYPEID.BLOG && shouldShowCoverImage(watch("content"), selectedImages)
+                    ? selectedImages.slice(0, 1)
+                    : []
+                }
                 />
                 <UploadImages
                     selectedImages={selectedImages}
-                    currentImageIndex={currentImageIndex}
+                        currentImageIndex={currentImageIndex}
                     setCurrentImageIndex={setCurrentImageIndex}
                     handleRemoveImage={handleRemoveImage}
                     handleImageUpload={handleImageUpload}
@@ -370,7 +382,7 @@ export default function Page() {
                     setValue={setValue}
                     isModalOpen={isModalOpen}
                     position={position}
-                    loading={loading}
+                    loading={saveLoading}
                     handleCancel={handleCancel}
                     handlePositionChange={handlePositionChange}
                     closeModal={closeModal}
@@ -378,7 +390,7 @@ export default function Page() {
                     MAX_IMAGES={MAX_IMAGES}
                     MAX_TAGS={MAX_TAGS}
                     control={control}
-                    trigger = {trigger}
+                    trigger={trigger}
                 />
 
                 {isModalOpen &&

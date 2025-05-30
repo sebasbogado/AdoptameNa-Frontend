@@ -23,7 +23,6 @@ export const FormData = ({ handleSubmit,
     handleCancel,
     handlePositionChange,
     MAX_TAGS,
-    MAX_IMAGES,
     control,
     onEditorImageUpload,
     isEditMode,
@@ -53,6 +52,7 @@ export const FormData = ({ handleSubmit,
             editorContentRef.current = content;
         }
     }, [postTypeId, content]);
+    
     return (
         <>
 
@@ -70,7 +70,9 @@ export const FormData = ({ handleSubmit,
                             value={field.value}
                             className={`w-fit p-2 border rounded mb-4 
                             ${errors.postTypeId ? 'border-red-500' : ''} 
-                            ${field.value === 0 ? 'text-gray-500' : 'text-black'}`}
+                            ${field.value === 0 ? 'text-gray-500' : 'text-black'}
+                            ${isEditMode ? 'cursor-not-allowed text-gray-500' : ''}`}
+                            disabled={isEditMode}
                         >
                             <option disabled value={0}>Seleccione un tipo</option>
                             {postTypes.map((type) => (
@@ -97,7 +99,7 @@ export const FormData = ({ handleSubmit,
                         maxSelected={MAX_TAGS} // <-- Limita la selección a 3 tags
                     />
                 </div>
-                {errors.tagIds && <p className="text-red-500">{/* @ts-ignore */} {errors.tagIds.message}</p>}
+                {errors.tagIds && <p className="text-red-500"> {errors.tagIds.message}</p>}
 
                 {/* Título */}
                 <div className="flex flex-col gap-2">
@@ -121,7 +123,7 @@ export const FormData = ({ handleSubmit,
                                 field
                             ) =>    <ForwardRefEditor
                                     IsCreateBlog={true}
-                                    markdown={initialContent}
+                                    markdown={content}
                                     onChange={(value: string) => {
                                         editorContentRef.current = value
                                     }}
@@ -134,16 +136,21 @@ export const FormData = ({ handleSubmit,
 
                     ) : (
                         <>
-                          <label className="block">
-                        Descripción <span className="text-red-500">*</span>
-                    </label>
-
-                        <textarea
-                            {...register("content")}
-                            placeholder="Descripción"
-                            className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
-                        />
-                                                </>
+                            <label className="block">
+                                Descripción <span className="text-red-500">*</span>
+                            </label>
+                            <Controller
+                                name="content"
+                                control={control}
+                                render={({ field }) => (
+                                    <textarea
+                                        {...field}
+                                        placeholder="Descripción"
+                                        className={`w-full p-2 border rounded mb-4 ${errors.content ? 'border-red-500' : ''}`}
+                                    />
+                                )}
+                            />
+                        </>
 
                     )}
                 </div>
@@ -164,30 +171,24 @@ export const FormData = ({ handleSubmit,
 
                     </div>
                 )}
-                {postTypeId && postTypeId !== POST_TYPEID.BLOG && (
+                {postTypeId !== POST_TYPEID.BLOG && (
                     <div
-                        className={`h-full  transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                        className={`h-full transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
                     >
-                        <CreatePostLocation 
-                            position={position} 
+                        <CreatePostLocation
+                            position={position}
                             setPosition={handlePositionChange}
                             error={errors.locationCoordinates}
                         />
                     </div>
                 )}
-                <div className="flex justify-between items-center mt-6 gap-10">
-                    <Button
-                        type="button"
-                        variant="danger"
-                        size="md"
-                        className="rounded opacity-0"
-                        disabled={loading}
-                    >
-                        Eliminar publicación
-                    </Button>
-
-                    <div className="flex gap-4">
-                        <Button
+                <div
+                    className={`flex items-center mt-6 gap-10 ${
+                        isEditMode ? "justify-between" : "justify-end"
+                    }`}
+                >
+                        { isEditMode && (
+                             <Button
                             type="button"
                             variant="danger"
                             size="md"
@@ -197,6 +198,9 @@ export const FormData = ({ handleSubmit,
                         >
                             {loading ? 'Eliminando...' : 'Eliminar publicación'}
                         </Button>
+                        )
+                        }
+                       <div className="flex gap-4">
                         <Button
                             type="button"
                             variant="tertiary"
@@ -206,7 +210,7 @@ export const FormData = ({ handleSubmit,
                         >
                             Cancelar
                         </Button>
-                    
+
                         <Button
                             type="submit"
                             variant="cta"
