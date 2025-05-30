@@ -1,4 +1,4 @@
-"use client";
+import { MediaDTO } from "./user-profile";
 
 export interface MessageDTO {
   id?: number;
@@ -7,10 +7,11 @@ export interface MessageDTO {
   recipientId: number;
   sentAt?: Date;
   read?: boolean;
+  mediaIds?: number[]; // Optional array of media IDs
 }
 
 export interface MessageResponseDTO {
-  id: number | string; // Changed to support both number and string IDs
+  id: number | string;
   content: string;
   senderId: number;
   senderName: string;
@@ -18,6 +19,7 @@ export interface MessageResponseDTO {
   recipientName: string;
   sentAt: Date;
   read: boolean;
+  media: MediaDTO[];
 }
 
 export interface PagedMessageResponseDTO {
