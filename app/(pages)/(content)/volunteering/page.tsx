@@ -62,10 +62,7 @@ export default function Page() {
         } catch (err: any) {
             console.error('Error fetching data:', err.message);
         } finally {
-
-            setTimeout(() => {
-                setFilterLoading(false);
-            }, 200);
+            setFilterLoading(false);
         }
     };
 
