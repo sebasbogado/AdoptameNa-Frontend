@@ -2,6 +2,7 @@
 
 import { createContext, useContext } from "react";
 import { MessageResponseDTO, UserDTO } from "@/types/chat";
+import { ImagePreview } from "@/hooks/use-chat-image-upload";
 
 export interface ChatContextType {
   chatUsers: UserDTO[];
@@ -13,7 +14,7 @@ export interface ChatContextType {
   cursors: { [userId: number]: string | null };
   fetchChatUsers: () => Promise<void>;
   selectChat: (user: UserDTO) => void;
-  sendMessage: (content: string, recipientId: number) => Promise<void>;
+  sendMessage: (content: string, recipientId: number, mediaIds?: number[], images?: ImagePreview[]) => Promise<void>;
   loadMoreMessages: (userId: number, loadOlder?: boolean) => Promise<void>;
   markChatAsRead: (senderId: number) => Promise<void>;
   hasMoreMessages: (userId: number) => boolean;

@@ -1,5 +1,6 @@
 "use client";
 
+import { MoveDown } from 'lucide-react';
 import React from 'react';
 
 interface ScrollToBottomButtonProps {
@@ -26,9 +27,7 @@ const ScrollToBottomButton: React.FC<ScrollToBottomButtonProps> = ({
         className={`${sizeClasses[size]} bg-[var(--color-primary-brand-color)] text-white rounded-full shadow-lg hover:bg-purple-600 transition-all flex items-center pointer-events-auto`}
       >
         <span>Ir abajo</span>
-        <svg className={`${size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
+        <MoveDown size={size === 'sm' ? 16 : size === 'md' ? 18 : 20} />
       </button>
     </div>
   );

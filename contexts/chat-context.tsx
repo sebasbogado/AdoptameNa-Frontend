@@ -9,6 +9,7 @@ import {
   MessageDTO,
   MarkReadDTO,
 } from "@/types/chat";
+import { ImagePreview } from "@/hooks/use-chat-image-upload";
 import { useChatWebSocket } from "../utils/chat-websocket";
 import { useChatMessageSender } from "../hooks/chat-message-sender";
 import {
@@ -290,7 +291,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     [authToken, user, cursors]
   );
   const sendMessage = useCallback(
-    async (content: string, recipientId: number) => {
+    async (content: string, recipientId: number, mediaIds?: number[], images?: ImagePreview[]) => {
       if (!authToken || !user?.id) {
         console.error(
           "No se puede enviar el mensaje: falta token o ID de usuario"
@@ -298,16 +299,26 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      const tempId = `temp_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 9)}`;
+
       try {
         const messageDto: MessageDTO = {
           content,
           senderId: user.id,
           recipientId,
+          mediaIds,
         };
 
-        const tempId = `temp_${Date.now()}_${Math.random()
-          .toString(36)
-          .substring(2, 9)}`;
+        const tempMediaArray = images ? images.map(image => ({
+          id: image.id,
+          url: image.url,
+          mimeType: image.mimeType,
+          userId: user.id,
+          uploadDate: new Date().toISOString()
+        })) : [];
+
         const tempMessage: MessageResponseDTO = {
           id: tempId,
           content,
@@ -318,26 +329,29 @@ export function ChatProvider({ children }: { children: ReactNode }) {
             chatUsers.find((u) => u.id === recipientId)?.name || "Usuario",
           sentAt: new Date(),
           read: false,
+          media: tempMediaArray,
         };
 
         setMessages((prev) => {
           const conversationMessages = [...(prev[recipientId] || [])];
-
           return {
             ...prev,
             [recipientId]: [...conversationMessages, tempMessage],
           };
         });
 
+        // Try WebSocket first, then fallback to HTTP
         const sentViaWs = sendMessageWs(messageDto);
         if (!sentViaWs) {
+          console.log("WebSocket failed, using HTTP fallback");
           const response = await sendMessageApi(messageDto, authToken);
 
           if (response) {
+            // Replace temp message with real message from server
             setMessages((prev) => {
               const conversationMessages = [...(prev[recipientId] || [])];
               const updatedMessages = conversationMessages.map((m) =>
-                m.id === tempMessage.id ? response : m
+                m.id === tempId ? response : m
               );
               return {
                 ...prev,
@@ -345,15 +359,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
               };
             });
           }
-        }
-
-        setTimeout(() => {
-          setMessages((prev) => {
-            return prev;
-          });
-        }, 1000);
-      } catch (error) {
+        }      } catch (error) {
         console.error("Error sending message:", error);
+        // Remove temp message on error
+        setMessages((prev) => {
+          const conversationMessages = [...(prev[recipientId] || [])];
+          const filteredMessages = conversationMessages.filter(m => m.id !== tempId);
+          return {
+            ...prev,
+            [recipientId]: filteredMessages,
+          };
+        });
       }
     },
     [authToken, user, chatUsers, sendMessageWs]
