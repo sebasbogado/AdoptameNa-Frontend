@@ -18,6 +18,7 @@ export interface Product {
   category: ProductCategory;
   condition: "NUEVO" | "USADO"; // Enum como string
   sharedCounter: number;
+  publicationDate: string;
 }
 
 export interface CreateProduct {
