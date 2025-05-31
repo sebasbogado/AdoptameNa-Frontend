@@ -2,40 +2,40 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import DeletedListPage from "@/components/administration/deleted/deleted-list-page";
+import DeletedListPage from "@/components/administration/banned/banned-list-page";
 import { usePagination } from "@/hooks/use-pagination";
 import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
-import { getBannedPets } from "@/utils/pets.http";
-import { Pet } from "@/types/pet";
+import { Product } from "@/types/product";
+import { getBannedProducts } from "@/utils/product.http";
 import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const [selectedPetStatus, setSelectedPetStatus] = useState<string | null>(null);
-    const [petStatusOptions, setPetStatusOptions] = useState<string[]>([]);
-    const [allPetStatusMap, setAllPetStatusMap] = useState<Record<string, number>>({});
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+    const [allCategoryMap, setAllCategoryMap] = useState<Record<string, number>>({});
 
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
     const {
-        data: pets,
+        data: products,
         loading,
         currentPage,
         totalPages,
         handlePageChange,
         updateFilters
-    } = usePagination<Pet>({
+    } = usePagination<Product>({
         fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("Authentication token is missing");
-            return await getBannedPets(authToken, {
+            return await getBannedProducts(authToken, {
                 page,
                 size,
                 userId: filters?.userId ?? undefined,
-                petStatusId: filters?.petStatusId ?? undefined,
+                categoryId: filters?.categoryId ?? undefined,
                 refresh: filters?.refresh ?? undefined
             });
         },
@@ -56,22 +56,22 @@ export default function Page() {
     useEffect(() => {
         const fetchDeletedData = async () => {
             try {
-                const [petResponse] = await Promise.all([
-                    authToken ? getBannedPets(authToken) : Promise.reject(new Error("Authentication token is missing"))
+                const [productsResponse] = await Promise.all([
+                    authToken ? getBannedProducts(authToken) : Promise.reject(new Error("Authentication token is missing"))
                 ]);
 
-                const petStatusMap: Record<string, number> = {};
-                petResponse.data.forEach(pet => {
-                    if (pet.petStatus.name) {
-                        petStatusMap[pet.petStatus.name] = pet.petStatus.id;
+                const categoryMap: Record<string, number> = {};
+                productsResponse.data.forEach(product => {
+                    if (product.category.name) {
+                        categoryMap[product.category.name] = product.category.id;
                     }
                 });
 
-                const uniquePetStatus = Object.keys(petStatusMap).sort();
+                const uniqueCategory = Object.keys(categoryMap).sort();
 
-                setPetStatusOptions(uniquePetStatus);
-                setAllPetStatusMap(petStatusMap);
-                setPageSize(petResponse.pagination.size);
+                setCategoryOptions(uniqueCategory);
+                setAllCategoryMap(categoryMap);
+                setPageSize(productsResponse.pagination.size);
             } catch (err) {
                 setPostError("Error al obtener las publicaciones")
             }
@@ -81,34 +81,34 @@ export default function Page() {
     }, []);
 
     const resetFilters = () => {
-        setSelectedPetStatus(null);
+        setSelectedCategory(null);
         updateFilters({});
     };
 
     useEffect(() => {
-        const petStatusId = selectedPetStatus && selectedPetStatus !== "Todos" ? allPetStatusMap[selectedPetStatus] : undefined;
+        const categoryId = selectedCategory && selectedCategory !== "Todos" ? allCategoryMap[selectedCategory] : undefined;
 
-        updateFilters({ petStatusId });
+        updateFilters({ categoryId });
         handlePageChange(1);
-    }, [selectedPetStatus]);
+    }, [selectedCategory]);
 
     return (
         <div className="p-6">
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
-                        label="Estado"
-                        options={["Todos", ...petStatusOptions]}
-                        selected={selectedPetStatus}
-                        setSelected={setSelectedPetStatus}
+                        label="Categoria    "
+                        options={["Todos", ...categoryOptions]}
+                        selected={selectedCategory}
+                        setSelected={setSelectedCategory}
                     />
 
                     <ResetFiltersButton onClick={resetFilters} />
                 </div>
             </div>
             <DeletedListPage
-                items={pets}
-                itemType={ITEM_TYPE.PET}
+                items={products}
+                itemType={ITEM_TYPE.PRODUCT}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}

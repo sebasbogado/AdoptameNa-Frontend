@@ -2,40 +2,40 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import DeletedListPage from "@/components/administration/deleted/deleted-list-page";
-import { getBannedPosts } from "@/utils/posts.http";
+import DeletedListPage from "@/components/administration/banned/banned-list-page";
 import { usePagination } from "@/hooks/use-pagination";
-import { Post } from "@/types/post";
 import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
+import { getBannedPets } from "@/utils/pets.http";
+import { Pet } from "@/types/pet";
 import { ITEM_TYPE } from "@/types/constants";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
 
-    const [selectedPostType, setSelectedPostType] = useState<string | null>(null);
-    const [postTypeOptions, setPostTypeOptions] = useState<string[]>([]);
-    const [allPostTypeMap, setAllPostTypeMap] = useState<Record<string, number>>({});
+    const [selectedPetStatus, setSelectedPetStatus] = useState<string | null>(null);
+    const [petStatusOptions, setPetStatusOptions] = useState<string[]>([]);
+    const [allPetStatusMap, setAllPetStatusMap] = useState<Record<string, number>>({});
 
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
     const {
-        data: posts,
+        data: pets,
         loading,
         currentPage,
         totalPages,
         handlePageChange,
         updateFilters
-    } = usePagination<Post>({
+    } = usePagination<Pet>({
         fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("Authentication token is missing");
-            return await getBannedPosts(authToken, {
+            return await getBannedPets(authToken, {
                 page,
                 size,
                 userId: filters?.userId ?? undefined,
-                postTypeId: filters?.postTypeId ?? undefined,
+                petStatusId: filters?.petStatusId ?? undefined,
                 refresh: filters?.refresh ?? undefined
             });
         },
@@ -56,22 +56,22 @@ export default function Page() {
     useEffect(() => {
         const fetchDeletedData = async () => {
             try {
-                const [postsResponse] = await Promise.all([
-                    authToken ? getBannedPosts(authToken) : Promise.reject(new Error("Authentication token is missing"))
+                const [petResponse] = await Promise.all([
+                    authToken ? getBannedPets(authToken) : Promise.reject(new Error("Authentication token is missing"))
                 ]);
 
-                const postTypeMap: Record<string, number> = {};
-                postsResponse.data.forEach(post => {
-                    if (post.postType.name) {
-                        postTypeMap[post.postType.name] = post.postType.id;
+                const petStatusMap: Record<string, number> = {};
+                petResponse.data.forEach(pet => {
+                    if (pet.petStatus.name) {
+                        petStatusMap[pet.petStatus.name] = pet.petStatus.id;
                     }
                 });
 
-                const uniquePostType = Object.keys(postTypeMap).sort();
+                const uniquePetStatus = Object.keys(petStatusMap).sort();
 
-                setPostTypeOptions(uniquePostType);
-                setAllPostTypeMap(postTypeMap);
-                setPageSize(postsResponse.pagination.size);
+                setPetStatusOptions(uniquePetStatus);
+                setAllPetStatusMap(petStatusMap);
+                setPageSize(petResponse.pagination.size);
             } catch (err) {
                 setPostError("Error al obtener las publicaciones")
             }
@@ -81,34 +81,34 @@ export default function Page() {
     }, []);
 
     const resetFilters = () => {
-        setSelectedPostType(null);
+        setSelectedPetStatus(null);
         updateFilters({});
     };
 
     useEffect(() => {
-        const postTypeId = selectedPostType && selectedPostType !== "Todos" ? allPostTypeMap[selectedPostType] : undefined;
+        const petStatusId = selectedPetStatus && selectedPetStatus !== "Todos" ? allPetStatusMap[selectedPetStatus] : undefined;
 
-        updateFilters({ postTypeId });
+        updateFilters({ petStatusId });
         handlePageChange(1);
-    }, [selectedPostType]);
+    }, [selectedPetStatus]);
 
     return (
         <div className="p-6">
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
-                        label="Tipo de publicación"
-                        options={["Todos", ...postTypeOptions]}
-                        selected={selectedPostType}
-                        setSelected={setSelectedPostType}
+                        label="Estado"
+                        options={["Todos", ...petStatusOptions]}
+                        selected={selectedPetStatus}
+                        setSelected={setSelectedPetStatus}
                     />
 
                     <ResetFiltersButton onClick={resetFilters} />
                 </div>
             </div>
             <DeletedListPage
-                items={posts}
-                itemType={ITEM_TYPE.POST}
+                items={pets}
+                itemType={ITEM_TYPE.PET}
                 loading={loading}
                 error={postError}
                 currentPage={currentPage}

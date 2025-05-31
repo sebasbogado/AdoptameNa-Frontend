@@ -16,7 +16,7 @@ export default function Page() {
       <h1 className="text-2xl font-bold mb-8">Administrar de Publicaciones Bloqueadas</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/administration/deleted-posts/posts-publications">
+        <Link href="/administration/banned-posts/posts-publications">
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
             <div className="bg-blue-100 p-4 rounded-full mb-4">
               <BookX size={48} className="text-blue-600" />
@@ -26,7 +26,7 @@ export default function Page() {
           </div>
         </Link>
 
-        <Link href="/administration/deleted-posts/pets-publications">
+        <Link href="/administration/banned-posts/pets-publications">
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
             <div className="bg-purple-100 p-4 rounded-full mb-4">
               <Cat size={48} className="text-purple-600" />
@@ -36,7 +36,7 @@ export default function Page() {
           </div>
         </Link>
 
-        <Link href="/administration/deleted-posts/products-publications">
+        <Link href="/administration/banned-posts/products-publications">
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
             <div className="bg-amber-100 p-4 rounded-full mb-4">
               <PackageSearch size={48} className="text-amber-600" />

@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import Pagination from '@/components/pagination';
 import React, { useState } from 'react';
 import SectionAdmin from '../section';
-import CardDeleted from './card-deleted';
+import CardDeleted from './card-banned';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
 import { Product } from '@/types/product';
