@@ -19,9 +19,6 @@ import {
   ListsToggle,
   InsertThematicBreak,
   imagePlugin,
-  codeBlockPlugin,
-  codeMirrorPlugin,
-  InsertCodeBlock,
 } from '@mdxeditor/editor';
 import { Image } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
