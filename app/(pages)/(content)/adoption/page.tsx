@@ -120,7 +120,9 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             {filterLoading ?
-                <SkeletonFilters numFilters={2} />
+                <div className="w-full">
+                    <SkeletonFilters numFilters={5} />
+                </div>
                 :
 
                 <div className="w-full max-w-7xl mx-auto p-4">
