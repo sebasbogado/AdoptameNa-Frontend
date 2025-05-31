@@ -47,9 +47,9 @@ const PostsTags: React.FC<TagProps> = ({ postType, iconType, value, large = fals
     return (
         
         <div className={clsx(tagBaseClass, postColors[postType])}>
-            {IconComponent && <IconComponent className={large ? "w-8 h-8 mr-1" : "w-4 h-4 mr-1"} />}
+            {IconComponent && <IconComponent className={large ? "w-5 h-5 mr-1 md:w-8 md:h-8 md:mr-1" : "w-4 h-4 mr-1"} />}
             
-            <span className={large ? "text-base" : "text-xs"}>{value}</span>
+            <span className={large ? "text-xs md:text-base" : "text-xs"}>{value}</span>
         </div>
     )
 }
