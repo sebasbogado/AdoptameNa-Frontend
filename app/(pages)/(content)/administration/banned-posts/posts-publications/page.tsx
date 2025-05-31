@@ -2,8 +2,8 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import DeletedListPage from "@/components/administration/deleted/deleted-list-page";
-import { getDeletedPosts } from "@/utils/posts.http";
+import DeletedListPage from "@/components/administration/banned/banned-list-page";
+import { getBannedPosts } from "@/utils/posts.http";
 import { usePagination } from "@/hooks/use-pagination";
 import { Post } from "@/types/post";
 import LabeledSelect from "@/components/labeled-selected";
@@ -31,14 +31,17 @@ export default function Page() {
     } = usePagination<Post>({
         fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("Authentication token is missing");
-            return await getDeletedPosts(authToken, {
+            return await getBannedPosts(authToken, {
                 page,
                 size,
-                postTypeId: filters?.postTypeId ?? undefined
+                userId: filters?.userId ?? undefined,
+                postTypeId: filters?.postTypeId ?? undefined,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -54,7 +57,7 @@ export default function Page() {
         const fetchDeletedData = async () => {
             try {
                 const [postsResponse] = await Promise.all([
-                    authToken ? getDeletedPosts(authToken) : Promise.reject(new Error("Authentication token is missing"))
+                    authToken ? getBannedPosts(authToken) : Promise.reject(new Error("Authentication token is missing"))
                 ]);
 
                 const postTypeMap: Record<string, number> = {};
@@ -112,6 +115,7 @@ export default function Page() {
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
                 disabled={true}
+                updateFilters={updateFilters}
             />
         </div>
     )

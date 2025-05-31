@@ -121,3 +121,68 @@ export const getDeletedProducts = async (
     throw new Error(error.message || "Error al obtener Productos");
   }
 };
+
+export const shareProduct = async (id: string, token: string) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/${id}/share`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al compartir Producto");
+  }
+}
+
+export const getBannedProducts = async (
+  token: string,
+  queryParams?: productQueryParams
+): Promise<PaginatedResponse<Product>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/banned`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Productos baneados");
+  }
+};
+
+export const unbanProduct = async (
+  id: string | number,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.patch(`${API_URL}/${id}/unban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al desbanear el producto");
+  }
+};
