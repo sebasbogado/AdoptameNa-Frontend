@@ -29,7 +29,7 @@ import { Alert } from '@material-tailwind/react';
 interface InitializedMDXEditorProps extends MDXEditorProps {
   editorRef?: React.Ref<MDXEditorMethods>;
   IsCreateBlog?: boolean;
-    onImageUpload?: (mediaId: number) => void; // AGREGA ESTO
+  onImageUpload?: (mediaId: number) => void; // AGREGA ESTO
 }
 
 export default function InitializedMDXEditor({
@@ -42,17 +42,17 @@ export default function InitializedMDXEditor({
   const localEditorRef = useRef<MDXEditorMethods>(null);
   const inputFileRef = useRef<HTMLInputElement>(null);
   const refToUse = (editorRef ?? localEditorRef) as React.RefObject<MDXEditorMethods>;
- const [errorMessage, setErrorMessage] = useState('');
-const [precautionMessage, setPrecautionMessage] = useState('');
-  
-    const [uploading, setUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [precautionMessage, setPrecautionMessage] = useState('');
 
-useEffect(() => {
-  if (errorMessage) {
-    const timer = setTimeout(() => setErrorMessage(''), 3500);
-    return () => clearTimeout(timer);
-  }
-}, [errorMessage]);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => setErrorMessage(''), 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
   // Plugins base
   const basePlugins = [
     headingsPlugin(),
@@ -64,7 +64,7 @@ useEffect(() => {
   ];
 
   if (IsCreateBlog) {
-    basePlugins.splice(4, 0, 
+    basePlugins.splice(4, 0,
       toolbarPlugin({
         toolbarContents: () => (
           <>
@@ -80,11 +80,16 @@ useEffect(() => {
               type="button"
               title="Subir imagen"
               className="px-2 py-1 rounded hover:bg-gray-200"
-              onClick={() => !uploading && inputFileRef.current?.click()}
+              onClick={() => {
+                if (refToUse.current && !uploading) {
+                  refToUse.current.focus();
+                  inputFileRef.current?.click();
+                }
+              }}
               disabled={uploading}
-              
+
             >
-               {uploading ? <Loader2 className="animate-spin" width="1.2rem" /> : <Image width={"1.2rem"} />}
+              {uploading ? <Loader2 className="animate-spin" width="1.2rem" /> : <Image width={"1.2rem"} />}
 
             </button>
             <InsertThematicBreak />
@@ -100,13 +105,13 @@ useEffect(() => {
 
     const result = blogFileSchema.safeParse(file);
     if (!result.success) {
-    setPrecautionMessage(result.error.errors[0].message);
+      setPrecautionMessage(result.error.errors[0].message);
       e.target.value = '';
       return;
     }
 
     if (!authToken) {
-    setErrorMessage("No autenticado. Por favor, inicia sesión.");
+      setErrorMessage("No autenticado. Por favor, inicia sesión.");
       e.target.value = '';
       return;
     }
@@ -130,14 +135,14 @@ useEffect(() => {
       }
 
     } catch (error: any) {
-    setErrorMessage(`Error al subir la imagen. Por favor, inténtalo de nuevo. ${error?.message || ''}`);
+      setErrorMessage(`Error al subir la imagen. Por favor, inténtalo de nuevo. ${error?.message || ''}`);
     } finally {
       setUploading(false);
       e.target.value = '';
     }
   };
   return (
-      <div className="flex flex-col gap-2 custom-editor">
+    <div className="flex flex-col gap-2 custom-editor">
 
       {/* Input oculto para subir imagen */}
       <input
@@ -148,36 +153,36 @@ useEffect(() => {
         onChange={handleImageUpload}
       />
       {errorMessage && (
-  <Alert
-    open={true}
-    color="red"
-    animate={{
-      mount: { y: 0 },
-      unmount: { y: -100 },
-    }}
-    icon={<X className="h-5 w-5" />}
-    onClose={() => setErrorMessage("")}
-    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
-  >
-    <p className="text-sm">{errorMessage}</p>
-  </Alert>
-)}
+        <Alert
+          open={true}
+          color="red"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<X className="h-5 w-5" />}
+          onClose={() => setErrorMessage("")}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{errorMessage}</p>
+        </Alert>
+      )}
 
-{precautionMessage && (
-  <Alert
-    open={true}
-    color="orange"
-    animate={{
-      mount: { y: 0 },
-      unmount: { y: -100 },
-    }}
-    icon={<AlertTriangle className="h-5 w-5" />}
-    onClose={() => setPrecautionMessage("")}
-    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
-  >
-    <p className="text-sm">{precautionMessage}</p>
-  </Alert>
-)}
+      {precautionMessage && (
+        <Alert
+          open={true}
+          color="orange"
+          animate={{
+            mount: { y: 0 },
+            unmount: { y: -100 },
+          }}
+          icon={<AlertTriangle className="h-5 w-5" />}
+          onClose={() => setPrecautionMessage("")}
+          className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+        >
+          <p className="text-sm">{precautionMessage}</p>
+        </Alert>
+      )}
 
       <MDXEditor
         ref={refToUse}
