@@ -10,26 +10,18 @@ import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Button from "@/components/buttons/button";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
 import { PostFormValues, postSchema } from "@/validations/post-schema";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert } from "@material-tailwind/react";
-import Image from "next/image";
 import { deleteMedia, postMedia } from "@/utils/media.http";
-import { ImagePlus, Check, X, AlertTriangle, ChevronLeftIcon } from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import { Media } from "@/types/media";
 import { getTags } from "@/utils/tags";
 import { POST_TYPEID } from "@/types/constants";
 import { Tags } from "@/types/tags";
-import { MultiSelect } from "@/components/multi-select";
 import NewBanner from "@/components/newBanner";
-import { CreatePostLocation } from "@/components/post/create-post-location";
-import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
+import { MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
 import UploadImages from "@/components/post/upload-images";
-import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 import { usePostForm } from "@/hooks/use-post-form";
 
 // Map is imported via CreatePostLocation component
@@ -183,7 +175,7 @@ export default function Page() {
 
     const handleDelete = async () => {
         setIsDeleteModalOpen(false);
-        setLoading(true);
+        setSaveLoading(true);
         if (!post?.id || !authToken) {
             console.error('Falta el ID de la publicación o el token');
             return;
@@ -199,7 +191,7 @@ export default function Page() {
             console.error('Error al eliminar la publicación:', error);
             setErrorMessage('Hubo un problema al eliminar la publicación.');
         } finally {
-            setLoading(false);
+            setSaveLoading(false);
         }
     };
 
@@ -296,7 +288,7 @@ export default function Page() {
         } catch (error) {
             setErrorMessage("Error al actualizar la publicación.");
         } finally {
-            setLoading(false);
+            setSaveLoading(false);
         }
     };
    
@@ -315,7 +307,9 @@ export default function Page() {
 
 const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
   handleImageUpload(e, watchedPostTypeId);
-
+    if (authLoading){
+        return <Loading />;
+    }
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}

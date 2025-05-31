@@ -38,11 +38,6 @@ export function usePostForm(setSaveLoading: (loading: boolean) => void, setError
     const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const syncAllMediaIds = useCallback(() => {
-        const combined = [...selectedImages.map(img => img.id), ...editorMediaIds];
-        const unique = [...new Set(combined)];
-        setValue("mediaIds", unique, { shouldValidate: true });
-    }, [selectedImages, editorMediaIds, setValue]);
 
     const handleEditorImageUpload = (mediaId: number) => {
         setEditorMediaIds(prev => {
@@ -111,39 +106,43 @@ export function usePostForm(setSaveLoading: (loading: boolean) => void, setError
             }
         }
     };
-      const prevPostTypeId = useRef(watchedPostTypeId);
+  
+    const prevPostTypeId = useRef(watchedPostTypeId);
     function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
+        console.log("Filtrando imágenes permitidas:", images);
         const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
+        console.log("Primera imagen permitida:", firstImage);
         if (firstImage) return [firstImage];
         if (images.length > 0) return [images[0]];
         return [];
     }
 
     useEffect(() => {
-            if (
-                prevPostTypeId.current !== undefined &&
-                prevPostTypeId.current !== watchedPostTypeId
-            ) {
-                if (watchedPostTypeId === POST_TYPEID.BLOG) {
-                    if (selectedImages.length > MAX_BLOG_IMAGES) {
-                        const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
-                        setSelectedImages(limitedImages);
-                        setCurrentImageIndex(0);
-                        setValue(
-                            "mediaIds",
-                            limitedImages.map(img => img.id),
-                            { shouldValidate: true }
-                        );
-                        setPrecautionMessage(
-                            `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
-                        );
-                    }
+        if (
+            prevPostTypeId.current !== undefined &&
+            prevPostTypeId.current !== watchedPostTypeId
+        ) {
+            if (watchedPostTypeId === POST_TYPEID.BLOG) {
+                if (selectedImages.length > MAX_BLOG_IMAGES) {
+                    const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
+
+                    setSelectedImages(limitedImages);
+                    setCurrentImageIndex(0);
+                    setValue(
+                        "mediaIds",
+                        limitedImages.map(img => img.id),
+                        { shouldValidate: true }
+                    );
+                    setPrecautionMessage(
+                        `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
+                    );
                 }
-                setValue("content", "");
-    
             }
-            prevPostTypeId.current = watchedPostTypeId;
-        }, [watchedPostTypeId, selectedImages, setValue]);
+            setValue("content", "");
+
+        }
+        prevPostTypeId.current = watchedPostTypeId;
+    }, [watchedPostTypeId, selectedImages, setValue]);
     return {
         register,
         handleSubmit,
@@ -162,7 +161,6 @@ export function usePostForm(setSaveLoading: (loading: boolean) => void, setError
         handleRemoveImage,
         currentImageIndex,
         setCurrentImageIndex,
-        syncAllMediaIds,
         handleImageUpload,
     };
 }

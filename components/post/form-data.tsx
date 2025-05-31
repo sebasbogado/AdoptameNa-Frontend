@@ -34,7 +34,6 @@ export const FormData = ({ handleSubmit,
     const editorContentRef = useRef('')
     const content = watch("content");
 
-    const [initialContent, setInitialContent] = useState("");
     const handleSubmitValid = async (e: React.FormEvent<HTMLFormElement>) => {
                     e.preventDefault();
                     if (postTypeId === POST_TYPEID.BLOG) {
@@ -49,7 +48,6 @@ export const FormData = ({ handleSubmit,
                 }
     useEffect(() => {
         if (postTypeId === POST_TYPEID.BLOG && content) {
-            setInitialContent(content);
             editorContentRef.current = content;
         }
     }, [postTypeId, content]);

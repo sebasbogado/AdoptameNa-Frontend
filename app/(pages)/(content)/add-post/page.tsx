@@ -24,7 +24,6 @@ import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-sche
 import { ChevronLeftIcon } from "lucide-react";
 import Loading from "@/app/loading";
 import { usePostForm } from "@/hooks/use-post-form";
-import { set } from "zod";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -32,27 +31,24 @@ export default function Page() {
     const [saveLoading, setSaveLoading] = useState<boolean>(false);
     const [precautionMessage, setPrecautionMessage] = useState("");
 
-     const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    control,
-    trigger,
-    errors,
-    watchedPostTypeId,
-    selectedImages,
-    setSelectedImages,
-    editorMediaIds,
-    setEditorMediaIds,
-    handleEditorImageUpload,
-    handleRemoveImage,
-    currentImageIndex,
-    setCurrentImageIndex,
-    syncAllMediaIds,
-    handleImageUpload,
-  } = usePostForm(setSaveLoading, setErrorMessage, setPrecautionMessage, authToken);                  
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        reset,
+        watch,
+        control,
+        trigger,
+        errors,
+        watchedPostTypeId,
+        selectedImages,
+
+        handleEditorImageUpload,
+        handleRemoveImage,
+        currentImageIndex,
+        setCurrentImageIndex,
+        handleImageUpload,
+    } = usePostForm(setSaveLoading, setErrorMessage, setPrecautionMessage, authToken);
     const [loading, setLoading] = useState<boolean>(true);
     const [successMessage, setSuccessMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
@@ -110,7 +106,7 @@ export default function Page() {
 
         return [...generalTags, ...specificTags];
 
-    }, [tags, watchedPostTypeId]); 
+    }, [tags, watchedPostTypeId]);
 
     useEffect(() => {
         const validSelectedTags = selectedTags.filter(selectedTag =>
@@ -121,15 +117,15 @@ export default function Page() {
             setSelectedTags(validSelectedTags);
             setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
         }
-     }, [filteredTags, setValue]);
+    }, [filteredTags, setValue]);
 
     const openConfirmationModal = (data: PostFormValues) => {
-        setValidatedData(data); 
+        setValidatedData(data);
         setIsModalOpen(true);
     };
 
     const onSubmit = (data: PostFormValues) => {
-        openConfirmationModal(data); 
+        openConfirmationModal(data);
     };
 
     const confirmSubmit = async () => {
@@ -188,20 +184,13 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-  
-    function shouldShowCoverImage(content: string, images: Media[]): boolean {
-  if (!images || images.length === 0) return false;
 
-  const firstImageUrl = images[0]?.url;
-  if (!firstImageUrl) return false;
 
-  return !content.includes(firstImageUrl);
-}
-const wrappedHandleRemoveImage = (index: number) =>
-  handleRemoveImage(index, deleteMedia);
+    const wrappedHandleRemoveImage = (index: number) =>
+        handleRemoveImage(index, deleteMedia);
 
-const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
-  handleImageUpload(e, watchedPostTypeId);
+    const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleImageUpload(e, watchedPostTypeId);
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -229,11 +218,11 @@ const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
                     </button>
                     <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
                 </div>
-                <NewBanner
+               <NewBanner
                 medias={
-                    watchedPostTypeId === POST_TYPEID.BLOG && shouldShowCoverImage(watch("content"), selectedImages)
+                    watchedPostTypeId === POST_TYPEID.BLOG
                     ? selectedImages.slice(0, 1)
-                    : []
+                    : selectedImages
                 }
                 />
                 <UploadImages
