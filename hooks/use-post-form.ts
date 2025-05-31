@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { MAX_BLOG_IMAGES, PostFormValues, postSchema } from "@/validations/post-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Media } from "@/types/media";
-import { Tags } from "@/types/tags";
 
 import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 import { POST_TYPEID } from "@/types/constants";

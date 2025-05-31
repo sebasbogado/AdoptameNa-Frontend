@@ -3,10 +3,10 @@ import Button from "../buttons/button";
 import { FormDataProps } from "@/types/props/posts/FormDataPostProps";
 import ForwardRefEditor from "../editor/forward-ref-editor";
 import { POST_TYPEID } from "@/types/constants";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Controller } from "react-hook-form";
 import { CreatePostLocation } from "./create-post-location";
-import { MAX_TAGS, MAX_IMAGES } from "@/validations/post-schema";
+import { MAX_TAGS } from "@/validations/post-schema";
 export const FormData = ({ handleSubmit,
     onSubmit,
     register,
@@ -43,8 +43,6 @@ export const FormData = ({ handleSubmit,
                     if (isValid) {
                         handleSubmit(onSubmit)();
                     }
-                    trigger();
-                    console.log(errors);
                 }
     useEffect(() => {
         if (postTypeId === POST_TYPEID.BLOG && content) {

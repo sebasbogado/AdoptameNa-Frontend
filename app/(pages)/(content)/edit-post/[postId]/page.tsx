@@ -4,16 +4,15 @@ import Loading from "@/app/loading";
 import { useAuth } from "@/contexts/auth-context";
 import { Post, UpdatePost } from "@/types/post";
 import { FormData as FormDataPost } from "@/components/post/form-data";
-
 import { PostType } from "@/types/post-type";
 import { getPostsType } from "@/utils/post-type.http";
 import { deletePost, getPost, updatePost } from "@/utils/posts.http";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ConfirmationModal } from "@/components/form/modal";
 import NotFound from "@/app/not-found";
-import { PostFormValues, postSchema } from "@/validations/post-schema";
-import { deleteMedia, postMedia } from "@/utils/media.http";
+import { PostFormValues } from "@/validations/post-schema";
+import { deleteMedia } from "@/utils/media.http";
 import { ChevronLeftIcon } from "lucide-react";
 import { Media } from "@/types/media";
 import { getTags } from "@/utils/tags";
@@ -24,12 +23,6 @@ import { MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
 import UploadImages from "@/components/post/upload-images";
 import { usePostForm } from "@/hooks/use-post-form";
 
-// Map is imported via CreatePostLocation component
-
-// Asegurémonos de que el tipo Media incluya la propiedad type
-interface ExtendedMedia extends Media {
-    type?: string;
-}
 
 export default function Page() {
     const { postId } = useParams();
@@ -140,10 +133,7 @@ export default function Page() {
                     blogImages: postData.blogImages?.map((img: Media) => img.id) || [], // <-- AGREGÁ ESTO
 
                 });
-                console.log("reset() ejecutado con:", {
-                    content: postData.content,
-                    postTypeId: postData.postType?.id,
-                });
+               
 
                 // Poblar estado local de imágenes
                 setSelectedImages(postData.media || []);
@@ -153,6 +143,7 @@ export default function Page() {
 
             } catch (err: any) {
                 console.error("Error al cargar datos iniciales:", err);
+
                 if (err.response?.status === 404) {
                     setPostError("Publicación no encontrada.");
                 } else {
@@ -165,6 +156,7 @@ export default function Page() {
 
         fetchInitialData();
     }, [authToken, authLoading, user?.id, postId, router, reset]);
+
     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
         if (newPosition) {
@@ -215,7 +207,6 @@ export default function Page() {
     };
     const openConfirmationModal = (data: PostFormValues) => {
 
-        console.log("Datos validados:", data);
 
         setValidatedData(data); // Guardamos los datos validados
         setIsModalOpen(true);
@@ -227,9 +218,7 @@ export default function Page() {
             data.locationCoordinates = undefined;
         }
 
-        console.log("Datos validados:", data);
         await trigger();
-        console.log("Errores actuales:", errors); // <-- aquí deberían mostrarse
         openConfirmationModal(data);
     };
 
@@ -307,8 +296,11 @@ export default function Page() {
 
 const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
   handleImageUpload(e, watchedPostTypeId);
-    if (authLoading){
-        return <Loading />;
+      if (authLoading || loading) {
+           return <Loading />;
+       }
+    if (postError) {
+        return <NotFound />;
     }
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
