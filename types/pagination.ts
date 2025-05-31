@@ -25,6 +25,7 @@ export type postQueryParams = queryParams & locationQueryParams  & {
   postTypeId?: number;
   userId?: number;
   tagIds?: number[];
+  refresh?: number;
 };
 
 export type notificationQueryParams = queryParams & {
@@ -56,6 +57,7 @@ export type productQueryParams = queryParams & locationQueryParams & {
   animalIds?: number;
   userId?: number;
   search?: string;
+  refresh?: number;
 };
 
 export type myPetsQueryParams = queryParams & {
@@ -64,6 +66,7 @@ export type myPetsQueryParams = queryParams & {
   maxAge?: number;
   userId?: number;
   petStatusId?: number;
+  refresh?: number;
 };
 
 export type reportQueryParams = queryParams & {
