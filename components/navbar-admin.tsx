@@ -20,7 +20,7 @@ const navbarAdminItems = [
     icon: <Newspaper className="w-5 h-5 mr-2" />,
     items: [
       { name: "Administrar Publicaciones", path: "/administration/posts" },
-      { name: "Publicaciones Bloqueadas", path: "/administration/deleted-posts" },
+      { name: "Publicaciones Bloqueadas", path: "/administration/banned-posts" },
     ],
   },
   {
