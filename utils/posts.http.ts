@@ -200,3 +200,46 @@ export const getDeletedPosts = async (
     throw new Error(error.message || "Error al obtener Posts");
   }
 };
+
+export const getBannedPosts = async (
+  token: string,
+  queryParams?: postQueryParams
+): Promise<PaginatedResponse<Post>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/banned`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Posts baneados");
+  }
+};
+
+export const unbanPost = async (
+  id: string | number,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.patch(`${API_URL}/${id}/unban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al desbanear el post");
+  }
+};
