@@ -87,7 +87,7 @@ export default function Page() {
             setLoading(false);
         }
     };
-
+ 
     useEffect(() => {
         fetchInitialData();
     }, []);
@@ -191,6 +191,9 @@ export default function Page() {
 
     const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
         handleImageUpload(e, watchedPostTypeId);
+       if (authLoading || loading) {
+        return <Loading />;
+    }
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
