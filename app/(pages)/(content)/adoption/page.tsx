@@ -17,6 +17,7 @@ import { Animal } from "@/types/animal";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { capitalizeFirstLetter } from "@/utils/Utils";
 import { SkeletonFilters } from "@/components/ui/skeleton-filter";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export default function Page() {
     const { user } = useAuth();
