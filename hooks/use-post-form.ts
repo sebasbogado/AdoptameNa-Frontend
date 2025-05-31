@@ -109,9 +109,7 @@ export function usePostForm(setSaveLoading: (loading: boolean) => void, setError
   
     const prevPostTypeId = useRef(watchedPostTypeId);
     function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
-        console.log("Filtrando imágenes permitidas:", images);
         const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
-        console.log("Primera imagen permitida:", firstImage);
         if (firstImage) return [firstImage];
         if (images.length > 0) return [images[0]];
         return [];
