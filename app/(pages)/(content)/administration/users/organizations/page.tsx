@@ -158,6 +158,7 @@ export default function OrganizationsPage() {
                     setSelectedUser(id);
                     setModalConfirmation(true);
                 }}
+                type="organization"
             />
 
             {totalPages > 1 && (

@@ -8,10 +8,11 @@ interface Props {
   data: UserProfile[];
   onDelete: (id: number) => void;
   loading?: boolean;
+  type?: string;
 }
 
-export default function UserTable({ title, data, onDelete, loading = false }: Props) {
-
+export default function UserTable({ title, data, onDelete, loading = false, type = "" }: Props) {
+  console.log(data)
   const formatDate = (dateString: string): string => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -33,10 +34,15 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
             <tr className="bg-gray-50">
               <th className="border px-3 py-2 text-left">ID</th>
               <th className="border px-3 py-2 text-left">Nombre</th>
+              {type === "organization" && (
+                <th className="border px-3 py-2 text-left">Nombre de organización</th>
+              )}
               <th className="border px-3 py-2 text-left">Email</th>
               <th className="border px-3 py-2 text-left">Teléfono</th>
               <th className="border px-3 py-2 text-left">Dirección</th>
-              <th className="border px-3 py-2 text-left">Puntos</th>
+              {type !== "organization" && (
+                <th className="border px-3 py-2 text-left">Puntos</th>
+              )}
               <th className="border px-3 py-2 text-left">Fecha de Nacimiento</th>
               <th className="border px-3 py-2 text-left">Fecha de Registro</th>
               <th className="border px-3 py-2 text-center">Acciones</th>
@@ -60,10 +66,19 @@ export default function UserTable({ title, data, onDelete, loading = false }: Pr
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{user.id}</td>
                   <td className="border px-3 py-2">{user.fullName}</td>
+                  {/* Mostrar organizationName solo si SÍ es organization */}
+                  {type === "organization" && (
+                    <td className="border px-3 py-2">{user.organizationName || "-"}</td>
+                  )}
                   <td className="border px-3 py-2">{user.email}</td>
                   <td className="border px-3 py-2">{user.phoneNumber || "-"}</td>
                   <td className="border px-3 py-2">{user.address || "-"}</td>
-                  <td className="border px-3 py-2">{user.earnedPoints !== undefined ? user.earnedPoints : "-"}</td>
+                  {/* Mostrar earnedPoints solo si NO es organization */}
+                  {type !== "organization" && (
+                    <td className="border px-3 py-2">
+                      {user.earnedPoints !== undefined ? user.earnedPoints : "-"}
+                    </td>
+                  )}
                   <td className="border px-3 py-2">{formatDate(user.birthdate || "")}</td>
                   <td className="border px-3 py-2">{formatDate(user.creationDate)}</td>
                   <td className="border px-3 py-2">
