@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
