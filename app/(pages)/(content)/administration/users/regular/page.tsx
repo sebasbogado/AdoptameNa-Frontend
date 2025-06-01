@@ -30,6 +30,7 @@ export default function RegularUsersPage() {
     const pageSize = 10;
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -65,6 +66,7 @@ export default function RegularUsersPage() {
                 size,
                 role: "user",
                 name: filters?.name || undefined,
+                sort: filters?.sort || "id,asc",
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -73,11 +75,12 @@ export default function RegularUsersPage() {
     useEffect(() => {
         const filters = {
             name: searchQuery || undefined,
-            refresh: refreshTrigger
+            sort: sortDirection,
+            refresh: refreshTrigger,
         };
 
         updateFilters(filters);
-    }, [searchQuery, refreshTrigger, updateFilters]);
+    }, [searchQuery, sortDirection, refreshTrigger, updateFilters]);
 
 
     const handleDelete = async () => {
@@ -178,6 +181,14 @@ export default function RegularUsersPage() {
                             onClear={handleClearSearch}
                         />
                     </div>
+                    <select
+                        value={sortDirection}
+                        onChange={(e) => setSortDirection(e.target.value as "asc" | "desc")}
+                        className="border rounded px-2 py-2 text-sm w-full md:w-auto"
+                    >
+                        <option value="id,asc">Orden Ascendente</option>
+                        <option value="id,desc">Orden Descendente</option>
+                    </select>
                 </div>
             </div>
 
