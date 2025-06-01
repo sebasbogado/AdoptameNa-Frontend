@@ -400,6 +400,9 @@ export default function Page() {
                         <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
                     </label>
                 </div>
+                <div className="flex justify-center items-center mt-2">
+                    {errors.mediaIds && <p className="text-red-500 text-sm">{errors.mediaIds.message}</p>}
+                </div>
                 {errorMessage && (
                     <Alert
                         open={true}

@@ -222,10 +222,7 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
 
     try {
       setLoading(true);
@@ -389,6 +386,9 @@ export default function Page() {
           >
             <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
           </label>
+        </div>
+        <div className="flex justify-center items-center mt-2">
+          {errors.mediaIds && <p className="text-red-500 text-sm">{errors.mediaIds.message}</p>}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
