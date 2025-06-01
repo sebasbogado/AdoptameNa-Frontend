@@ -7,6 +7,7 @@ import ChatInput from "@/components/chat/chat-input";
 import ChatContainer from "@/components/chat/chat-container";
 import ChatHeader from "@/components/chat/chat-header";
 import ChatUserListItem from "@/components/chat/chat-user-list-item";
+import { ImagePreview } from "@/hooks/use-chat-image-upload";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
@@ -41,9 +42,9 @@ export default function ChatsPage() {
     }
   }, [chatUsers, selectedChat, selectChat, loadingUsers]);
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = (content: string, mediaIds?: number[], images?: ImagePreview[]) => {
     if (selectedChat) {
-      sendMessage(content, selectedChat.id);
+      sendMessage(content, selectedChat.id, mediaIds, images);
     }
   };
 

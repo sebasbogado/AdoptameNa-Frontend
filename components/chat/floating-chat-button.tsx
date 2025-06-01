@@ -5,6 +5,7 @@ import { useFloatingChat } from "@/contexts/floating-chat-context";
 import { MessageCircle, X, ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import ChatInput from "./chat-input";
+import { ImagePreview } from "@/hooks/use-chat-image-upload";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import ChatContainer from "./chat-container";
@@ -77,9 +78,9 @@ const FloatingChatButton = () => {
     }
   };
 
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = (content: string, mediaIds?: number[], images?: ImagePreview[]) => {
     if (!selectedChat) return;
-    sendMessage(content, selectedChat.id);
+    sendMessage(content, selectedChat.id, mediaIds, images);
   };
 
   const handleLoadMoreMessages = () => {

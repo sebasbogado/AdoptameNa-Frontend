@@ -1,12 +1,16 @@
-import { Favorites } from '@/types/favorites';
+import { buildQueryParams, queryParams } from '@/types/pagination';
 import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_BASE_API_URL}/favorites`;
 
-export const getFavorites = async (token: string, queryParams?: any) => {
+export const getFavorites = async (
+    token: string, 
+    queryParams?: queryParams
+) => {
     try {
+        const params = buildQueryParams(queryParams);
         const response = await axios.get(API_URL, {
-            params: queryParams,
+            params: params,
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',

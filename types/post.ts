@@ -17,6 +17,7 @@ export interface Post {
   postType: PostType;
   media: Media[];
   tags: Tags[];
+  blogImages: Media[];
 }
 
 export interface CreatePost {
@@ -25,9 +26,10 @@ export interface CreatePost {
   tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
-  contactNumber: string;
+  contactNumber?: string; 
   userId: number;
   mediaIds: number[];
+  blogImages?: number[]; // Optional field for blog images
 }
 
 export interface UpdatePost {
@@ -35,10 +37,12 @@ export interface UpdatePost {
   content: string;
   tagIds: number[];
   postTypeId: number;
-  locationCoordinates: string;
-  contactNumber: string;
+  locationCoordinates?: string;
+  contactNumber?: string;
   userId: number;
   mediaIds: number[];
+  blogImages?: number[]; // Optional field for blog images
+
 }
 
 export interface RestorePost {

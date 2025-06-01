@@ -2,11 +2,11 @@
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import DeletedListPage from "@/components/administration/deleted/deleted-list-page";
+import DeletedListPage from "@/components/administration/banned/banned-list-page";
 import { usePagination } from "@/hooks/use-pagination";
 import LabeledSelect from "@/components/labeled-selected";
 import ResetFiltersButton from "@/components/reset-filters-button";
-import { getDeletedPets } from "@/utils/pets.http";
+import { getBannedPets } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { ITEM_TYPE } from "@/types/constants";
 
@@ -31,15 +31,17 @@ export default function Page() {
     } = usePagination<Pet>({
         fetchFunction: async (page, size, filters) => {
             if (!authToken) throw new Error("Authentication token is missing");
-            return await getDeletedPets(authToken, {
+            return await getBannedPets(authToken, {
                 page,
                 size,
                 userId: filters?.userId ?? undefined,
-                petStatusId: filters?.petStatusId ?? undefined
+                petStatusId: filters?.petStatusId ?? undefined,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -55,7 +57,7 @@ export default function Page() {
         const fetchDeletedData = async () => {
             try {
                 const [petResponse] = await Promise.all([
-                    authToken ? getDeletedPets(authToken) : Promise.reject(new Error("Authentication token is missing"))
+                    authToken ? getBannedPets(authToken) : Promise.reject(new Error("Authentication token is missing"))
                 ]);
 
                 const petStatusMap: Record<string, number> = {};
@@ -113,6 +115,7 @@ export default function Page() {
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
                 disabled={true}
+                updateFilters={updateFilters}
             />
         </div>
     )

@@ -1,20 +1,22 @@
 "use client"
 import { useEffect, useState } from "react"
-import { deleteUser } from "@/utils/user.http"
+import { deleteUser, getUser, updateUser } from "@/utils/user.http"
 import { getAllFullUserProfile } from "@/utils/user-profile.http"
 import UserTable from "@/components/administration/user/user-table"
 import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
+import { ArrowLeft, Check, X, AlertTriangle } from "lucide-react"
+import Link from "next/link"
+import Loading from "@/app/loading"
+import NotFound from "@/app/not-found"
 import { usePagination } from "@/hooks/use-pagination"
 import SearchBar from "@/components/search-bar"
 import Pagination from "@/components/pagination"
 import { useDebounce } from "@/hooks/use-debounce"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-import Loading from "@/app/loading"
-import NotFound from "@/app/not-found"
+import ChangeRoleModal from "@/components/administration/user/change-role-modal"
+import { User } from "@/types/auth";
 
 export default function AdminsPage() {
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -26,6 +28,8 @@ export default function AdminsPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading, user } = useAuth();
     const pageSize = 10;
+    const [modalUser, setModalUser] = useState<User | null>(null);
+    const [openModal, setOpenModal] = useState(false);
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -97,27 +101,62 @@ export default function AdminsPage() {
         }
     }
 
+    const handleUpdate = async (u: User, newRole: string) => {
+        if (!authToken) return;
+
+        const newDbRole = newRole === "admin" ? "admin" : "user";
+
+        if (u.role === newDbRole) return; // No hay cambios
+
+        try {
+            const existing = await getUser(String(u.id));
+            await updateUser(authToken, u.id, {
+                ...existing,
+                role: newDbRole,
+            });
+            setSuccessMessage("Rol actualizado correctamente");
+            setRefreshTrigger(x => x + 1);
+        } catch (err: any) {
+            console.error("Error al actualizar rol:", err);
+            setErrorMessage(err.message || "Error al actualizar el usuario");
+        } finally {
+            setOpenModal(false);
+            setModalUser(null);
+        }
+    };
+
+
     return (
         <div className="p-8">
             {successMessage && (
-                <div>
-                    <Alert
-                        color="green"
-                        onClose={() => setSuccessMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {successMessage}
-                    </Alert>
-                </div>
+                <Alert
+                    open={true}
+                    color="green"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<Check className="h-5 w-5" />}
+                    onClose={() => setSuccessMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{successMessage}</p>
+                </Alert>
             )}
             {errorMessage && (
-                <div>
-                    <Alert
-                        color="red"
-                        onClose={() => setErrorMessage("")}
-                        className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-                        {errorMessage}
-                    </Alert>
-                </div>
+                <Alert
+                    open={true}
+                    color="red"
+                    animate={{
+                        mount: { y: 0 },
+                        unmount: { y: -100 },
+                    }}
+                    icon={<X className="h-5 w-5" />}
+                    onClose={() => setErrorMessage("")}
+                    className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+                >
+                    <p className="text-sm">{errorMessage}</p>
+                </Alert>
             )}
 
             <ConfirmationModal
@@ -148,6 +187,18 @@ export default function AdminsPage() {
                 </div>
             </div>
 
+            <ChangeRoleModal
+                isOpen={openModal}
+                onClose={() => setOpenModal(false)}
+                userFullName={modalUser?.fullName ?? ""}
+                userEmail={modalUser?.email ?? ""}
+                currentRole={modalUser?.role ?? "admin"}
+                roles={["admin", "regular"]}
+                onSave={(newDisplayRole: string) =>
+                    handleUpdate(modalUser as User, newDisplayRole)
+                }
+            />
+
             <UserTable
                 title="Lista de Administradores"
                 data={admins}
@@ -155,6 +206,10 @@ export default function AdminsPage() {
                 onDelete={(id) => {
                     setSelectedUser(id);
                     setModalConfirmation(true);
+                }}
+                onPromote={(u) => {
+                    setModalUser(u);
+                    setOpenModal(true);
                 }}
             />
 

@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { getCrowdfundings, deleteCrowdfunding, updateCrowdfundingStatus, rejectCrowdfunding } from '@/utils/crowfunding.http';
 import { Crowdfunding } from '@/types/crowfunding-type';
 import Pagination from '@/components/pagination';
-import CrowdfundingCard from '@/components/crowdfundingCard/crowdfunding-card';
-import { Alert } from "@material-tailwind/react";
+import { RequestCard } from '@/components/request/request-card';
 import { ConfirmationModal } from '@/components/form/modal';
 
 const STATUS_OPTIONS = [
@@ -93,15 +92,18 @@ export default function CrowfundingPage() {
         setIsDefinitiveDelete(false);
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         const crowdfunding = crowdfundings.find(c => c.id === id);
-        if (crowdfunding && crowdfunding.status !== 'CLOSED') {
-            setAlertInfo({ open: true, color: 'red', message: 'Solo puedes eliminar campañas que estén cerradas.' });
+        if (crowdfunding && (crowdfunding.status === 'ACTIVE' || crowdfunding.status === 'PENDING')) {
             return;
         }
-        setCrowdfundingToDeleteId(id);
-        setIsConfirmModalOpen(true);
-        setIsDefinitiveDelete(true);
+        if (!authToken || id == null) return;
+        try {
+            await deleteCrowdfunding(authToken, id);
+            fetchCrowdfundings();
+        } catch (error) {
+            setAlertInfo({ open: true, color: 'red', message: 'Error al eliminar la colecta.' });
+        }
     };
 
     const confirmRejectOrDelete = async () => {
@@ -136,18 +138,6 @@ export default function CrowfundingPage() {
             <h1 className="text-2xl font-semibold mb-2">Administración de Colectas</h1>
             <p className="text-gray-600 mb-6">Gestiona las campañas de colectas: aprobar, rechazar o eliminar.</p>
 
-            {alertInfo && (
-                <Alert
-                    open={alertInfo.open}
-                    color={alertInfo.color === 'green' ? 'green' : 'red'}
-                    onClose={() => setAlertInfo(null)}
-                    className="mb-4 fixed top-4 right-4 w-auto z-50"
-                    animate={{ mount: { y: 0 }, unmount: { y: -100 } }}
-                >
-                    {alertInfo.message}
-                </Alert>
-            )}
-
             <div className="mb-6 w-full sm:w-72">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                 <select
@@ -169,13 +159,13 @@ export default function CrowfundingPage() {
                 crowdfundings.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 gap-y-6">
                         {crowdfundings.map((item) => (
-                            <CrowdfundingCard
+                            <RequestCard
                                 key={item.id}
-                                item={item}
+                                application={item}
                                 isAdmin={true}
                                 onApprove={handleApprove}
                                 onReject={handleReject}
-                                onDelete={handleDelete}
+                                onDeleted={handleDelete}
                             />
                         ))}
                     </div>
@@ -189,16 +179,6 @@ export default function CrowfundingPage() {
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
                 size="md"
-            />
-
-            <ConfirmationModal
-                isOpen={isConfirmModalOpen}
-                title={isDefinitiveDelete ? "Eliminar Colecta" : "Confirmar Rechazo"}
-                message={isDefinitiveDelete ? "¿Estás seguro de que deseas eliminar definitivamente esta campaña?" : "¿Estás seguro de que deseas rechazar (eliminar) esta campaña?"}
-                textConfirm={isDefinitiveDelete ? "Eliminar" : "Rechazar"}
-                confirmVariant={isDefinitiveDelete ? "danger" : "danger"}
-                onClose={closeModal}
-                onConfirm={confirmRejectOrDelete}
             />
 
             <ConfirmationModal

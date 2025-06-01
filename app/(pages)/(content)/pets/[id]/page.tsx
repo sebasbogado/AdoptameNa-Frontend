@@ -48,7 +48,7 @@ const PostPage = () => {
         const fetchPets = async () => {
             const pets = await getPets({
                 size: 5,
-                petStatusId: idStatus
+                petStatusId: [idStatus]
             });
             setPets(pets.data);
         };
@@ -66,12 +66,11 @@ const PostPage = () => {
     return (
         <>
             <div>
-                <NewBanner medias={pet?.media || []}/>
+                <NewBanner medias={pet?.media || []} />
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-10 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader pet={pet as Pet} />
-                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId} />
-
+                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId} petStatus={pet?.petStatus} />
                         <PostContent pet={pet} />
                         <PostSidebar pets={pets} />
                     </div>

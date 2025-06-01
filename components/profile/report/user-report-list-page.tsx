@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { getPost } from '@/utils/posts.http';
 import { getPet } from '@/utils/pets.http';
 import { getProduct } from '@/utils/product.http';
+import { ReportType } from "@/types/report";
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
@@ -18,14 +19,14 @@ interface Props<T> {
   isPost?: boolean;
 }
 
-type EnrichedReport<T> = T & { pet?: any; post?: any; product?: any  };
+type EnrichedReport<T> = T & { pet?: any; post?: any; product?: any };
 
 export default function UserReportListPage<T extends {
-  productId: number | null; petId?: number | null; postId?: number | null 
+  productId?: number | null; petId?: number | null; postId?: number | null
 }>({
   fetchFunction,
   pageSize = 20,
-  isPost = true,
+  isPost = true
 }: Props<T>) {
   const { authToken } = useAuth();
   const {
@@ -40,8 +41,16 @@ export default function UserReportListPage<T extends {
     initialPage: 1,
     initialPageSize: pageSize,
   });
-
+  
   const [enrichedData, setEnrichedData] = useState<EnrichedReport<T>[]>([]);
+  const [reportType, setReportType] = useState<string | null>(null);
+
+  const reportTypeTitles: Record<string, string> = {
+    POST: "Publicaciones reportadas",
+    PET: "Mascotas reportadas",
+    PRODUCT: "Productos reportados",
+    COMMENT: "Comentarios reportados",
+  };
 
   useEffect(() => {
     if (!authToken || loading || !data.length) return;
@@ -56,14 +65,17 @@ export default function UserReportListPage<T extends {
         try {
           if (item.petId) {
             const pet = await getPet(String(item.petId));
+            setReportType(ReportType.PET);
             seenIds.add(id);
             return { ...item, pet };
           } else if (item.postId) {
             const post = await getPost(String(item.postId));
+            setReportType(ReportType.POST);
             seenIds.add(id);
             return { ...item, post };
           } else if (item.productId) {
-            const product = await getProduct(String(item.productId)); 
+            const product = await getProduct(String(item.productId));
+            setReportType(ReportType.PRODUCT);
             seenIds.add(id);
             return { ...item, product };
           }
@@ -84,7 +96,7 @@ export default function UserReportListPage<T extends {
 
   return (
     <div>
-      <UserSectionReport title={isPost ? "Publicaciones reportadas" : "Mascotas reportadas"} />
+      <UserSectionReport title={reportTypeTitles[reportType ?? "POST"]} />
 
       {error && (
         <div className="bg-red-100 text-red-700 p-4 rounded-md w-full max-w-md">

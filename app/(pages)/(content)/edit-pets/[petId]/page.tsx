@@ -1,18 +1,15 @@
 'use client'
 
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import dynamic from 'next/dynamic';
 import Image from "next/image";
-import { MapProps } from "@/types/map-props";
+import { CreatePostLocation } from "@/components/post/create-post-location";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
 import { getBreed } from "@/utils/breed.http";
 import { deletePet, getPet, updatePet } from "@/utils/pets.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import Button from '@/components/buttons/button';
-import { ImagePlus } from "lucide-react";
-import { Maximize } from "lucide-react";
+import { ImagePlus, Check, X, AlertTriangle } from "lucide-react";
 import { getPetStatus } from "@/utils/pet-statuses.http";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PetFormValues, petSchema } from "@/validations/pet-schema";
@@ -27,10 +24,7 @@ import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
 import NewBanner from "@/components/newBanner";
 
-const MapWithNoSSR = dynamic<MapProps>(
-  () => import('@/components/ui/map'),
-  { ssr: false }
-);
+
 
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
@@ -403,38 +397,52 @@ export default function Page() {
             </label>
           </div>
         </div>
-
         {errorMessage && (
-          <div>
-            <Alert
-              color="red"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setErrorMessage("")}>
-              {errorMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="red"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<X className="h-5 w-5" />}
+            onClose={() => setErrorMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{errorMessage}</p>
+          </Alert>
         )}
 
         {precautionMessage && (
-          <div>
-            <Alert
-              color="orange"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setPrecautionMessage("")}>
-              {precautionMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="orange"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<AlertTriangle className="h-5 w-5" />}
+            onClose={() => setPrecautionMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{precautionMessage}</p>
+          </Alert>
         )}
 
         {successMessage && (
-          <div>
-            <Alert
-              color="green"
-              onClose={() => setSuccessMessage("")}
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-              {successMessage}
-            </Alert>
-          </div>
+          <Alert
+            open={true}
+            color="green"
+            animate={{
+              mount: { y: 0 },
+              unmount: { y: -100 },
+            }}
+            icon={<Check className="h-5 w-5" />}
+            onClose={() => setSuccessMessage("")}
+            className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+          >
+            <p className="text-sm">{successMessage}</p>
+          </Alert>
         )}
 
         {/* Wrapped Card Component */}
@@ -522,14 +530,15 @@ export default function Page() {
                 <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
                 <label>Está esterilizado</label>
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-              </div>
-
-              {/* Mapa */}
+              </div>              {/* Mapa */}
               <div
-                className={`h-full relative transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+                className={`transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
-                <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-                {errors.addressCoordinates && <p className="text-red-500">{errors.addressCoordinates.message}</p>}
+                <CreatePostLocation 
+                  position={position} 
+                  setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                  error={errors.addressCoordinates}
+                />
               </div>
 
               {/* Buttons */}

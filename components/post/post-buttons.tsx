@@ -4,6 +4,7 @@ import ReportButton from "../buttons/report-button";
 import SendButton from "../buttons/send-button";
 import { Alert } from "@material-tailwind/react";
 import FavoriteButton from "../buttons/favorite-button";
+import { Check, X } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
@@ -20,6 +21,7 @@ import { Pet } from "@/types/pet";
 import { useParams, useRouter } from "next/navigation";
 import { AdoptionFormData } from "@/types/schemas/adoption-schema";
 import ChangeStatusModal from "@/components/change-status-modal";
+import { PetStatus } from "@/types/pet-status";
 
 interface PostButtonsProps {
     postId: string | undefined;
@@ -27,9 +29,10 @@ interface PostButtonsProps {
     onShare?: () => void;
     postIdUser?: number; //id user owner
     sizeButton?: "xs" | "sm" | "md" | "lg";
+    petStatus?: PetStatus;
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, petStatus }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -52,6 +55,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
     const [menuOpen, setMenuOpen] = useState(false);
     const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
 
+    const isAdoptable = isPet && petStatus?.id === 4; //4 es el id de En Adopcion
 
     useEffect(() => {
         const checkIfPetIsMine = async () => {
@@ -79,7 +83,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
     const getUserProfileData = async (userId: string) => {
         try {
             const profile = await getUserProfile(userId);
-            console.log("Perfil recibido:", profile);
             setUserProfile(profile);
         } catch (err) {
             console.error("Error al cargar el perfil:", err);
@@ -108,7 +111,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
 
         try {
             const result = await postAdoption(requestData);
-            console.log("Solicitud de adopción enviada:", result);
             setSuccessMessage("¡Solicitud enviada correctamente!");
         } catch (error: any) {
             console.error("Error al enviar solicitud:", error.message);
@@ -159,15 +161,15 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
         }
     };
     return (
-        <div className=" gap-3 flex justify-end relative pr-12">
-            {isPet && !isMyPets && (
+        <div className="flex flex-wrap justify-end gap-2 sm:gap-3 px-2 sm:px-4 md:px-0 md:pr-4 lg:pr-12 relative mt-4 sm:mt-0"> {/* Añadido mt-4 sm:mt-0 para cuando está debajo del PostHeader en mobile */}
+            {isAdoptable && !isMyPets && (
                 <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
                     Adoptar
                 </Button>
             )}
-            
+
             {!isEditing && (
-            <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
+                <ReportButton size={sizeButton} idEntity={postId} isPet={isPet} />
             )}
             {isEditing && (
                 <div className="relative inline-block text-left">
@@ -226,48 +228,69 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton }:
             )}
 
             <div className="relative">
-                <SendButton  size={sizeButton} onClick={handleShare} disabled={copied} />
+                <SendButton size={sizeButton} onClick={handleShare} disabled={copied} />
                 {copied && (
                     <Alert
+                        open={true}
                         color="gray"
-                        className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 mb-2 w-52 p-2"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
+                        onClose={() => setCopied(false)}
                     >
-                        ¡Enlace copiado al portapapeles!
+                        <p className="text-sm">¡Enlace copiado al portapapeles!</p>
                     </Alert>
                 )}
             </div>
 
 
-            <div className="relative">
+            <div className="relative"> {/* Contenedor para FavoriteButton y sus alertas */}
                 {!isPet && (
                     <FavoriteButton
                         variant={isFavorite ? "active" : "desactivated"}
                         size="xl"
-                        className="relative top-[-60px] shadow-md left-[40px]"
+                        className="relative shadow-md 
+                            top-[-20px] right-1
+                            sm:top-[-120px] sm:left-[20px] 
+                            md:top-[-60px] md:left-[40px]"
                         onClick={handleFavoriteClick}
                     />
                 )}
                 {successMessage && (
                     <Alert
+                        open={true}
                         color="green"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<Check className="h-5 w-5" />}
                         onClose={() => setSuccessMessage("")}
-                        className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
                     >
-                        {successMessage}
+                        <p className="text-sm">{successMessage}</p>
                     </Alert>
                 )}
                 {errorMessage && (
                     <Alert
+                        open={true}
                         color="red"
+                        animate={{
+                            mount: { y: 0 },
+                            unmount: { y: -100 },
+                        }}
+                        icon={<X className="h-5 w-5" />}
                         onClose={() => setErrorMessage("")}
-                        className="fixed bottom-4 right-0 m-5 z-50 w-80"
+                        className="fixed top-4 right-4 left-4 sm:left-auto sm:w-72 shadow-lg z-[10001]"
                     >
-                        {errorMessage}
+                        <p className="text-sm">{errorMessage}</p>
                     </Alert>
                 )}
             </div>
 
-            {/* Change Status Modal */}
             {openChangeStatusModal && (
                 <ChangeStatusModal
                     isOpen={openChangeStatusModal}

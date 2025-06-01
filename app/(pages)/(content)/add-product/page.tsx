@@ -9,9 +9,6 @@ import { getAnimals } from "@/utils/animals.http";
 import { getProductCategories } from "@/utils/product-category.http";
 import { Animal } from "@/types/animal";
 import { ProductCategory } from "@/types/product-category";
-import Banners from "@/components/banners";
-import { MapProps } from "@/types/map-props";
-import dynamic from "next/dynamic";
 import Button from "@/components/buttons/button";
 import { useRouter } from "next/navigation";
 import { ConfirmationModal } from "@/components/form/modal";
@@ -21,18 +18,13 @@ import { createProduct } from "@/utils/product.http";
 import { getFullUser } from "@/utils/user-profile.http";
 import { deleteMedia, postMedia } from "@/utils/media.http";
 import { Media } from "@/types/media";
-import { MediaDTO } from "@/types/user-profile";
 import Image from "next/image";
 import { Alert } from "@material-tailwind/react";
-import { ImagePlus } from "lucide-react";
+import { AlertTriangle, Check, ImagePlus, X } from "lucide-react";
 import { MultiSelect } from "@/components/multi-select";
 import LabeledInput from "@/components/inputs/labeled-input";
 import NewBanner from "@/components/newBanner";
-
-const MapWithNoSSR = dynamic<MapProps>(
-  () => import('@/components/ui/map'),
-  { ssr: false }
-);
+import { CreatePostLocation } from "@/components/post/create-post-location";
 
 export default function Page() {
   const {
@@ -49,7 +41,6 @@ export default function Page() {
       locationCoordinates: [0, 0],
       contactNumber: "",
       price: 0,
-      userId: 0,
       categoryId: 0,
       animalsId: [],
       condition: ProductCondition.NEW,
@@ -99,23 +90,25 @@ export default function Page() {
 
   useEffect(() => {
     if (!authLoading && !authToken) {
+      sessionStorage.setItem("redirectTo", window.location.pathname);
       router.push("/auth/login");
     } else {
       const fetchUserData = async () => {
         if (!user?.id) return;
         try {
           const response = await getFullUser(user?.id.toString());
-          let userPhone = response.phoneNumber;
+          const userPhone = response.phoneNumber;
           if (userPhone) {
             setValue("contactNumber", userPhone);
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
         }
-      }
+      };
       fetchUserData();
     }
   }, [authToken, authLoading, router, user?.id]);
+
 
   const handleCancel = useCallback(() => {
     router.push("/marketplace");
@@ -293,10 +286,17 @@ export default function Page() {
         {errorMessage && (
           <div>
             <Alert
+              open={true}
               color="red"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setErrorMessage("")}>
-              {errorMessage}
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<X className="h-5 w-5" />}
+              onClose={() => setErrorMessage("")}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{errorMessage}</p>
             </Alert>
           </div>
         )}
@@ -304,10 +304,17 @@ export default function Page() {
         {precautionMessage && (
           <div>
             <Alert
-              color="orange"
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]"
-              onClose={() => setPrecautionMessage("")}>
-              {precautionMessage}
+              open={true}
+              color="amber"
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<AlertTriangle className="h-5 w-5" />}
+              onClose={() => setPrecautionMessage("")}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{precautionMessage}</p>
             </Alert>
           </div>
         )}
@@ -315,10 +322,17 @@ export default function Page() {
         {successMessage && (
           <div>
             <Alert
+              open={true}
               color="green"
+              animate={{
+                mount: { y: 0 },
+                unmount: { y: -100 },
+              }}
+              icon={<Check className="h-5 w-5" />}
               onClose={() => setSuccessMessage("")}
-              className="fixed top-4 right-4 w-75 shadow-lg z-[60]">
-              {successMessage}
+              className="fixed top-4 right-4 w-72 shadow-lg z-[10001]"
+            >
+              <p className="text-sm">{successMessage}</p>
             </Alert>
           </div>
         )}
@@ -389,8 +403,8 @@ export default function Page() {
 
           <div className="w-full mb-2">
             <label className="block mb-1">Descripción</label>
-            <textarea 
-              {...register("content")} 
+            <textarea
+              {...register("content")}
               className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[#9747FF] ${errors.content ? 'border-red-500' : ''}`}
             />
             {errors.content && <p className="text-red-500 text-sm">{errors.content.message}</p>}
@@ -465,12 +479,16 @@ export default function Page() {
                 </div>
               )}
             />
+          </div>          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
+            <CreatePostLocation
+              position={position}
+              setPosition={(newPosition) => {
+                setPosition(newPosition);
+                setValue("locationCoordinates", newPosition || [0, 0]);
+              }}
+              error={errors.locationCoordinates ? { message: errors.locationCoordinates.message } : undefined}
+            />
           </div>
-
-          <div className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}>
-            <MapWithNoSSR position={position} setPosition={handlePositionChange} />
-          </div>
-          {errors.locationCoordinates && <p className="text-red-500">{errors.locationCoordinates.message}</p>}
 
           <div className="flex justify-end items-center mt-6 gap-10">
             <div className="flex gap-4">

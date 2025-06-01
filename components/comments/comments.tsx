@@ -35,7 +35,7 @@ export function Comments({
     currentUser,
 }: CommentsProps) {
     return (
-        <div className="mt-16 pl-12 w-full bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="mt-16 px-4 sm:px-12 w-full bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-xl font-semibold text-gray-700">{title}</h2>
             </div>

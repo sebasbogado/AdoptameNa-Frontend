@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { profileSchema, ProfileValues } from "@/validations/user-profile";
+import { getProfileSchema, ProfileValues } from "@/validations/user-profile";
 import { updateUserProfile } from "@/utils/user-profile.http";
 import { useAuth } from "@/contexts/auth-context";
 import Button from "@/components/buttons/button";
 import { Alert } from "@material-tailwind/react";
 import { UpdateUserProfile } from "@/types/user-profile";
+import { X } from "lucide-react";
 import { CreateProfile } from "@/components/profile/create-form";
+import { USER_ROLE } from "@/types/auth";
 
 interface EditProfileModalProps {
     open: boolean;
@@ -39,7 +41,13 @@ export default function EditProfileModal({
         reset,
         formState: { errors, isSubmitting },
     } = useForm<ProfileValues>({
-        resolver: zodResolver(profileSchema),
+        resolver: zodResolver(
+            getProfileSchema(
+                Object.values(USER_ROLE).includes(user?.role as USER_ROLE)
+                    ? (user?.role as USER_ROLE)
+                    : USER_ROLE.USER
+            )
+        ),
         defaultValues: initialData,
     });
 
@@ -119,10 +127,19 @@ export default function EditProfileModal({
                         errors={errors}
                         hideSubmitButton={true}
                     />
-
                     {error && (
-                        <Alert color="red" onClose={() => setError("")}>
-                            {error}
+                        <Alert
+                            open={true}
+                            color="red"
+                            animate={{
+                                mount: { y: 0 },
+                                unmount: { y: -100 },
+                            }}
+                            icon={<X className="h-5 w-5" />}
+                            onClose={() => setError("")}
+                            className="w-full shadow-lg"
+                        >
+                            <p className="text-sm">{error}</p>
                         </Alert>
                     )}
 

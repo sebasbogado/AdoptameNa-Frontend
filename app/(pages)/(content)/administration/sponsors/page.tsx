@@ -1,9 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { Select, Option, Spinner } from "@material-tailwind/react";
-import { Check, X, Trash } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Spinner } from "@material-tailwind/react";
 import { getAllSponsors, approveSponsorRequest, deleteSponsor, rejectSponsorRequest } from '@/utils/sponsor.http';
 import { useAuth } from "@/contexts/auth-context";
 import { Alert } from "@material-tailwind/react";

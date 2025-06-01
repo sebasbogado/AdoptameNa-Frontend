@@ -6,6 +6,7 @@ import Link from "next/link";
 import Button from "@/components/buttons/button";
 import { EyeIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import ProductCard from "@/components/product-Card/product-card";
 
 type PetCardProps = {
   post: any;
@@ -23,7 +24,6 @@ export default function UserReportCardButtons({
   pathname === `/profile/report/posts/${post.id}` ||
   pathname === `/profile/report/pets/${post.id}` ||
   pathname === `/profile/report/products/${post.id}`;
-
   return (
     <div
       className={clsx(
@@ -31,7 +31,12 @@ export default function UserReportCardButtons({
         className
       )}
     >
-      <PetCard post={post} isPost={isPost} />
+      {/* Renderiza ProductCard si es un producto, si no, PetCard */}
+      {post.price ? (
+        <ProductCard product={post} />
+      ) : (
+        <PetCard post={post} isPost={isPost} />
+      )}
 
       {!isDetailPage && (
         <div className="m-4 flex justify-between items-center ">

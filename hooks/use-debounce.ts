@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 
 export function useDebounce<T extends (...args: any[]) => void>(
   callback: T,
@@ -26,4 +26,21 @@ export function useDebounce<T extends (...args: any[]) => void>(
   }, []);
 
   return debouncedFn;
+}
+
+// Nuevo hook para debouncing de valores
+export function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
 }

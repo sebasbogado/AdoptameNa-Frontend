@@ -27,6 +27,7 @@ export interface NotificationDTO {
   title: string;
   message: string;
   type: NotificationType;
+  targetUserIds?: number[];
   targetUserId?: number;
   targetRoleIds?: number[];
 }
