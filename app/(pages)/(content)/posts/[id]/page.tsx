@@ -12,12 +12,14 @@ import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import NewBanner from "@/components/newBanner";
 import { POST_TYPEID } from "@/types/constants";
+import Sensitive from "@/app/sensitive";
 
-const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
+const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>, setIsSensitive: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
         const post = await getPost(id);
         setPost(post);
+        setIsSensitive(post.hasSensitiveImages);
     } catch (error: any) {
         console.log(error);
         setError(true);
@@ -32,6 +34,7 @@ const PostPage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
+    const [isSensitive, setIsSensitive] = useState<boolean>(false);
     const params = useParams();
     const router = useRouter();
     const [isRedirecting, setIsRedirecting] = useState(false); // Nuevo estado
@@ -42,7 +45,7 @@ const PostPage = () => {
             setError(true);
             return;
         }
-        fetchPost(postId as string, setPost, setLoading, setError);
+        fetchPost(postId as string, setPost, setLoading, setError, setIsSensitive);
     }, []);
 
     useEffect(() => {
@@ -87,6 +90,9 @@ const PostPage = () => {
         return <NotFound />;
     }
 
+    if (isSensitive) {
+        return <Sensitive onContinue={() => setIsSensitive(false)} />
+    }
 
     return (
         <>

@@ -10,13 +10,15 @@ import PostButtons from "@/components/post/post-buttons";
 import HeaderUser from "@/components/blog/header-user";
 import BlogContent from "@/components/blog/blog-content";
 import PostComments from "@/components/post/post-comments";
+import Sensitive from "@/app/sensitive";
 
 
-const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
+const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>, setIsSensitive: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
         const post = await getPost(id);
         setPost(post);
+        setIsSensitive(post.hasSensitiveImages);
     } catch (error: any) {
         console.log(error);
         setError(true);
@@ -32,13 +34,14 @@ export default function Page() {
     const [loading, setLoading] = useState<boolean>(true);
     const { user, loading: userLoading, authToken } = useAuth();
     const router = useRouter();
+    const [isSensitive, setIsSensitive] = useState<boolean>(false);
     useEffect(() => {
         const postId = params.id;
         if (!postId) {
             setError(true);
             return;
         }
-        fetchPost(postId as string, setPost, setLoading, setError);
+        fetchPost(postId as string, setPost, setLoading, setError, setIsSensitive);
     }, [params.id]);
 
    
@@ -64,6 +67,10 @@ export default function Page() {
 
     if (loading) {
         return <Loading />;
+    }
+
+    if (isSensitive) {
+        return <Sensitive onContinue={() => setIsSensitive(false)} />
     }
 
     if (error || !post ) return <NotFound />;

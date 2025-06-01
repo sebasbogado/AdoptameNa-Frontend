@@ -10,12 +10,14 @@ import PostSidebar from "@/components/post/post-sidebar";
 import { Pet } from "@/types/pet";
 import { getPet, getPets } from "@/utils/pets.http";
 import NewBanner from "@/components/newBanner";
+import Sensitive from "@/app/sensitive";
 
-const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
+const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>, setIsSensitive: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
         const pet = await getPet(id);
         setPet(pet);
+        setIsSensitive(pet.hasSensitiveImages);
     } catch (error: any) {
         console.log(error);
         setError(true);
@@ -29,6 +31,7 @@ const PostPage = () => {
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
+    const [isSensitive, setIsSensitive] = useState<boolean>(false);
     const params = useParams();
 
     useEffect(() => {
@@ -37,7 +40,7 @@ const PostPage = () => {
             setError(true);
             return;
         }
-        fetchPet(postId as string, setPet, setLoading, setError);
+        fetchPet(postId as string, setPet, setLoading, setError, setIsSensitive);
     }, []);
 
     useEffect(() => {
@@ -61,6 +64,10 @@ const PostPage = () => {
 
     if (error) {
         return <NotFound />;
+    }
+
+    if (isSensitive) {
+        return <Sensitive onContinue={() => setIsSensitive(false)} />
     }
 
     return (
