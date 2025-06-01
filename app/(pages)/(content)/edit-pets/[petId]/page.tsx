@@ -165,9 +165,6 @@ export default function Page() {
   const openConfirmationModalDelete = () => {
     setIsDeleteModalOpen(true);
   };
-  useEffect(()=> {
-    console.log("loading", loading)
-  }, [loading])
 
   const handleDelete = async () => {
     setIsDeleteModalOpen(false);
