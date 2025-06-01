@@ -24,8 +24,6 @@ import { PetStatus } from "@/types/pet-status";
 import { Media } from "@/types/media";
 import NewBanner from "@/components/newBanner";
 
-
-
 export default function Page() {
   const { authToken, user, loading: authLoading } = useAuth();
   const [pet, setPet] = useState<Pet | null>(null);
@@ -47,7 +45,7 @@ export default function Page() {
     watch,
     getValues,
     setValue,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting},
   } = useForm<PetFormValues>({
     resolver: zodResolver(petSchema),
     defaultValues: {
@@ -61,8 +59,6 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
-      //edad: 0,
-      //peso: 0,
     },
   });
 
@@ -85,8 +81,6 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
-      //edad: 0,
-      //peso: 0,
     });
 
   const closeModal = () => {
@@ -133,8 +127,6 @@ export default function Page() {
         const petData = await getPet(String(petId));
         if (petData) {
           setPet(petData);
-          console.log("Pet data:", petData);
-
           setValue("petStatusId", petData.petStatus.id || 0);
           setValue("animalId", petData.animal.id || 0);
           setValue("breedId", petData.breed.id || 0);
@@ -173,6 +165,9 @@ export default function Page() {
   const openConfirmationModalDelete = () => {
     setIsDeleteModalOpen(true);
   };
+  useEffect(()=> {
+    console.log("loading", loading)
+  }, [loading])
 
   const handleDelete = async () => {
     setIsDeleteModalOpen(false);
@@ -186,12 +181,14 @@ export default function Page() {
       await deletePet(String(petId), authToken);
 
       setSuccessMessage('Publicación eliminada con éxito');
-      setTimeout(() => router.push('/dashboard'), 1500);
+      setTimeout(() => {
+        setLoading(false);
+        router.push('/dashboard')
+      }, 1500);
 
     } catch (error) {
       console.error('Error al eliminar la publicación:', error);
       setErrorMessage('Hubo un problema al eliminar la publicación.');
-    } finally {
       setLoading(false);
     }
   };
@@ -244,10 +241,7 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
 
     try {
       setLoading(true);
@@ -292,7 +286,7 @@ export default function Page() {
 
     try {
       const formValues = getValues();
-
+      setLoading(true);
       const updatedData: UpdatePet = {
         ...formValues,
         userId: Number(user?.id),
@@ -304,12 +298,14 @@ export default function Page() {
       const response = await updatePet(String(petId), updatedData, authToken);
       if (response) {
         setSuccessMessage("Se guardó exitosamente");
-        setTimeout(() => router.push(`/pets/${response.id}`), 1500);
+        setTimeout(() =>{
+          setLoading(false); 
+          router.push(`/pets/${response.id}`)
+        }, 1500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
       setErrorMessage("Error en la edición de la mascota");
-    } finally {
       setLoading(false);
     }
   };
@@ -567,9 +563,9 @@ export default function Page() {
                     type="submit"
                     variant="cta"
                     className="rounded hover:bg-purple-700"
-                    disabled={isSubmitting || loading}
+                    disabled={loading}
                   >
-                    {isSubmitting ? "Editando..." : "Confirmar cambios"}
+                    {loading ? "Editando..." : "Confirmar cambios"}
                   </Button>
                 </div>
               </div>
