@@ -1,5 +1,3 @@
-// components/Sensitive.tsx
-
 'use client'
 
 import { TriangleAlert } from 'lucide-react'

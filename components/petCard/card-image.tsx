@@ -1,5 +1,5 @@
 import { Media } from "@/types/media";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, EyeOff } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
@@ -120,7 +120,7 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                 <div
                     className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 text-white"
                 >
-                    <Eye className="h-8 w-8 mb-2" />
+                    <EyeOff className="h-8 w-8 mb-2" />
                     <span className="text-lg text-center font-semibold">Imágenes Sensibles</span>
                 </div>
             )}
