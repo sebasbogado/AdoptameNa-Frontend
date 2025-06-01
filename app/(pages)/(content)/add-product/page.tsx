@@ -115,14 +115,8 @@ export default function Page() {
   }, [router]);
 
   const onSubmit = (data: ProductFormValues) => {
-    // 'data' aquí ya está validado por Zod
     openConfirmationModal(data); // Pasa los datos validados al modal/handler
   };
-
-  const handlePositionChange = useCallback((newPosition: [number, number]) => {
-    setPosition(newPosition);
-    setValue("locationCoordinates", newPosition, { shouldValidate: true });
-  }, [setValue]);
 
   const openConfirmationModal = (data: ProductFormValues) => {
     setValidatedData(data);
@@ -152,7 +146,7 @@ export default function Page() {
       if (response && response.id) {
         // Redirige AHORA usando el ID de la RESPUESTA
         //router.push(`/product/${response.id}`);
-        router.push("/marketplace");
+        router.push(`/marketplace/${response.id}`);
       } else {
         // Si no hay ID en la respuesta
         console.warn("Producto creado, pero no se recibió ID en la respuesta. Redirigiendo al dashboard.");
