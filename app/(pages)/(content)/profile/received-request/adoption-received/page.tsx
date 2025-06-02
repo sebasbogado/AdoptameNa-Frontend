@@ -22,14 +22,7 @@ export default function ReceivedRequests() {
   const { authToken, loading: userLoading } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const router = useRouter();
-
-  if (userLoading) return <Loading />;
-
-  if (!authToken) {
-    router.push("/auth/login");
-    return <Loading />;
-  }
-
+  if (userLoading) return <Loading />;                
   const {
     data: requests,
     loading,
@@ -38,11 +31,20 @@ export default function ReceivedRequests() {
     handlePageChange,
     updateFilters,
   } = usePagination<AdoptionResponse>({
-    fetchFunction: (page, size, filters) =>
-      getReceivedAdoptionsRequest(authToken, { page, size, ...filters }),
+    fetchFunction: async (page, size, filters) => {
+      if (!authToken) throw new Error("Authentication token is missing");
+      return await getReceivedAdoptionsRequest(authToken, { page, size, ...filters });
+    },
     initialPage: 1,
     initialPageSize: 10,
   });
+
+  if (userLoading) return <Loading />;
+
+  if (!authToken) {
+    router.push("/auth/login");
+    return <Loading />;
+  }
 
   const handleAccept = async (id: number) => {
     try {
