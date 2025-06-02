@@ -69,6 +69,7 @@ export default function NotificationsAdminPage() {
           setSearchResults(response.data);
         }
       } catch (error) {
+        console.error(error);
         if (!cancelled) setSearchResults([]);
       }
     };
@@ -130,13 +131,16 @@ export default function NotificationsAdminPage() {
       reset();
       setSelectedUser(null);
       handleClearSearch();
-    } catch (error: any) {
-      setErrorMessage(error.message || "Error al enviar notificación");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message || "Error al enviar notificación");
+      } else {
+        setErrorMessage("Error al enviar notificación");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const filteredResults = searchResults.filter(user => {
     const term = searchQuery.toLowerCase();
     return (
