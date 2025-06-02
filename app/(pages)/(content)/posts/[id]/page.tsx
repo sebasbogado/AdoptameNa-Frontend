@@ -29,7 +29,7 @@ const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateActio
 };
 
 const PostPage = () => {
-    const { authToken } = useAuth();
+    const { authToken, user } = useAuth();
     const [post, setPost] = useState<Post | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -90,7 +90,7 @@ const PostPage = () => {
         return <NotFound />;
     }
 
-    if (isSensitive) {
+    if (isSensitive && !(post?.userId === user?.id)) {
         return <Sensitive onContinue={() => setIsSensitive(false)} />
     }
 
