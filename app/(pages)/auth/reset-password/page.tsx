@@ -54,7 +54,7 @@ export default function ResetPasswordConfirm() {
       }
       // Redirigir al login
       router.push("/auth/login");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error al restablecer la contraseña:", error);
       setError("❌ Ocurrió un error al restablecer la contraseña. Intenta nuevamente.");
     }
