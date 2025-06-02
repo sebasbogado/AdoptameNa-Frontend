@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import clsx from "clsx";
 import { Edit2Icon, PlusIcon } from "lucide-react";
 
 interface ClickableTagProps {
