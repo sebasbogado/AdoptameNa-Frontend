@@ -11,6 +11,7 @@ import { Pet } from "@/types/pet";
 import { getPet, getPets } from "@/utils/pets.http";
 import NewBanner from "@/components/newBanner";
 import Sensitive from "@/app/sensitive";
+import { useAuth } from "@/contexts/auth-context";
 
 const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>, setIsSensitive: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -27,6 +28,7 @@ const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<
 };
 
 const PostPage = () => {
+    const { user } = useAuth();
     const [pet, setPet] = useState<Pet | null>(null);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -66,7 +68,7 @@ const PostPage = () => {
         return <NotFound />;
     }
 
-    if (isSensitive) {
+    if (isSensitive && !(pet?.userId === user?.id)) {
         return <Sensitive onContinue={() => setIsSensitive(false)} />
     }
 
