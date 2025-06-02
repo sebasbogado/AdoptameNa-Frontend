@@ -205,7 +205,6 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
                                 item={item}
                                 itemType={itemType}
                                 onBan={() => openBanModal(String(item.id), itemType)}
-                                disabled={disabled}
                             />
                         ))}
                     </div>
