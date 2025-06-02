@@ -41,6 +41,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           </NotificationProvider>
         </AuthProvider>
         <Script
+        id="csp-nonce-script"
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `console.log("CSP con nonce aplicado correctamente")`,
