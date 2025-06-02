@@ -69,7 +69,7 @@ export default function Page() {
         return <Loading />;
     }
 
-    if (isSensitive) {
+    if (isSensitive && !(post?.userId === user?.id)) {
         return <Sensitive onContinue={() => setIsSensitive(false)} />
     }
 
