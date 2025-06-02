@@ -28,7 +28,7 @@ export default function AdminsPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading, user } = useAuth();
     const pageSize = 10;
-    const [modalUser, setModalUser] = useState<User | null>(null);
+    const [modalUser, setModalUser] = useState<UserProfile | null>(null);
     const [openModal, setOpenModal] = useState(false);
 
     if (loading) return <Loading />
@@ -192,7 +192,7 @@ export default function AdminsPage() {
                 onClose={() => setOpenModal(false)}
                 userFullName={modalUser?.fullName ?? ""}
                 userEmail={modalUser?.email ?? ""}
-                currentRole={modalUser?.role ?? "admin"}
+                currentRole={modalUser?.roleName ?? "admin"}
                 roles={["admin", "regular"]}
                 onSave={(newDisplayRole: string) =>
                     handleUpdate(modalUser as User, newDisplayRole)

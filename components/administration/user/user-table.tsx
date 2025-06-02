@@ -66,7 +66,7 @@ export default function UserTable({ title, data, onDelete, loading = false, onPr
                   <td className="border px-3 py-2">{user.address || "-"}</td>
                   <td className="border px-3 py-2">{user.earnedPoints !== undefined ? user.earnedPoints : "-"}</td>
                   <td className="border px-3 py-2">{formatDate(user.birthdate || "")}</td>
-                  <td className="border px-3 py-2">{formatDate(user.creationDate)}</td>
+                  <td className="border px-3 py-2">{formatDate(user.creationDate || "")}</td>
                   <td className="border px-3 py-2">
                     <div className="flex items-center justify-center space-x-2">
                       <Link

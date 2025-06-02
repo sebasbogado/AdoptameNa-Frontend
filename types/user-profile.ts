@@ -11,6 +11,7 @@ export interface UserProfile {
   organizationName?: string;
   fullName: string;
   address?: string | null;
+  roleName?: string;
   description?: string;
   gender?: string | null;
   birthdate?: string | null;

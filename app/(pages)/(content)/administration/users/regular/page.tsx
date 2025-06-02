@@ -28,7 +28,7 @@ export default function RegularUsersPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
     const pageSize = 10;
-    const [modalUser, setModalUser] = useState<User | null>(null);
+    const [modalUser, setModalUser] = useState<UserProfile | null>(null);
     const [openModal, setOpenModal] = useState(false);
 
     if (loading) return <Loading />
@@ -186,7 +186,7 @@ export default function RegularUsersPage() {
                 onClose={() => setOpenModal(false)}
                 userFullName={modalUser?.fullName ?? ""}
                 userEmail={modalUser?.email ?? ""}
-                currentRole={modalUser?.role ?? "user"}
+                currentRole={modalUser?.roleName ?? "user"}
                 roles={["regular", "admin"]}
                 onSave={(newDisplayRole: string) =>
                     handleUpdate(modalUser as User, newDisplayRole)
