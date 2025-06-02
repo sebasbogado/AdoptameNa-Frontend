@@ -55,6 +55,7 @@ export interface UpdatePet {
   breedId: number;
   //healthStateId: number;
   petStatusId: number;
+  hasSensitiveImages: boolean;
 }
 
 export interface RestorePet {
