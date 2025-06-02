@@ -1,12 +1,10 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { Cat, PackageSearch, BookOpenText } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 
 export default function Page() {
-  const router = useRouter();
   const { authToken, loading } = useAuth();
 
   if (loading) return <div className="h-screen w-screen flex justify-center items-center">Cargando...</div>
