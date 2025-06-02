@@ -20,10 +20,18 @@ const NotificationsPage = () => {
   const [loadingMarkAll, setLoadingMarkAll] = useState(false);
   const [loadingMarkSingle, setLoadingMarkSingle] = useState<number | null>(null);
 
+  type NotificationFilters = {
+    type?: NotificationType;
+    isRead?: boolean;
+    dateFrom?: string;
+    dateTo?: string;
+    search?: string;
+  };
+
   const fetchNotificationsPage = async (
     page: number,
     size: number,
-    filters?: Record<string, any>
+    filters?: NotificationFilters
   ): Promise<PaginatedResponse<Notification>> => {
     if (!authToken || !user) {
       return {
