@@ -85,6 +85,7 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
+      hasSensitiveImages: false
       //edad: 0,
       //peso: 0,
     });
@@ -133,7 +134,6 @@ export default function Page() {
         const petData = await getPet(String(petId));
         if (petData) {
           setPet(petData);
-          console.log("Pet data:", petData);
 
           setValue("petStatusId", petData.petStatus.id || 0);
           setValue("animalId", petData.animal.id || 0);
@@ -144,9 +144,17 @@ export default function Page() {
           setValue("isVaccinated", petData.isVaccinated || false);
           setValue("isSterilized", petData.isSterilized || false);
           setValue("gender", petData.gender || "OTHER");
-          const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
-          setPosition([lat, lng]);
-          setValue("addressCoordinates", [lat, lng]);
+          setValue("hasSensitiveImages", petData.hasSensitiveImages)
+          // --- Poblar el Formulario ---
+          let initialCoords: [number, number] = [0, 0];
+          if (petData.addressCoordinates) {
+            const coords = petData.addressCoordinates.split(',').map(Number);
+            if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+              initialCoords = [coords[0], coords[1]];
+            }
+          }
+          setPosition(initialCoords);
+          setValue("addressCoordinates", initialCoords);
 
           if (petData.media.length > 0) {
             setSelectedImages(petData.media);
@@ -534,11 +542,32 @@ export default function Page() {
               <div
                 className={`transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
-                <CreatePostLocation 
-                  position={position} 
+                <CreatePostLocation
+                  position={position}
                   setPosition={(pos) => pos !== null && handlePositionChange(pos)}
                   error={errors.addressCoordinates}
                 />
+              </div>
+
+              {/* Checkbox contenido sensible */}
+              <div className="w-full px-6 border border-red-600 p-3 rounded-xl">
+                <label className="flex py-1 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="focus:ring-2 focus:ring-[#9747FF]"
+                    {...register("hasSensitiveImages")}
+                  />
+                  <span className="font-medium">Este post contiene imágenes sensibles</span>
+                </label>
+
+                <p className="text-sm font-light text-gray-700 mt-1">
+                  Al marcar esta casilla, la imagen se ocultará en las pantallas de navegación.<br />
+                  Los usuarios solo podrán verla si abren la publicación.
+                </p>
+
+                {errors.hasSensitiveImages && (
+                  <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
+                )}
               </div>
 
               {/* Buttons */}

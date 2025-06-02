@@ -131,6 +131,7 @@ export default function Page() {
                     mediaIds: postData.media?.map((m: Media) => m.id) || [],
                     tagIds: postData.tags?.map((t: Tags) => t.id) || [], // Si usas tags
                     blogImages: postData.blogImages?.map((img: Media) => img.id) || [], // <-- AGREGÁ ESTO
+                    hasSensitiveImages: postData.hasSensitiveImages
 
                 });
                
@@ -261,7 +262,8 @@ export default function Page() {
             ...(isBlog ? { blogImages: validatedData.blogImages || [], } : {
                 locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
                 contactNumber: validatedData.contactNumber?.trim() || "",
-            })
+            }),
+            hasSensitiveImages: validatedData.hasSensitiveImages
         };
 
         try {
