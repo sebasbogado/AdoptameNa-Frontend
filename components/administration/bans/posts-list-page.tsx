@@ -23,7 +23,6 @@ interface Props<T> {
     totalPages: number;
     handlePageChange: (page: number) => void;
     itemType: ITEM_TYPE;
-    disabled?: boolean;
 }
 
 export default function AllPostListPage<T extends Post | Pet | Product>({
@@ -34,7 +33,6 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
     totalPages,
     handlePageChange,
     itemType,
-    disabled = false,
 }: Props<T>) {
     const { authToken } = useAuth();
     const [successMessage, setSuccessMessage] = useState("");
@@ -134,8 +132,9 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
             }
             handlePageChange(currentPage);
 
-        } catch (error) {
+        } catch (error: unknown) {
             setErrorMessage("Hubo un error al intentar banear una publicación.");
+            console.error("Error al banear la publicación:", error);
         } finally {
             closeModal();
         }
@@ -201,8 +200,8 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-2 p-2">
                         {localItems.map((item, index) => (
                             <CardBanned
-                                key={(item as any)?.id || index}
-                                item={item}
+                                key={(item as Post | Pet | Product)?.id || index}
+                                item={item as Post | Pet | Product}
                                 itemType={itemType}
                                 onBan={() => openBanModal(String(item.id), itemType)}
                             />
