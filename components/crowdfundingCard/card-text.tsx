@@ -7,10 +7,9 @@ import OrganizationTag from "./tag";
 interface props {
     item: Crowdfunding,
     authorName?: string,
-    className?: string,
 }
 
-const CrowdfundingCardText = ({ item, className = "", authorName }: props) => {
+const CrowdfundingCardText = ({ item, authorName }: props) => {
     const hardcodedTags = [
         { iconType: "star", value: "Organization" },
         { iconType: "handHelp", value: "Colecta" },
