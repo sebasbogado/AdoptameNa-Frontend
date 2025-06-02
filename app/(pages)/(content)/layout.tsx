@@ -16,12 +16,6 @@ interface SponsorImage {
   url: string;
 }
 
-interface Banner {
-  id: number;
-  imageUrl: string;
-  priority: number;
-}
-
 export default function ContentLayout({ children }: { children: React.ReactNode }) {
   const [sponsorImages, setSponsorImages] = useState<SponsorImage[]>([]);
   const [bannerImages, setBannerImages] = useState<string[]>([]);
