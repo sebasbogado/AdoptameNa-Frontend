@@ -14,26 +14,20 @@ export default function ResetPassword() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { loading } = useAuth();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await requestPasswordReset({ email: credentials.email });
-      console.log("Recuperar contraseña para:", credentials.email);
-      console.log("Console responde: " + response.data)
-
-
-      if (response) {
-        console.log("Console responde: " + response.data)
-        setMessage("Se ha enviado un correo para la recuperación de contraseña.");
+      await requestPasswordReset({ email: credentials.email });
+      setMessage("Se ha enviado un correo para la recuperación de contraseña.");
+    } catch (err: unknown) {
+      if( err instanceof Error) {
+        setError(err.message);
+        return;
+      }else{
+        setError("Ocurrió un error al procesar la solicitud.");
       }
-    } catch (err: any) {
-
-      setError(err.response?.data || "Ocurrió un error al procesar la solicitud.");
     } finally {
       setIsSubmitting(false); // Volvemos a habilitar el botón después de procesar
     }
