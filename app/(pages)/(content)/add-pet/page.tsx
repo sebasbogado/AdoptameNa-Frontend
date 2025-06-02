@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { useCallback, useEffect, useState } from "react";
+import { CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
@@ -94,8 +94,9 @@ export default function Page() {
       setAnimals(animalsData.data);
       setBreed(breedData.data);
       setPetsStatus(petStatusData.data);
-    } catch (error: any) {
+    } catch (error) {
       setErrorMessage("Error en la página. Intentelo de nuevo.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -127,9 +128,7 @@ export default function Page() {
       const formData = new FormData();
       formData.append("file", file);
 
-      if (!authToken) {
-        throw new Error("El token de autenticación es requerido");
-      }
+      if (!authToken) return
 
       try {
         const response = await postMedia(formData, authToken);
@@ -486,7 +485,7 @@ export default function Page() {
                   <Button
                     type="submit"
                     variant="cta"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || loading}
                     className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
                       }`}
                   >
