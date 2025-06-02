@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { ResponseCrowdfundingDTO } from "@/types/crowdfunding";
-import { PhoneIcon, MapPin } from "lucide-react";
 
 type CrowdfundingFormProps = {
   mode: "view" | "edit" | "create";
