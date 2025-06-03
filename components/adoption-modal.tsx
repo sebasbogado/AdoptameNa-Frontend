@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Modal from "@/components/modal";
 import Button from "./buttons/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,6 @@ const AdoptionModal: React.FC<AdoptionModalProps> = ({
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<AdoptionFormData>({
