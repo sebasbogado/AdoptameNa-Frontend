@@ -12,6 +12,9 @@ import { getPost } from '@/utils/posts.http';
 import { getPet } from '@/utils/pets.http';
 import { getProduct } from '@/utils/product.http';
 import { ReportType } from "@/types/report";
+import { Product } from '@/types/product';
+import { Pet } from '@/types/pet';
+import { Post } from '@/types/post';
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;
@@ -19,7 +22,7 @@ interface Props<T> {
   isPost?: boolean;
 }
 
-type EnrichedReport<T> = T & { pet?: any; post?: any; product?: any };
+type EnrichedReport<T> = T & { pet?: Pet; post?: Post; product?: Product };
 
 export default function UserReportListPage<T extends {
   productId?: number | null; petId?: number | null; postId?: number | null
