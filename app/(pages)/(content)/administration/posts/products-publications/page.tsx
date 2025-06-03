@@ -48,7 +48,7 @@ export default function Page() {
             router.push("/dashboard");
         }
 
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, user]);
 
     useEffect(() => {
         const fetchDeletedData = async () => {
@@ -69,8 +69,9 @@ export default function Page() {
                 setCategoryOptions(uniqueCategory);
                 setAllCategoryMap(categoryMap);
                 setPageSize(productsResponse.pagination.size);
-            } catch (err) {
-                setPostError("Error al obtener las publicaciones")
+            } catch (err: unknown) {
+                setPostError("Error al obtener las publicaciones");
+                console.error(err);
             }
         };
 
@@ -87,7 +88,7 @@ export default function Page() {
 
         updateFilters({ categoryId });
         handlePageChange(1);
-    }, [selectedCategory]);
+    }, [selectedCategory, updateFilters, handlePageChange, allCategoryMap]);
 
     return (
         <div className="p-6">
@@ -111,7 +112,7 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
-                disabled={true}
+                // disabled={true}
             />
         </div>
     )
