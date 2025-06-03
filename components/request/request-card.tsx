@@ -157,12 +157,6 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                                         }
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Coins size={16} className="text-gray-400" />
-                                    <span>
-                                        <span className="font-medium text-gray-700">Duración:</span> {application.durationDays} días
-                                    </span>
-                                </div>
                             </div>
                             <div className="flex items-center gap-2 text-gray-500 text-sm">
                                 <BadgeDollarSign size={16} className="text-gray-400" />
