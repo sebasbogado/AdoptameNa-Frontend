@@ -52,7 +52,7 @@ export default function SponsorsCarousel({
       return intervalId;
     };
 
-    let scrollInterval = checkScroll();
+    const scrollInterval = checkScroll();
 
     return () => {
       if (scrollInterval) {
