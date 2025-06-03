@@ -17,7 +17,7 @@ interface SectionProps {
     path: string;
     items: (Post | Pet | Product)[];
     loading: boolean;
-    error: Boolean;
+    error: boolean;
     itemType: "post" | "pet" | "product" | "blog"; // Nuevo prop para diferenciar el tipo de item
 
 }
