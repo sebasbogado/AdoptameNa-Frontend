@@ -39,6 +39,7 @@ export default function CrowdfundingModal({
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [donationAmount, setDonationAmount] = useState<number>(0);
+    const [localError, setLocalError] = useState<string | null>(null);
 
     const {
         register,
@@ -103,7 +104,12 @@ export default function CrowdfundingModal({
             setOpen(false);
         } catch (error: any) {
             console.error(error);
-            setErrorMessage(error.response?.data?.message || "Error al guardar");
+            const msg = error.response?.data?.message;
+            if (msg?.includes("ya tiene una colecta pendiente")) {
+                setLocalError("Ya existe una colecta pendiente. Debe finalizarla antes de crear otra.");
+            } else {
+                setLocalError(msg || "Error al guardar");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -125,7 +131,12 @@ export default function CrowdfundingModal({
 
     return (
         open && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center">
+                <style jsx global>{`
+  body {
+    overflow: hidden !important;
+  }
+`}</style>
                 <div className="bg-white rounded-lg shadow-lg w-96 p-6">
                     <div className="flex justify-between items-center border-b pb-2">
                         <h2 className="text-xl font-medium">
@@ -139,6 +150,22 @@ export default function CrowdfundingModal({
                             ✖
                         </button>
                     </div>
+
+                    {localError && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative mb-4">
+                            <strong className="font-bold">Error: </strong>
+                            <span className="block sm:inline">{localError}</span>
+                            <button
+                                className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                onClick={() => setLocalError(null)}
+                            >
+                                <svg className="fill-current h-6 w-6 text-red-500" viewBox="0 0 20 20">
+                                    <path d="M14.348 5.652a1 1 0 10-1.414-1.414L10 7.172 7.066 4.238a1 1 0 00-1.414 1.414L8.586 8.586 5.652 11.52a1 1 0 101.414 1.414L10 9.828l2.934 2.934a1 1 0 001.414-1.414L11.414 8.586l2.934-2.934z" />
+                                </svg>
+                            </button>
+                        </div>
+                    )}
+
 
                     <form onSubmit={handleSubmit(handleSave)} className="mt-4 space-y-4">
                         <div>
@@ -166,17 +193,17 @@ export default function CrowdfundingModal({
                         </div>
 
                         {(!selectedCrowdfunding || selectedCrowdfunding.status === "PENDING") && (
-                        <div>
-                            <label className="text-sm font-medium block">Duración (días)</label>
-                            <input
-                            type="number"
-                            {...register("durationDays", { valueAsNumber: true })}
-                            min={1}
-                            max={365}
-                            className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
-                            disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "PENDING")}
-                            />
-                        </div>
+                            <div>
+                                <label className="text-sm font-medium block">Duración (días)</label>
+                                <input
+                                    type="number"
+                                    {...register("durationDays", { valueAsNumber: true })}
+                                    min={1}
+                                    max={365}
+                                    className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
+                                    disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "PENDING")}
+                                />
+                            </div>
                         )}
 
                         <div>
