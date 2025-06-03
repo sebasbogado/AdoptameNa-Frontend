@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 
 interface LabeledInputProps {
