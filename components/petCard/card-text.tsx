@@ -7,6 +7,7 @@ import { Product } from "@/types/product";
 
 import { capitalizeFirstLetter, convertGenderToSpanish, getAge, getAnimalIcon, getColorGender, getConditionIcon, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
 import { Post } from "@/types/post";
+import { cleanMarkdown } from "@/utils/text/clean-markdown";
 
 interface props {
   post: Post | Pet | Product,
@@ -15,7 +16,6 @@ interface props {
 }
 
 const CardText = ({ post, /*className = ""*/ }: props) => {
-
   return (
     <div className="px-2 py-2 flex flex-col bg-white rounded-lg card-text">
       <div className="flex flex-col gap-1">
@@ -106,7 +106,7 @@ const CardText = ({ post, /*className = ""*/ }: props) => {
           className={`text-base md:text-sm lg:text-sm ${(post as Product).price !== undefined ? 'truncate' : 'line-clamp-2'
             }`}
         >
-          {(post as Post).content || (post as Pet).description}
+          {((post as Post).content && (post as Post).postType?.name !== "Blog" ? (post as Post).content : cleanMarkdown((post as Post).content || '')) || (post as Pet).description}
         </p>
       </div>
     </div>
