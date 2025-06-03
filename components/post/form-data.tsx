@@ -117,14 +117,14 @@ export const FormData = ({ handleSubmit,
                             name="content"
                             control={control}
                             render={(
-                                field
+                                
                             ) =>    <ForwardRefEditor
                                     IsCreateBlog={true}
                                     markdown={content}
                                     onChange={(value: string) => {
                                         editorContentRef.current = value
                                     }}
-                                    onImageUpload={onEditorImageUpload} // <-- PASA EL PROP AQUÍ
+                                    onImageUpload={onEditorImageUpload}
                                     className="border-2 rounded-lg border-gray"
                                 />}
                         > 

@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, GeoJSON } from 'react-leaflet';
 import { Icon, LeafletMouseEvent, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, memo } from 'react';
 
 import { MapProps } from '@/types/map-props';
 

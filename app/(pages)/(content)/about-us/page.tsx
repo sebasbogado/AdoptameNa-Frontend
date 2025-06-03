@@ -1,4 +1,3 @@
-import Footer from "@/components/footer";
 import AboutHeader from "@/components/about-us/about-header";
 
 

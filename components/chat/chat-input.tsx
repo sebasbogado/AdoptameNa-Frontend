@@ -22,7 +22,6 @@ const ChatInput = ({ onSendMessage, disabled = false }: ChatInputProps) => {
     uploadingCount,
     uploadError,
     setUploadError,
-    clearError,
     handleImageSelect,
     removeImage,
     getImageIds,

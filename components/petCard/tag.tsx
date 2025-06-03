@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React from "react";
 
 const tagBaseClass = 'rounded-md px-1 w-fit border flex justify-center items-center p-1'
-import { DogIcon, VenusIcon, MarsIcon, SyringeIcon, CakeIcon, ScissorsIcon, MapPinIcon, CatIcon, TurtleIcon, RabbitIcon, PackageOpenIcon, PackageIcon, HashIcon, Bird, BirdIcon } from "lucide-react";
+import { DogIcon, VenusIcon, MarsIcon, SyringeIcon, CakeIcon, ScissorsIcon, MapPinIcon, CatIcon, TurtleIcon, RabbitIcon, PackageOpenIcon, PackageIcon, HashIcon, BirdIcon } from "lucide-react";
 interface TagProps {
     postType: string; 
     iconType: string;

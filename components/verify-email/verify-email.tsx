@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { Typography } from "@material-tailwind/react";
 
 export default function VerifyEmailClient() {
     const router = useRouter();

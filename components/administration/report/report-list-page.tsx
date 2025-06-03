@@ -9,7 +9,6 @@ import SectionAdmin from '../section';
 import CardReport from "@/components/administration/report/card-button";
 import { ITEM_TYPE } from '@/types/constants';
 import clsx from 'clsx';
-import { useEffect } from "react";
 
 interface Props<T> {
   fetchFunction: (page: number, size: number) => Promise<PaginatedResponse<T>>;

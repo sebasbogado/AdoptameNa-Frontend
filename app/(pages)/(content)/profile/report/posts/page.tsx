@@ -9,7 +9,7 @@ import Button from "@/components/buttons/button";
 import { ArrowLeft } from "lucide-react";
 
 export default function Page() {
-  const { authToken, user, loading: authLoading } = useAuth();
+  const { authToken, loading: authLoading } = useAuth();
   const router = useRouter();
   const pageSize = 20;
 

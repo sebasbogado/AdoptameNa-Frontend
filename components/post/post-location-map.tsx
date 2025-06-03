@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import { Post } from "@/types/post";
 
 const MapWithNoSSR = dynamic(
     () => import('@/components/post/post-map'),

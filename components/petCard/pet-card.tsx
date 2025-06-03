@@ -14,11 +14,12 @@ import { useFavorites } from "@/contexts/favorites-context";
 import { Favorites } from "@/types/favorites";
 import MissingTags from "./missing-tags";
 import { Check, X} from "lucide-react";
+import { Product } from "@/types/product";
 
 //Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
 //posts con pets este implementado
 type PetCardProps = {
-    post: Post | Pet;
+    post: Post | Pet | Product;
     className?: string
     isPost?: boolean;
     disabled?: boolean;

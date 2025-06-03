@@ -19,12 +19,7 @@ export default function SentRequests() {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const router = useRouter();
 
-  if (userLoading) return <Loading />;
-
-  if (!authToken) {
-    router.push("/auth/login");
-    return <Loading />;
-  }
+ 
 
   const {
     data: paginatedRequests,
@@ -34,11 +29,20 @@ export default function SentRequests() {
     handlePageChange,
     updateFilters,
   } = usePagination<AdoptionResponse>({
-    fetchFunction: (page, size, filters) =>
-      getMyAdoptionRequests(authToken, { page, size, ...filters }),
+    fetchFunction: (page, size, filters) => {
+      if (!authToken) throw new Error("Authentication token is missing");
+      return getMyAdoptionRequests(authToken, { page, size, ...filters });
+    },
     initialPage: 1,
     initialPageSize: 10,
   });
+
+   if (userLoading) return <Loading />;
+
+  if (!authToken) {
+    router.push("/auth/login");
+    return <Loading />;
+  }
 
   const resetFilters = () => {
     setSelectedStatus(null);
