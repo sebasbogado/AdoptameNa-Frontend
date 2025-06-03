@@ -73,7 +73,7 @@ export default function Navbar() {
                         {navbarItems.map(({ name, path }) => (
                             <Link
                                 key={path}
-                                href={path as any}
+                                href={path}
                                 className={`text-lg font-bold hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"
                                     }`}
                             >
@@ -89,7 +89,7 @@ export default function Navbar() {
                         {navbarItems.map(({ name, path }) => (
                             <Link
                                 key={path}
-                                href={path as any}
+                                href={path}
                                 className={`text-base font-bold py-2 w-full text-left hover:text-purple-600 ${pathname === path ? "text-purple-600" : "text-black"}`}
                                 onClick={() => setMenuOpen(false)}
                             >
