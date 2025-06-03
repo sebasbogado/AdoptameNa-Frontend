@@ -13,6 +13,9 @@ import BlogCard from "@/components/blog/blog-card";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { useDebounce } from "@/hooks/use-debounce";
 import SearchBar from "@/components/search-bar";
+import { SkeletonBlogCard } from "@/components/ui/skeleton-blog-card";
+import { SkeletonFilters } from "@/components/ui/skeleton-filter";
+
 export default function Page() {
 
     const [selectedAutor, setSelectedAutor] = useState<string | null>(null);
@@ -27,9 +30,11 @@ export default function Page() {
 
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [inputValue, setInputValue] = useState<string>("");
+    const [loadingFilters, setLoadingFilters] = useState<boolean>(true);
 
     useEffect(() => {
-        if (Object.keys(allAuthorsMap).length > 0 || Object.keys(allTagsMap).length > 0) {
+      
+      if (Object.keys(allAuthorsMap).length > 0 || Object.keys(allTagsMap).length > 0) {
             const filters: Record<string, number|string> = {};
 
             if (selectedAutor && selectedAutor !== "Todos") {
@@ -51,6 +56,7 @@ export default function Page() {
     useEffect(() => {
         const fetchAuthorsAndTags = async () => {
             try {
+                setLoadingFilters(true);
                 const [postsResponse, tagsResponse] = await Promise.all([
                     getPosts({ postTypeId: POST_TYPEID.BLOG }),
                     getTags({ postTypeIds: [POST_TYPEID.BLOG, POST_TYPEID.ALL] })
@@ -80,6 +86,8 @@ export default function Page() {
                 setPageSize(postsResponse.pagination.size);
             } catch (err) {
                 console.error("Error al obtener autores o tags:", err);
+            } finally {
+                setLoadingFilters(false);
             }
         };
 
@@ -130,29 +138,31 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-4">
             <div className="w-full max-w-4xl mx-auto p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    
+                {loadingFilters ? (
+                    <SkeletonFilters numFilters={3} />
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <LabeledSelect
+                            label="Autor"
+                            options={["Todos", ...authorOptions]}
+                            selected={selectedAutor}
+                            setSelected={setSelectedAutor}
+                        />
 
-                    <LabeledSelect
-                        label="Autor"
-                        options={["Todos", ...authorOptions]}
-                        selected={selectedAutor}
-                        setSelected={setSelectedAutor}
-                    />
-
-                    <LabeledSelect
-                        label="Tags"
-                        options={["Todos", ...tagOptions]}
-                        selected={selectedTag}
-                        setSelected={setSelectedTag}
-                    />
-                    <div className="ml-16 mb-4">
-                    <div className="flex flex-col w-80 justify-center col-span-1">
-                        <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
-                        <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
+                        <LabeledSelect
+                            label="Tags"
+                            options={["Todos", ...tagOptions]}
+                            selected={selectedTag}
+                            setSelected={setSelectedTag}
+                        />
+                        <div className="ml-16 mb-4">
+                            <div className="flex flex-col w-80 justify-center col-span-1">
+                                <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                                <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
+                            </div>
+                        </div>
                     </div>
-                </div>
-                </div>
+                )}
             </div>
 
 
@@ -164,22 +174,22 @@ export default function Page() {
                 )}
 
                 {loading ? (
-                    <div className="flex justify-center items-center">
-                        <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+                    <div className="w-full max-w-6xl mx-auto flex flex-col gap-16 mt-2 p-4">
+                        {[...Array(5)].map((_, index) => (
+                            <SkeletonBlogCard key={index} />
+                        ))}
+                    </div>
+                ) : posts.length === 0 ? (
+                    <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
+                        <p className="text-gray-600">No se encontraron blogs</p>
                     </div>
                 ) : (
-                    posts.length === 0 ? (
-                        <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
-                            <p className="text-gray-600">No se encontraron blogs</p>
-                        </div>
-                    ) : (
-                        <div className="w-full max-w-6xl mx-auto flex flex-col gap-16 mt-2 p-4">
-                        {posts.map((p) => (
-                            <BlogCard key={p.id} post={p} />
-                        ))}
-                        </div>
+                    <div className="w-full max-w-6xl mx-auto flex flex-col gap-16 mt-2 p-4">
+                    {posts.map((p) => (
+                        <BlogCard key={p.id} post={p} />
+                    ))}
+                    </div>
 
-                    )
                 )}
             </div>
 
