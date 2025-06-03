@@ -1,14 +1,8 @@
 'use client'
-import CardReport from "@/components/administration/report/card-button";
-import SectionAdmin from "@/components/administration/section";
 import { useAuth } from "@/contexts/auth-context";
-import { Pet } from "@/types/pet";
 import { getReportedPets } from "@/utils/report-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { usePagination } from '@/hooks/use-pagination';
-import Pagination from "@/components/pagination";
-import { Loader2 } from 'lucide-react';
 import ReportListPage from "@/components/administration/report/report-list-page";
 import { ITEM_TYPE } from "@/types/constants";
 
@@ -24,7 +18,7 @@ export default function Page() {
       router.push("/dashboard");
     }
 
-  }, [authToken, authLoading, router]);
+  }, [authToken, authLoading, router, user]);
 
   return (
     <div className="p-6">
