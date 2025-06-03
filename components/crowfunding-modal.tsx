@@ -104,12 +104,7 @@ export default function CrowdfundingModal({
             setOpen(false);
         } catch (error: any) {
             console.error(error);
-            const msg = error.response?.data?.message;
-            if (msg?.includes("ya tiene una colecta pendiente")) {
-                setLocalError("Ya existe una colecta pendiente. Debe finalizarla antes de crear otra.");
-            } else {
-                setLocalError(msg || "Error al guardar");
-            }
+            setErrorMessage(error.response?.data?.message || "Error al guardar");
         } finally {
             setIsLoading(false);
         }
@@ -150,22 +145,6 @@ export default function CrowdfundingModal({
                             ✖
                         </button>
                     </div>
-
-                    {localError && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded relative mb-4">
-                            <strong className="font-bold">Error: </strong>
-                            <span className="block sm:inline">{localError}</span>
-                            <button
-                                className="absolute top-0 bottom-0 right-0 px-4 py-3"
-                                onClick={() => setLocalError(null)}
-                            >
-                                <svg className="fill-current h-6 w-6 text-red-500" viewBox="0 0 20 20">
-                                    <path d="M14.348 5.652a1 1 0 10-1.414-1.414L10 7.172 7.066 4.238a1 1 0 00-1.414 1.414L8.586 8.586 5.652 11.52a1 1 0 101.414 1.414L10 9.828l2.934 2.934a1 1 0 001.414-1.414L11.414 8.586l2.934-2.934z" />
-                                </svg>
-                            </button>
-                        </div>
-                    )}
-
 
                     <form onSubmit={handleSubmit(handleSave)} className="mt-4 space-y-4">
                         <div>
