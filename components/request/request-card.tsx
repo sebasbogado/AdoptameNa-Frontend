@@ -138,12 +138,25 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                 <div className="grid grid-cols-2 gap-4 w-full mb-2">
                     {application.status === "ACTIVE" ? (
                         <>
-                            <div className="flex items-center gap-2 text-gray-500 text-sm truncate">
-                                <Calendar size={16} className="text-gray-400 shrink-0" />
-                                <span className="truncate">
-                                    {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
-                                    {application.endDate ? ` al ${formatMediumDate(application.endDate)}` : ""}
-                                </span>
+                            <div className="flex flex-col gap-1 text-gray-500 text-sm truncate">
+                                <div className="flex items-center gap-2">
+                                    <Calendar size={16} className="text-gray-400 shrink-0" />
+                                    <span className="truncate">
+                                        <span className="font-medium text-gray-700">Inicio:</span> {application.startDate ? formatMediumDate(application.startDate) : "Sin fecha"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Calendar size={16} className="text-gray-400 shrink-0" />
+                                    <span className="truncate">
+                                        <span className="font-medium text-gray-700">Fin:</span> {
+                                            application.endDate
+                                                ? formatMediumDate(application.endDate)
+                                                : (application.startDate && application.durationDays)
+                                                    ? formatMediumDate(new Date(new Date(application.startDate).getTime() + (application.durationDays * 24 * 60 * 60 * 1000)))
+                                                    : "Sin fecha"
+                                        }
+                                    </span>
+                                </div>
                             </div>
                             <div className="flex items-center gap-2 text-gray-500 text-sm">
                                 <BadgeDollarSign size={16} className="text-gray-400" />
