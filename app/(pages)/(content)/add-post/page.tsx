@@ -266,8 +266,9 @@ export default function Page() {
                     control={control}
                     trigger={trigger}
                 />
-
-                {isModalOpen &&
+            </div>
+            
+            {isModalOpen &&
                     <ConfirmationModal
                         isOpen={isModalOpen}
                         title="Confirmar creación"
@@ -278,7 +279,6 @@ export default function Page() {
                         onConfirm={confirmSubmit}
                     />
                 }
-            </div>
         </div>
     );
 
