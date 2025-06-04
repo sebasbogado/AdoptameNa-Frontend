@@ -21,6 +21,8 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
+    const [filters, setFilters] = useState<number | undefined>(undefined);
+
     const {
         data: pets,
         loading,
@@ -34,11 +36,14 @@ export default function Page() {
             return await getPets({
                 page,
                 size,
+                sort:"id,desc",
                 petStatusId: filters?.petStatusId,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -48,7 +53,7 @@ export default function Page() {
             router.push("/dashboard");
         }
 
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, user]);
 
     useEffect(() => {
         const fetchDeletedData = async () => {
@@ -84,10 +89,10 @@ export default function Page() {
 
     useEffect(() => {
         const petStatusId = selectedPetStatus && selectedPetStatus !== "Todos" ? allPetStatusMap[selectedPetStatus] : undefined;
-
+        setFilters(petStatusId);
         updateFilters({ petStatusId });
         handlePageChange(1);
-    }, [selectedPetStatus]);
+    }, [selectedPetStatus, updateFilters, handlePageChange, allPetStatusMap, setFilters]);
 
     return (
         <div className="p-6">
@@ -111,6 +116,8 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>
