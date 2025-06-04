@@ -18,7 +18,7 @@ export default function Page() {
     } else if (user && user.role !== "admin") {
       router.push("/dashboard");
     }
-  }, [authToken, authLoading, router]);
+  }, [authToken, authLoading, router, user]);
 
   return (
     <div className="p-6">
