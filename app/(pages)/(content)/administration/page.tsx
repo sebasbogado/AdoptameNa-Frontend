@@ -21,17 +21,19 @@ import {
     DollarSign
 } from "lucide-react";
 import StatCard from "@/components/administration/estatistics/card";
-import { getStatisticsContent, getStatisticsOverview } from "@/utils/statistics";
-import { StatisticsContent, StatisticsOverview } from "@/types/statistics";
+import { getStatisticsActivity, getStatisticsContent, getStatisticsOverview } from "@/utils/statistics";
+import { StatisticsContent, StatisticsOverview, StatisticsActivity } from "@/types/statistics";
 import PieC from "@/components/administration/estatistics/graph/pie";
 import PieChartWithLegend from "@/components/administration/estatistics/graph/pie";
 import DonutChartWithText from "@/components/administration/estatistics/graph/donut";
+import BarChartWithLegend from "@/components/administration/estatistics/graph/bar";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
     const [statistics, setStatistics] = useState<StatisticsOverview>();
     const [statisticsContent, setStatisticsContent] = useState<StatisticsContent>();
+    const [statisticsActivity, setStatisticsActivity] = useState<StatisticsActivity>(); 
 
     useEffect(() => {
         if (!authLoading) {
@@ -55,6 +57,9 @@ export default function Page() {
                 const responseContent = await getStatisticsContent(authToken || "");
                 console.log("Estadísticas de contenido obtenidas:", responseContent);
                 setStatisticsContent(responseContent);
+                 const responseActivity = await getStatisticsActivity(authToken || "");
+                console.log("Estadísticas de responseActivity obtenidas:", responseActivity);
+                setStatisticsActivity(responseActivity);
             } catch (error) {
                 console.error("Error al obtener estadísticas:", error);
             }
@@ -80,7 +85,7 @@ export default function Page() {
                     growthPercentage={statistics?.usersGrowthPercentage}
                     bg="bg-purple-300"
                     growthLabel="semana anterior"
-
+                    path="/administration/users"
                     label="Usuarios"
                 />
 
@@ -90,29 +95,32 @@ export default function Page() {
                     growthPercentage={statistics?.postsGrowthPercentage}
                     bg="bg-btn-action"
                     growthLabel="semana anterior"
+                    path="/administration/posts"
 
                     label="Publicaciones"
                 />
 
                 <StatCard
                     icon={<Dog className="w-9 h-9 text-red-300" />}
-                    value={statistics?.totalPets ?? 0}
+                    value={statistics?.petsCreatedThisWeek ?? 0}
                     growthPercentage={statisticsContent?.petsGrowthPercentage}
                     growthLabel="semana anterior"
+                    path="/administration/posts"
 
                     label="Mascotas"
                 />
                 <StatCard
                     icon={<DollarSign className="w-9 h-9 text-orange-300" />}
-                    value={statistics?.totalCrowdfunding ?? 0}
+                    value={statistics?.crowdFoundingsCreatedThisWeek ?? 0}
                     growthPercentage={statistics?.crowdfundingGrowthPercentage}
                     growthLabel="semana anterior"
+                    path="/administration/posts"
 
                     label="Usuarios"
                 />
                 <StatCard
                     icon={<Send className="w-9 h-9 text-blue" />}
-                    value={statistics?.totalAdoptionRequests ?? 0}
+                    value={statistics?.adoptionRequestsThisWeek ?? 0}
                     growthPercentage={statistics?.adoptionRequestsGrowthPercentage}
                     growthLabel="semana anterior"
 
@@ -123,12 +131,22 @@ export default function Page() {
 
             {statistics && (
                 <>
-                    <div className="flex justify-between items-center gap-4 mt-8 flex-wrap">
-                        <div>
-
+                    <div className="flex justify-evenly items-center  mt-8 flex-wrap">
+                        <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
+                            <BarChartWithLegend
+                                title="Total de contenido"
+                                description="Cantidad total de contenido creado"
+                                data={[
+                                    { name: "Animales", value: statistics.totalPets ?? 0 },
+                                    { name: "Publicaciones", value: statistics.totalPosts ?? 0 },
+                                    { name: "Productos", value: statistics.totalProducts ?? 0 },
+                                    { name: "Colectas", value: statistics.totalCrowdfunding ?? 0 },
+                                ]}
+                                colors={["#9747FF", "#F2AA0F", "#4781FF"]}
+                            />
 
                         </div>
-                        <div className="p-4 flex gap-4 bg-white rounded-lg shadow-md w-full max-w-md">
+                        <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
                             <DonutChartWithText
                                 title="Mascotas por Categoría"
                                 description="Distribución de tipos de mascota"
@@ -140,13 +158,14 @@ export default function Page() {
                                 colors={["#9747FF", "#F2AA0F", "#4781FF"]}
                             />
                             <PieChartWithLegend
-                                title="Publicaciones por Tipo"
-                                description="Distribución de publicaciones"
-                                colors={["#9747FF", "#F2AA0F", "#4781FF"]}
+                                title="Solicitudes de adopción"
+                                description="Distribución de solicitudes de adopción"
+                                colors={["#9747FF", "#F2AA0F", "#FF5050"]}
                                 data={[
-                                    { name: "Publicaciones", value: statistics.totalProducts },
-                                    { name: "Mascotas", value: statistics.totalPets },
-                                    { name: "Productos", value: statistics.totalPosts },
+                                    { name: "Aceptados", value: statisticsActivity?.adoptionRequestCountByStatus?.ACCEPTED_count ?? 0},
+                                    { name: "Pendientes", value: statisticsActivity?.adoptionRequestCountByStatus?.PENDING_count ?? 0 },
+                                    { name: "Rechazados", value: statisticsActivity?.adoptionRequestCountByStatus?.REJECTED_count ?? 0 },
+                             
                                 ]}
                             />
                         </div>
