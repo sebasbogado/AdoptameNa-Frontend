@@ -135,7 +135,6 @@ export function usePostForm(setSaveLoading: (loading: boolean) => void, setError
                     );
                 }
             }
-            setValue("content", "");
 
         }
         prevPostTypeId.current = watchedPostTypeId;

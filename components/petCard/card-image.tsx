@@ -1,18 +1,19 @@
 import { Media } from "@/types/media";
-import { Loader2 } from "lucide-react";
+import { Loader2, EyeOff } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useEffect } from "react";
 
 interface CardImageProps {
     media?: Media | null;
     className?: string;
-    isBlogCard?: boolean; // Determina el tipo de tarjeta
+    isBlogCard?: boolean;
+    isSensitive?: boolean;
 }
 
 const notFoundSrc = "/logo.png";
 const SUPPORTED_VIDEO_FORMATS = ['video/mp4', 'video/webm'];
 
-const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard }) => {
+const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard, isSensitive }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [imageSrc, setImageSrc] = useState<string>(notFoundSrc);
 
@@ -22,7 +23,6 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
             
             if (isVideo && media?.url) {
                 try {
-                    // Crear un elemento video temporal
                     const video = document.createElement('video');
                     video.crossOrigin = "anonymous";
                     video.muted = true;
@@ -30,7 +30,6 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                     video.preload = 'metadata';
                     video.src = media.url;
 
-                    // Esperar a que el video esté listo y en el primer frame
                     await new Promise((resolve, reject) => {
                         video.onloadeddata = () => {
                             video.currentTime = 0;
@@ -39,13 +38,11 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                         video.onerror = reject;
                     });
 
-                    // Asegurarnos de que estamos en el primer frame
                     await new Promise(resolve => {
                         video.onseeked = resolve;
                         video.currentTime = 0;
                     });
 
-                    // Extraer el primer frame
                     const canvas = document.createElement('canvas');
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
@@ -56,14 +53,12 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                             const frameUrl = canvas.toDataURL('image/jpeg');
                             setImageSrc(frameUrl);
                         } catch (err) {
-                            // Si el canvas está tainted, mostrar imagen por defecto
                             setImageSrc(notFoundSrc);
                         }
                     } else {
                         setImageSrc(notFoundSrc);
                     }
 
-                    // Limpiar el video temporal
                     video.remove();
                 } catch (error) {
                     console.error('Error extracting video frame:', error);
@@ -90,7 +85,7 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                 </div>
             )}
             <Image
-                className={`w-full h-auto object-cover transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}
+                className={`w-full h-auto object-cover transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"} ${isSensitive ? "blur-md" : ""}`}
                 src={imageSrc}
                 alt="Imagen de la tarjeta"
                 width={500}
@@ -102,17 +97,33 @@ const CardImage: React.FC<CardImageProps> = ({ media, className = "", isBlogCard
                     setIsLoading(false);
                 }}
             />
+            {isSensitive && (
+                <div
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 text-white"
+                >
+                    <EyeOff className="h-8 w-8 mb-2" />
+                    <span className="text-lg font-semibold">Imágenes Sensibles</span>
+                </div>
+            )}
         </div>
     );
 
     const BlogImage = (
-        <div className={`relative h-full w-full ${className}`}>
+        <div className={`relative h-full w-full overflow-hidden ${className}`}>
             <Image
                 src={media?.url || notFoundSrc}
                 alt={media?.alt || "Image not available"}
                 fill
-                className="object-cover"
+                className={`object-cover ${isSensitive ? "blur-md" : ""}`}
             />
+            {isSensitive && (
+                <div
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 text-white"
+                >
+                    <EyeOff className="h-8 w-8 mb-2" />
+                    <span className="text-lg text-center font-semibold">Imágenes Sensibles</span>
+                </div>
+            )}
         </div>
     );
 
