@@ -1,6 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import Pagination from '@/components/pagination';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import SectionAdmin from '../section';
 import { Post } from '@/types/post';
 import { Pet } from '@/types/pet';
@@ -11,9 +11,6 @@ import CardBanned from './card-banned';
 import { banPet, banPost, banProduct } from '@/utils/report-client';
 import { Alert } from '@material-tailwind/react';
 import { ConfirmationModal } from '@/components/form/modal';
-import { getPosts } from '@/utils/posts.http';
-import { getPets } from '@/utils/pets.http';
-import { getProducts } from '@/utils/product.http';
 
 interface Props<T> {
     items: T[];
@@ -22,6 +19,7 @@ interface Props<T> {
     currentPage: number;
     totalPages: number;
     handlePageChange: (page: number) => void;
+    updateFilters?: (filters: Record<string, any>) => void;
     itemType: ITEM_TYPE;
     disabled?: boolean;
 }
@@ -33,6 +31,7 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
     currentPage,
     totalPages,
     handlePageChange,
+    updateFilters,
     itemType,
     disabled = false,
 }: Props<T>) {
@@ -40,104 +39,58 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
-    const [localItems, setLocalItems] = useState<T[]>(items);
-
     // --- Modal State ---
-    const [isBanModalOpen, setIsBanModalOpen] = useState<boolean>(false);
-    const [itemToBanId, setItemToBanId] = useState<string | null>(null);
-    const [typeToBanString, setTypeToBanString] = useState<string | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [banId, setBanId] = useState<number | null>(null);
+    const [banType, setBanType] = useState<string | null>(null);
 
-    const fetchItems = async () => {
+    const handleBan = async (id: number, type: string) => {
+        if (!authToken) return;
         try {
-            let data: T[];
-
-            switch (itemType) {
+            switch (type) {
                 case 'post':
-                    data = (await getPosts()).data as T[]; break;
-                case 'pet':
-                    data = (await getPets()).data as T[]; break;
-                case 'product':
-                    data = (await getProducts()).data as T[]; break;
-                default:
-                    data = []; break;
-            }
-
-            setLocalItems(data);
-        } catch (error) {
-            console.error("Error al actualizar los datos:", error);
-        }
-    };
-            
-    useEffect(() => {
-        setLocalItems(items);
-    }, [items]);
-
-    // --- Modal Functions ---
-    const openBanModal = (id: string, type: string) => {
-        setItemToBanId(id);
-        setTypeToBanString(type);
-        setIsBanModalOpen(true);
-        setErrorMessage("");
-    };
-
-    const closeModal = () => {
-        setIsBanModalOpen(false);
-        setItemToBanId(null);
-    };
-
-    const confirmBanAction = async () => {
-        if (!itemToBanId || !authToken || !typeToBanString) {
-            setErrorMessage("No se seleccionó un item o falta autorización.");
-            closeModal();
-            return;
-        }
-        setErrorMessage("");
-        setSuccessMessage("");
-
-        try {
-            switch (typeToBanString) {
-                case 'post':
-                    try {
-                        await banPost(parseInt(itemToBanId as string, 10), authToken);
-                        setSuccessMessage("Publicación baneada exitosamente.");
-                        setTimeout(() => setSuccessMessage(""), 2500);
-                    } catch {
-                        setErrorMessage("Hubo un error al banear la publicación.");
-                    } finally {
-                        await fetchItems();
-                    }
+                    await banPost(id, authToken);
+                    setSuccessMessage("Publicación baneada exitosamente.");
+                    setTimeout(() => setSuccessMessage(""), 2500);
                     break;
                 case 'pet':
-                    try {
-                        await banPet(parseInt(itemToBanId as string, 10), authToken);
-                        setSuccessMessage("Publicación de mascota baneada exitosamente.");
-                        setTimeout(() => setSuccessMessage(""), 2500);
-                    } catch {
-                        setErrorMessage("Hubo un error al banear la publicación.");
-                    } finally {
-                        await fetchItems();
-                    }
+                    await banPet(id, authToken);
+                    setSuccessMessage("Publicación de mascota baneada exitosamente.");
+                    setTimeout(() => setSuccessMessage(""), 2500);
                     break;
                 case 'product':
-                    try {
-                        await banProduct(parseInt(itemToBanId as string, 10), authToken);
-                        setSuccessMessage("Publicación de producto baneada exitosamente.");
-                        setTimeout(() => setSuccessMessage(""), 2500);
-                    } catch {
-                        setErrorMessage("Hubo un error al banear la publicación.");
-                    } finally {
-                        await fetchItems();
-                    }
+                    await banProduct(id, authToken);
+                    setSuccessMessage("Publicación de producto baneada exitosamente.");
+                    setTimeout(() => setSuccessMessage(""), 2500);
                     break;
                 default:
-                    setErrorMessage("Hubo un error al intentar banear una publicación.");
+                    console.error(`Tipo desconocido: ${type}`);
+                    throw new Error("Tipo de item no soportado");
             }
-            handlePageChange(currentPage);
+            // Forzar una recarga completa de los datos
+            if (updateFilters) {
+                updateFilters({});
+                // Esperar un momento para asegurar que la API ha procesado el cambio
+                setTimeout(() => {
+                    handlePageChange(currentPage);
+                }, 100);
+            }
 
         } catch (error) {
-            setErrorMessage("Hubo un error al intentar banear una publicación.");
-        } finally {
-            closeModal();
+            setErrorMessage('Ocurrió un error al restaurar la publicación.');
+        }
+    };
+
+    const handleBanClick = (id: number, type: string) => {
+        setBanId(id);
+        setBanType(type);
+        setModalOpen(true);
+    };
+
+    const handleConfirmBan = async () => {
+        if (banId && banType) {
+            await handleBan(banId, banType);
+            setModalOpen(false);
         }
     };
 
@@ -161,7 +114,7 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
                             {successMessage}
                         </Alert>
                     )}
-                    {errorMessage && !isBanModalOpen && ( // Don't show general error if modal is open and might show its own
+                    {errorMessage && !modalOpen && ( // Don't show general error if modal is open and might show its own
                         <Alert
                             color="red"
                             open={!!errorMessage}
@@ -182,7 +135,7 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
                 <div className="flex justify-center items-center p-10">
                     <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
                 </div>
-            ) : !loading && localItems.length === 0 ? (
+            ) : !loading && items.length === 0 ? (
                 <div className="text-center p-10 bg-gray-50 rounded-lg mt-4">
                     <p className="text-gray-600">
                         {error
@@ -194,17 +147,17 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
             ) : (
                 <>
                     {loading && items.length > 0 && (
-                         <div className="flex justify-center py-4">
-                             <Loader2 className="h-6 w-6 animate-spin text-purple-300" />
-                         </div>
+                        <div className="flex justify-center py-4">
+                            <Loader2 className="h-6 w-6 animate-spin text-purple-300" />
+                        </div>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-2 p-2">
-                        {localItems.map((item, index) => (
+                        {items.map((item, index) => (
                             <CardBanned
-                                key={(item as any)?.id || index}
+                                key={index}
                                 item={item}
                                 itemType={itemType}
-                                onBan={() => openBanModal(String(item.id), itemType)}
+                                onBan={() => handleBanClick(item.id, itemType)}
                                 disabled={disabled}
                             />
                         ))}
@@ -221,15 +174,15 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
                 />
             )}
 
-            {isBanModalOpen && (
+            {modalOpen && (
                 <ConfirmationModal
-                    isOpen={isBanModalOpen}
+                    isOpen={modalOpen}
                     title="Confirmar Baneo"
                     message="¿Estás seguro de que deseas banear esta publicación? Esta acción no se puede deshacer."
                     textConfirm="Banear"
                     confirmVariant="danger"
-                    onClose={closeModal}
-                    onConfirm={confirmBanAction} // Use the new handler
+                    onClose={() => setModalOpen(false)}
+                    onConfirm={handleConfirmBan}
                 />
             )}
         </div>
