@@ -23,6 +23,8 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
+    const [filters, setFilters] = useState<number | undefined>(undefined);
+
     const {
         data: products,
         loading,
@@ -36,10 +38,12 @@ export default function Page() {
                 page,
                 size,
                 categoryId: filters?.categoryId,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -85,10 +89,10 @@ export default function Page() {
 
     useEffect(() => {
         const categoryId = selectedCategory && selectedCategory !== "Todos" ? allCategoryMap[selectedCategory] : undefined;
-
+        setFilters(categoryId);
         updateFilters({ categoryId });
         handlePageChange(1);
-    }, [selectedCategory]);
+    }, [selectedCategory, updateFilters, handlePageChange, allCategoryMap, setFilters]);
 
     return (
         <div className="p-6">
@@ -113,6 +117,8 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>

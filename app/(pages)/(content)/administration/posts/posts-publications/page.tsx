@@ -22,6 +22,8 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
+    const [filters, setFilters] = useState<number | undefined>(undefined);
+
     const {
         data: posts,
         loading,
@@ -35,11 +37,13 @@ export default function Page() {
             return await getPosts({
                 page,
                 size,
-                postTypeId: filters?.postTypeId ?? undefined
+                postTypeId: filters?.postTypeId ?? undefined,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -49,7 +53,7 @@ export default function Page() {
             router.push("/dashboard");
         }
 
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, user]);
 
     useEffect(() => {
         const fetchDeletedData = async () => {
@@ -85,10 +89,10 @@ export default function Page() {
 
     useEffect(() => {
         const postTypeId = selectedPostType && selectedPostType !== "Todos" ? allPostTypeMap[selectedPostType] : undefined;
-
+        setFilters(postTypeId);
         updateFilters({ postTypeId });
         handlePageChange(1);
-    }, [selectedPostType]);
+    }, [selectedPostType, updateFilters, handlePageChange, allPostTypeMap, setFilters]);
 
     return (
         <div className="p-6">
@@ -114,6 +118,8 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>
