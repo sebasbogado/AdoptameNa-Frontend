@@ -17,6 +17,8 @@ import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
 import { capitalizeFirstLetter } from "@/utils/Utils";
+import { SkeletonFilters } from "@/components/ui/skeleton-filter";
+import { SkeletonCard } from "@/components/ui/skeleton-card";
 
 export default function Page() {
   const { user } = useAuth();
@@ -31,6 +33,7 @@ export default function Page() {
   const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
   const [filterChanged, setFilterChanged] = useState(false);
   const [locationType, setLocationType] = useState<LocationFilterType | null>(null);
+  const [filterLoading, setFilterLoading] = useState(true);
 
   const {
     data: pets,
@@ -56,6 +59,7 @@ export default function Page() {
 
   const fetchData = async () => {
     try {
+      setFilterLoading(true);
       const animals = await getAnimals();
       setAnimalList(animals.data.map((animal: { name: string }) => capitalizeFirstLetter(animal.name)));
       setAnimals(animals.data);
@@ -70,11 +74,17 @@ export default function Page() {
       ]);
     } catch (err: any) {
       console.error(err.message);
+    } finally {
+      setFilterLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchData();
+    if (user) {
+      fetchData();
+    } else {
+      setFilterLoading(false);
+    }
   }, [user]);
 
   const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
@@ -115,38 +125,43 @@ export default function Page() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="w-full max-w-7xl mx-auto p-4">
-        <div
-          className={`
+      {filterLoading ?
+        <SkeletonFilters numFilters={3} />
+        :
+        <div className="w-full max-w-7xl mx-auto p-4">
+          <div
+            className={`
             grid grid-cols-1 md:grid-cols-2
             ${user?.location ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}
             gap-x-6 gap-y-6
             px-4 md:px-0
           `}>
-          {user?.location ? (
-            <LocationFilter
-              user={user}
-              locationType={locationType}
-              setLocationType={setLocationType}
-              onFilterChange={handleLocationFilterChange}
+            {user?.location ? (
+              <LocationFilter
+                user={user}
+                locationType={locationType}
+                setLocationType={setLocationType}
+                onFilterChange={handleLocationFilterChange}
+              />
+            ) : (
+              <div className="hidden lg:w-1/2 flex-shrink-0"></div>
+            )}
+            <LabeledSelect
+              label="Estado"
+              options={petStatusesList}
+              selected={selectedPetStatus}
+              setSelected={setSelectedPetStatus}
             />
-          ) : (
-            <div className="hidden lg:w-1/2 flex-shrink-0"></div>
-          )}
-          <LabeledSelect
-            label="Estado"
-            options={petStatusesList}
-            selected={selectedPetStatus}
-            setSelected={setSelectedPetStatus}
-          />
-          <LabeledSelect
-            label="Tipo de mascota"
-            options={animalList}
-            selected={selectedAnimal}
-            setSelected={setSelectedAnimal}
-          />
+            <LabeledSelect
+              label="Tipo de mascota"
+              options={animalList}
+              selected={selectedAnimal}
+              setSelected={setSelectedAnimal}
+            />
+          </div>
         </div>
-      </div>
+      }
+
 
       <div className="w-full flex flex-col items-center justify-center mb-6">
         {error && (
@@ -156,9 +171,12 @@ export default function Page() {
         )}
 
         {loading ? (
-          <div className="flex justify-center items-center">
-            <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+          {[...Array(10)].map((_, index) => (
+              <SkeletonCard key={index} />
+          ))}
+      </div>
+
         ) : pets.length === 0 ? (
           <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
             <p className="text-gray-600">No se encontraron mascotas</p>
