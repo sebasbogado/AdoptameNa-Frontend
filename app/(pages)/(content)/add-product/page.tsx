@@ -25,6 +25,7 @@ import { MultiSelect } from "@/components/multi-select";
 import LabeledInput from "@/components/inputs/labeled-input";
 import NewBanner from "@/components/newBanner";
 import { CreatePostLocation } from "@/components/post/create-post-location";
+import { AxiosError } from "axios";
 
 export default function Page() {
   const {
@@ -107,7 +108,7 @@ export default function Page() {
       };
       fetchUserData();
     }
-  }, [authToken, authLoading, router, user?.id]);
+  }, [authToken, authLoading, router, user?.id, setValue]);
 
 
   const handleCancel = useCallback(() => {
@@ -118,11 +119,6 @@ export default function Page() {
     // 'data' aquí ya está validado por Zod
     openConfirmationModal(data); // Pasa los datos validados al modal/handler
   };
-
-  const handlePositionChange = useCallback((newPosition: [number, number]) => {
-    setPosition(newPosition);
-    setValue("locationCoordinates", newPosition, { shouldValidate: true });
-  }, [setValue]);
 
   const openConfirmationModal = (data: ProductFormValues) => {
     setValidatedData(data);
@@ -206,8 +202,9 @@ export default function Page() {
           const updatedMediaIds = newSelectedImages.map(img => img.id);
           setValue("mediaIds", updatedMediaIds, { shouldValidate: true }); // Añadir validación si es necesario
         }
-      } catch (error: any) {
-        if (error.response?.status === 415) {
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 415) {
           setErrorMessage("Formato de imagen no soportado. Usa JPG, JPEG o PNG.");
         } else {
           setErrorMessage("Error al subir la imagen. Intenta nuevamente.");
@@ -243,8 +240,9 @@ export default function Page() {
 
       setSuccessMessage("Imagen eliminada exitosamente.");
 
-    } catch (error) {
+    } catch (error: unknown) {
       setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
+      console.error(error);
     } finally {
       setLoading(false);
     }
