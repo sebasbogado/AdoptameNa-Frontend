@@ -59,7 +59,7 @@ export default function OrganizationsPage() {
                 page,
                 size,
                 role: "organization",
-                name: filters?.name || undefined,
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -77,7 +77,7 @@ export default function OrganizationsPage() {
 
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
+            search: searchQuery || undefined,
             refresh: refreshTrigger
         };
 

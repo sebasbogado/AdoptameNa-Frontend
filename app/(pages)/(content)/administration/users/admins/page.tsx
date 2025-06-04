@@ -63,7 +63,7 @@ export default function AdminsPage() {
                 page,
                 size,
                 role: "admin",
-                name: filters?.name || undefined,
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -71,7 +71,7 @@ export default function AdminsPage() {
 
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
+            search: searchQuery || undefined,
             refresh: refreshTrigger
         };
 

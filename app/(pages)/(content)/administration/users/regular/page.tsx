@@ -50,7 +50,6 @@ export default function RegularUsersPage() {
         setSearchQuery("");
     };
 
-
     const {
         data: users,
         loading: usersLoading,
@@ -64,7 +63,7 @@ export default function RegularUsersPage() {
                 page,
                 size,
                 role: "user",
-                name: filters?.name || undefined,
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -72,13 +71,12 @@ export default function RegularUsersPage() {
 
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
+            search: searchQuery || undefined,
             refresh: refreshTrigger
         };
 
         updateFilters(filters);
     }, [searchQuery, refreshTrigger, updateFilters]);
-
 
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
@@ -202,7 +200,13 @@ export default function RegularUsersPage() {
                     setModalConfirmation(true);
                 }}
                 onPromote={(u) => {
-                    setModalUser(u);
+                    setModalUser({
+                        id: u.id,
+                        fullName: u.fullName,
+                        email: u.email,
+                        role: "user",
+                        isProfileCompleted: u.isProfileCompleted
+                    });
                     setOpenModal(true);
                 }}
             />
