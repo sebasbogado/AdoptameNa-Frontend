@@ -22,94 +22,49 @@ import { FormData as FormDataPost } from "@/components/post/form-data";
 import { MAX_TAGS, MAX_IMAGES, MAX_BLOG_IMAGES } from "@/validations/post-schema";
 import { allowedImageTypes, blogFileSchema, fileSchema } from "@/utils/file-schema";
 import { ChevronLeftIcon } from "lucide-react";
+import Loading from "@/app/loading";
+import { usePostForm } from "@/hooks/use-post-form";
 
 export default function Page() {
+    const { authToken, user, loading: authLoading } = useAuth();
+    const [errorMessage, setErrorMessage] = useState("");
+    const [saveLoading, setSaveLoading] = useState<boolean>(false);
+    const [precautionMessage, setPrecautionMessage] = useState("");
+
     const {
         register,
         handleSubmit,
         setValue,
+        reset,
         watch,
         control,
-        formState: { errors },
-    } = useForm<PostFormValues>({
-        resolver: zodResolver(postSchema),
-        defaultValues: {
-            postTypeId: 0,
-            title: "",
-            content: "",
-            locationCoordinates: [0, 0],
-            contactNumber: "",
-            mediaIds: [],
-            tagIds: [],
-        }
-    });
-    const { authToken, user, loading: authLoading } = useAuth();
+        trigger,
+        errors,
+        watchedPostTypeId,
+        selectedImages,
+
+        handleEditorImageUpload,
+        handleRemoveImage,
+        currentImageIndex,
+        setCurrentImageIndex,
+        handleImageUpload,
+    } = usePostForm(setSaveLoading, setErrorMessage, setPrecautionMessage, authToken);
     const [loading, setLoading] = useState<boolean>(true);
-    const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
-    const [precautionMessage, setPrecautionMessage] = useState("");
     const [postTypes, setPostTypes] = useState<PostType[]>([]);
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedImages, setSelectedImages] = useState<Media[]>([]);
     const [selectedTags, setSelectedTags] = useState<Tags[]>([]);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [position, setPosition] = useState<[number, number] | null>(null);
     const [validatedData, setValidatedData] = useState<PostFormValues | null>(null);
     const [tags, setTags] = useState<Tags[]>([]);
-    const [editorMediaIds, setEditorMediaIds] = useState<number[]>([]);
-
-    const watchedPostTypeId = useWatch({
-        control,
-        name: "postTypeId",
-    });
-
-     const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
+    const handlePositionChange = useCallback((newPosition: [number, number] | null) => {
         setPosition(newPosition);
         if (newPosition) {
             setValue("locationCoordinates", newPosition, { shouldValidate: true, shouldDirty: true });
         }
     }, [setValue]);
-    const handleEditorImageUpload = (mediaId: number) => {
-        setEditorMediaIds(prev => {
-            if (prev.includes(mediaId)) return prev;
-            const next = [...prev, mediaId];
-            const combinedMediaIds = [
-                ...selectedImages.map(img => img.id),
-                ...next
-            ].filter((v, i, arr) => arr.indexOf(v) === i);
-            setValue("mediaIds", combinedMediaIds, { shouldValidate: true });
-            return next;
-        });
-    };
 
-    const handleRemoveImage = async (index: number) => {
-        const imageToRemove = selectedImages[index];
-
-        if (!authToken) {
-             setErrorMessage("No se pudo obtener el token de authenticación!");
-
-            return;
-        }
-
-        try {
-            setLoading(true);
-
-            if (imageToRemove.id) {
-                await deleteMedia(imageToRemove.id, authToken);
-            }
-            const updatedImages = selectedImages.filter((_, i) => i !== index);
-            setSelectedImages(updatedImages);
-            syncAllMediaIds(updatedImages, editorMediaIds, setValue); // <-- Cambia esto
-
-
-        } catch (error) {
-            console.error("Error al eliminar la imagen", error);
-            setErrorMessage("No se pudo eliminar la imagen. Intenta nuevamente.");
-        } finally {
-            setLoading(false);
-        }
-    };
     useEffect(() => {
         if (!authLoading && !authToken) {
             sessionStorage.setItem("redirectTo", window.location.pathname);
@@ -132,7 +87,7 @@ export default function Page() {
             setLoading(false);
         }
     };
-
+ 
     useEffect(() => {
         fetchInitialData();
     }, []);
@@ -142,10 +97,8 @@ export default function Page() {
             return [];
         }
 
-        // Siempre incluye los tags generales (postTypeId === 0)
         const generalTags = tags.filter(tag => tag.postTypeId === null);
 
-        // Incluye tags específicos si se selecciona un tipo (1 o 2)
         let specificTags: Tags[] = [];
         if (watchedPostTypeId === POST_TYPEID.BLOG || watchedPostTypeId === POST_TYPEID.VOLUNTEERING) {
             specificTags = tags.filter(tag => tag.postTypeId === watchedPostTypeId);
@@ -153,31 +106,26 @@ export default function Page() {
 
         return [...generalTags, ...specificTags];
 
-    }, [tags, watchedPostTypeId]); // Recalcula cuando cambien los tags o el tipo seleccionado
+    }, [tags, watchedPostTypeId]);
 
     useEffect(() => {
-        // Cuando las opciones filtradas cambian, debemos asegurarnos
-        // de que los tags seleccionados actualmente todavía están en la lista de opciones válidas.
         const validSelectedTags = selectedTags.filter(selectedTag =>
             filteredTags.some(filteredTag => filteredTag.id === selectedTag.id)
         );
 
-        // Si la lista de seleccionados válidos es diferente a la actual, actualiza
         if (validSelectedTags.length !== selectedTags.length) {
             setSelectedTags(validSelectedTags);
             setValue("tagIds", validSelectedTags.map(tag => tag.id), { shouldValidate: true });
         }
-        // Queremos que esto se ejecute solo cuando las *opciones* filtradas cambien.
     }, [filteredTags, setValue]);
 
-    // Abre el modal cuando el formulario es válido
     const openConfirmationModal = (data: PostFormValues) => {
-        setValidatedData(data); // Guardamos los datos validados
+        setValidatedData(data);
         setIsModalOpen(true);
     };
 
     const onSubmit = (data: PostFormValues) => {
-        openConfirmationModal(data); // Pasa los datos validados al modal/handler
+        openConfirmationModal(data);
     };
 
     const confirmSubmit = async () => {
@@ -186,8 +134,7 @@ export default function Page() {
             return;
         }
         setIsModalOpen(false);
-        setLoading(true);
-
+        setSaveLoading(true);
         const updatedFormData: CreatePost = {
             userId: Number(user?.id),
             title: validatedData.title,
@@ -195,13 +142,15 @@ export default function Page() {
             tagIds: validatedData.tagIds || [],
             postTypeId: validatedData.postTypeId,
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
-            mediaIds: validatedData.mediaIds || []
+            mediaIds: validatedData.mediaIds || [],
+            blogImages: validatedData.blogImages || [],
+
         };
         if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {
             updatedFormData.contactNumber = validatedData.contactNumber;
         }
         if (!authToken) {
-          setErrorMessage("No se pudo obtener el token de authenticación!");
+            setErrorMessage("No se pudo obtener el token de authenticación!");
             setLoading(false);
             return;
         }
@@ -218,7 +167,7 @@ export default function Page() {
                 }
             } else {
                 setErrorMessage("Se ha producido un error. Inténtelo de nuevo!")
-                router.push("/dashboard"); // O a donde sea apropiado como fallback
+                router.push("/dashboard");
             }
         } catch (error: any) {
             setErrorMessage("Error al crear la publicación");
@@ -235,81 +184,16 @@ export default function Page() {
         setIsModalOpen(false);
         router.push("/dashboard");
     };
-   const syncAllMediaIds = useCallback((selectedImages: Media[], editorMediaIds: number[], setValue: any) => {
-        const combined = [
-            ...selectedImages.map(img => img.id),
-            ...editorMediaIds
-        ].filter((id, idx, arr) => arr.indexOf(id) === idx); 
-        setValue("mediaIds", combined, { shouldValidate: true });
-    }, [setValue]);
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const file = e.target.files[0];
-            const fileData = new FormData();
-            fileData.append("file", file);
 
-            if (!authToken) {
-                throw new Error("El token de autenticación es requerido");
-            }
-            const schema = watchedPostTypeId === POST_TYPEID.BLOG ? blogFileSchema : fileSchema;
-            const result = schema.safeParse(file);
 
-            if (!result.success) {
-                setPrecautionMessage(result.error.errors[0].message);
-                return;
-            }
-            try {
-                setLoading(true);
-                const response = await postMedia(fileData, authToken);
+    const wrappedHandleRemoveImage = (index: number) =>
+        handleRemoveImage(index, deleteMedia);
 
-                if (response) {
-                    const newSelectedImages = [...selectedImages, response];
-                    setSelectedImages(newSelectedImages);
-                    syncAllMediaIds(newSelectedImages, editorMediaIds, setValue);
-                }
-            } catch (error) {
-                setErrorMessage("Error al subir el archivo. Intenta nuevamente.");
-                console.error("Error al subir el archivo", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-    };
-
- 
-    const prevPostTypeId = useRef(watchedPostTypeId);
-    function getFirstAllowedImageOrFirst(images: Media[]): Media[] {
-        const firstImage = images.find(img => allowedImageTypes.includes(img.mimeType || ""));
-        if (firstImage) return [firstImage];
-        if (images.length > 0) return [images[0]];
-        return [];
+    const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
+        handleImageUpload(e, watchedPostTypeId);
+       if (authLoading || loading) {
+        return <Loading />;
     }
-
-    useEffect(() => {
-        if (
-            prevPostTypeId.current !== undefined &&
-            prevPostTypeId.current !== watchedPostTypeId
-        ) {
-            if (watchedPostTypeId === POST_TYPEID.BLOG) {
-                if (selectedImages.length > MAX_BLOG_IMAGES) {
-                    const limitedImages = getFirstAllowedImageOrFirst(selectedImages);
-                    setSelectedImages(limitedImages);
-                    setCurrentImageIndex(0);
-                    setValue(
-                        "mediaIds",
-                        limitedImages.map(img => img.id),
-                        { shouldValidate: true }
-                    );
-                    setPrecautionMessage(
-                        `Solo se permite un máximo de ${MAX_BLOG_IMAGES} imagen${MAX_BLOG_IMAGES === 1 ? '' : 'es'} para blogs.`
-                    );
-                }
-            }
-            setValue("content", "");
-
-        }
-        prevPostTypeId.current = watchedPostTypeId;
-    }, [watchedPostTypeId, selectedImages, setValue]);
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-auto">
             {/* Fondo de imagen + overlay violeta */}
@@ -318,7 +202,7 @@ export default function Page() {
                 style={{
                     backgroundImage: `url('/andrew-s-ouo1hbizWwo-unsplash.jpg')`,
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center',          
+                    backgroundPosition: 'center',
                 }}
             >
                 <div className="absolute inset-0 bg-lilac-background opacity-60"></div>
@@ -333,19 +217,23 @@ export default function Page() {
                         onClick={() => router.push('/dashboard')}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
-                    <ChevronLeftIcon    className="w-6 h-6" />
+                        <ChevronLeftIcon className="w-6 h-6" />
                     </button>
                     <h1 className="text-2xl font-bold text-text-primary">Nueva publicación</h1>
                 </div>
-                <NewBanner
-                    medias={selectedImages}
+               <NewBanner
+                medias={
+                    watchedPostTypeId === POST_TYPEID.BLOG
+                    ? selectedImages.slice(0, 1)
+                    : selectedImages
+                }
                 />
                 <UploadImages
                     selectedImages={selectedImages}
                     currentImageIndex={currentImageIndex}
                     setCurrentImageIndex={setCurrentImageIndex}
-                    handleRemoveImage={handleRemoveImage}
-                    handleImageUpload={handleImageUpload}
+                    handleRemoveImage={wrappedHandleRemoveImage}
+                    handleImageUpload={wrappedHandleImageUpload}
                     MAX_IMAGES={POST_TYPEID.BLOG === watchedPostTypeId ? MAX_BLOG_IMAGES : MAX_IMAGES}
                     errorMessage={errorMessage}
                     setErrorMessage={setErrorMessage}
@@ -370,17 +258,17 @@ export default function Page() {
                     setValue={setValue}
                     isModalOpen={isModalOpen}
                     position={position}
-                    loading={loading}
+                    loading={saveLoading}
                     handleCancel={handleCancel}
                     handlePositionChange={handlePositionChange}
                     closeModal={closeModal}
                     confirmSubmit={confirmSubmit}
-                    MAX_IMAGES={MAX_IMAGES}
-                    MAX_TAGS={MAX_TAGS}
                     control={control}
+                    trigger={trigger}
                 />
-
-                {isModalOpen &&
+            </div>
+            
+            {isModalOpen &&
                     <ConfirmationModal
                         isOpen={isModalOpen}
                         title="Confirmar creación"
@@ -391,7 +279,6 @@ export default function Page() {
                         onConfirm={confirmSubmit}
                     />
                 }
-            </div>
         </div>
     );
 

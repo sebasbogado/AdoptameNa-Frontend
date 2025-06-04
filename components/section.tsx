@@ -55,18 +55,29 @@ export function Section({ title, postTypeName, path, items, loading, error, item
         >            <Title title={title} postType={postTypeName} path={path} />
 
             {loading ? (
-                <div className="flex gap-11 overflow-x-auto p-2">
+                <div className="
+                    flex 
+                    overflow-x-auto 
+                    gap-10
+                    mt-2 
+                    p-2 
+                    scrollbar-hide 
+                    snap-x 
+                    snap-mandatory
+                ">
                     {Array.from({ length: 5 }).map((_, idx) => (
-                        <SkeletonCard
-                            key={idx}
-                            direction={itemType === "blog" ? "horizontal" : "vertical"}
-                            width={itemType === "blog" ? "w-[600px]" : "w-[250px]"}
-                            height="h-[290px]"
-                        />
+                        <div key={idx} className="snap-start">
+                            <SkeletonCard
+                                direction={itemType === "blog" ? "horizontal" : "vertical"}
+                                width={itemType === "blog" ? "w-[600px]" : "w-[250px]"}
+                                height="h-[290px]"
+                            />
+                        </div>
                     ))}
-                </div>) : error ? (
-                    <p className="text-red-500">No se pudieron cargar los datos</p>
-                ) : (
+                </div>
+            ) : error ? (
+                <p className="text-red-500">No se pudieron cargar los datos</p>
+            ) : (
                 <>
                     {itemType === "blog" && (
 
@@ -129,3 +140,4 @@ export function Section({ title, postTypeName, path, items, loading, error, item
         </div>
     );
 }
+

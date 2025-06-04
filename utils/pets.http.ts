@@ -126,9 +126,9 @@ export async function updatePet(id: string, petData: UpdatePet, token: string) {
 export const getPetSMissing = async (
   queryParams?: Record<string, any>): Promise<PaginatedResponse<Pet>> => {
   try {
-    const queryString = queryParams ? buildQueryString(queryParams) : "";
-    const url = `${API_URL}${queryString && `?${queryString}`}`;
-    const response = await axios.get(url, {
+    const params = queryParams ? buildQueryParams(queryParams) : {};
+    const response = await axios.get(API_URL, {
+      params,
       headers: {
         "Content-Type": "application/json",
       },
@@ -182,5 +182,48 @@ export const getDeletedPets = async (
       throw new Error("No encontrada");
     }
     throw new Error(error.message || "Error al obtener Pets");
+  }
+};
+
+export const getBannedPets = async (
+  token: string,
+  queryParams?: myPetsQueryParams
+): Promise<PaginatedResponse<Pet>> => {
+  try {
+    const params = buildQueryParams(queryParams);
+    const response = await axios.get(`${API_URL}/banned`, {
+      params: params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      }
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al obtener Pets baneadas");
+  }
+};
+
+export const unbanPet = async (
+  id: string | number,
+  token: string
+): Promise<any> => {
+  try {
+    const response = await axios.patch(`${API_URL}/${id}/unban`, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response && error.response.status === 404) {
+      throw new Error("No encontrada");
+    }
+    throw new Error(error.message || "Error al desbanear la mascota");
   }
 };

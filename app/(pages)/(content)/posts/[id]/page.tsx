@@ -12,12 +12,14 @@ import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import NewBanner from "@/components/newBanner";
 import { POST_TYPEID } from "@/types/constants";
+import Sensitive from "@/app/sensitive";
 
-const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
+const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateAction<Post | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>, setIsSensitive: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
         setLoading(true);
         const post = await getPost(id);
         setPost(post);
+        setIsSensitive(post.hasSensitiveImages);
     } catch (error: any) {
         console.log(error);
         setError(true);
@@ -27,11 +29,12 @@ const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateActio
 };
 
 const PostPage = () => {
-    const { authToken } = useAuth();
+    const { authToken, user } = useAuth();
     const [post, setPost] = useState<Post | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
+    const [isSensitive, setIsSensitive] = useState<boolean>(false);
     const params = useParams();
     const router = useRouter();
     const [isRedirecting, setIsRedirecting] = useState(false); // Nuevo estado
@@ -42,7 +45,7 @@ const PostPage = () => {
             setError(true);
             return;
         }
-        fetchPost(postId as string, setPost, setLoading, setError);
+        fetchPost(postId as string, setPost, setLoading, setError, setIsSensitive);
     }, []);
 
     useEffect(() => {
@@ -87,18 +90,32 @@ const PostPage = () => {
         return <NotFound />;
     }
 
+    if (isSensitive && !(post?.userId === user?.id)) {
+        return <Sensitive onContinue={() => setIsSensitive(false)} />
+    }
 
     return (
         <>
-        
             <div>
                 <NewBanner medias={post?.media || []} />
-                <div className="bg-white rounded-t-[60px] -mt-12 relative z-50 shadow-2xl shadow-gray-800">
-                    <div className="grid grid-cols-2 gap-4 p-6">
-                        <PostHeader post={post as Post} />
-                        <PostButtons postId={String(post?.id)} onShare={handleShare} postIdUser={post?.userId} />
-                        <PostContent post={post} />
-                        <PostSidebar posts={posts} />
+                <div className="bg-white rounded-t-[60px] -mt-10 md:-mt-12 relative z-10 shadow-2xl shadow-gray-800">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-6">
+                        <div className="flex flex-col sm:flex-row justify-between items-start col-span-1 md:col-span-2 gap-4 sm:gap-0">
+                            <PostHeader post={post as Post} />
+                            <div className="ml-auto">
+                                <PostButtons
+                                    postId={String(post?.id)}
+                                    onShare={handleShare}
+                                    postIdUser={post?.userId}
+                                />
+                            </div>
+                        </div>
+                        <div className="col-span-1 md:col-span-1">
+                            <PostContent post={post} />
+                        </div>
+                        <div className="hidden md:block md:col-span-1">
+                            <PostSidebar posts={posts} />
+                        </div>
                     </div>
                 </div>
             </div>

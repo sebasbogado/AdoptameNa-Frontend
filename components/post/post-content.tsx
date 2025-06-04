@@ -17,9 +17,9 @@ const PostContent = ({ post, pet }: PostContentProps) => {
     const isAdoption = pet?.petStatus?.id === PET_STATUS.ADOPTION
 
     return (
-        <section>
-            <div className="left-10 pl-12 text-gray-700">
-                <p className="text-3xl mt-4">
+        <section className="mt-4 md:mt-0">
+            <div className="px-2 sm:px-4 md:pl-12 text-gray-700">
+                <p className="text-base sm:text-lg md:text-3xl mt-4">
                     {post?.content || pet?.description}
                 </p>
             </div>

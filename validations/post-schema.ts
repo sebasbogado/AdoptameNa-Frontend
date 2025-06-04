@@ -31,8 +31,9 @@ export const postSchema = z.object({
     .array(z.number())
     .max(MAX_TAGS, `Máximo ${MAX_TAGS} tags permitidos`)
     .optional(),
+  blogImages: z.array(z.number()).optional(),
+
 }).superRefine((data, ctx) => {
-  // Si NO es blog, locationCoordinates es obligatorio y válido
   if (data.postTypeId !== POST_TYPEID.BLOG) {
     if (!data.locationCoordinates) {
       ctx.addIssue({
@@ -57,6 +58,7 @@ export const postSchema = z.object({
         message: "El número de contacto es requerido",
       });
     }
+
   }
   // Si es blog, los campos pueden ser omitidos
 });
