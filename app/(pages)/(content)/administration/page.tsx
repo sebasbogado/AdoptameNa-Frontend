@@ -116,7 +116,7 @@ export default function Page() {
                     growthLabel="semana anterior"
                     path="/administration/posts"
 
-                    label="Usuarios"
+                    label="Colectas"
                 />
                 <StatCard
                     icon={<Send className="w-9 h-9 text-blue" />}
@@ -135,7 +135,7 @@ export default function Page() {
                         <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
                             <BarChartWithLegend
                                 title="Total de contenido"
-                                description="Cantidad total de contenido creado"
+                                description="Distribución de cantidad total de contenido creado"
                                 data={[
                                     { name: "Animales", value: statistics.totalPets ?? 0 },
                                     { name: "Publicaciones", value: statistics.totalPosts ?? 0 },
@@ -148,7 +148,7 @@ export default function Page() {
                         </div>
                         <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
                             <DonutChartWithText
-                                title="Mascotas por Categoría"
+                                title="Mascotas por tipo de animal"
                                 description="Distribución de tipos de mascota"
                                 data={[
                                     { name: "Perros", value: statisticsContent?.petCountByAnimal.perro_count ?? 0, color: "#9747FF" },
@@ -159,7 +159,7 @@ export default function Page() {
                             />
                             <PieChartWithLegend
                                 title="Solicitudes de adopción"
-                                description="Distribución de solicitudes de adopción"
+                                description="Distribución de estados solicitudes de adopción"
                                 colors={["#9747FF", "#F2AA0F", "#FF5050"]}
                                 data={[
                                     { name: "Aceptados", value: statisticsActivity?.adoptionRequestCountByStatus?.ACCEPTED_count ?? 0},
