@@ -79,7 +79,7 @@ className={`relative flex flex-col md:flex-row bg-white shadow-[0_0_10px_rgba(0,
       </div>
 
       <div className="w-full md:w-1/4 h-48 md:h-full flex-shrink-0">
-        <CardImage media={post.media?.[0]} isBlogCard className="flex-grow w-full object-cover" />
+        <CardImage media={post.media?.[0]} isBlogCard isSensitive={post.hasSensitiveImages} className="flex-grow w-full object-cover" />
       </div>
 
       <div className="p-4 md:p-6 flex flex-col w-full flex-grow">
