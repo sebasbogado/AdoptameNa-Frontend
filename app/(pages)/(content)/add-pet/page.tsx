@@ -151,10 +151,8 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
+    
 
     try {
       setLoading(true);
@@ -195,8 +193,7 @@ export default function Page() {
   }, [authLoading, authToken, user?.id, router]);
 
 
-  const confirmSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const confirmSubmit = async () => {
     setIsModalOpen(false); // Cierra el modal de confirmación
     setLoading(true);
 
@@ -226,15 +223,16 @@ export default function Page() {
       const response = await postPets(params, authToken);
       if (response) {
         setSuccessMessage("Se creó exitosamente")
-        setTimeout(() => router.push(`/pets/${response.id}`), 1500);
+        setTimeout(() => {
+          setLoading(false);
+          router.push(`/pets/${response.id}`)
+        }, 1500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
       setErrorMessage("Error en la creación de mascota. Intenta nuevamente.");
-    } finally {
       setLoading(false);
-    }
-
+    } 
   };
 
   return (
@@ -486,10 +484,10 @@ export default function Page() {
                     type="submit"
                     variant="cta"
                     disabled={isSubmitting || loading}
-                    className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+                    className={`transition-colors ${isSubmitting || loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
                       }`}
                   >
-                    {isSubmitting ? "Creando..." : "Crear"}
+                    {loading ? "Creando..." : "Crear"}
                   </Button>
                 </div>
               </div>
