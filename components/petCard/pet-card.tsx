@@ -109,10 +109,10 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                 "snap-start shrink-0 w-[16rem] h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
                 className
             )}>
-            {isPost &&
+            {isPost && !(post as Post | Pet).hasSensitiveImages && (
                 <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
-            }
+            )}
             {disabled ? (
                 <>
                     <MissingTags
@@ -128,7 +128,7 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                         parentClassName="absolute z-10"
                         postType={(post as Pet).petStatus?.name}
                     />
-                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
+                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} isSensitive={(post as Post | Pet).hasSensitiveImages} />
                     <CardText post={isPost ? (post as Post) : (post as Pet)} />
                 </Link>
             )}

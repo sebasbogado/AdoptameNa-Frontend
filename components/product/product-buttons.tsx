@@ -55,7 +55,9 @@ export function ProductButtons({ product, onProductUpdate }: { product: any, onP
           </Alert>
         )}
       </div>
-      <ReportButton size="md" idProduct={product?.id.toString()} className="mt-0" />
+      {!isOwner && (
+        <ReportButton size="md" idProduct={product?.id.toString()} className="mt-0" />
+      )}
       {isOwner && (
         <Link href={`/edit-product/${product?.id}`}>
           <EditButton size="md" isEditing={false} className="mt-0" />

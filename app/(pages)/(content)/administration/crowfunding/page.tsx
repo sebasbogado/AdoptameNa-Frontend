@@ -190,6 +190,16 @@ export default function CrowfundingPage() {
                 onClose={closeApproveModal}
                 onConfirm={confirmApprove}
             />
+
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                title="Confirmar Rechazo"
+                message="¿Estás seguro de que deseas rechazar esta campaña de colecta?"
+                textConfirm="Rechazar"
+                confirmVariant="danger"
+                onClose={closeModal}
+                onConfirm={confirmRejectOrDelete}
+            />
         </div>
     );
 }

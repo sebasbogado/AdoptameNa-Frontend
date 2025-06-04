@@ -18,6 +18,7 @@ export interface Post {
   media: Media[];
   tags: Tags[];
   blogImages: Media[];
+  hasSensitiveImages: boolean;
 }
 
 export interface CreatePost {
@@ -30,6 +31,7 @@ export interface CreatePost {
   userId: number;
   mediaIds: number[];
   blogImages?: number[]; // Optional field for blog images
+  hasSensitiveImages: boolean;
 }
 
 export interface UpdatePost {
