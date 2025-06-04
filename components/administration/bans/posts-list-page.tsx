@@ -22,6 +22,7 @@ interface Props<T> {
     updateFilters?: (filters: Record<string, any>) => void;
     itemType: ITEM_TYPE;
     disabled?: boolean;
+    filters?: number;
 }
 
 export default function AllPostListPage<T extends Post | Pet | Product>({
@@ -34,6 +35,7 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
     updateFilters,
     itemType,
     disabled = false,
+    filters,
 }: Props<T>) {
     const { authToken } = useAuth();
     const [successMessage, setSuccessMessage] = useState("");
@@ -69,7 +71,7 @@ export default function AllPostListPage<T extends Post | Pet | Product>({
             }
             // Forzar una recarga completa de los datos
             if (updateFilters) {
-                updateFilters({});
+                updateFilters({categoryId: filters, postTypeId: filters, petStatusId: filters });
                 // Esperar un momento para asegurar que la API ha procesado el cambio
                 setTimeout(() => {
                     handlePageChange(currentPage);
