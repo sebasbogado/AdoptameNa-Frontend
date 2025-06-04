@@ -124,7 +124,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
     const handleShare = async () => {
         if (!postId) return;
 
-        if (onShare && !isPet) {
+        if (onShare) {
             onShare();
         }
         try {
@@ -161,9 +161,9 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
         }
     };
     return (
-        <div className="flex flex-wrap justify-end gap-2 sm:gap-3 px-2 sm:px-4 md:px-0 md:pr-4 lg:pr-12 relative mt-4 sm:mt-0"> {/* Añadido mt-4 sm:mt-0 para cuando está debajo del PostHeader en mobile */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-3 px-2 sm:px-4 md:px-0 md:pr-4 lg:pr-12 relative mt-4 sm:mt-0"> {/* Añadido mt-4 sm:mt-0 para cuando está debajo del PostHeader en mobile */}
             {isAdoptable && !isMyPets && (
-                <Button variant="cta" size="lg" onClick={handleAdoptionClick}>
+                <Button variant="cta" onClick={handleAdoptionClick} className="px-8">
                     Adoptar
                 </Button>
             )}

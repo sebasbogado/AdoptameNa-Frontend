@@ -195,7 +195,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                   : "bg-[#4781ff] text-white hover:bg-[#3569e6]"
                   }`}
               >
-                Iniciar colectaaa
+                Iniciar colecta
               </button>
 
               {crowdStatus && (
