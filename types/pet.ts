@@ -16,6 +16,7 @@ export interface Pet {
   userFullName: string;
   organizationName: string;
   isBanned: boolean;
+  sharedCounter: number;
   media: Media[]; 
   animal: Animal;
   breed: Breed;
