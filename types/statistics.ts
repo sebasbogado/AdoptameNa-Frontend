@@ -1,3 +1,5 @@
+import { ReportReason } from "./report-reason"
+
 export interface StatisticsOverview {
   totalUsers: number
   totalVerifiedUsers: number
@@ -11,8 +13,6 @@ export interface StatisticsOverview {
   totalCrowdfundingAmount: number
   totalSponsors: number
   totalBanners: number
-  totalMessages: number
-  totalUnreadMessages: number
   totalNotifications: number
   totalMediaFiles: number
   totalFavorites: number
@@ -21,18 +21,28 @@ export interface StatisticsOverview {
   usersCreatedToday: number
   postsCreatedToday: number
   productsCreatedToday: number
+  petsCreatedToday: number
   adoptionRequestsToday: number
+  crowdFoundingsCreatedToday: number
+  crowdFoundingAmountLongToday: any
   usersCreatedThisWeek: number
   postsCreatedThisWeek: number
   productsCreatedThisWeek: number
+  petsCreatedThisWeek: number
   adoptionRequestsThisWeek: number
+  crowdFoundingsCreatedThisWeek: number
+  crowdFoundingAmountLongThisWeek: any
   usersCreatedThisMonth: number
   postsCreatedThisMonth: number
   productsCreatedThisMonth: number
+  petsCreatedThisMonth: number
   adoptionRequestsThisMonth: number
+  crowdFoundingsCreatedThisMonth: number
+  crowdFoundingAmountLongThisMonth: any
   usersGrowthPercentage: number
   postsGrowthPercentage: number
   productsGrowthPercentage: number
+  petsGrowthPercentage: number
   adoptionRequestsGrowthPercentage: number
   commentsGrowthPercentage: number
   reportsGrowthPercentage: number
@@ -43,6 +53,109 @@ export interface StatisticsOverview {
   nonBannedComments: number
   activeBannersEnabled: number
 }
+
+export interface StatisticsActivity {
+  totalAdoptionRequests: number
+  activeAdoptionRequests: number
+  deletedAdoptionRequests: number
+  adoptionRequestCountByStatus: AdoptionRequestCountByStatus
+  adoptionRequestsCreatedToday: number
+  adoptionRequestsCreatedThisWeek: number
+  adoptionRequestsCreatedThisMonth: number
+  totalCrowdfunding: number
+  activeCrowdfunding: number
+  deletedCrowdfunding: number
+  crowdfundingCountByStatus: CrowdfundingCountByStatus
+  totalCrowdfundingGoal: number
+  totalCrowdfundingRaised: number
+  averageCrowdfundingGoal: number
+  averageCrowdfundingRaised: number
+  totalReports: number
+  reportCountByReason: ReportCountByReason[]
+  reportCountByType: ReportCountByType
+  reportsCreatedToday: number
+  reportsCreatedThisWeek: number
+  reportsCreatedThisMonth: number
+  totalSponsors: number
+  activeSponsors: number
+  deletedSponsors: number
+  sponsorCountByStatus: SponsorCountByStatus
+  totalMessages: number
+  totalUnreadMessages: number
+  messagesCreatedToday: number
+  messagesCreatedThisWeek: number
+  messagesCreatedThisMonth: number
+  totalNotifications: number
+  notificationCountByType: NotificationCountByType
+  totalFavorites: number
+  favoritesCreatedToday: number
+  favoritesCreatedThisWeek: number
+  favoritesCreatedThisMonth: number
+  totalShares: number
+  totalLikes: number
+  averageSharesPerPost: number
+  averageSharesPerPet: number
+  averageSharesPerProduct: number
+  averageLikesPerComment: number
+  adoptionRequestsGrowthPercentage: number
+  crowdfundingGrowthPercentage: number
+  reportsGrowthPercentage: number
+  messagesGrowthPercentage: number
+  favoritesGrowthPercentage: number
+}
+
+export interface AdoptionRequestCountByStatus {
+  ACCEPTED_count: number
+  PENDING_count: number
+  PENDING_percentage: number
+  ACCEPTED_percentage: number
+  REJECTED_percentage: number
+  REJECTED_count: number
+}
+
+export interface CrowdfundingCountByStatus {
+  CLOSED_percentage: number
+  CLOSED_count: number
+  PENDING_count: number
+  PENDING_percentage: number
+  REJECTED_percentage: number
+  REJECTED_count: number
+  ACTIVE_percentage: number
+  ACTIVE_count: number
+}
+
+export interface ReportCountByReason {
+  report_reson : ReportReason
+  count: number
+}
+
+export interface ReportCountByType {
+  POST_count: number
+  COMMENT_count: number
+  COMMENT_percentage: number
+  PRODUCT_percentage: number
+  PRODUCT_count: number
+  PET_percentage: number
+  POST_percentage: number
+  PET_count: number
+}
+
+export interface SponsorCountByStatus {
+  PENDING_count: number
+  PENDING_percentage: number
+  ACTIVE_percentage: number
+  ACTIVE_count: number
+}
+
+export interface NotificationCountByType {
+  GLOBAL_count: number
+  PERSONAL_percentage: number
+  ROLE_BASED_count: number
+  ROLE_BASED_percentage: number
+  PERSONAL_count: number
+  GLOBAL_percentage: number
+}
+
 export interface StatisticsContent {
   totalPets: number
   activePets: number

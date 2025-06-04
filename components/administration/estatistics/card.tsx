@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import Link from "next/link";
 
 interface StatCardProps {
   icon?: ReactNode;
@@ -11,9 +12,10 @@ interface StatCardProps {
   bg?: string; // opcional, ej: "bg-purple-100"
   growthPercentage?: number; // nuevo
   growthLabel?: string; // nuevo, etiqueta para el crecimiento
+  path?: string; // opcional, para enlaces
 } 
 
-export default function StatCard({ icon, value, bg, label, growthPercentage, growthLabel, className = "" }: StatCardProps) {
+export default function StatCard({ icon, value, bg, label, growthPercentage, growthLabel, path, className = "" }: StatCardProps) {
   const growthColor =
     growthPercentage === undefined
       ? "text-gray-400"
@@ -33,6 +35,7 @@ export default function StatCard({ icon, value, bg, label, growthPercentage, gro
           : null;
 
   return (
+    <Link href={path || "#"} className="no-underline">
     <div className={`flex items-center justify-center w-44 h-32 p-5 shadow-lg bg-white rounded-lg ${className}`}>
       {icon && (
         <div className={`mr-3 rounded-full text-gray-700 ${bg ? `p-2 ${bg}` : ""}`}>
@@ -62,5 +65,6 @@ export default function StatCard({ icon, value, bg, label, growthPercentage, gro
         )}
       </div>
     </div>
+    </Link>
   );
 }

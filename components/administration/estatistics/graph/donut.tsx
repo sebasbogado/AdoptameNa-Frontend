@@ -27,13 +27,13 @@ if (data.length === 0) {
   );
 }
   return (
-    <div className=" p-4 w-full max-w-md">
+    <div className=" w-[297px] ">
       <div className="text-center mb-2">
         <h3 className="text-lg font-semibold">{title}</h3>
         {description && <p className="text-sm text-gray-500">{description}</p>}
       </div>
 
-      <div className="h-[250px]">
+      <div className="h-[250px] w-auto">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Tooltip />
@@ -41,7 +41,7 @@ if (data.length === 0) {
               data={data}
               dataKey="value"
               nameKey="name"
-              innerRadius={60}
+              innerRadius={40}
               outerRadius={80}
               strokeWidth={5}
             >
