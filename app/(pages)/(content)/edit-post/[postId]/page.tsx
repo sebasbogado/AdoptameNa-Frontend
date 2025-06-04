@@ -376,7 +376,9 @@ const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
                     openDeleteModal={openDeleteModal}
                     trigger={trigger}
                 />
-                {isModalOpen &&
+                
+            </div>
+            {isModalOpen &&
                     <ConfirmationModal
                         isOpen={isModalOpen}
                         title="Confirmar cambios"
@@ -398,7 +400,6 @@ const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
                         onClose={closeModal}
                         onConfirm={handleDelete}
                     />}
-            </div>
         </div>
     );
 }

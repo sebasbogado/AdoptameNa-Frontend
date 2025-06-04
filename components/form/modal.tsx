@@ -26,7 +26,7 @@ export function ConfirmationModal({ isOpen, title, textConfirm, message, confirm
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[51]">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1002]">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
         <h2 className="text-lg font-semibold mb-4">{title}</h2>
         <p className="mb-6">{message}</p>
