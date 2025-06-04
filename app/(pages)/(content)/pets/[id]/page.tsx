@@ -8,8 +8,9 @@ import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import { Pet } from "@/types/pet";
-import { getPet, getPets } from "@/utils/pets.http";
+import { getPet, getPets, sharePet } from "@/utils/pets.http";
 import NewBanner from "@/components/newBanner";
+import { useAuth } from "@/contexts/auth-context";
 
 const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<Pet | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>, setError: React.Dispatch<React.SetStateAction<boolean>>) => {
     try {
@@ -25,6 +26,7 @@ const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<
 };
 
 const PostPage = () => {
+    const { authToken } = useAuth();
     const [pet, setPet] = useState<Pet | null>(null);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -55,6 +57,23 @@ const PostPage = () => {
         fetchPets();
     }, [pet]);
 
+    const handleShare = async () => {
+        if (!pet || !authToken) return;
+
+        try {
+            await sharePet(String(pet.id), authToken);
+            setPet(prevPet => {
+                if (!prevPet) return null;
+                return {
+                    ...prevPet,
+                    sharedCounter: (prevPet.sharedCounter || 0) + 1
+                };
+            });
+        } catch (error) {
+            console.error("Error sharing pet:", error);
+        }
+    };
+
     if (loading) {
         return <Loading />;
     }
@@ -70,7 +89,7 @@ const PostPage = () => {
                 <div className="bg-white rounded-t-[60px] -mt-12 relative z-10 shadow-2xl shadow-gray-800">
                     <div className="grid grid-cols-2 gap-4 p-6">
                         <PostHeader pet={pet as Pet} />
-                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId} petStatus={pet?.petStatus} />
+                        <PostButtons isPet={true} postId={String(pet?.id)} postIdUser={pet?.userId} petStatus={pet?.petStatus} onShare={handleShare}/>
                         <PostContent pet={pet} />
                         <PostSidebar pets={pets} />
                     </div>
