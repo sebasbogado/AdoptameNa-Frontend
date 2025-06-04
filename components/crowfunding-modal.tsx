@@ -39,7 +39,7 @@ export default function CrowdfundingModal({
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [donationAmount, setDonationAmount] = useState<number>(0);
-    const [localError, setLocalError] = useState<string | null>(null);
+// Removed unused localError state
 
     const {
         register,
