@@ -42,6 +42,7 @@ export default function ReportsPost() {
         setComment(commentData);
         setReports(reportData.data);
       } catch (err) {
+        console.error(err);
         setError(true);
       } finally {
         setLoading(false);
