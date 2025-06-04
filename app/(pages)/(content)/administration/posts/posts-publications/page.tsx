@@ -34,11 +34,13 @@ export default function Page() {
             return await getPosts({
                 page,
                 size,
-                postTypeId: filters?.postTypeId ?? undefined
+                postTypeId: filters?.postTypeId ?? undefined,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -111,6 +113,7 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
                 disabled={true}
             />
         </div>

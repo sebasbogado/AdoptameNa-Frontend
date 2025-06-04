@@ -35,10 +35,12 @@ export default function Page() {
                 page,
                 size,
                 categoryId: filters?.categoryId,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -111,6 +113,7 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
                 disabled={true}
             />
         </div>
