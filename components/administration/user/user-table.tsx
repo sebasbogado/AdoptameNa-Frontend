@@ -33,10 +33,10 @@ export default function UserTable({ title, data, onDelete, loading = false, type
           <thead>
             <tr className="bg-gray-50">
               <th className="border px-3 py-2 text-left">ID</th>
-              <th className="border px-3 py-2 text-left">Nombre</th>
               {type === "organization" && (
                 <th className="border px-3 py-2 text-left">Nombre de organización</th>
               )}
+              <th className="border px-3 py-2 text-left">Nombre</th>
               <th className="border px-3 py-2 text-left">Email</th>
               <th className="border px-3 py-2 text-left">Teléfono</th>
               <th className="border px-3 py-2 text-left">Dirección</th>
@@ -62,16 +62,16 @@ export default function UserTable({ title, data, onDelete, loading = false, type
               data.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
                   <td className="border px-3 py-2">{user.id}</td>
-                  <td className="border px-3 py-2">{user.fullName}</td>
                   {/* Mostrar organizationName solo si SÍ es organization */}
                   {type === "organization" && (
                     <td className="border px-3 py-2">{user.organizationName || "-"}</td>
                   )}
+                  <td className="border px-3 py-2">{user.fullName}</td>
                   <td className="border px-3 py-2">{user.email}</td>
                   <td className="border px-3 py-2">{user.phoneNumber || "-"}</td>
                   <td className="border px-3 py-2">{user.address || "-"}</td>
                   <td className="border px-3 py-2">{formatDate(user.birthdate || "")}</td>
-                  <td className="border px-3 py-2">{formatDate(user.creationDate)}</td>
+                  <td className="border px-3 py-2">{formatDate(user.creationDate || "")}</td>
                   <td className="border px-3 py-2">
                     <div className="flex items-center justify-center space-x-2">
                       <Link
