@@ -21,6 +21,7 @@ export interface Pet {
   animal: Animal;
   breed: Breed;
   petStatus: PetStatus;
+  hasSensitiveImages: boolean;
 }
 
 
@@ -38,6 +39,7 @@ export interface CreatePet {
   breedId: number;
   //healthStateId: number;
   petStatusId: number;
+  hasSensitiveImages: boolean;
 }
 
 export interface UpdatePet {
