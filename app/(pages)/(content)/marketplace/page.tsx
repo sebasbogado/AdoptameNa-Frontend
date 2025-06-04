@@ -28,11 +28,9 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>(10);
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
     const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
 
     const [categories, setCategories] = useState<ProductCategory[]>([]);
-    const [allPrices, setAllPrices] = useState<number[]>([]);
 
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
@@ -137,11 +135,12 @@ export default function Page() {
             }),
         initialPage: 1,
         initialPageSize: pageSize,
+        scrollToTop: true
     });
 
     useEffect(() => {
         if (priceError) return;
-        let filters: any = {};
+        let filters: Record<string, number|string|[number,number,number]> = {};
 
         if (selectedCategory && selectedCategory !== "Todos") {
             const selectedCategoryObj = categories.find(cat => cat.name.toLowerCase() === selectedCategory.toLocaleLowerCase());
@@ -163,19 +162,17 @@ export default function Page() {
 
         filters = {
             ...filters,
-            search: searchQuery || undefined,
-            minPrice,
-            maxPrice,
+            ...(searchQuery ? { search: searchQuery } : {}),
+            ...(minPrice !== null ? { minPrice } : {}),
+            ...(maxPrice !== null ? { maxPrice } : {}),
             ...locationFilters
         };
 
-        console.log("filters", filters);
-
         updateFilters(filters);
-    }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
+    }, [selectedCategory, selectedAnimal, selectedCondition, locationFilters, filterChanged, searchQuery, minPrice, maxPrice, priceError, availableAnimals, categories, updateFilters]);
 
     const handleLocationFilterChange = useCallback(
-        (filters: Record<string, any>, type: LocationFilterType | null) => {
+        (filters: Record<string, number|string>, type: LocationFilterType | null) => {
             setLocationFilters(filters);
             setLocationType(type);
             setFilterChanged(prev => !prev);
