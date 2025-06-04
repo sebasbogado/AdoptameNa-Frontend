@@ -46,7 +46,7 @@ describe("Crear un post. ", () => {
 
       cy.get('#crear-post').click();
 
-      cy.get('#confirmation-button').click({ force: true });
+      cy.get('#confirmation-button').click();
 
       cy.wait(7000);
 

@@ -20,7 +20,7 @@ describe("Admin Panel - Ver detalles de un reporte - TC-ADMIN-01", () => {
 
       cy.get('#my-pets-report').click();
 
-      cy.wait(7000);
+      cy.wait(10000);
 
       cy.get('[data-cy^="btn-ver-reportes-"]').first().click();
     

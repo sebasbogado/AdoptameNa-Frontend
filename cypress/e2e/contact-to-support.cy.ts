@@ -10,7 +10,9 @@ describe("Contact to support", () => {
     cy.url().should("include", "/dashboard");
 
     cy.wait(2000);
-    cy.get('#contact-to-support-link').click();
-
+    cy.get('#contact-to-support-link')
+      .should('be.visible')
+      .and('have.attr', 'href')
+      .and('include', 'mailto:adoptamena@gmail.com');
 
   })})

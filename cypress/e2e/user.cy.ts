@@ -16,7 +16,7 @@ describe("Admin Panel - Búsqueda de usuario - TC-ADMIN-01", () => {
       
       cy.wait(2000);
       cy.contains('button', 'Usuarios Regulares').click();
-      cy.wait(2000);
+      cy.wait(5000);
       cy.url().should("include", "/administration/users/regular");
 
       cy.get('a[title="Ver perfil"]').first().click();
