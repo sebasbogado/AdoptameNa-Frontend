@@ -21,6 +21,8 @@ export default function Page() {
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
 
+    const [filters, setFilters] = useState<number | undefined>(undefined);
+
     const {
         data: pets,
         loading,
@@ -87,10 +89,10 @@ export default function Page() {
 
     useEffect(() => {
         const petStatusId = selectedPetStatus && selectedPetStatus !== "Todos" ? allPetStatusMap[selectedPetStatus] : undefined;
-
+        setFilters(petStatusId);
         updateFilters({ petStatusId });
         handlePageChange(1);
-    }, [selectedPetStatus, updateFilters, handlePageChange, allPetStatusMap]);
+    }, [selectedPetStatus, updateFilters, handlePageChange, allPetStatusMap, setFilters]);
 
     return (
         <div className="p-6">
@@ -115,6 +117,7 @@ export default function Page() {
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
                 updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>
