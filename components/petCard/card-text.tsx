@@ -7,6 +7,7 @@ import { Product } from "@/types/product";
 
 import { capitalizeFirstLetter, convertGenderToSpanish, getAge, getAnimalIcon, getColorGender, getConditionIcon, getGenderIcon, getPublicationTypeColor, getSterilizedIcon, getVaccinatedIcon } from "@/utils/Utils";
 import { Post } from "@/types/post";
+import { cleanMarkdown } from "@/utils/text/clean-markdown";
 
 interface props {
   post: Post | Pet | Product,
@@ -15,6 +16,20 @@ interface props {
 }
 
 const CardText = ({ post, /*className = ""*/ }: props) => {
+  const getContent = (post: Post | Pet | Product): string => {
+    // Si es Post (y no de tipo Blog)
+    if ((post as Post).content !== undefined) {
+      const p = post as Post;
+      if (p.postType?.name !== "Blog") return p.content;
+      return cleanMarkdown(p.content || "");
+    }
+
+    // Si es Pet
+    if ((post as Pet).description !== undefined) {
+      return (post as Pet).description;
+    }
+    return "";
+  };
 
   return (
     <div className="px-2 py-2 flex flex-col bg-white rounded-lg card-text">
@@ -106,7 +121,7 @@ const CardText = ({ post, /*className = ""*/ }: props) => {
           className={`text-base md:text-sm lg:text-sm ${(post as Product).price !== undefined ? 'truncate' : 'line-clamp-2'
             }`}
         >
-          {(post as Post).content || (post as Pet).description}
+          {getContent(post)}
         </p>
       </div>
     </div>
