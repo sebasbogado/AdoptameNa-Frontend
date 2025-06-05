@@ -22,6 +22,9 @@ export const getPetsByUserId = async (queryParams: myPetsQueryParams)
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
+    }
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
@@ -57,6 +60,9 @@ export const getPet = async (id: string): Promise<Pet> => {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
+    }
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
@@ -77,6 +83,9 @@ export const getPets = async (
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
+    }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
     }
     throw new Error(error.message || "Error al obtener Pets");
   }
@@ -121,6 +130,9 @@ export const getPetsDashboard = async (
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
+    }
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
@@ -158,6 +170,9 @@ export const getPetSMissing = async (
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
+    }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
     }
     throw new Error(error.message || "Error al obtener Pets");
   }
@@ -201,6 +216,9 @@ export const getDeletedPets = async (
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
+    }
     throw new Error(error.message || "Error al obtener Pets");
   }
 };
@@ -223,6 +241,9 @@ export const getBannedPets = async (
   } catch (error: any) {
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
+    }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
     }
     throw new Error(error.message || "Error al obtener Pets baneadas");
   }
