@@ -115,14 +115,8 @@ export default function Page() {
   }, [router]);
 
   const onSubmit = (data: ProductFormValues) => {
-    // 'data' aquí ya está validado por Zod
     openConfirmationModal(data); // Pasa los datos validados al modal/handler
   };
-
-  const handlePositionChange = useCallback((newPosition: [number, number]) => {
-    setPosition(newPosition);
-    setValue("locationCoordinates", newPosition, { shouldValidate: true });
-  }, [setValue]);
 
   const openConfirmationModal = (data: ProductFormValues) => {
     setValidatedData(data);
@@ -152,7 +146,7 @@ export default function Page() {
       if (response && response.id) {
         // Redirige AHORA usando el ID de la RESPUESTA
         //router.push(`/product/${response.id}`);
-        router.push("/marketplace");
+        router.push(`/marketplace/${response.id}`);
       } else {
         // Si no hay ID en la respuesta
         console.warn("Producto creado, pero no se recibió ID en la respuesta. Redirigiendo al dashboard.");
@@ -222,10 +216,7 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
 
     try {
       setLoading(true);
@@ -389,6 +380,9 @@ export default function Page() {
           >
             <ImagePlus size={20} className={selectedImages.length >= MAX_IMAGES ? "text-gray-400" : "text-blue-500"} />
           </label>
+        </div>
+        <div className="flex justify-center items-center mt-2">
+          {errors.mediaIds && <p className="text-red-500 text-sm">{errors.mediaIds.message}</p>}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
