@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { deleteUser } from "@/utils/user.http"
 import { getAllFullUserProfile } from "@/utils/user-profile.http"
 import UserTable from "@/components/administration/user/user-table"
-import { UserList, UserProfile } from "@/types/user-profile"
+import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
@@ -12,9 +12,10 @@ import SearchBar from "@/components/search-bar"
 import Pagination from "@/components/pagination"
 import { useDebounce } from "@/hooks/use-debounce"
 import { ArrowLeft, Check, X } from "lucide-react"
-import Link from "next/link"
 import Loading from "@/app/loading"
 import NotFound from "@/app/not-found"
+import Button from "@/components/buttons/button"
+import { useRouter } from "next/navigation"
 
 export default function OrganizationsPage() {
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -26,6 +27,7 @@ export default function OrganizationsPage() {
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
     const pageSize = 10;
+    const router = useRouter();
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -59,7 +61,7 @@ export default function OrganizationsPage() {
                 page,
                 size,
                 role: "organization",
-                name: filters?.name || undefined,
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -77,8 +79,9 @@ export default function OrganizationsPage() {
 
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
-            refresh: refreshTrigger
+            search: searchQuery || undefined,
+            refresh: refreshTrigger,
+            role: "organization"
         };
 
         updateFilters(filters);
@@ -143,9 +146,16 @@ export default function OrganizationsPage() {
             />
 
             <div className="mb-6">
-                <Link href="/administration/users" className="flex items-center text-blue-600 mb-4 hover:underline">
-                    <ArrowLeft size={16} className="mr-1" /> Volver
-                </Link>
+                <div className="flex justify-start mb-4">
+                    <Button
+                        size="md"
+                        onClick={() => router.push("/administration/users")}
+                        className="bg-white flex items-center shadow-md text-gray-800"
+                    >
+                        <ArrowLeft className="text-gray-800 mr-2" size={20} />
+                        Volver
+                    </Button>
+                </div> 
 
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-end">
                     <h1 className="text-2xl font-bold">Organizaciones</h1>
