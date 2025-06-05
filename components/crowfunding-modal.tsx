@@ -39,6 +39,7 @@ export default function CrowdfundingModal({
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [donationAmount, setDonationAmount] = useState<number>(0);
+// Removed unused localError state
 
     const {
         register,
@@ -125,7 +126,12 @@ export default function CrowdfundingModal({
 
     return (
         open && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 overflow-y-auto flex items-center justify-center">
+                <style jsx global>{`
+  body {
+    overflow: hidden !important;
+  }
+`}</style>
                 <div className="bg-white rounded-lg shadow-lg w-96 p-6">
                     <div className="flex justify-between items-center border-b pb-2">
                         <h2 className="text-xl font-medium">
@@ -166,17 +172,17 @@ export default function CrowdfundingModal({
                         </div>
 
                         {(!selectedCrowdfunding || selectedCrowdfunding.status === "PENDING") && (
-                        <div>
-                            <label className="text-sm font-medium block">Duración (días)</label>
-                            <input
-                            type="number"
-                            {...register("durationDays", { valueAsNumber: true })}
-                            min={1}
-                            max={365}
-                            className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
-                            disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "PENDING")}
-                            />
-                        </div>
+                            <div>
+                                <label className="text-sm font-medium block">Duración (días)</label>
+                                <input
+                                    type="number"
+                                    {...register("durationDays", { valueAsNumber: true })}
+                                    min={1}
+                                    max={365}
+                                    className={`w-full border rounded-lg p-2 ${errors.durationDays ? "border-red-500" : ""}`}
+                                    disabled={isLoading || !!(selectedCrowdfunding && selectedCrowdfunding.status !== "PENDING")}
+                                />
+                            </div>
                         )}
 
                         <div>

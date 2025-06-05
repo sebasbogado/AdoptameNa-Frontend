@@ -16,13 +16,17 @@ import {
 } from "lucide-react";
 import NotificationBell from "./notification-bell";
 import ChatButton from "./chat/chat-button";
+import { useState } from "react";
 
 const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
-  const { logout } = useAuth();  return (
+  const { logout } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  return (
     <div className="flex items-center px-4 py-2 bg-white gap-x-4">
       <NotificationBell />
       <ChatButton />
-      <DropdownMenu.Root>
+      <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
           <button className="outline-none">
             <Avatar.Root className="w-10 h-10 rounded-full flex items-center justify-center bg-amber-500 cursor-pointer" id="avatar">
@@ -40,7 +44,7 @@ const UserHeader = ({ currentUser }: { currentUser: UserType }) => {
           >
             {/* User info section */}
             <div className="px-3 py-2 border-b border-gray-200 mb-1">
-              <Link href="/profile" className="flex items-center gap-2 mb-1">
+              <Link href="/profile" className="flex items-center gap-2 mb-1" onClick={() => setOpen(false)}>
                 <UserIcon className="w-5 h-5" strokeWidth={2}/>
                 <span className="font-medium text-sm text-gray-800">{currentUser.fullName}</span>
               </Link>
