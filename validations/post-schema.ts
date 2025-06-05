@@ -31,6 +31,7 @@ export const postSchema = z.object({
     .array(z.number())
     .max(MAX_TAGS, `Máximo ${MAX_TAGS} tags permitidos`)
     .optional(),
+  hasSensitiveImages: z.boolean().default(false),
   blogImages: z.array(z.number()).optional(),
 
 }).superRefine((data, ctx) => {
@@ -62,5 +63,6 @@ export const postSchema = z.object({
   }
   // Si es blog, los campos pueden ser omitidos
 });
+
 
 export type PostFormValues = z.infer<typeof postSchema>;
