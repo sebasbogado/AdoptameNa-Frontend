@@ -36,24 +36,26 @@ const navbarAdminItems = [
   },
   {
     name: "Configuración",
+    id: "configuration-id",
     isDropdown: true,
     icon: <Settings className="w-5 h-5 mr-2" />,
     items: [
-      { name: "Configuraciones", path: "/administration/settings" },
-      { name: "Banners", path: "/administration/settings/banner" },
-      { name: "Auspiciantes", path: "/administration/sponsors" },
+      { name: "Configuraciones", path: "/administration/settings", id: "settings-id" },
+      { name: "Banners", path: "/administration/settings/banner", id: "banners-id" },
+      { name: "Auspiciantes", path: "/administration/sponsors", id: "sponsors-id" },
       { name: "Notificaciones", path: "/administration/notifications" },
       { name: "Colectas", path: "/administration/crowfunding" },
     ],
   },
   {
     name: "Usuarios",
+    id: "usuarios-id",
     isDropdown: true,
     icon: <Users className="w-5 h-5 mr-2" />,
     items: [
-      { name: "Regulares", path: "/administration/users/regular" },
-      { name: "Organizadores", path: "/administration/users/organizations" },
-      { name: "Administradores", path: "/administration/users/admins" },
+      { name: "Regulares", path: "/administration/users/regular", id: "uRegular-id" },
+      { name: "Organizadores", path: "/administration/users/organizations", id: "uOrganization-id" },
+      { name: "Administradores", path: "/administration/users/admins", id: "uAdmin-id" },
     ],
   },
 ];
@@ -156,6 +158,7 @@ export default function NavbarAdmin() {
                 {item.items.map((subItem: any) => (
                   <button
                     key={subItem.path}
+                    id={subItem.id ?? undefined}
                     onClick={() => {
                       handleClick(subItem.path);
                       setOpenAccordion(null);
@@ -180,6 +183,7 @@ export default function NavbarAdmin() {
           <div key={index} className="relative">
             <button
               ref={el => { buttonRefs.current[index] = el; }}
+              id={item.id ?? undefined}
               onClick={() => toggleDropdown(index)}
               className={`flex items-center text-base font-medium px-3 py-2 rounded-lg hover:bg-purple-100 hover:text-purple-600 transition-colors w-full sm:w-auto ${isActiveRoute(item)
                 ? "bg-purple-100 text-purple-600"
@@ -203,6 +207,7 @@ export default function NavbarAdmin() {
                 {item.items.map((subItem: any) => (
                   <button
                     key={subItem.path}
+                    id={subItem.id ?? undefined}
                     onClick={() => {
                       handleClick(subItem.path);
                       setOpenIndex(null);
