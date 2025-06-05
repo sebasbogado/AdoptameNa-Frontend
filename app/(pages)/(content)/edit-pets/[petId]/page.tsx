@@ -45,7 +45,7 @@ export default function Page() {
     watch,
     getValues,
     setValue,
-    formState: { errors, isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm<PetFormValues>({
     resolver: zodResolver(petSchema),
     defaultValues: {
@@ -81,6 +81,7 @@ export default function Page() {
       isVaccinated: false,
       isSterilized: false,
       gender: "MALE",
+      hasSensitiveImages: false
     });
 
   const closeModal = () => {
@@ -136,9 +137,17 @@ export default function Page() {
           setValue("isVaccinated", petData.isVaccinated || false);
           setValue("isSterilized", petData.isSterilized || false);
           setValue("gender", petData.gender || "OTHER");
-          const [lat, lng] = petData.addressCoordinates.split(',').map(Number);
-          setPosition([lat, lng]);
-          setValue("addressCoordinates", [lat, lng]);
+          setValue("hasSensitiveImages", petData.hasSensitiveImages)
+          // --- Poblar el Formulario ---
+          let initialCoords: [number, number] = [0, 0];
+          if (petData.addressCoordinates) {
+            const coords = petData.addressCoordinates.split(',').map(Number);
+            if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+              initialCoords = [coords[0], coords[1]];
+            }
+          }
+          setPosition(initialCoords);
+          setValue("addressCoordinates", initialCoords);
 
           if (petData.media.length > 0) {
             setSelectedImages(petData.media);
@@ -295,8 +304,8 @@ export default function Page() {
       const response = await updatePet(String(petId), updatedData, authToken);
       if (response) {
         setSuccessMessage("Se guardó exitosamente");
-        setTimeout(() =>{
-          setLoading(false); 
+        setTimeout(() => {
+          setLoading(false);
           router.push(`/pets/${response.id}`)
         }, 1500);
       }
@@ -523,16 +532,41 @@ export default function Page() {
                 <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
                 <label>Está esterilizado</label>
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-              </div>              {/* Mapa */}
+              </div>
+
+              {/* Checkbox contenido sensible */}
+              <div className="w-full px-6 border border-red-600 p-3 rounded-xl">
+                <label className="flex py-1 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="focus:ring-2 focus:ring-[#9747FF]"
+                    {...register("hasSensitiveImages")}
+                  />
+                  <span className="font-medium">Este post contiene imágenes sensibles</span>
+                </label>
+
+                <p className="text-sm font-light text-gray-700 mt-1">
+                  Al marcar esta casilla, la imagen se ocultará en las pantallas de navegación.<br />
+                  Los usuarios solo podrán verla si abren la publicación.
+                </p>
+
+                {errors.hasSensitiveImages && (
+                  <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
+                )}
+              </div>
+
+              {/* Mapa */}
               <div
                 className={`transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
               >
-                <CreatePostLocation 
-                  position={position} 
+                <CreatePostLocation
+                  position={position}
                   setPosition={(pos) => pos !== null && handlePositionChange(pos)}
                   error={errors.addressCoordinates}
                 />
               </div>
+
+
 
               {/* Buttons */}
               <div className="flex justify-between items-center mt-6 gap-10">
