@@ -13,7 +13,7 @@ export const productSchema = z.object({
     .min(9, "Número inválido (9-15 dígitos)")
     .max(15, "Número inválido (9-15 dígitos)")
     .regex(/^\+?\d{9,15}$/, "Número inválido (9-15 dígitos)"),
-  mediaIds: z.array(z.number()).optional(),
+  mediaIds: z.array(z.number()).min(1, "Debe subir al menos una imagen"),
   price: z.number().min(1, "El precio debe ser mayor a 0"),
   categoryId: z.number().min(1, "Seleccione una categoría"),
   animalsId: z.array(z.number()).min(1, "Debe seleccionar al menos un tipo de animal"), //array
