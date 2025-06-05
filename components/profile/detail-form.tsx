@@ -58,7 +58,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
   const [openDonationModal, setOpenDonationModal] = useState(false);
   const [selectedForAmountUpdate, setSelectedForAmountUpdate] = useState<Crowdfunding | null>(null);
   const [isUpdateAmountOpen, setIsUpdateAmountOpen] = useState(false);
-
+  const crowdStatus = crowdfunding?.status === "PENDING";
   const isActive = crowdfunding?.status === "ACTIVE";
 
   useEffect(() => {
@@ -77,23 +77,35 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
 
       try {
         setLoadingCrowd(true);
-        if (isOwner && isActive) {
-          const data = await getCrowdfundings({ userId: userAuth?.id, status: "ACTIVE" });
-          setCrowdfunding(data.data[0]);
+
+        const [activeResponse, pendingResponse] = await Promise.all([
+          getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" }),
+          getCrowdfundings({ userId: userProfile.id, status: "PENDING" }),
+        ]);
+
+        const active = activeResponse?.data?.[0];
+        const pending = pendingResponse?.data?.[0];
+
+        // Prioridad: ACTIVE > PENDING
+        if (active) {
+          setCrowdfunding(active);
+        } else if (pending) {
+          setCrowdfunding(pending);
         } else {
-          const data = await getCrowdfundings({ userId: userProfile.id, status: "ACTIVE" });
-          setCrowdfunding(data.data[0]);
+          setCrowdfunding(null);
         }
 
-
       } catch (err) {
+        console.error(err);
         setErrorMessage?.("Ocurrió un error al obtener la colecta.");
       } finally {
         setLoadingCrowd(false);
       }
     };
+
     fetchCrowdfunding();
-  }, [authToken, userAuth?.id, isOrganization]);
+  }, [authToken, userProfile?.id]);
+
 
   const handleDonationclick = () => {
     setOpenDonationModal(true);
@@ -167,20 +179,31 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
       ? Math.min(100, (crowdfunding.currentAmount / crowdfunding.goal) * 100)
       : 0;
 
-
     //Fase 1: Organizacion sin colecta Activa
-    if (isVisible && isOwner && !isActive) {
+    if (isOwner && !isActive) {
       return (
         <div className="mt-8">
           <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
           <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(true)}
-              className="bg-[#4781ff] text-white py-3 px-8 rounded-lg text-xl font-semibold shadow-lg"
-            >
-              Iniciar colecta
-            </button>
+            <div className="relative group">
+              <button
+                type="button"
+                disabled={crowdStatus}
+                onClick={() => setIsModalOpen(true)}
+                className={`py-3 px-8 rounded-lg text-xl font-semibold shadow-lg transition-all ${crowdStatus
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#4781ff] text-white hover:bg-[#3569e6]"
+                  }`}
+              >
+                Iniciar colecta
+              </button>
+
+              {crowdStatus && (
+                <div className="absolute -top-10 right-0 w-64 bg-black text-white text-sm px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                  Ya tienes una colecta pendiente
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );
@@ -308,7 +331,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           style={{ minHeight: '60px' }}
         />
         {validationErrors.description && <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>}
-        
+
         {/* Teléfono */}
         {(!isDisable || userProfile?.phoneNumber) && (
           <>
@@ -326,7 +349,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
             </div>
           </>
         )}
-        
+
         {/* Dirección */}
         {(!isDisable || userProfile?.address || userProfile?.neighborhoodName || userProfile?.districtName || userProfile?.departmentName) && (
           <>
