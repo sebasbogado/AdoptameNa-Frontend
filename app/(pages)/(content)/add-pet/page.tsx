@@ -219,6 +219,7 @@ export default function Page() {
         petStatusId: validatedData.petStatusId,
         addressCoordinates: validatedData.addressCoordinates?.join(",") || "",
         mediaIds: validatedData.mediaIds || [],
+        hasSensitiveImages: validatedData.hasSensitiveImages
       };
 
       const response = await postPets(params, authToken);
@@ -456,6 +457,27 @@ export default function Page() {
                 <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
                 <label>Está esterilizado</label>
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
+              </div>
+
+              {/* Checkbox contenido sensible */}
+              <div className="w-full px-6 border border-red-600 p-3 rounded-xl">
+                <label className="flex py-1 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="focus:ring-2 focus:ring-[#9747FF]"
+                    {...register("hasSensitiveImages")}
+                  />
+                  <span className="font-medium">Este post contiene imágenes sensibles</span>
+                </label>
+
+                <p className="text-sm font-light text-gray-700 mt-1">
+                  Al marcar esta casilla, la imagen se ocultará en las pantallas de navegación.<br/>
+                  Los usuarios solo podrán verla si abren la publicación.
+                </p>
+
+                {errors.hasSensitiveImages && (
+                  <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
+                )}
               </div>
 
               {/* Mapa */}
