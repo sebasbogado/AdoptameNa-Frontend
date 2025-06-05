@@ -71,6 +71,8 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                     <div className="flex flex-col items-start mt-1">
                         <span className="text-xs sm:text-sm md:text-xl mb-2">
                             Publicado por <Link className="text-[#4781FF] hover:underline" href={`/profile/${pet?.userId}`}>{pet?.organizationName || pet?.userFullName}</Link>
+                            <span className="block sm:inline sm:ml-2 mt-1 sm:mt-0">
+                                • Compartido {pet?.sharedCounter || 0} {pet?.sharedCounter === 1 ? 'vez' : 'veces'}</span>
                         </span>
                         <div className="mt-2 flex flex-wrap gap-1.5 md:gap-3">
                             {pet && (
@@ -79,7 +81,7 @@ export const PostHeader = ({ post, pet }: PostHeaderProps) => {
                                         postType={getPublicationTypeColor(pet.petStatus.name)}
                                         iconType={getAnimalIcon(pet.animal.name)}
                                         value={capitalizeFirstLetter(pet.animal.name)}
-                                        large 
+                                        large
                                     />
                                     <PostsTags
                                         postType={getColorGender(pet.gender)}

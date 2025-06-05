@@ -46,6 +46,7 @@ export type petQueryParams = queryParams & locationQueryParams  & {
   isVaccinated?: boolean;
   gender?: string;
   petStatusId?: number[];
+  refresh?: number;
 };
 
 export type productQueryParams = queryParams & locationQueryParams & {

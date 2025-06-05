@@ -40,7 +40,7 @@ export default function ReceivedRequestsPage() {
                         <div className="bg-purple-100 p-4 rounded-full mb-4">
                             <Building2Icon size={48} className="text-purple-600" />
                         </div>
-                        <h2 className="text-xl font-semibold mb-2">Crowdfunding</h2>
+                        <h2 className="text-xl font-semibold mb-2">Colectas</h2>
                         <p className="text-gray-600 text-center">Solicitudes de colecta que enviaste</p>
                     </div>
                 </Link>

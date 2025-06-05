@@ -8,7 +8,7 @@ import PostButtons from "@/components/post/post-buttons";
 import PostContent from "@/components/post/post-content";
 import PostSidebar from "@/components/post/post-sidebar";
 import { Pet } from "@/types/pet";
-import { getPet, getPets } from "@/utils/pets.http";
+import { getPet, getPets, sharePet } from "@/utils/pets.http";
 import NewBanner from "@/components/newBanner";
 import Sensitive from "@/app/sensitive";
 import { useAuth } from "@/contexts/auth-context";
@@ -28,7 +28,7 @@ const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<
 };
 
 const PostPage = () => {
-    const { user } = useAuth();
+    const { user, authToken } = useAuth();
     const [pet, setPet] = useState<Pet | null>(null);
     const [pets, setPets] = useState<Pet[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -60,6 +60,23 @@ const PostPage = () => {
         fetchPets();
     }, [pet]);
 
+    const handleShare = async () => {
+        if (!pet || !authToken) return;
+
+        try {
+            await sharePet(String(pet.id), authToken);
+            setPet(prevPet => {
+                if (!prevPet) return null;
+                return {
+                    ...prevPet,
+                    sharedCounter: (prevPet.sharedCounter || 0) + 1
+                };
+            });
+        } catch (error) {
+            console.error("Error sharing pet:", error);
+        }
+    };
+
     if (loading) {
         return <Loading />;
     }
@@ -86,6 +103,7 @@ const PostPage = () => {
                                     postId={String(pet?.id)}
                                     postIdUser={pet?.userId}
                                     petStatus={pet?.petStatus}
+                                    onShare={handleShare}
                                 />
                             </div>
                         </div>
