@@ -15,7 +15,9 @@ describe("Admin Panel - Visualizar el apartado de configuraciones - TC-ADMIN-01"
       cy.url().should("include", "/administration");
       
       cy.wait(2000);
-      cy.contains('button', 'Configuraciones').click();
+      cy.get("#configuration-id").click();
+      cy.get("#settings-id").click();
+      
       cy.wait(5000);
       cy.url().should("include", "/administration/settings");
 

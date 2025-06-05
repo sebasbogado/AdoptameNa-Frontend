@@ -15,7 +15,8 @@ describe("Admin Panel - Activación de auspiciantes - TC-ADMIN-01", () => {
       cy.url().should("include", "/administration");
       
       cy.wait(2000);
-      cy.contains('button', 'Auspiciantes').click();
+      cy.get("#configuration-id").click();
+      cy.get("#sponsors-id").click();
       cy.wait(2000);
       cy.url().should("include", "/administration/sponsors");
       cy.get('select').select('Aprobado');

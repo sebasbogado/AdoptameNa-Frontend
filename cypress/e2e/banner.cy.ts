@@ -15,14 +15,14 @@ describe("Admin Panel - Activación de auspiciantes - TC-ADMIN-01", () => {
       cy.url().should("include", "/administration");
       
       cy.wait(4000);
-      cy.contains('button', 'Banners').click();
+      cy.get("#configuration-id").click();
+      cy.get("#banners-id").click();
       cy.url().should("include", "/administration/settings/banner");
       cy.wait(7000);
       cy.contains('button', 'Desactivar').first().click();
 
       cy.wait(2000);
       cy.contains('button', 'Activar').first().click();
-      //Hasta aquí está bien
     });
   });
   
