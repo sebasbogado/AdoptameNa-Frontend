@@ -72,7 +72,8 @@ export default function RegularUsersPage() {
     useEffect(() => {
         const filters = {
             search: searchQuery || undefined,
-            refresh: refreshTrigger
+            refresh: refreshTrigger,
+            role: "user"
         };
 
         updateFilters(filters);

@@ -78,7 +78,8 @@ export default function OrganizationsPage() {
     useEffect(() => {
         const filters = {
             search: searchQuery || undefined,
-            refresh: refreshTrigger
+            refresh: refreshTrigger,
+            role: "organization"
         };
 
         updateFilters(filters);

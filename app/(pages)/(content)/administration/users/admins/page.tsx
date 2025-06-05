@@ -208,7 +208,13 @@ export default function AdminsPage() {
                     setModalConfirmation(true);
                 }}
                 onPromote={(u) => {
-                    setModalUser(u);
+                    setModalUser({
+                        id: u.id,
+                        fullName: u.fullName,
+                        email: u.email,
+                        role: "admin",
+                        isProfileCompleted: u.isProfileCompleted
+                    });
                     setOpenModal(true);
                 }}
             />
