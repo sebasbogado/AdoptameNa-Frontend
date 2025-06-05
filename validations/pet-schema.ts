@@ -21,6 +21,7 @@ addressCoordinates: z
 //peso: z.number().min(1, "El peso debe ser mayor a 0").positive(),
 birthdate: z.string().optional(),
 mediaIds: z.array(z.number()).optional(),
+hasSensitiveImages: z.boolean().default(false),
 });
 
 export type PetFormValues = z.infer<typeof petSchema>;
