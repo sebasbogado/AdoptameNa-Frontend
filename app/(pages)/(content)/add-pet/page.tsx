@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { getAnimals } from "@/utils/animals.http";
 import { useAuth } from '@/contexts/auth-context';
@@ -152,10 +152,8 @@ export default function Page() {
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = selectedImages[index];
 
-    if (!authToken) {
-      console.log("El token de autenticación es requerido");
-      return;
-    }
+    if (!authToken) return;
+    
 
     try {
       setLoading(true);
@@ -196,8 +194,7 @@ export default function Page() {
   }, [authLoading, authToken, user?.id, router]);
 
 
-  const confirmSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const confirmSubmit = async () => {
     setIsModalOpen(false); // Cierra el modal de confirmación
     setLoading(true);
 
@@ -222,20 +219,22 @@ export default function Page() {
         petStatusId: validatedData.petStatusId,
         addressCoordinates: validatedData.addressCoordinates?.join(",") || "",
         mediaIds: validatedData.mediaIds || [],
+        hasSensitiveImages: validatedData.hasSensitiveImages
       };
 
       const response = await postPets(params, authToken);
       if (response) {
         setSuccessMessage("Se creó exitosamente")
-        setTimeout(() => router.push(`/pets/${response.id}`), 1500);
+        setTimeout(() => {
+          setLoading(false);
+          router.push(`/pets/${response.id}`)
+        }, 1500);
       }
     } catch (error) {
       console.error("Error al enviar el formulario", error);
       setErrorMessage("Error en la creación de mascota. Intenta nuevamente.");
-    } finally {
       setLoading(false);
-    }
-
+    } 
   };
 
   return (
@@ -460,6 +459,27 @@ export default function Page() {
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
               </div>
 
+              {/* Checkbox contenido sensible */}
+              <div className="w-full px-6 border border-red-600 p-3 rounded-xl">
+                <label className="flex py-1 items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="focus:ring-2 focus:ring-[#9747FF]"
+                    {...register("hasSensitiveImages")}
+                  />
+                  <span className="font-medium">Este post contiene imágenes sensibles</span>
+                </label>
+
+                <p className="text-sm font-light text-gray-700 mt-1">
+                  Al marcar esta casilla, la imagen se ocultará en las pantallas de navegación.<br/>
+                  Los usuarios solo podrán verla si abren la publicación.
+                </p>
+
+                {errors.hasSensitiveImages && (
+                  <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
+                )}
+              </div>
+
               {/* Mapa */}
               <div
                 className={`h-full relative transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}
@@ -486,11 +506,10 @@ export default function Page() {
                   <Button
                     type="submit"
                     variant="cta"
-                    disabled={isSubmitting}
-                    className={`transition-colors ${isSubmitting ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
-                      }`}
+                    disabled={loading}
+                    className="rounded hover:bg-purple-700"
                   >
-                    {isSubmitting ? "Creando..." : "Crear"}
+                    {loading ? "Creando..." : "Crear"}
                   </Button>
                 </div>
               </div>

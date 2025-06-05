@@ -157,7 +157,7 @@ export default function Page() {
     }, [authToken, authLoading, user?.id, productId, router, reset]); // reset añadido como dependencia
 
     if (authLoading) return Loading();
-    if (loading) return Loading();
+    // if (loading) return Loading();
     if (!product) return NotFound();
 
     const openConfirmationModalEdit = (data: ProductFormValues) => {
@@ -186,13 +186,14 @@ export default function Page() {
             await updateProduct(String(product.id), updatedFormData as UpdateProduct, authToken);
             setSuccessMessage('¡Publicación actualizada con éxito!');
             setTimeout(() => {
+                setLoading(false);
                 router.push(`/marketplace/${product.id}`); // Redirige a la vista del post
             }, 1500);
         } catch (error) {
             console.error('Error al actualizar el producto', error);
             setErrorMessage('Hubo un problema al actualizar el producto.');
-        } finally {
             setLoading(false);
+        } finally {
             setValidatedData(null); // Limpia los datos guardados
         }
     };
@@ -212,12 +213,14 @@ export default function Page() {
             await deleteProduct(String(product.id), authToken);
 
             setSuccessMessage('Publicación eliminada con éxito');
-            setTimeout(() => router.push('/dashboard'), 1500);
+            setTimeout(() => {
+                setLoading(false);
+                router.push('/dashboard')
+            }, 1500);
 
         } catch (error) {
             console.error('Error al eliminar el producto:', error);
             setErrorMessage('Hubo un problema al eliminar el producto.');
-        } finally {
             setLoading(false);
         }
     };

@@ -20,11 +20,12 @@ import LocationFilter from "@/components/filters/location-filter";
 import { LocationFilters, LocationFilterType } from "@/types/location-filter";
 import { capitalizeFirstLetter } from "@/utils/Utils";
 import FloatingActionButton from "@/components/buttons/create-publication-buttons";
-
+import { SkeletonCard } from "@/components/ui/skeleton-card";
+import { SkeletonFilters } from "@/components/ui/skeleton-filter";
 export default function Page() {
     const { user } = useAuth();
 
-    const [pageSize, setPageSize] = useState<number>();
+    const [pageSize, setPageSize] = useState<number>(10);
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -46,6 +47,7 @@ export default function Page() {
 
     const [locationFilters, setLocationFilters] = useState<LocationFilters>({});
     const [filterChanged, setFilterChanged] = useState(false);
+    const [loadingFilters, setLoadingFilters] = useState(true);
 
     const debouncedSearch = useDebounce((value: string) => {
         if (value.length >= 3 || value === "") {
@@ -92,6 +94,7 @@ export default function Page() {
     useEffect(() => {
         const fetchAnimals = async () => {
             try {
+                setLoadingFilters(true);
                 const response = await getAnimals();
                 const capitalizedAnimals = response.data.map((animal: { id: number, name: string }) => ({
                     ...animal,
@@ -101,6 +104,8 @@ export default function Page() {
                 setAvailableAnimals(capitalizedAnimals);
             } catch (error) {
                 console.error("Error al obtener animales:", error);
+            } finally {
+                setLoadingFilters(false);
             }
         };
 
@@ -191,20 +196,24 @@ export default function Page() {
         setFilterChanged(false);
     };
 
-
     if (!pageSize) return <Loading />;
-
 
     return (
         <div className="flex flex-col gap-5">
             <div className="w-full max-w-7xl mx-auto p-4">
                 <div className="w-full max-w-lg mx-auto mb-4 px-2">
+                    {loadingFilters ? (
+                        <SkeletonFilters numFilters={1} />
+                    ) : (
                     <div className="flex flex-col">
                         <label className="text-sm font-medium text-gray-700 mb-1">Buscar</label>
                         <SearchBar value={inputValue} onChange={handleSearch} onClear={handleClearSearch} />
                     </div>
+                    )}
                 </div>
-
+                {loadingFilters ? (
+                    <SkeletonFilters numFilters={6} />
+                ) : 
                 <div
                     className={`
                         grid grid-cols-1 md:grid-cols-2
@@ -273,11 +282,16 @@ export default function Page() {
                         </div>
                     )}
                 </div>
+                }
             </div>
 
             <div className="w-full flex flex-col items-center justify-center mb-6">
                 {loading ? (
-                    <p className="text-center col-span-full">Cargando datos...</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
+                    {[...Array(10)].map((_, index) => (
+                        <SkeletonCard key={index} />
+                    ))}
+                    </div>
                 ) : products.length === 0 ? (
                     <p className="text-center col-span-full">No se han encontrado resultados</p>
                 ) : (
@@ -300,3 +314,4 @@ export default function Page() {
         </div>
     );
 }
+
