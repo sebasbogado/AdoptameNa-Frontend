@@ -45,7 +45,7 @@ export default function Page() {
     watch,
     getValues,
     setValue,
-    formState: { errors, isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm<PetFormValues>({
     resolver: zodResolver(petSchema),
     defaultValues: {
@@ -304,8 +304,8 @@ export default function Page() {
       const response = await updatePet(String(petId), updatedData, authToken);
       if (response) {
         setSuccessMessage("Se guardó exitosamente");
-        setTimeout(() =>{
-          setLoading(false); 
+        setTimeout(() => {
+          setLoading(false);
           router.push(`/pets/${response.id}`)
         }, 1500);
       }
@@ -532,15 +532,6 @@ export default function Page() {
                 <input type="checkbox" className="focus:ring-2 focus:ring-[#9747FF]" {...register("isSterilized")} />
                 <label>Está esterilizado</label>
                 {errors.isSterilized && <p className="text-red-500">{errors.isSterilized.message}</p>}
-              </div>              {/* Mapa */}
-              <div
-                className={`transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
-              >
-                <CreatePostLocation
-                  position={position}
-                  setPosition={(pos) => pos !== null && handlePositionChange(pos)}
-                  error={errors.addressCoordinates}
-                />
               </div>
 
               {/* Checkbox contenido sensible */}
@@ -563,6 +554,19 @@ export default function Page() {
                   <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
                 )}
               </div>
+
+              {/* Mapa */}
+              <div
+                className={`transition-opacity duration-300 ${isEditModalOpen || isDeleteModalOpen ? "pointer-events-none opacity-50" : ""}`}
+              >
+                <CreatePostLocation
+                  position={position}
+                  setPosition={(pos) => pos !== null && handlePositionChange(pos)}
+                  error={errors.addressCoordinates}
+                />
+              </div>
+
+
 
               {/* Buttons */}
               <div className="flex justify-between items-center mt-6 gap-10">
