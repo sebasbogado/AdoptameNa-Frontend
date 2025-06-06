@@ -12,6 +12,8 @@ import Pagination from "@/components/pagination";
 import { usePagination } from "@/hooks/use-pagination";
 import { useRouter } from "next/navigation";
 import SponsorCard from '@/components/sponsor/sponsor-card';
+import BackButton from "@/components/buttons/back-button";
+
 
 export default function UserSponsorsPage() {
     const [selectedStatus, setSelectedStatus] = useState<FilterStatus>(FilterStatus.ALL);
@@ -63,6 +65,7 @@ export default function UserSponsorsPage() {
 
     return (
         <div className="container mx-auto p-6">
+            <BackButton path="/profile/received-request"></BackButton>
             <h1 className="text-2xl font-semibold mb-2">Mis solicitudes de auspicio</h1>
             <p className="text-gray-600 mb-6">
                 Aquí podrás ver la lista de tus solicitudes para auspiciar el sitio.
@@ -80,13 +83,13 @@ export default function UserSponsorsPage() {
                 </Alert>
             )}
 
-            <div className="mb-10 flex justify-center w-full">
+            <div className="mb-10 flex w-full">
                 <div className="w-full sm:w-72">
-                    <label className="block text-sm font-medium text-gray-700 mb-1 text-center">Estado</label>
+                    <label className="text-sm font-medium text-gray-700 mb-1 block">Estado</label>
                     <select
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value as FilterStatus)}
-                        className="w-full p-2 border rounded text-center"
+                        className="w-40 p-2 border rounded text-center"
                     >
                         <option value={FilterStatus.ALL}>{FilterStatus.ALL}</option>
                         <option value={FilterStatus.PENDING}>{FilterStatus.PENDING}</option>
