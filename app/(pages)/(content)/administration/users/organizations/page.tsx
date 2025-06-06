@@ -26,7 +26,7 @@ export default function OrganizationsPage() {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
-    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc">("id,asc");
 
     const pageSize = 10;
     const router = useRouter();
@@ -187,6 +187,7 @@ export default function OrganizationsPage() {
                     setSelectedUser(id);
                     setModalConfirmation(true);
                 }}
+                type="organization"
                 sortDirection={sortDirection}
                 onSortChange={handleSortChange}
             />

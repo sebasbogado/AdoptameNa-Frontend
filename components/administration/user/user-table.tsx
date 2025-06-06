@@ -10,8 +10,8 @@ interface Props {
   loading?: boolean;
   type?: string;
   onPromote?: (user: UserProfile) => void;
-  sortDirection?: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc";
-  onSortChange?: (direction: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc") => void;
+  sortDirection?: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc";
+  onSortChange?: (direction: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc") => void;
 }
 
 export default function UserTable({ title, data, onDelete, loading = false, type = "", onPromote, sortDirection, onSortChange }: Props) {
@@ -54,6 +54,27 @@ export default function UserTable({ title, data, onDelete, loading = false, type
                   </button>
                 </div>
               </th>
+              {type === "organization" && (
+                <th className="border px-3 py-2 text-left">
+                  <div className="flex items-center space-x-1">
+                    <span>Nombre de Organización</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onSortChange?.(sortDirection === "profile.organizationName,asc" ? "profile.organizationName,desc" : "profile.organizationName,asc")
+                      }
+                      className="text-blue-600 hover:text-blue-800"
+                      title={`Ordenar ${sortDirection === "profile.organizationName,asc" ? "descendente" : "ascendente"}`}
+                    >
+                      {sortDirection === "profile.organizationName,asc" ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </th>
+              )}
               <th className="border px-3 py-2 text-left">
                 <div className="flex items-center space-x-1">
                   <span>Nombre</span>
@@ -96,10 +117,6 @@ export default function UserTable({ title, data, onDelete, loading = false, type
                   </button>
                 </div>
               </th>
-        
-              {type === "organization" && (
-                <th className="border px-3 py-2 text-left">Nombre de organización</th>
-              )}
 
               <th className="border px-3 py-2 text-left">Teléfono</th>
               <th className="border px-3 py-2 text-left">Dirección</th>
