@@ -123,7 +123,6 @@ export const deleteCrowdfunding = async (token: string, id: number): Promise<voi
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log(`Crowdfunding con ID ${id} eliminado correctamente.`);
     } catch (error) {
         console.error("Error al eliminar el crowdfunding:", error);
         throw error;
