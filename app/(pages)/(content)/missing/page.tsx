@@ -160,7 +160,7 @@ export default function Page() {
             />
             <LabeledSelect
               label="Tipo de mascota"
-              options={animalList}
+              options={["Todos", ...animalList]}
               selected={selectedAnimal}
               setSelected={setSelectedAnimal}
             />
