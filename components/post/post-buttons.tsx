@@ -30,9 +30,10 @@ interface PostButtonsProps {
     postIdUser?: number; //id user owner
     sizeButton?: "xs" | "sm" | "md" | "lg";
     petStatus?: PetStatus;
+    petNameProp?: string;
 }
 
-const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, petStatus }: PostButtonsProps) => {
+const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, petStatus, petNameProp }: PostButtonsProps) => {
     const { authToken, user } = useAuth();
     const [copied, setCopied] = useState(false);
     const router = useRouter();
@@ -50,7 +51,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
 
     const [isMyPets, setIsMyPet] = useState(false);
     const params = useParams();
-    const [petName, setPetName] = useState("");
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [openChangeStatusModal, setOpenChangeStatusModal] = useState(false);
@@ -68,7 +68,6 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
                 const found = myPets.find(pet => String(pet.id) === String(params.id));
                 if (found) {
                     setIsMyPet(true);
-                    setPetName(found.name);
                 } else {
                     setIsMyPet(false);
                 }
@@ -218,7 +217,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
             {openAdoptionModal && (
                 <AdoptionModal
                     isOpen={openAdoptionModal}
-                    title={`Solicitud para adoptar a ${petName}`}
+                    title={`Solicitud para adoptar a ${petNameProp}`}
                     onClose={() => setOpenAdoptionModal(false)}
                     onConfirm={handleConfirmAdoption}
                     currentUser={userProfile?.fullName}

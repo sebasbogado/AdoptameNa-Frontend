@@ -20,7 +20,6 @@ const fetchPost = async (id: string, setPost: React.Dispatch<React.SetStateActio
         setPost(post);
         setIsSensitive(post.hasSensitiveImages);
     } catch (error: any) {
-        console.log(error);
         setError(true);
     } finally {
         setLoading(false);

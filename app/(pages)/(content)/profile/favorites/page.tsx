@@ -45,8 +45,6 @@ export default function Page() {
 
   useEffect(() => {
     if (!authLoading && !authToken) {
-      console.log("authLoading", authLoading);
-      console.log("authToken", authToken);
       router.push("/auth/login");
     }
   }, [authToken, authLoading, router]);

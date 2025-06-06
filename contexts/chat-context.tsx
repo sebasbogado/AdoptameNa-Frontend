@@ -343,7 +343,6 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         // Try WebSocket first, then fallback to HTTP
         const sentViaWs = sendMessageWs(messageDto);
         if (!sentViaWs) {
-          console.log("WebSocket failed, using HTTP fallback");
           const response = await sendMessageApi(messageDto, authToken);
 
           if (response) {
