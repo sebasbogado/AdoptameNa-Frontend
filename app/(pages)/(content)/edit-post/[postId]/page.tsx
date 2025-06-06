@@ -324,7 +324,7 @@ const wrappedHandleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) =>
                     <button
                         type="button"
                         aria-label="Volver"
-                        onClick={() => router.push('/dashboard')}
+                        onClick={() => router.back()}
                         className="text-text-primary hover:text-gray-700 focus:outline-none"
                     >
                         <ChevronLeftIcon className="w-6 h-6" />
