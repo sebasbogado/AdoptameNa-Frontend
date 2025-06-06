@@ -187,6 +187,8 @@ export default function OrganizationsPage() {
                     setSelectedUser(id);
                     setModalConfirmation(true);
                 }}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (

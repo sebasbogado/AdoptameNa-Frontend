@@ -32,7 +32,7 @@ export default function AdminsPage() {
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
     const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
-
+    const router = useRouter();
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
 
@@ -80,6 +80,7 @@ export default function AdminsPage() {
 
         updateFilters(filters);
     }, [searchQuery, refreshTrigger, updateFilters]);
+
     const handleSortChange = (direction: typeof sortDirection) => {
         setSortDirection(direction);
         updateFilters((prev) => ({
