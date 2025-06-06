@@ -76,7 +76,11 @@ const HeaderImage = ({
             ];
             await updateUserProfile(
                 user.id,
-                { ...userProfile, mediaIds: allMediaIds },
+                { ...userProfile, 
+                    fullName: userProfile?.fullName || "",
+                    email: userProfile?.email || "",
+                    isProfileCompleted: userProfile?.isProfileCompleted || false,
+                    mediaIds: allMediaIds },
                 authToken
             );
         } catch (err) {
@@ -91,7 +95,11 @@ const HeaderImage = ({
             setMedias(updatedMedias);
             await updateUserProfile(
                 user.id,
-                { ...userProfile, mediaIds: updatedMedias.map((m) => m.id) },
+                { ...userProfile,
+                    fullName: userProfile?.fullName || "",
+                    email: userProfile?.email || "",
+                    isProfileCompleted: userProfile?.isProfileCompleted || false,
+                    mediaIds: updatedMedias.map((m) => m.id) },
                 authToken
             );
         } catch (error) {
