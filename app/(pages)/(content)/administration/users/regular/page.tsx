@@ -12,11 +12,12 @@ import SearchBar from "@/components/search-bar"
 import Pagination from "@/components/pagination"
 import { useDebounce } from "@/hooks/use-debounce"
 import { ArrowLeft, Check, X } from "lucide-react"
-import Link from "next/link"
 import Loading from "@/app/loading"
 import NotFound from "@/app/not-found"
 import { User } from "@/types/auth";
 import ChangeRoleModal from "@/components/administration/user/change-role-modal"
+import Button from "@/components/buttons/button";
+import { useRouter } from "next/navigation"
 
 export default function RegularUsersPage() {
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -31,6 +32,8 @@ export default function RegularUsersPage() {
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
     const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
+    const router = useRouter();
+
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -51,7 +54,6 @@ export default function RegularUsersPage() {
         setSearchQuery("");
     };
 
-
     const {
         data: users,
         loading: usersLoading,
@@ -67,6 +69,7 @@ export default function RegularUsersPage() {
                 role: "user",
                 name: filters?.name || undefined,
                 sort: sortDirection || "id,asc",
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -80,14 +83,13 @@ export default function RegularUsersPage() {
     };
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
-            sort: sortDirection,
+            search: searchQuery || undefined,
             refresh: refreshTrigger,
+            role: "user"
         };
 
         updateFilters(filters);
     }, [searchQuery, sortDirection, refreshTrigger, updateFilters]);
-
 
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
@@ -173,9 +175,16 @@ export default function RegularUsersPage() {
             />
 
             <div className="mb-6">
-                <Link href="/administration/users" className="flex items-center text-blue-600 mb-4 hover:underline">
-                    <ArrowLeft size={16} className="mr-1" /> Volver
-                </Link>
+                <div className="flex justify-start mb-4">
+                    <Button
+                        size="md"
+                        onClick={() => router.push("/administration/users")}
+                        className="bg-white flex items-center shadow-md text-gray-800"
+                    >
+                        <ArrowLeft className="text-gray-800 mr-2" size={20} />
+                        Volver
+                    </Button>
+                </div> 
 
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-end">
                     <h1 className="text-2xl font-bold">Usuarios Regulares</h1>
@@ -211,7 +220,13 @@ export default function RegularUsersPage() {
                     setModalConfirmation(true);
                 }}
                 onPromote={(u) => {
-                    setModalUser(u);
+                    setModalUser({
+                        id: u.id,
+                        fullName: u.fullName,
+                        email: u.email,
+                        role: "user",
+                        isProfileCompleted: u.isProfileCompleted
+                    });
                     setOpenModal(true);
                 }}
                 sortDirection={sortDirection}

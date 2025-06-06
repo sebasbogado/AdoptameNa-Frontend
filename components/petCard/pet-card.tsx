@@ -11,7 +11,6 @@ import { useAuth } from "@/contexts/auth-context";
 import { addFavorite, deleteFavorite } from "@/utils/favorites-posts.http";
 import { Alert } from "@material-tailwind/react";
 import { useFavorites } from "@/contexts/favorites-context";
-import { Favorites } from "@/types/favorites";
 import MissingTags from "./missing-tags";
 import { Check, X} from "lucide-react";
 
@@ -31,7 +30,7 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
     const { authToken } = useAuth(); // Hook de autenticación
 
     // Determinar si el post está en favoritos con una sola evaluación
-    const isFavorite = favorites.some((fav: Favorites) => fav.postId === (post as Post).id);
+    const isFavorite = favorites.some((fav: Post) => fav.id === (post as Post).id);
 
     // Leer el estado del 'localStorage' (si existe) al cargar el componente
     // const [isFavorite, setIsFavorite] = useState<boolean>(() => {
@@ -59,7 +58,7 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
 
         try {
             if (isFavorite) {
-                const favorite = favorites.find((fav: Favorites) => fav.postId === post.id);
+                const favorite = favorites.find((fav: Post) => fav.id === post.id);
                 await deleteFavorite(favorite.id, authToken);
                 setSuccessMessage("Publicación eliminada de favoritos");
                 setTimeout(() => {setSuccessMessage("")}, 2500);
@@ -109,10 +108,10 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                 "snap-start shrink-0 w-[16rem] h-[19rem] rounded-3xl overflow-hidden bg-white drop-shadow-md flex flex-col relative",
                 className
             )}>
-            {isPost &&
+            {isPost && !(post as Post | Pet).hasSensitiveImages && (
                 <FavoriteButton variant={isFavorite ? "active" : "desactivated"} // Usa el estado para cambiar el 'variant'
                     onClick={handleFavoriteClick} className="absolute top-2 right-2 z-10" />
-            }
+            )}
             {disabled ? (
                 <>
                     <MissingTags
@@ -128,7 +127,7 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
                         parentClassName="absolute z-10"
                         postType={(post as Pet).petStatus?.name}
                     />
-                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} />
+                    <CardImage media={isPost ? (post as Post).media[0] : (post as Pet).media[0] || ""} isSensitive={(post as Post | Pet).hasSensitiveImages} />
                     <CardText post={isPost ? (post as Post) : (post as Pet)} />
                 </Link>
             )}
