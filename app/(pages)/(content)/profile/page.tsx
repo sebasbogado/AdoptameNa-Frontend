@@ -370,8 +370,8 @@ export default function ProfilePage() {
                             address: userProfile?.address ?? null,
                             gender: (userProfile?.gender ?? "MALE") as "MALE" | "FEMALE" | "OTHER",
                             birthdate: userProfile?.birthdate
-                                ? userProfile.birthdate.split("T")[0]
-                                : undefined,
+                                ? new Date(userProfile.birthdate)
+                                : null,
                             description: userProfile?.description ?? "",
                             addressCoordinates: userProfile?.addressCoordinates
                                 ? userProfile.addressCoordinates.split(",").map(parseFloat)
