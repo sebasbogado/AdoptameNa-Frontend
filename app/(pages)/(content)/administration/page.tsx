@@ -114,7 +114,7 @@ export default function Page() {
                     value={statistics?.crowdFoundingsCreatedThisWeek ?? 0}
                     growthPercentage={statistics?.crowdfundingGrowthPercentage}
                     growthLabel="semana anterior"
-                    path="/administration/posts"
+                    path="/administration/crowfunding"
 
                     label="Colectas"
                 />
