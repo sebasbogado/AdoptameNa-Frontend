@@ -7,7 +7,7 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  safelist: ["text-blog", "text-marketplace", "text-found"],
+  safelist: ["text-blog", "text-marketplace", "text-found", "text-crowdfunding"],
   theme: {
     extend: {
       colors: {
@@ -41,7 +41,7 @@ module.exports = withMT({
         volunteering: "var(--color-volunteering)",
         blog: "var(--color-blog)",
         marketplace: "var(--color-marketplace)",
-        found: "var(--color-found)",
+        crowdfunding: "var(--color-crowdfunding)",
         //missing and found tags
         "found-tag": "var(--color-found-tag)",
         "missing-tag": "var(--color-missing-tag)",
