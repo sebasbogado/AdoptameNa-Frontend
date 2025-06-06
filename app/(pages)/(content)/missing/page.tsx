@@ -80,11 +80,17 @@ export default function Page() {
   }
 
   useEffect(() => {
-    if (user) {
-      fetchData();
-    } else {
-      setFilterLoading(false);
-    }
+    const loadData = async () => {
+      try {
+        await fetchData();
+      } catch (error) {
+        console.error('Error al cargar los datos:', error);
+      } finally {
+        setFilterLoading(false);
+      }
+    };
+
+    loadData();
   }, [user]);
 
   const handleLocationFilterChange = useCallback((filters: Record<string, any>) => {
@@ -154,7 +160,7 @@ export default function Page() {
             />
             <LabeledSelect
               label="Tipo de mascota"
-              options={animalList}
+              options={["Todos", ...animalList]}
               selected={selectedAnimal}
               setSelected={setSelectedAnimal}
             />
@@ -172,10 +178,10 @@ export default function Page() {
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
-          {[...Array(10)].map((_, index) => (
+            {[...Array(10)].map((_, index) => (
               <SkeletonCard key={index} />
-          ))}
-      </div>
+            ))}
+          </div>
 
         ) : pets.length === 0 ? (
           <div className="text-center p-10 bg-gray-50 rounded-lg w-full max-w-md">
