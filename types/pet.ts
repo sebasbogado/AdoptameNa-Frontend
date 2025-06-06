@@ -16,6 +16,7 @@ export interface Pet {
   userFullName: string;
   organizationName: string;
   isBanned: boolean;
+  sharedCounter: number;
   media: Media[]; 
   animal: Animal;
   breed: Breed;
@@ -55,6 +56,7 @@ export interface UpdatePet {
   breedId: number;
   //healthStateId: number;
   petStatusId: number;
+  hasSensitiveImages: boolean;
 }
 
 export interface RestorePet {

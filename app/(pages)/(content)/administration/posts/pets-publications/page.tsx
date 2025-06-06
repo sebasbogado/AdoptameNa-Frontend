@@ -9,6 +9,8 @@ import { getPets } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { ITEM_TYPE } from "@/types/constants";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
+import { ArrowLeft, Link } from "lucide-react";
+import BackButton from "@/components/buttons/back-button";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -20,6 +22,8 @@ export default function Page() {
 
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
+
+    const [filters, setFilters] = useState<number | undefined>(undefined);
 
     const {
         data: pets,
@@ -34,11 +38,14 @@ export default function Page() {
             return await getPets({
                 page,
                 size,
+                sort:"id,desc",
                 petStatusId: filters?.petStatusId,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -48,7 +55,7 @@ export default function Page() {
             router.push("/dashboard");
         }
 
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, user]);
 
     useEffect(() => {
         const fetchDeletedData = async () => {
@@ -84,13 +91,15 @@ export default function Page() {
 
     useEffect(() => {
         const petStatusId = selectedPetStatus && selectedPetStatus !== "Todos" ? allPetStatusMap[selectedPetStatus] : undefined;
-
+        setFilters(petStatusId);
         updateFilters({ petStatusId });
         handlePageChange(1);
-    }, [selectedPetStatus]);
+    }, [selectedPetStatus, updateFilters, handlePageChange, allPetStatusMap, setFilters]);
 
     return (
         <div className="p-6">
+          <BackButton/>
+
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
@@ -111,6 +120,8 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>

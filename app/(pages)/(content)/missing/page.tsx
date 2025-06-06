@@ -124,7 +124,7 @@ export default function Page() {
   }, [selectedAnimal, selectedPetStatus, locationFilters, filterChanged]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 mt-8">
       {filterLoading ?
         <SkeletonFilters numFilters={3} />
         :

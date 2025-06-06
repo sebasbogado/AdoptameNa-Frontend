@@ -144,6 +144,7 @@ export default function Page() {
             locationCoordinates: validatedData.locationCoordinates?.join(",") || "",
             mediaIds: validatedData.mediaIds || [],
             blogImages: validatedData.blogImages || [],
+            hasSensitiveImages: validatedData.hasSensitiveImages
 
         };
         if (validatedData.contactNumber && validatedData.contactNumber.trim() !== "") {

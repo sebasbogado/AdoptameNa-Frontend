@@ -124,7 +124,7 @@ const PostButtons = ({ isPet = false, postId, onShare, postIdUser, sizeButton, p
     const handleShare = async () => {
         if (!postId) return;
 
-        if (onShare && !isPet) {
+        if (onShare) {
             onShare();
         }
         try {

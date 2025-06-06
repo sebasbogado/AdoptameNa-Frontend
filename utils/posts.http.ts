@@ -21,6 +21,9 @@ export const getPosts = async (
     if (error.response && error.response.status === 404) {
       throw new Error("No encontrada");
     }
+    if (error.message === "Network Error") {
+      throw new Error("Error de conexión, verificá tu conexión a internet.");
+    }
     throw new Error(error.message || "Error al obtener Posts");
   }
 };

@@ -2,20 +2,38 @@
 import Loading from "@/app/loading";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-    Newspaper, 
-    Flag, 
-    Settings, 
-    Users, 
+import {
+    Newspaper,
+    Flag,
+    Settings,
+    Users,
     Bell,
-    Trash2
+    Trash2,
+    User,
+    Footprints,
+    Send,
+    CheckCircle,
+    FootprintsIcon,
+    Dog,
+    Home,
+    DollarSign
 } from "lucide-react";
+import StatCard from "@/components/administration/estatistics/card";
+import { getStatisticsActivity, getStatisticsContent, getStatisticsOverview } from "@/utils/statistics";
+import { StatisticsContent, StatisticsOverview, StatisticsActivity } from "@/types/statistics";
+import PieC from "@/components/administration/estatistics/graph/pie";
+import PieChartWithLegend from "@/components/administration/estatistics/graph/pie";
+import DonutChartWithText from "@/components/administration/estatistics/graph/donut";
+import BarChartWithLegend from "@/components/administration/estatistics/graph/bar";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
     const router = useRouter();
+    const [statistics, setStatistics] = useState<StatisticsOverview>();
+    const [statisticsContent, setStatisticsContent] = useState<StatisticsContent>();
+    const [statisticsActivity, setStatisticsActivity] = useState<StatisticsActivity>(); 
 
     useEffect(() => {
         if (!authLoading) {
@@ -27,146 +45,138 @@ export default function Page() {
             }
         }
     }, [authToken, user, authLoading, router]);
+    useEffect(() => {
+        if (authToken && user && user.role !== "admin") {
+            router.push("/dashboard");
+        }
+        const fetchStatistics = async () => {
+            try {
+                const response = await getStatisticsOverview(authToken || "");
+                console.log("Estadísticas obtenidas:", response);
+                setStatistics(response);
+                const responseContent = await getStatisticsContent(authToken || "");
+                console.log("Estadísticas de contenido obtenidas:", responseContent);
+                setStatisticsContent(responseContent);
+                 const responseActivity = await getStatisticsActivity(authToken || "");
+                console.log("Estadísticas de responseActivity obtenidas:", responseActivity);
+                setStatisticsActivity(responseActivity);
+            } catch (error) {
+                console.error("Error al obtener estadísticas:", error);
+            }
+        };
+        if (authToken) {
+            fetchStatistics();
+        }
+    }, [authToken, user, router]);
 
     if (authLoading || !user || user.role !== "admin") {
         return <Loading />;
     }
     return (
-        <div className="max-w-7xl mx-auto p-4 sm:p-8">
+        <div className="  p-4 sm:p-8">
             <div className="mb-8 text-center">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">Panel de Administración</h1>
                 <p className="text-gray-600 text-base md:text-lg">Bienvenido, {user.fullName}. Selecciona una opción para gestionar la plataforma.</p>
             </div>
+            <div className="flex flex-wrap justify-center gap-4">
+                <StatCard
+                    icon={<Users className="w-9 h-9 text-white" />}
+                    value={statistics?.usersCreatedThisWeek ?? 0}
+                    growthPercentage={statistics?.usersGrowthPercentage}
+                    bg="bg-purple-300"
+                    growthLabel="semana anterior"
+                    path="/administration/users"
+                    label="Usuarios"
+                />
 
-            {/* Sección de Gestión de Publicaciones */}
-            <section className="mb-10 bg-white/80 rounded-xl shadow p-4 md:p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center border-b pb-2">
-                    <Newspaper className="mr-2 h-6 w-6 text-blue-600" />
-                    Gestión de Publicaciones
-                </h2>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                    <Link href="/administration/posts">
-                        <button className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-700 text-white py-3 px-5 rounded-lg flex items-center">
-                            <Newspaper className="mr-2 h-5 w-5" />
-                            Administrar Publicaciones
-                        </button>
-                    </Link>
-                    <Link href="/administration/banned-posts">
-                        <button className="w-full sm:w-auto bg-cyan-100 hover:bg-cyan-200 text-cyan-800 py-3 px-5 rounded-lg flex items-center">
-                            <Trash2 className="mr-2 h-5 w-5" />
-                            Publicaciones Bloqueadas
-                        </button>
-                    </Link>
-                </div>
-            </section>
+                <StatCard
+                    icon={<Newspaper className="w-9 h-9 text-white" />}
+                    value={statistics?.postsCreatedThisWeek ?? 0}
+                    growthPercentage={statistics?.postsGrowthPercentage}
+                    bg="bg-btn-action"
+                    growthLabel="semana anterior"
+                    path="/administration/posts"
 
-            {/* Sección de Reportes */}
-            <section className="mb-10 bg-white/80 rounded-xl shadow p-4 md:p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center border-b pb-2">
-                    <Flag className="mr-2 h-6 w-6 text-red-600" />
-                    Reportes
-                </h2>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                    <Link href="/administration/report/pets">
-                        <button className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white py-3 px-5 rounded-lg flex items-center">
-                            <Flag className="mr-2 h-5 w-5" />
-                            Reportes de Mascotas
-                        </button>
-                    </Link>
-                    <Link href="/administration/report/posts">
-                        <button className="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-800 py-3 px-5 rounded-lg flex items-center">
-                            <Flag className="mr-2 h-5 w-5" />
-                            Reportes de Publicaciones
-                        </button>
-                    </Link>
-                    <Link href="/administration/report/products">
-                        <button className="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-800 py-3 px-5 rounded-lg flex items-center">
-                            <Flag className="mr-2 h-5 w-5" />
-                            Reportes de Productos
-                        </button>
-                    </Link>
-                    <Link href="/administration/report/comments">
-                        <button className="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-800 py-3 px-5 rounded-lg flex items-center">
-                            <Flag className="mr-2 h-5 w-5" />
-                            Reportes de Comentarios
-                        </button>
-                    </Link>
-                </div>
-            </section>
+                    label="Publicaciones"
+                />
 
-            {/* Sección de Configuración */}
-            <section className="mb-10 bg-white/80 rounded-xl shadow p-4 md:p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center border-b pb-2">
-                    <Settings className="mr-2 h-6 w-6 text-purple-600" />
-                    Configuración
-                </h2>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                    <Link href="/administration/settings">
-                        <button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white py-3 px-5 rounded-lg flex items-center">
-                            <Settings className="mr-2 h-5 w-5" />
-                            Configuraciones Generales
-                        </button>
-                    </Link>
-                    <Link href="/administration/settings/banner">
-                        <button className="w-full sm:w-auto bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
-                            <Bell className="mr-2 h-5 w-5" />
-                            Gestión de Banners
-                        </button>
-                    </Link>
-                    <Link href="/administration/sponsors">
-                        <button className="w-full sm:w-auto bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
-                            <Bell className="mr-2 h-5 w-5" />
-                            Auspiciantes
-                        </button>
-                    </Link>
-                    <Link href="/administration/notifications">
-                        <button className="w-full sm:w-auto bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
-                            <Bell className="mr-2 h-5 w-5" />
-                            Notificaciones
-                        </button>
-                    </Link>
-                    <Link href="/administration/crowfunding">
-                        <button className="w-full sm:w-auto bg-purple-100 hover:bg-purple-200 text-purple-800 py-3 px-5 rounded-lg flex items-center">
-                            <Bell className="mr-2 h-5 w-5" />
-                            Colectas
-                        </button>
-                    </Link>
-                </div>
-            </section>
+                <StatCard
+                    icon={<Dog className="w-9 h-9 text-red-300" />}
+                    value={statistics?.petsCreatedThisWeek ?? 0}
+                    growthPercentage={statisticsContent?.petsGrowthPercentage}
+                    growthLabel="semana anterior"
+                    path="/administration/posts"
 
-            {/* Sección de Usuarios */}
-            <section className="mb-10 bg-white/80 rounded-xl shadow p-4 md:p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center border-b pb-2">
-                    <Users className="mr-2 h-6 w-6 text-amber-600" />
-                    Gestión de Usuarios
-                </h2>
-                <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-                    <Link href="/administration/users">
-                        <button className="w-full sm:w-auto bg-amber-600 hover:bg-amber-700 text-white py-3 px-5 rounded-lg flex items-center">
-                            <Users className="mr-2 h-5 w-5" />
-                            Todos los Usuarios
-                        </button>
-                    </Link>
-                    <Link href="/administration/users/regular">
-                        <button className="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 text-amber-800 py-3 px-5 rounded-lg flex items-center">
-                            <Users className="mr-2 h-5 w-5" />
-                            Usuarios Regulares
-                        </button>
-                    </Link>
-                    <Link href="/administration/users/organizations">
-                        <button className="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 text-amber-800 py-3 px-5 rounded-lg flex items-center">
-                            <Users className="mr-2 h-5 w-5" />
-                            Organizaciones
-                        </button>
-                    </Link>
-                    <Link href="/administration/users/admins">
-                        <button className="w-full sm:w-auto bg-amber-100 hover:bg-amber-200 text-amber-800 py-3 px-5 rounded-lg flex items-center">
-                            <Users className="mr-2 h-5 w-5" />
-                            Administradores
-                        </button>
-                    </Link>
-                </div>
-            </section>
+                    label="Mascotas"
+                />
+                <StatCard
+                    icon={<DollarSign className="w-9 h-9 text-orange-300" />}
+                    value={statistics?.crowdFoundingsCreatedThisWeek ?? 0}
+                    growthPercentage={statistics?.crowdfundingGrowthPercentage}
+                    growthLabel="semana anterior"
+                    path="/administration/crowfunding"
+
+                    label="Colectas"
+                />
+                <StatCard
+                    icon={<Send className="w-9 h-9 text-blue" />}
+                    value={statistics?.adoptionRequestsThisWeek ?? 0}
+                    growthPercentage={statistics?.adoptionRequestsGrowthPercentage}
+                    growthLabel="semana anterior"
+
+                    label="Solicitudes de adopción"
+                />
+            </div>
+
+
+            {statistics && (
+                <>
+                    <div className="flex justify-evenly items-center  mt-8 flex-wrap">
+                        <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
+                            <BarChartWithLegend
+                                title="Total de contenido"
+                                description="Distribución de cantidad total de contenido creado"
+                                data={[
+                                    { name: "Animales", value: statistics.totalPets ?? 0 },
+                                    { name: "Publicaciones", value: statistics.totalPosts ?? 0 },
+                                    { name: "Productos", value: statistics.totalProducts ?? 0 },
+                                    { name: "Colectas", value: statistics.totalCrowdfunding ?? 0 },
+                                ]}
+                                colors={["#9747FF", "#F2AA0F", "#4781FF"]}
+                            />
+
+                        </div>
+                        <div className=" mt-12 p-4 bg-white rounded-lg shadow-md w-auto flex  ">
+                            <DonutChartWithText
+                                title="Mascotas por tipo de animal"
+                                description="Distribución de tipos de mascota"
+                                data={[
+                                    { name: "Perros", value: statisticsContent?.petCountByAnimal.perro_count ?? 0, color: "#9747FF" },
+                                    { name: "Gatos", value: statisticsContent?.petCountByAnimal.gato_count ?? 0, color: "#F2AA0F" },
+                                    { name: "Aves", value: statisticsContent?.petCountByAnimal.ave_count ?? 0, color: "#4781FF" },]}
+                                centerLabel="Mascotas"
+                                colors={["#9747FF", "#F2AA0F", "#4781FF"]}
+                            />
+                            <PieChartWithLegend
+                                title="Solicitudes de adopción"
+                                description="Distribución de estados solicitudes de adopción"
+                                colors={["#9747FF", "#F2AA0F", "#FF5050"]}
+                                data={[
+                                    { name: "Aceptados", value: statisticsActivity?.adoptionRequestCountByStatus?.ACCEPTED_count ?? 0},
+                                    { name: "Pendientes", value: statisticsActivity?.adoptionRequestCountByStatus?.PENDING_count ?? 0 },
+                                    { name: "Rechazados", value: statisticsActivity?.adoptionRequestCountByStatus?.REJECTED_count ?? 0 },
+                             
+                                ]}
+                            />
+                        </div>
+
+                    </div>
+                </>
+            )}
+
+
+
+
         </div>
     );
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Cat, PackageSearch, BookOpenText } from "lucide-react"
+import { Cat, PackageSearch, BookOpenText, MessageCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
 import BackButton from "@/components/buttons/back-button"
@@ -15,18 +15,18 @@ export default function Page() {
 
   return (
     <div className="p-8">
-      <BackButton/>
+            <BackButton path="/administration"/>
       
-      <h1 className="text-2xl font-bold mb-8">Administrar de Publicaciones</h1>
+      <h1 className="text-2xl font-bold mb-8">Administrar de reportes</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Link href="/administration/posts/posts-publications">
           <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
             <div className="bg-blue-100 p-4 rounded-full mb-4">
               <BookOpenText size={48} className="text-blue-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Publicaciones</h2>
-            <p className="text-gray-600 text-center">Gestionar publicaciones</p>
+            <p className="text-gray-600 text-center">Gestionar reportes de publicaciones</p>
           </div>
         </Link>
 
@@ -36,7 +36,7 @@ export default function Page() {
               <Cat size={48} className="text-purple-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Mascotas</h2>
-            <p className="text-gray-600 text-center">Gestionar publicaciones de mascotas</p>
+            <p className="text-gray-600 text-center">Gestionar reportes de mascotas</p>
           </div>
         </Link>
 
@@ -46,7 +46,16 @@ export default function Page() {
               <PackageSearch size={48} className="text-amber-600" />
             </div>
             <h2 className="text-xl font-semibold mb-2">Productos</h2>
-            <p className="text-gray-600 text-center">Gestionar publicaciones de productos</p>
+            <p className="text-gray-600 text-center">Gestionar reportes de productos</p>
+          </div>
+        </Link>
+         <Link href="/administration/report/comments">
+          <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow flex flex-col items-center cursor-pointer">
+            <div className="bg-pink-100 p-4 rounded-full mb-4">
+              <MessageCircleIcon size={48} className="text-pink-600" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">Comentarios</h2>
+            <p className="text-gray-600 text-center">Gestionar reportes de productos</p>
           </div>
         </Link>
       </div>

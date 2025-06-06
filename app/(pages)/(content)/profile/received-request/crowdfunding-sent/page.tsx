@@ -15,6 +15,7 @@ import LabeledSelect from "@/components/labeled-selected";
 import Button from "@/components/buttons/button";
 import ResetFiltersButton from "@/components/reset-filters-button";
 import Loading from "@/app/loading";
+import BackButton from "@/components/buttons/back-button";
 export default function UserCrowdfundingPage() {
     const { authToken, user, loading: userLoading } = useAuth();
     const router = useRouter();
@@ -98,21 +99,12 @@ export default function UserCrowdfundingPage() {
    
     return (
         <div className="container mx-auto p-6">
-             <div className="flex justify-start mb-4">
-                <Button
-                    size="md"
-                    onClick={() => router.push("/profile/received-request")}
-                    className="bg-white flex items-center shadow-md text-gray-800"
-                >
-                    <ArrowLeft className="text-gray-800 mr-2" size={20} />
-                        Volver
-                </Button>
-            </div>  
+            <BackButton path="/profile/received-request"></BackButton>
                <div className="p-6">
            
         </div>
            
-            <h1 className="text-2xl font-semibold mb-2">Mis solicitudes de Crowdfunding</h1>
+            <h1 className="text-2xl font-semibold mb-2">Mis solicitudes de Colectas</h1>
             <p className="text-gray-600 mb-6">
                 Aquí podrás ver la lista de tus solicitudes de colecta que enviaste.
             </p>

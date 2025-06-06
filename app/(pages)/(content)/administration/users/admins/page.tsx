@@ -7,8 +7,7 @@ import { UserProfile } from "@/types/user-profile"
 import { useAuth } from "@/contexts/auth-context"
 import { ConfirmationModal } from "@/components/form/modal"
 import { Alert } from "@material-tailwind/react"
-import { ArrowLeft, Check, X, AlertTriangle } from "lucide-react"
-import Link from "next/link"
+import { ArrowLeft, Check, X } from "lucide-react"
 import Loading from "@/app/loading"
 import NotFound from "@/app/not-found"
 import { usePagination } from "@/hooks/use-pagination"
@@ -17,6 +16,8 @@ import Pagination from "@/components/pagination"
 import { useDebounce } from "@/hooks/use-debounce"
 import ChangeRoleModal from "@/components/administration/user/change-role-modal"
 import { User } from "@/types/auth";
+import Button from "@/components/buttons/button";
+import { useRouter } from "next/navigation"
 
 export default function AdminsPage() {
     const [selectedUser, setSelectedUser] = useState<number | null>(null);
@@ -30,7 +31,8 @@ export default function AdminsPage() {
     const pageSize = 10;
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
-
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
+    const router = useRouter();
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
 
@@ -64,6 +66,7 @@ export default function AdminsPage() {
                 size,
                 role: "admin",
                 name: filters?.name || undefined,
+                sort: sortDirection || "id,asc",
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -71,13 +74,20 @@ export default function AdminsPage() {
 
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
+            search: searchQuery || undefined,
             refresh: refreshTrigger
         };
 
         updateFilters(filters);
     }, [searchQuery, refreshTrigger, updateFilters]);
 
+    const handleSortChange = (direction: typeof sortDirection) => {
+        setSortDirection(direction);
+        updateFilters((prev) => ({
+            ...prev,
+            sort: direction,
+        }));
+    };
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
 
@@ -170,9 +180,16 @@ export default function AdminsPage() {
             />
 
             <div className="mb-6">
-                <Link href="/administration/users" className="flex items-center text-blue-600 mb-4 hover:underline">
-                    <ArrowLeft size={16} className="mr-1" /> Volver
-                </Link>
+                <div className="flex justify-start mb-4">
+                    <Button
+                        size="md"
+                        onClick={() => router.push("/administration/users")}
+                        className="bg-white flex items-center shadow-md text-gray-800"
+                    >
+                        <ArrowLeft className="text-gray-800 mr-2" size={20} />
+                        Volver
+                    </Button>
+                </div>  
 
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-end">
                     <h1 className="text-2xl font-bold">Administradores</h1>
@@ -208,9 +225,17 @@ export default function AdminsPage() {
                     setModalConfirmation(true);
                 }}
                 onPromote={(u) => {
-                    setModalUser(u);
+                    setModalUser({
+                        id: u.id,
+                        fullName: u.fullName,
+                        email: u.email,
+                        role: "admin",
+                        isProfileCompleted: u.isProfileCompleted
+                    });
                     setOpenModal(true);
                 }}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (
