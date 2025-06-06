@@ -8,7 +8,7 @@ import CrowdfundingModal from "../crowfunding-modal";
 import EditButton from "../buttons/edit-button";
 import { Alert } from "@material-tailwind/react";
 import TrashButton from "../buttons/trash-button";
-import {ConfirmationModal} from "../form/modal";
+import { ConfirmationModal } from "../form/modal";
 import { getUserProfile } from "@/utils/user-profile.http";
 import { Media } from "@/types/media";
 
@@ -118,8 +118,13 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
             style={{ minHeight: 340 }}
         >
             <div className="flex-1 flex flex-col mt-4 items-center px-6">
-                 <div className="flex justify-center mb-4">
+               
+                
+
+               
+                <div className="flex justify-center mb-4">
                     <div className="w-[130px] h-[100px] flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
+                         {isAdmin && (
                         <Image
                             src={authorImage[0]?.url || "/logo.png"}
                             alt="Foto de perfil"
@@ -127,8 +132,19 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                             height={100}
                             className="object-cover w-full h-full"
                         />
+                        )}
+                        {!isAdmin && (
+                            <Image
+                                src={"/logo.png"}
+                                alt="Foto de perfil"
+                                width={50}
+                                height={50}
+                                className="object-cover w-full h-full rounded-lg"
+                            />
+                        )}
                     </div>
                 </div>
+                
                 <h3 className="text-lg font-bold text-gray-700 text-center mt-2 w-full line-clamp-2">
                     {application.title}
                 </h3>
@@ -136,7 +152,7 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                     {application.description}
                 </p>
                 <div className="grid grid-cols-2 gap-4 w-full mb-2">
-                    {application.status === "ACTIVE" ? (
+                    {application.status === "ACTIVE" || application.status === "CLOSED" ? (
                         <>
                             <div className="flex flex-col gap-1 text-gray-500 text-sm truncate">
                                 <div className="flex items-center gap-2">
@@ -158,12 +174,22 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                                     </span>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                <BadgeDollarSign size={16} className="text-gray-400" />
-                                <span>
-                                    <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
-                                </span>
+                            <div className="flex flex-col gap-1 text-gray-500 text-sm truncate">
+
+                                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                    <BadgeDollarSign size={16} className="text-gray-400" />
+                                    <span>
+                                        <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                                    <TrendingUp size={16} className="text-gray-400" />
+                                    <span>
+                                        <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
+                                    </span>
+                                </div>
                             </div>
+
                         </>
                     ) : (
                         <>
@@ -174,9 +200,9 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 text-gray-500 text-sm">
-                                <TrendingUp size={16} className="text-gray-400" />
+                                <BadgeDollarSign size={16} className="text-gray-400" />
                                 <span>
-                                    <span className="font-medium text-gray-700">Recaudado:</span> {formatPrice(application.currentAmount)}
+                                    <span className="font-medium text-gray-700">Meta:</span> {formatPrice(application.goal)}
                                 </span>
                             </div>
                         </>
