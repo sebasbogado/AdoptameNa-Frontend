@@ -48,11 +48,7 @@ export default function ResetPasswordConfirm() {
     }
     
     try {
-      const response = await resetPassword(token, { newPassword: data.password });
-      if (response) {
-        console.log("Console responde: " + response.data);
-      }
-      // Redirigir al login
+      await resetPassword(token, { newPassword: data.password });
       router.push("/auth/login");
     } catch (error: any) {
       console.error("Error al restablecer la contraseña:", error);
