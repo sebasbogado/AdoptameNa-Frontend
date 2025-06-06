@@ -35,6 +35,7 @@ const navbarAdminItems = [
     isDropdown: true,
     icon: <Flag className="w-5 h-5 mr-2" />,
     items: [
+      { name: "Administrar Reportes", path: "/administration/report" },
       { name: "Reportes de mascotas", path: "/administration/report/pets" },
       { name: "Reportes de publicaciones", path: "/administration/report/posts" },
       { name: "Reportes de productos", path: "/administration/report/products" },
@@ -58,6 +59,7 @@ const navbarAdminItems = [
     isDropdown: true,
     icon: <Users className="w-5 h-5 mr-2" />,
     items: [
+      { name: "Administrar Usuarios", path: "/administration/users" },
       { name: "Regulares", path: "/administration/users/regular" },
       { name: "Organizadores", path: "/administration/users/organizations" },
       { name: "Administradores", path: "/administration/users/admins" },
