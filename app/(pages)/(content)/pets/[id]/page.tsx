@@ -20,7 +20,6 @@ const fetchPet = async (id: string, setPet: React.Dispatch<React.SetStateAction<
         setPet(pet);
         setIsSensitive(pet.hasSensitiveImages);
     } catch (error: any) {
-        console.log(error);
         setError(true);
     } finally {
         setLoading(false);
