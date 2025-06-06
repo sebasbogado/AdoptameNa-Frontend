@@ -103,6 +103,7 @@ const PostPage = () => {
                                     postIdUser={pet?.userId}
                                     petStatus={pet?.petStatus}
                                     onShare={handleShare}
+                                    petNameProp={pet?.name}
                                 />
                             </div>
                         </div>
