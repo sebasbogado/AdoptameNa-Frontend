@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import ReportListPage from "@/components/administration/report/report-list-page";
 import { ITEM_TYPE } from "@/types/constants";
+import BackButton from "@/components/buttons/back-button";
 
 export default function Page() {
 	const { authToken, user, loading: authLoading } = useAuth();
@@ -23,6 +24,8 @@ export default function Page() {
 
 	return (
 		<div className="p-6">
+						<BackButton path="/administration/report"/>
+			
 			<ReportListPage
 				type={ITEM_TYPE.POST}
 				fetchFunction={(page, size) => {

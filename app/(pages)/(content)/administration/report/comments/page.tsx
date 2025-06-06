@@ -23,7 +23,7 @@ export default function Page() {
 
   return (
     <div className="p-6">
-      <BackButton/>
+            <BackButton path="/administration/report"/>
       
       <ReportListPage
         type={ITEM_TYPE.COMMENT}
