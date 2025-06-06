@@ -7,7 +7,7 @@ module.exports = withMT({
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  safelist: ["text-blog", "text-marketplace", "text-found", "text-crowdfunding"],
+  safelist: ["text-blog", "text-marketplace", "text-crowdfunding"],
   theme: {
     extend: {
       colors: {
