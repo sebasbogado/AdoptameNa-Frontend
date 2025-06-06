@@ -67,6 +67,7 @@ export default function AdminsPage() {
                 role: "admin",
                 name: filters?.name || undefined,
                 sort: sortDirection || "id,asc",
+                search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,

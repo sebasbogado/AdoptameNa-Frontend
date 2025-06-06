@@ -25,7 +25,6 @@ const FormPetStatus: React.FC<FormPetStatusProps> = ({ onCreate, onDelete, petSt
     onCreate(data);
   };
 
-  console.log(errors)
   return (
     <form className="mt-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-2">
