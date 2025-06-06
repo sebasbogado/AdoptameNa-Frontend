@@ -74,7 +74,6 @@ export const deleteBreed = async (token: string, id: number): Promise<void> => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(`Raza con ID ${id} eliminada correctamente.`);
   } catch (error) {
     console.error("Error al eliminar la raza:", error);
     throw error;

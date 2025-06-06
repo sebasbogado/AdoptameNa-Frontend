@@ -14,8 +14,6 @@ import { useFavorites } from "@/contexts/favorites-context";
 import MissingTags from "./missing-tags";
 import { Check, X} from "lucide-react";
 
-//Defini estos tipos para que el componente no tenga errores, esto debera cambiar en el futuro cuando el endpoint que conecta
-//posts con pets este implementado
 type PetCardProps = {
     post: Post | Pet;
     className?: string
@@ -31,24 +29,6 @@ export default function PetCard({ post, className, isPost, disabled = false }: P
 
     // Determinar si el post está en favoritos con una sola evaluación
     const isFavorite = favorites.some((fav: Post) => fav.id === (post as Post).id);
-
-    // Leer el estado del 'localStorage' (si existe) al cargar el componente
-    // const [isFavorite, setIsFavorite] = useState<boolean>(() => {
-    //     // Intentamos leer el valor del 'localStorage' usando el id del post
-    //     const storedValue = localStorage.getItem(post.id);
-    //     return storedValue ? JSON.parse(storedValue) : false;
-    // });
-
-    // // Función que cambia el estado de favorito y lo guarda en el localStorage
-    // const toggleFavorite = () => {
-    //     const newFavoriteState = !isFavorite;
-    //     setIsFavorite(newFavoriteState);
-
-    //     // Guardamos el nuevo estado en 'localStorage'
-    //     localStorage.setItem(post.id, JSON.stringify(newFavoriteState));
-    // };
-    // console.log(post)
-    // Cargar favoritos al montar el componente
 
     const handleFavoriteClick = async () => {
         if (!authToken) {

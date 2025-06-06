@@ -154,8 +154,6 @@ export default function Page() {
             maxPrice,
         };
 
-        console.log("filters", filters);
-
         updateFilters(filters);
     }, [selectedCategory, selectedAnimal, selectedCondition, filterChanged, searchQuery, minPrice, maxPrice, priceError]);
 

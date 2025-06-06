@@ -1,6 +1,6 @@
 "use client";
 import { UserProfile } from "@/types/user-profile";
-import { Loader2, Trash2, UserCircle, ShieldUser } from "lucide-react";
+import { Loader2, Trash2, UserCircle, ShieldUser, ChevronUp, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -10,9 +10,12 @@ interface Props {
   loading?: boolean;
   type?: string;
   onPromote?: (user: UserProfile) => void;
+  sortDirection?: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc";
+  onSortChange?: (direction: "id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc") => void;
 }
 
-export default function UserTable({ title, data, onDelete, loading = false, type = "", onPromote }: Props) {
+export default function UserTable({ title, data, onDelete, loading = false, type = "", onPromote, sortDirection, onSortChange }: Props) {
+
   const formatDate = (dateString: string): string => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -32,12 +35,89 @@ export default function UserTable({ title, data, onDelete, loading = false, type
         <table className="w-full border-collapse border text-sm">
           <thead>
             <tr className="bg-gray-50">
-              <th className="border px-3 py-2 text-left">ID</th>
+              <th className="border px-3 py-2 text-left">
+                <div className="flex items-center space-x-1">
+                  <span>ID</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onSortChange?.(sortDirection === "id,asc" ? "id,desc" : "id,asc")
+                    }
+                    className="text-blue-600 hover:text-blue-800"
+                    title={`Ordenar ${sortDirection === "id,asc" ? "descendente" : "ascendente"}`}
+                  >
+                    {sortDirection === "id,asc" ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </th>
               {type === "organization" && (
-                <th className="border px-3 py-2 text-left">Nombre de organización</th>
+                <th className="border px-3 py-2 text-left">
+                  <div className="flex items-center space-x-1">
+                    <span>Nombre de Organización</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onSortChange?.(sortDirection === "profile.organizationName,asc" ? "profile.organizationName,desc" : "profile.organizationName,asc")
+                      }
+                      className="text-blue-600 hover:text-blue-800"
+                      title={`Ordenar ${sortDirection === "profile.organizationName,asc" ? "descendente" : "ascendente"}`}
+                    >
+                      {sortDirection === "profile.organizationName,asc" ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </th>
               )}
-              <th className="border px-3 py-2 text-left">Nombre</th>
-              <th className="border px-3 py-2 text-left">Email</th>
+              <th className="border px-3 py-2 text-left">
+                <div className="flex items-center space-x-1">
+                  <span>Nombre</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onSortChange?.(
+                        sortDirection === "profile.fullName,asc" ? "profile.fullName,desc" : "profile.fullName,asc"
+                      )
+                    }
+                    className="text-blue-600 hover:text-blue-800"
+                    title={`Ordenar ${sortDirection === "profile.fullName,asc" ? "descendente" : "ascendente"}`}
+                  >
+                    {sortDirection === "profile.fullName,asc" ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </th>
+              <th className="border px-3 py-2 text-left">
+                <div className="flex items-center space-x-1">
+                  <span>Email</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onSortChange?.(
+                        sortDirection === "email,asc" ? "email,desc" : "email,asc"
+                      )
+                    }
+                    className="text-blue-600 hover:text-blue-800"
+                    title={`Ordenar ${sortDirection === "email,asc" ? "descendente" : "ascendente"}`}
+                  >
+                    {sortDirection === "email,asc" ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              </th>
+
               <th className="border px-3 py-2 text-left">Teléfono</th>
               <th className="border px-3 py-2 text-left">Dirección</th>
               <th className="border px-3 py-2 text-left">Fecha de Nacimiento</th>
