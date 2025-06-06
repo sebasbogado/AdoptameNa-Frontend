@@ -22,7 +22,9 @@ export default function ResetPassword() {
     e.preventDefault();
 
     try {
-      await requestPasswordReset({ email: credentials.email });
+      const response = await requestPasswordReset({ email: credentials.email });
+      console.log("Recuperar contraseña para:", credentials.email);
+      console.log("Console responde: " + response.data)
 
     } catch (err: any) {
 
