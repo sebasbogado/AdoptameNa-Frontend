@@ -26,7 +26,6 @@ export const getUserReports = async (token: string, queryParams?: reportQueryPar
         "Content-Type": "application/json",
       },
     });
-    console.log("mis reportes: ", response.data);
     return response.data;
   } catch (error: any) {
     if (error.response && error.response.status === 404) {

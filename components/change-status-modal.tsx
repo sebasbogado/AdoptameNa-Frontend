@@ -65,8 +65,7 @@ export default function ChangeStatusModal({
             };
 
             // 3) Llamar al PUT /pets/{id}
-            const result = await updatePet(String(petId), payload, authToken);
-            console.log("Mascota actualizada:", result);
+            await updatePet(String(petId), payload, authToken);
             setSuccessMessage("¡Estado actualizado correctamente!");
 
             window.location.reload();

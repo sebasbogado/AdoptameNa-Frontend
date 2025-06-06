@@ -22,15 +22,8 @@ export default function ResetPassword() {
     e.preventDefault();
 
     try {
-      const response = await requestPasswordReset({ email: credentials.email });
-      console.log("Recuperar contraseña para:", credentials.email);
-      console.log("Console responde: " + response.data)
+      await requestPasswordReset({ email: credentials.email });
 
-
-      if (response) {
-        console.log("Console responde: " + response.data)
-        setMessage("Se ha enviado un correo para la recuperación de contraseña.");
-      }
     } catch (err: any) {
 
       setError(err.response?.data || "Ocurrió un error al procesar la solicitud.");
