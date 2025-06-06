@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 import { Cat, PackageSearch, BookOpenText } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
+import BackButton from "@/components/buttons/back-button"
 
 export default function Page() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function Page() {
 
   return (
     <div className="p-8">
+      <BackButton/>
+      
       <h1 className="text-2xl font-bold mb-8">Administrar de Publicaciones</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -168,6 +168,28 @@ export const FormData = ({ handleSubmit,
 
                     </div>
                 )}
+
+                {/* Checkbox contenido sensible */}
+                <div className="w-full px-6 border border-red-600 p-3 rounded-xl">
+                    <label className="flex py-1 items-center gap-2">
+                        <input
+                            type="checkbox"
+                            className="focus:ring-2 focus:ring-[#9747FF]"
+                            {...register("hasSensitiveImages")}
+                        />
+                        <span className="font-medium">Este post contiene imágenes sensibles</span>
+                    </label>
+
+                    <p className="text-sm font-light text-gray-700 mt-1">
+                        Al marcar esta casilla, la imagen se ocultará en las pantallas de navegación.<br />
+                        Los usuarios solo podrán verla si abren la publicación.
+                    </p>
+
+                    {errors.hasSensitiveImages && (
+                        <p className="text-red-500 mt-1">{errors.hasSensitiveImages.message}</p>
+                    )}
+                </div>
+                
                 {postTypeId !== POST_TYPEID.BLOG && (
                     <div
                         className={`h-full transition-opacity duration-300 ${isModalOpen ? "pointer-events-none opacity-50" : ""}`}

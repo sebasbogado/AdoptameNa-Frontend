@@ -26,7 +26,7 @@ export default function Page() {
     currentPage,
     totalPages,
     handlePageChange
-  } = usePagination<Favorites>({
+  } = usePagination<Post>({
     fetchFunction: async (page, size, filters) => {
       if (!authToken) throw new Error("Authentication token is missing");
       return await getFavorites(authToken, {
@@ -73,7 +73,7 @@ export default function Page() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8 mt-2 p-2">
               {favorites.map((item) => (
-                <PetCard key={item.id} post={(item.post as Post)} isPost />
+                <PetCard key={item.id} post={(item as Post)} isPost />
               ))}
             </div>
           )}
