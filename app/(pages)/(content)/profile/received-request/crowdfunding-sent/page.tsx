@@ -112,7 +112,7 @@ export default function UserCrowdfundingPage() {
            
         </div>
            
-            <h1 className="text-2xl font-semibold mb-2">Mis solicitudes de Crowdfunding</h1>
+            <h1 className="text-2xl font-semibold mb-2">Mis solicitudes de Colectas</h1>
             <p className="text-gray-600 mb-6">
                 Aquí podrás ver la lista de tus solicitudes de colecta que enviaste.
             </p>

@@ -18,6 +18,7 @@ export interface Post {
   media: Media[];
   tags: Tags[];
   blogImages: Media[];
+  hasSensitiveImages: boolean;
 }
 
 export interface CreatePost {
@@ -26,10 +27,11 @@ export interface CreatePost {
   tagIds: number[];
   postTypeId: number;
   locationCoordinates: string;
-  contactNumber?: string; 
+  contactNumber?: string;
   userId: number;
   mediaIds: number[];
   blogImages?: number[]; // Optional field for blog images
+  hasSensitiveImages: boolean;
 }
 
 export interface UpdatePost {
@@ -42,7 +44,7 @@ export interface UpdatePost {
   userId: number;
   mediaIds: number[];
   blogImages?: number[]; // Optional field for blog images
-
+  hasSensitiveImages: boolean;
 }
 
 export interface RestorePost {

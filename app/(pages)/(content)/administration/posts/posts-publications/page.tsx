@@ -9,6 +9,7 @@ import ResetFiltersButton from "@/components/reset-filters-button";
 import { getPosts } from "@/utils/posts.http";
 import AllPostListPage from "@/components/administration/bans/posts-list-page";
 import { ITEM_TYPE } from "@/types/constants";
+import BackButton from "@/components/buttons/back-button";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -20,6 +21,8 @@ export default function Page() {
 
     const [pageSize, setPageSize] = useState<number>();
     const [postError, setPostError] = useState<string | null>(null);
+
+    const [filters, setFilters] = useState<number | undefined>(undefined);
 
     const {
         data: posts,
@@ -34,11 +37,13 @@ export default function Page() {
             return await getPosts({
                 page,
                 size,
-                postTypeId: filters?.postTypeId ?? undefined
+                postTypeId: filters?.postTypeId ?? undefined,
+                refresh: filters?.refresh ?? undefined
             });
         },
         initialPage: 1,
-        initialPageSize: pageSize
+        initialPageSize: pageSize,
+        scrollToTop: false
     });
 
     useEffect(() => {
@@ -48,7 +53,7 @@ export default function Page() {
             router.push("/dashboard");
         }
 
-    }, [authToken, authLoading, router]);
+    }, [authToken, authLoading, router, user]);
 
     useEffect(() => {
         const fetchDeletedData = async () => {
@@ -84,13 +89,15 @@ export default function Page() {
 
     useEffect(() => {
         const postTypeId = selectedPostType && selectedPostType !== "Todos" ? allPostTypeMap[selectedPostType] : undefined;
-
+        setFilters(postTypeId);
         updateFilters({ postTypeId });
         handlePageChange(1);
-    }, [selectedPostType]);
+    }, [selectedPostType, updateFilters, handlePageChange, allPostTypeMap, setFilters]);
 
     return (
         <div className="p-6">
+            <BackButton/>
+            
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
@@ -111,6 +118,8 @@ export default function Page() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 handlePageChange={handlePageChange}
+                updateFilters={updateFilters}
+                filters={filters}
                 disabled={true}
             />
         </div>

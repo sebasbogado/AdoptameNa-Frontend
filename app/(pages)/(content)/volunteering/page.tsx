@@ -99,7 +99,9 @@ export default function Page() {
     return (
         <div className="flex flex-col gap-5">
             {filterLoading ?
-                <SkeletonFilters numFilters={2}/>
+                <div className="w-full mt-8">
+                    <SkeletonFilters numFilters={2} />
+                </div>
                 :
                 <div className="w-full max-w-7xl mx-auto p-4">
                     <div

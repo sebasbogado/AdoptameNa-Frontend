@@ -16,10 +16,12 @@ export interface Pet {
   userFullName: string;
   organizationName: string;
   isBanned: boolean;
+  sharedCounter: number;
   media: Media[]; 
   animal: Animal;
   breed: Breed;
   petStatus: PetStatus;
+  hasSensitiveImages: boolean;
 }
 
 
@@ -37,6 +39,7 @@ export interface CreatePet {
   breedId: number;
   //healthStateId: number;
   petStatusId: number;
+  hasSensitiveImages: boolean;
 }
 
 export interface UpdatePet {
@@ -53,6 +56,7 @@ export interface UpdatePet {
   breedId: number;
   //healthStateId: number;
   petStatusId: number;
+  hasSensitiveImages: boolean;
 }
 
 export interface RestorePet {
