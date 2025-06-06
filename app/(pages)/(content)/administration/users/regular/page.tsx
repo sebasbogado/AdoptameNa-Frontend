@@ -30,7 +30,7 @@ export default function RegularUsersPage() {
     const pageSize = 10;
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -66,12 +66,18 @@ export default function RegularUsersPage() {
                 size,
                 role: "user",
                 name: filters?.name || undefined,
-                sort: filters?.sort || "id,asc",
+                sort: sortDirection || "id,asc",
             }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
-
+    const handleSortChange = (direction: typeof sortDirection) => {
+        setSortDirection(direction);
+        updateFilters((prev) => ({
+            ...prev,
+            sort: direction,
+        }));
+    };
     useEffect(() => {
         const filters = {
             name: searchQuery || undefined,
@@ -181,14 +187,6 @@ export default function RegularUsersPage() {
                             onClear={handleClearSearch}
                         />
                     </div>
-                    <select
-                        value={sortDirection}
-                        onChange={(e) => setSortDirection(e.target.value as "asc" | "desc")}
-                        className="border rounded px-2 py-2 text-sm w-full md:w-auto"
-                    >
-                        <option value="id,asc">Orden Ascendente</option>
-                        <option value="id,desc">Orden Descendente</option>
-                    </select>
                 </div>
             </div>
 
@@ -216,6 +214,8 @@ export default function RegularUsersPage() {
                     setModalUser(u);
                     setOpenModal(true);
                 }}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (
