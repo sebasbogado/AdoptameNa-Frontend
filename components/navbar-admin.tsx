@@ -5,15 +5,22 @@ import { useState, useRef, useEffect } from "react";
 import {
   ChevronDown,
   Newspaper,
-  Trash2,
   Flag,
   Settings,
   Users,
   Menu as MenuIcon,
   X as CloseIcon,
+  BarChartBig,
 } from "lucide-react";
 
 const navbarAdminItems = [
+  {
+    name: "Panel de Administración",
+    isDropdown: false,
+    icon: <BarChartBig className="w-5 h-5 mr-2" />,
+    path: "/administration", // <-- AÑADIR ESTO
+    items: []
+  },
   {
     name: "Publicaciones",
     isDropdown: true,
@@ -91,6 +98,9 @@ export default function NavbarAdmin() {
     if (item.isDropdown) {
       return item.items.some((sub: any) => pathname.startsWith(sub.path));
     }
+     if (item.path === "/administration") {
+    return pathname === "/administration";
+  }
     return pathname.startsWith(item.path);
   };
 
@@ -143,15 +153,24 @@ export default function NavbarAdmin() {
       </div>
       <div className="flex flex-col gap-2 sm:hidden mt-2">
         {navbarAdminItems.map((item, index) => (
+          
           <div key={index} className="border rounded-lg overflow-hidden">
             <button
-              onClick={() => setOpenAccordion(openAccordion === index ? null : index)}
+              onClick={() => {    
+                if (item.path) handleClick(item.path);
+                else setOpenAccordion(openAccordion === index ? null : index);
+                }}
               className={`w-full flex items-center justify-between px-4 py-2 text-base font-medium bg-white hover:bg-purple-50 transition-colors ${openAccordion === index ? 'text-purple-600' : 'text-gray-700'}`}
             >
               <span className="flex items-center">{item.icon}{item.name}</span>
+                    {item.isDropdown && (
+
               <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${openAccordion === index ? 'rotate-180' : ''}`} />
-            </button>
-            {openAccordion === index && (
+                 )}
+                </button>
+               
+
+            {item.isDropdown &&  openAccordion === index && (
               <div className="flex flex-col bg-white border-t">
                 {item.items.map((subItem: any) => (
                   <button
@@ -180,22 +199,27 @@ export default function NavbarAdmin() {
           <div key={index} className="relative">
             <button
               ref={el => { buttonRefs.current[index] = el; }}
-              onClick={() => toggleDropdown(index)}
+              onClick={() => {   
+                 if (item.path) handleClick(item.path);
+                    else toggleDropdown(index);
+              }}
               className={`flex items-center text-base font-medium px-3 py-2 rounded-lg hover:bg-purple-100 hover:text-purple-600 transition-colors w-full sm:w-auto ${isActiveRoute(item)
                 ? "bg-purple-100 text-purple-600"
                 : "text-gray-700"
               }`}
               aria-expanded={openIndex === index}
-              aria-haspopup="true"
+              aria-haspopup={item.isDropdown ? "true" : undefined}
               type="button"
             >
               {item.icon}
               {item.name}
-              <ChevronDown
-                className={`ml-1 h-4 w-4 transition-transform ${openIndex === index ? "rotate-180" : ""}`}
-              />
+              { item.isDropdown &&(
+                <ChevronDown
+                  className={`ml-1 h-4 w-4 transition-transform ${openIndex === index ? "rotate-180" : ""}`}
+                />
+              )}
             </button>
-            {openIndex === index && (
+            {item.isDropdown &&  openIndex === index && (
               <div
                 className={`z-50 w-60 bg-white rounded-md shadow-lg border border-gray-200 mt-1 absolute left-0 top-full`}
                 role="menu"
