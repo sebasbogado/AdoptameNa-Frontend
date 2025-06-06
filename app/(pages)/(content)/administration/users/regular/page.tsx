@@ -80,9 +80,9 @@ export default function RegularUsersPage() {
     };
     useEffect(() => {
         const filters = {
-            name: searchQuery || undefined,
-            sort: sortDirection,
+            search: searchQuery || undefined,
             refresh: refreshTrigger,
+            role: "user"
         };
 
         updateFilters(filters);

@@ -30,6 +30,8 @@ export default function AdminsPage() {
     const pageSize = 10;
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
+
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -64,6 +66,7 @@ export default function AdminsPage() {
                 size,
                 role: "admin",
                 name: filters?.name || undefined,
+                sort: sortDirection || "id,asc",
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -77,7 +80,13 @@ export default function AdminsPage() {
 
         updateFilters(filters);
     }, [searchQuery, refreshTrigger, updateFilters]);
-
+    const handleSortChange = (direction: typeof sortDirection) => {
+        setSortDirection(direction);
+        updateFilters((prev) => ({
+            ...prev,
+            sort: direction,
+        }));
+    };
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
 
@@ -211,6 +220,8 @@ export default function AdminsPage() {
                     setModalUser(u);
                     setOpenModal(true);
                 }}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (
