@@ -118,33 +118,28 @@ export const RequestCard: React.FC<RequestCardProps> = ({ application, onEdited,
             style={{ minHeight: 340 }}
         >
             <div className="flex-1 flex flex-col mt-4 items-center px-6">
-               
-                
 
-               
-                <div className="flex justify-center mb-4">
-                    <div className="w-[130px] h-[100px] flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
-                         {isAdmin && (
-                        <Image
-                            src={authorImage[0]?.url || "/logo.png"}
-                            alt="Foto de perfil"
-                            width={130}
-                            height={100}
-                            className="object-cover w-full h-full"
-                        />
-                        )}
-                        {!isAdmin && (
+
+
+                {isAdmin ? (
+                    <div className="flex justify-center mb-4">
+                        <div className="w-[130px] h-[100px] flex items-center justify-center rounded-lg overflow-hidden bg-gray-100">
+
                             <Image
-                                src={"/logo.png"}
+                                src={authorImage[0]?.url || "/logo.png"}
                                 alt="Foto de perfil"
-                                width={50}
-                                height={50}
-                                className="object-cover w-full h-full rounded-lg"
+                                width={130}
+                                height={100}
+                                className="object-cover w-full h-full"
                             />
-                        )}
+
+                        </div>
                     </div>
-                </div>
-                
+                ) : (
+                    <div className="flex justify-center mb-4">
+                        <Image src="/logo.png" alt="Logo" width={80} height={80} />
+                    </div>
+                )}
                 <h3 className="text-lg font-bold text-gray-700 text-center mt-2 w-full line-clamp-2">
                     {application.title}
                 </h3>
