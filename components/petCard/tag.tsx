@@ -13,7 +13,7 @@ interface TagProps {
 const postColors: Record<string, string> = {
     Volunteering: "text-volunteering border-volunteering",
     Adoption: "text-adoption border-adoption",
-    Blog: "text-found border-found",
+    Blog: "text-blog border-blog",
     Missing: "text-missing border-missing",
     Found: "text-missing border-missing",
     Marketplace: "text-marketplace border-marketplace",

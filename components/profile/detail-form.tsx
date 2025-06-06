@@ -183,7 +183,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     if (isOwner && !isActive) {
       return (
         <div className="mt-8">
-          <p className="text-3xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
+          <p className="text-2xl font-extrabold text-gray-800 mb-4">Inicia tu campaña de recaudación</p>
           <div className="flex justify-end">
             <div className="relative group">
               <button
@@ -213,7 +213,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     if (isVisible && isOwner && isActive) {
       return (
         <div className="mt-8">
-          <p className="text-3xl font-extrabold text-gray-800 mb-4">{crowdfunding.title}</p>
+          <p className="text-2xl font-extrabold text-gray-800 mb-4">{crowdfunding.title}</p>
 
           <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
             <div
@@ -265,7 +265,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
     if (isActive && !isOwner) {
       return (
         <div className="mt-8">
-          <p className="text-3xl font-extrabold text-gray-800 mb-4">{crowdfunding.title}</p>
+          <p className="text-2xl font-extrabold text-gray-800 mb-4">{crowdfunding.title}</p>
 
           <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
             <div
@@ -308,13 +308,13 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
           type="text"
           disabled={isDisable}
           value={displayName}
-          className={`text-5xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+          className={`text-3xl font-black bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(isOrganization ? "organizationName" : "fullName", e.target.value)}
         />
         {validationErrors.fullName && <p className="text-red-500 text-sm mt-1">{validationErrors.fullName}</p>}
 
         {/* Cantidad de publicaciones */}
-        <p className="text-foreground text-gray-700 mt-4 text-3xl">{`${posts.length} Publicaciones`}</p>
+        <p className="text-foreground text-gray-700 mt-4 text-2xl">{`${posts.length} Publicaciones`}</p>
 
         {/* Descripción */}
         <textarea
@@ -325,7 +325,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               ? "Sin descripción"
               : userProfile?.description ?? ""
           }
-          className={`text-foreground text-gray-700 mt-8 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
+          className={`text-foreground text-gray-700 mt-8 text-2xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"
             } focus:outline-none w-full resize-none overflow-hidden`}
           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("description", e.target.value)}
           style={{ minHeight: '60px' }}
@@ -342,7 +342,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                 type="text"
                 disabled={isDisable}
                 value={userProfile?.phoneNumber ?? ""}
-                className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                className={`text-foreground text-gray-700 text-2xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phoneNumber", e.target.value)}
               />
               {validationErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{validationErrors.phoneNumber}</p>}
@@ -359,7 +359,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
               <div className="flex flex-col w-full">
                 {isDisable ? (
                   // Modo visualización
-                  <div className={`text-3xl text-gray-700`}>
+                  <div className={`text-2xl text-gray-700`}>
                     {userProfile?.address && (
                       <p>{userProfile.address}</p>
                     )}
@@ -381,7 +381,7 @@ export const Detail = ({ user, posts, userProfile, isDisable, setUserProfile, va
                     type="text"
                     disabled={isDisable}
                     value={userProfile?.address ?? ""}
-                    className={`text-foreground text-gray-700 text-3xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
+                    className={`text-foreground text-gray-700 text-2xl bg-transparent border-2 ${!isDisable ? "border-blue" : "border-transparent"} focus:outline-none w-full`}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("address", e.target.value)}
                   />
                 )}

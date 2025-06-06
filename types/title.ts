@@ -4,6 +4,7 @@ export enum titleColor {
     Voluntariado= "text-volunteering",
     Blog= "text-blog",
     Marketplace= "text-marketplace",
+    Colectas= "text-crowdfunding",
     default= "text-blue-gray-800"
 };
 
@@ -13,5 +14,6 @@ export enum titleText {
     Voluntariado= "Voluntariado",
     Blog= "Blog",
     Marketplace= "Tienda",
+    Colectas= "Colectas",
     default = "Título de sección"
 };

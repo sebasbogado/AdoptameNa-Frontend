@@ -23,6 +23,7 @@ export default function ResetPassword() {
 
     try {
       const response = await requestPasswordReset({ email: credentials.email });
+
       if (response) {
         console.log("Console responde: " + response.data)
         setMessage("Se ha enviado un correo para la recuperación de contraseña.");
