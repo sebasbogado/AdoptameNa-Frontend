@@ -26,6 +26,8 @@ export default function OrganizationsPage() {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
     const { authToken, loading } = useAuth();
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc" | "profile.organizationName,asc" | "profile.organizationName,desc">("id,asc");
+
     const pageSize = 10;
     const router = useRouter();
 
@@ -62,6 +64,7 @@ export default function OrganizationsPage() {
                 size,
                 role: "organization",
                 search: filters?.search || undefined,
+                sort: sortDirection || "id,asc",
             }),
         initialPage: 1,
         initialPageSize: pageSize,
@@ -76,7 +79,13 @@ export default function OrganizationsPage() {
 
         return `${day}/${month}/${year}`;
     };
-
+    const handleSortChange = (direction: typeof sortDirection) => {
+        setSortDirection(direction);
+        updateFilters((prev) => ({
+            ...prev,
+            sort: direction,
+        }));
+    };
     useEffect(() => {
         const filters = {
             search: searchQuery || undefined,
@@ -179,6 +188,8 @@ export default function OrganizationsPage() {
                     setModalConfirmation(true);
                 }}
                 type="organization"
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (

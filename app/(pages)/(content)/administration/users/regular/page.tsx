@@ -31,7 +31,9 @@ export default function RegularUsersPage() {
     const pageSize = 10;
     const [modalUser, setModalUser] = useState<User | null>(null);
     const [openModal, setOpenModal] = useState(false);
+    const [sortDirection, setSortDirection] = useState<"id,asc" | "id,desc" | "profile.fullName,asc" | "profile.fullName,desc" | "email,asc" | "email,desc">("id,asc");
     const router = useRouter();
+
 
     if (loading) return <Loading />
     if (!authToken) return <NotFound />
@@ -65,12 +67,20 @@ export default function RegularUsersPage() {
                 page,
                 size,
                 role: "user",
+                name: filters?.name || undefined,
+                sort: sortDirection || "id,asc",
                 search: filters?.search || undefined,
             }),
         initialPage: 1,
         initialPageSize: pageSize,
     });
-
+    const handleSortChange = (direction: typeof sortDirection) => {
+        setSortDirection(direction);
+        updateFilters((prev) => ({
+            ...prev,
+            sort: direction,
+        }));
+    };
     useEffect(() => {
         const filters = {
             search: searchQuery || undefined,
@@ -79,7 +89,7 @@ export default function RegularUsersPage() {
         };
 
         updateFilters(filters);
-    }, [searchQuery, refreshTrigger, updateFilters]);
+    }, [searchQuery, sortDirection, refreshTrigger, updateFilters]);
 
     const handleDelete = async () => {
         if (!authToken || !selectedUser) return;
@@ -219,6 +229,8 @@ export default function RegularUsersPage() {
                     });
                     setOpenModal(true);
                 }}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
             />
 
             {totalPages > 1 && (
