@@ -52,7 +52,7 @@ export default function ReceivedRequestsPage() {
                         <div className="bg-blue-100 p-4 rounded-full mb-4">
                             <Send size={48} className="text-blue-600" />
                         </div>
-                        <h2 className="text-xl font-semibold mb-2">Adopción saliente</h2>
+                        <h2 className="text-xl font-semibold mb-2">Mis solicitudes de adopción</h2>
                         <p className="text-gray-600 text-center">Solicitudes de adopción que enviaste</p>
                     </div>
                 </Link>
@@ -61,7 +61,7 @@ export default function ReceivedRequestsPage() {
                         <div className="bg-purple-100 p-4 rounded-full mb-4">
                             <Inbox size={48} className="text-purple-600" />
                         </div>
-                        <h2 className="text-xl font-semibold mb-2">Adopción entrante</h2>
+                        <h2 className="text-xl font-semibold mb-2">Solicitudes recibidas</h2>
                         <p className="text-gray-600 text-center">Solicitudes de adopción que recibiste</p>
                     </div>
                 </Link>
