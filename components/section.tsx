@@ -10,15 +10,17 @@ import { Product } from "@/types/product";
 import ProductCard from "./product-Card/product-card";
 import BlogCard from "./blog/blog-card";
 import { SkeletonCard } from "./ui/skeleton-card";
+import { Crowdfunding } from "@/types/crowfunding-type";
+import CrowdfundingCard from "./crowdfundingCard/crowdfunding-card";
 
 interface SectionProps {
     title: string;
     postTypeName?: keyof typeof titleText;
     path: string;
-    items: (Post | Pet | Product)[];
+    items: (Post | Pet | Product | Crowdfunding)[];
     loading: boolean;
     error: Boolean;
-    itemType: "post" | "pet" | "product" | "blog"; // Nuevo prop para diferenciar el tipo de item
+    itemType: "post" | "pet" | "product" | "blog" | "crowdfunding"; // Nuevo prop para diferenciar el tipo de item
 
 }
 
@@ -30,6 +32,7 @@ export function Section({ title, postTypeName, path, items, loading, error, item
         post: "text-[#9747FF] border-[#9747FF] hover:shadow-[0_0_8px_#9747FF]",
         product: "text-[#FF7847] border-[#FF7847] hover:shadow-[0_0_8px_#FF7847]",
         blog: "",
+        crowdfunding: ""
     }[itemType];
 
     const insertAddButton = (() => {
@@ -125,12 +128,14 @@ export function Section({ title, postTypeName, path, items, loading, error, item
                                         return <PetCard post={item as Pet} key={item.id} />;
                                     case "product":
                                         return <ProductCard product={item as Product} key={item.id} />;
+                                    case "crowdfunding":
+                                        return <CrowdfundingCard key={item.id} item={item as Crowdfunding} showStatus={false} />;
                                     default:
                                         return null;
                                 }
                             })}
 
-                            {insertAddButton && itemType && (
+                            {insertAddButton && itemType && itemType !== "crowdfunding" && (
                                 <AddCardButton type={itemType} className={addButtonColor} />
                             )}
                         </div>

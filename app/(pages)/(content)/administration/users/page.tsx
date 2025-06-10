@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation"
 import { UserCircle, Users, Building, Shield } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/auth-context"
+import BackButton from "@/components/buttons/back-button"
 
 export default function Page() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function Page() {
 
   return (
     <div className="p-8">
+            <BackButton path="/administration"/>
+      
       <h1 className="text-2xl font-bold mb-8">Administración de Usuarios</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

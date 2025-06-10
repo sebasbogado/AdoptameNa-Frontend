@@ -52,13 +52,10 @@ export default function Page() {
         const fetchStatistics = async () => {
             try {
                 const response = await getStatisticsOverview(authToken || "");
-                console.log("Estadísticas obtenidas:", response);
                 setStatistics(response);
                 const responseContent = await getStatisticsContent(authToken || "");
-                console.log("Estadísticas de contenido obtenidas:", responseContent);
                 setStatisticsContent(responseContent);
                  const responseActivity = await getStatisticsActivity(authToken || "");
-                console.log("Estadísticas de responseActivity obtenidas:", responseActivity);
                 setStatisticsActivity(responseActivity);
             } catch (error) {
                 console.error("Error al obtener estadísticas:", error);
@@ -114,7 +111,7 @@ export default function Page() {
                     value={statistics?.crowdFoundingsCreatedThisWeek ?? 0}
                     growthPercentage={statistics?.crowdfundingGrowthPercentage}
                     growthLabel="semana anterior"
-                    path="/administration/posts"
+                    path="/administration/crowfunding"
 
                     label="Colectas"
                 />

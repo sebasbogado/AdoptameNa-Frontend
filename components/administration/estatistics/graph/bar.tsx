@@ -36,7 +36,11 @@ export default function BarChartWithLegend({ title, description, data, colors }:
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="name" />
         <YAxis allowDecimals={false} />
-        <Tooltip />
+            <Tooltip
+      formatter={(value: number) => [`${value}`, 'Cantidad']}
+      labelFormatter={(label: string) => `Categoría: ${label}`}
+    />
+
         <Bar dataKey="value">
           {data.map((_, index) => (
             <Cell key={`bar-${index}`} fill={colors[index % colors.length]} />

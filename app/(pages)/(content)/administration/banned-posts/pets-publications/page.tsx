@@ -9,6 +9,7 @@ import ResetFiltersButton from "@/components/reset-filters-button";
 import { getBannedPets } from "@/utils/pets.http";
 import { Pet } from "@/types/pet";
 import { ITEM_TYPE } from "@/types/constants";
+import BackButton from "@/components/buttons/back-button";
 
 export default function Page() {
     const { authToken, user, loading: authLoading } = useAuth();
@@ -94,6 +95,8 @@ export default function Page() {
 
     return (
         <div className="p-6">
+                        <BackButton path="/administration/posts"></BackButton>
+            
             <div className="w-full max-w-6xl mx-auto p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <LabeledSelect
