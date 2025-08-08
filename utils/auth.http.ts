@@ -119,7 +119,7 @@ export const resetPassword = async (token: string, params: ResetPasswordParams) 
       params.newPassword,
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "text/plain",
         },
       }
     );
